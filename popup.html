@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<style>
+		#main {
+			width: 300px;
+			font-family: 'Arial', sans-serif;
+		}
+
+		/* unvisited link */
+		a:link {
+			color: #21436a;
+			text-decoration: none;
+		}
+
+		/* visited link */
+		a:visited {
+			color: #21436a;
+			text-decoration: none;
+		}
+
+		/* mouse over link */
+		a:hover {
+			color: #ff5722;
+			text-decoration: none;
+		}
+
+		#cpiHelper_contentheader {
+			padding: 10px;
+			font-weight: bold;
+			z-index: 10;
+			background-color: #21436a;
+			color: #fff;
+		}
+
+		#cpiHelper_content {
+			padding: 3px;
+		}
+
+		ul {
+			margin-top: 0.3em;
+		}
+
+		.input_fields {
+			margin-top: 2px;
+			padding: 2px;
+			margin-bottom: 5px;
+		}
+
+		li:hover ul {
+			display: block
+		}
+
+		ul ul {
+			display: none
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="main">
+		<div id="cpiHelper_contentheader">CPI Helper</div>
+		<div id="cpiHelper_content">
+			<div id="lastVisitedIflows"></div>
+
+			<div id="tenantUrls"></div>
+
+
+			<h3>General Links*</h3>
+			<ul style="list-style-type:disc;">
+				<li><a href="https://help.sap.com/viewer/product/CLOUD_INTEGRATION/Cloud/" target="_blank">SAP CPI
+						Help</a></li>
+				<li><a href="https://help.sap.com/viewer/product/CLOUD_INTEGRATION/Cloud/en-US?task=develop_task"
+						target="_blank">SAP CPI
+						Development</a></li>
+				<li><a href="https://blogs.sap.com/2020/03/05/cpi-chrome-plugin-to-enhance-sap-cloud-platform-integration-usability/"
+						target="_blank">CPI Helper Blog Post</a></li>
+
+				<li><a href="https://groovyide.com/cpi" target="_blank">Groovy IDE</a></li>
+
+			</ul>
+
+
+
+
+			<p>This PlugIn is developed by <a href="https://www.linkedin.com/in/dominic-beckbauer-515894188/"
+					target="_blank">Dominic
+					Beckbauer</a>.</p>
+			<p>Feel free to contribute at our
+				<a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">Github
+					Page</a>.
+			</p>
+			<p id="cpihelper_version"></p>
+			<p>License: <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU GPL v3</a></p>
+			<p>*we are not responsible for the content of external links</p>
+		</div>
+	</div>
+
+	<script src="popup.js"></script>
+</body>
+
+</html>
