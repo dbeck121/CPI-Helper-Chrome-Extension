@@ -261,28 +261,6 @@ async function getLogs() {
 
 async function clickTrace(e) {
 
-  var formatHeadersAndPropertiesToTable = function (inputList) {
-
-    inputList = inputList.sort(function (a, b) { return a.Name.toLowerCase() > b.Name.toLowerCase() ? 1 : -1 });
-
-    if (inputList == null || inputList.length == 0) {
-      return "<div>No elements found</div>";
-    }
-
-    result = "<table><tr><th>Name</th><th>Value</th></tr>"
-    var even = "";
-    inputList.forEach(item => {
-      result += "<tr class=\"" + even + "\"><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + item.Value + "</td></tr>"
-      if (even == "even") {
-        even = "";
-      } else {
-        even = "even";
-      }
-    });
-    result += "</table>";
-    return result;
-  }
-
 
   var formatLogContent = function (inputList) {
     inputList = inputList.sort(function (a, b) { return a.Name.toLowerCase() > b.Name.toLowerCase() ? 1 : -1 });
@@ -1301,6 +1279,7 @@ async function whatsNewCheck() {
     html = `<div id="cpiHelper_WhatsNew">Thank you for using the CPI Helper by Dominic Beckbauer. <p>You hace successfully updated to version ${manifestVersion}</p> 
     <h3>Recent Innovations</h3>
     <ul>
+    <li>Version 1.7.2: Added properties to persist logs</li>
     <li>Version 1.7.0: New colors, new logo and a log viewer in beta mode</li>
     <li>Version 1.6.0: Some UI improvements, works in OData mode and some bugfixes</li>
     <li>Version 1.5.0: Slightly improved Message Window</li>

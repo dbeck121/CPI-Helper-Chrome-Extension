@@ -22,6 +22,8 @@ I recommend to read the readme first but if you know what you are doing, you can
 - Last visited iflows in browser-bar-popup
 
 ## Changelog
+### 1.7.2
+- [Feature] Added exchange properties to persist log
 ### 1.7.0
 - [Feature] New logo, new colors
 - [Feature] Logs viewer in beta mode

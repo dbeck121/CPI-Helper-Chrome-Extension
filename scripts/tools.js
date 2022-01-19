@@ -239,3 +239,25 @@ var formatTrace = function (input, id) {
   result.appendChild(formattedTrace);
   return result;
 }
+
+var formatHeadersAndPropertiesToTable = function (inputList) {
+
+  inputList = inputList.sort(function (a, b) { return a.Name.toLowerCase() > b.Name.toLowerCase() ? 1 : -1 });
+
+  if (inputList == null || inputList.length == 0) {
+    return "<div>No elements found</div>";
+  }
+
+  result = "<table><tr><th>Name</th><th>Value</th></tr>"
+  var even = "";
+  inputList.forEach(item => {
+    result += "<tr class=\"" + even + "\"><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + item.Value + "</td></tr>"
+    if (even == "even") {
+      even = "";
+    } else {
+      even = "even";
+    }
+  });
+  result += "</table>";
+  return result;
+}

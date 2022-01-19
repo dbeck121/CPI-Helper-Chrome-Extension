@@ -272,21 +272,46 @@ updateRightSide = async (runId) => {
 
 createPersistLogsContent = async (messageId) => {
 
+    var innerpersist = async (input) => {
+
+        var persistTabs = [{
+            label: "Log",
+            content: async (input) => {
+                return formatTrace(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageStoreEntries('" + input.item + "')/$value", false), "cpiHelper_persistLogsItem" + input.item)
+            },
+            item: input.item,
+            active: true
+        },
+        {
+            label: "Properties",
+            content: async (input) => {
+                let elements = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageStoreEntries('" + input.item + "')/Properties?$format=json", true)).d.results;
+                return formatHeadersAndPropertiesToTable(elements);
+            },
+            item: input.item,
+            active: false
+        }
+        ];
+        return await createTabHTML(persistTabs, "cpiHelper_persistLogs_tabs" + input.count);
+
+    }
+
     entriesList = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogs('" + messageId + "')/MessageStoreEntries?$format=json", false));
     console.log(entriesList);
 
     var tabs = [];
     active = true;
+    var count = 0;
     for (item of entriesList.d.results) {
         tabs.push({
             label: item.MessageStoreId,
-            content: async (input) => {
-                return formatTrace(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageStoreEntries('" + input.item + "')/$value", false), "cpiHelper_persistLogsItem" + input.item)
-            },
+            content: count == 0 ? await innerpersist({ item: item.Id, count: count }) : innerpersist,
             item: item.Id,
-            active
+            active,
+            count
         })
         active = false;
+        count++;
     }
 
     var content = document.createElement('div');
