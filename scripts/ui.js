@@ -120,7 +120,7 @@ async function createTabHTML(objects, idPart, overwriteActivePosition) {
         input.onclick = async (event) => {
 
           let contentElement = document.getElementById(idPart + "-" + i + "-content");
-          if (contentElement.innerHTML == "Please Wait...") {
+          if (contentElement.innerHTML == '<div class="cpiHelper_infoPopUp_content">Please Wait...</div>') {
             let contentResponse = await objects[i].content(objects[i]);
             if (typeof (contentResponse) == "object") {
               contentElement.innerHTML = "";
@@ -151,7 +151,7 @@ async function createTabHTML(objects, idPart, overwriteActivePosition) {
       }
 
       if (typeof (objects[i].content) == "function") {
-        content.innerHTML = "Please Wait...";
+        content.innerHTML = '<div class="cpiHelper_infoPopUp_content">Please Wait...</div>';
         if (objects[i].active) {
           let contentResponse = await objects[i].content(objects[i]);
           if (typeof (contentResponse) == "object") {
