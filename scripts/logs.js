@@ -227,9 +227,14 @@ createLogsRightSide = async (runId, leftActive = false) => {
 
         objects = [
             {
+                label: "Info",
+                content: await createLogsInfo(runId),
+                active: true
+            },
+            {
                 label: "RunLogs",
                 content: await createRunLogsContent(runId),
-                active: true
+                active: false
             }, {
                 label: "Persist",
                 content: await createPersistLogsContent(runId),
@@ -325,6 +330,76 @@ createPersistLogsContent = async (messageId) => {
     }
 
     return content;
+}
+
+createLogsInfo = async (messageId) => {
+
+    var input = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogs('" + messageId + "')?$format=json&$expand=CustomHeaderProperties", false)).d;
+
+    valueList = [];
+
+    valueList.push({ Name: "MessageGuid", Value: input.MessageGuid });
+    valueList.push({ Name: "CorrelationId", Value: input.CorrelationId });
+    valueList.push({ Name: "ApplicationMessageId", Value: input.ApplicationMessageId });
+    valueList.push({ Name: "Sender", Value: input.Sender });
+    valueList.push({ Name: "Receiver", Value: input.Receiver });
+    var logStart = new Date(parseInt(input.LogStart.substr(6, 13)));
+    logStart.setTime(logStart.getTime() - logStart.getTimezoneOffset() * 60 * 1000);
+
+    valueList.push({ Name: "Start Time", Value: logStart.toISOString().substr(0, 23) });
+
+    if (input.LogEnd) {
+        var logEnd = new Date(parseInt(input.LogEnd.substr(6, 13)));
+        logEnd.setTime(logEnd.getTime() - logEnd.getTimezoneOffset() * 60 * 1000);
+        valueList.push({ Name: "End Time", Value: logEnd.toISOString().substr(0, 23) });
+        valueList.push({ Name: "Duration in ms", Value: (logEnd - logStart) });
+        valueList.push({ Name: "Duration in s", Value: (logEnd - logStart) / 1000 });
+        valueList.push({ Name: "Duration in m", Value: (logEnd - logStart) / 1000 / 60 });
+    }
+    valueList.push({ Name: "IntegrationFlowName", Value: input.IntegrationFlowName });
+    valueList.push({ Name: "Status", Value: input.Status });
+    valueList.push({ Name: "LogLevel", Value: input.LogLevel });
+    valueList.push({ Name: "", Value: "", Type: "" });
+    valueList.push({ Name: "Custom Headers", Value: "", Type: "header" });
+    var customHeaderList = input.CustomHeaderProperties.results
+
+    if (customHeaderList.length > 0) {
+        customHeaderList = customHeaderList.sort(function (a, b) { return a.Name.toLowerCase() > b.Name.toLowerCase() ? 1 : -1 });
+        valueList = valueList.concat(customHeaderList);
+    }
+
+
+
+    valueList.push({ Name: "", Value: "", Type: "" });
+    valueList.push({ Name: "Artifact Details", Value: "", Type: "header" });
+    valueList.push({ Name: "Id", Value: input.IntegrationArtifact?.Id });
+    valueList.push({ Name: "Name", Value: input.IntegrationArtifact?.Name });
+    valueList.push({ Name: "Type", Value: input.IntegrationArtifact?.Type });
+    valueList.push({ Name: "PackageId", Value: input?.IntegrationArtifact?.PackageId });
+
+    valueList.push({ Name: "PackageName", Value: input?.IntegrationArtifact?.PackageName });
+    valueList.push({ Name: "", Value: "", Type: "" });
+    valueList.push({ Name: "Other Useful Information", Value: "", Type: "header" });
+    valueList.push({ Name: "CustomStatus", Value: input.CustomStatus });
+    valueList.push({ Name: "TransactionId", Value: input.TransactionId });
+    valueList.push({ Name: "PreviousComponentName", Value: input.PreviousComponentName });
+    valueList.push({ Name: "LocalComponentName", Value: input.LocalComponentName });
+    valueList.push({ Name: "OriginComponentName", Value: input.OriginComponentName });
+
+
+    result = '<div id="cpiHelper_logsInfo"><table><tr><th>Name</th><th>Value</th></tr>'
+    var even = "";
+    valueList.forEach(item => {
+        result += `<tr ${item.Type == 'header' ? 'style=\"font-weight: bold;\" ' : ''}  class=\"" + even + "\"><td>${item.Name}</td><td style=\"word-break: break-all;\">${item.Value}</td></tr>`
+        if (even == "even") {
+            even = "";
+        } else {
+            even = "even";
+        }
+    });
+    result += "</table>";
+    return result;
+
 }
 
 createRunLogsContent = async (messageId) => {
