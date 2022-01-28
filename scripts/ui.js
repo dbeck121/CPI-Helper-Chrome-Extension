@@ -59,7 +59,7 @@ async function showBigPopup(content, header) {
 
   var textElement = `
      <div id="cpiHelper_bigPopup_outerFrame">
-     <div id="cpiHelper_bigPopup_contentheader"><span style="margin-right: 1rem" id="cpiHelper_bigPopup_close" class="cpiHelper_closeButton">X</span>CPI Helper ${header}<span id="cpiHelper_bigPopup_close" style="float:right;" class="cpiHelper_closeButton">X</span></div>
+     <div id="cpiHelper_bigPopup_contentheader"><span style="margin-right: 1rem" id="" class="cpiHelper_closeButton">X</span>CPI Helper ${header}<span id="" style="float:right;" class="cpiHelper_closeButton">X</span></div>
        <div id="cpiHelper_bigPopup_content">
        Please Wait...
      </div> 
@@ -69,11 +69,14 @@ async function showBigPopup(content, header) {
 
 
   x.appendChild(createElementFromHTML(textElement));
-  var span = document.getElementById("cpiHelper_bigPopup_close");
-  span.onclick = (element) => {
-    var x = document.getElementById("cpiHelper_bigPopup");
-    x.remove();
-  };
+
+  var spans = document.getElementsByClassName("cpiHelper_closeButton");
+  for (span of spans) {
+    span.onclick = (element) => {
+      var x = document.getElementById("cpiHelper_bigPopup");
+      x.remove();
+    };
+  }
 
   var infocontent = document.getElementById("cpiHelper_bigPopup_content");
   if (typeof (content) == "string") {
