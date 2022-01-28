@@ -734,7 +734,10 @@ function buildButtonBar() {
       updateArtifactList()
       updateLogList()
     });
+    sidebar.init()
   }
+
+
 }
 
 //Collect Infos to Iflow
@@ -1083,12 +1086,17 @@ var sidebar = {
 
   //function to create and initialise the message sidebar
   init: function () {
+
+    if (this.active == true) {
+      return;
+    }
+
     this.active = true;
 
     //create sidebar div
     var elem = document.createElement('div');
     elem.innerHTML = `
-    <div id="cpiHelper_contentheader">CPI Helper<span id='sidebar_modal_close' class='cpiHelper_closeButton'>X</span></div> 
+    <div id="cpiHelper_contentheader">CPI Helper<span id='sidebar_modal_close' style="float:right;" class='cpiHelper_closeButton'>X</span></div> 
     <div id="outerFrame">
     <div id="updatedText" class="contentText"></div>
     <div id="deploymentText" class="contentText">State: </div>
