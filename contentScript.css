@@ -240,6 +240,7 @@ border: solid 0px #e1e1e1;
 }
 
 #cpiHelper_bigPopup_contentheader {
+  font-size: 1.2rem;
 padding: 10px;
 
 z-index: 10;
@@ -251,15 +252,14 @@ border-radius: 5px 5px 0px 0px;
 
 /* The Close Button */
 
-.cpiHelper_closeButton{
-  float: right;
-  font-size: 1.2rem;
+.cpiHelper_closeButton {
+
   font-weight: bold;
   }
 
 .cpiHelper_closeButton:hover,
 .cpiHelper_closeButton:focus {
-color: #000;
+color: rgb(255, 78, 78);
 text-decoration: none;
 cursor: pointer;
 }

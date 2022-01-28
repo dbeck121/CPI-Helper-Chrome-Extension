@@ -59,7 +59,7 @@ async function showBigPopup(content, header) {
 
   var textElement = `
      <div id="cpiHelper_bigPopup_outerFrame">
-     <div id="cpiHelper_bigPopup_contentheader">CPI Helper ${header}<span id="cpiHelper_bigPopup_close" class="cpiHelper_closeButton">X</div>
+     <div id="cpiHelper_bigPopup_contentheader"><span style="margin-right: 1rem" id="cpiHelper_bigPopup_close" class="cpiHelper_closeButton">X</span>CPI Helper ${header}<span id="cpiHelper_bigPopup_close" style="float:right;" class="cpiHelper_closeButton">X</span></div>
        <div id="cpiHelper_bigPopup_content">
        Please Wait...
      </div> 
