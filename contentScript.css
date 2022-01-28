@@ -1,7 +1,7 @@
 /* whats new */
 
 #cpiHelper_WhatsNew {
-    margin: 25px;
+    padding: 25px;
     box-sizing: border-box;
     border-radius: 5px 5px 5px 5px;
 }
@@ -12,7 +12,7 @@
   visibility: hidden;
   min-width: 250px;
   margin-left: -125px;
-  background-color: #21436a;
+  background-color: #3d5672;
   color: #fff;
   text-align: center;
   border-radius: 2px;
@@ -23,7 +23,7 @@
   bottom: 30px;
   font-size: 17px;
   box-sizing: border-box;
-  border-radius: 3px 15px 5px 30px;
+  border-radius: 5px;
 }
 
 #cpiHelper_snackbar.cpiHelper_snackbar_show {
@@ -151,8 +151,8 @@ color:white;
     position:fixed;
     z-index:400;
     background:#fbfbfb;
-    top:100px;
-    right:0px;
+    top:120px;
+    right:50px;
     width:225px;
     opacity: 0.9;
   }   
@@ -191,7 +191,7 @@ color:white;
  display: none;
 }
 
-#cpiHelper_infoPopUp_content {
+.cpiHelper_infoPopUp_content {
     margin: 15px;
 }
 
@@ -202,8 +202,8 @@ color:white;
 /* Modal Content */
 
 .cpiHelper_inlineInfo {
-fill:#21436a !important;
-stroke:#21436a !important;
+fill:#13af00 !important;
+stroke:#13af00 !important;
 }
 
 .cpiHelper_inlineInfo.cpiHelper_inlineInfo_error {
@@ -432,3 +432,4 @@ list-style-type: decimal !important;
   overflow-y: scroll;
   max-height: 100%;
 }
+
