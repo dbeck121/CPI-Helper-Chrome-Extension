@@ -22,6 +22,10 @@ I recommend to read the readme first but if you know what you are doing, you can
 - Last visited iflows in browser-bar-popup
 
 ## Changelog
+### 1.8.0
+- [Feature] InlineTrace for Adapters in Beta Mode (Click the colored adapter text)
+### 1.7.3
+- [Feature] Better InlineTrace colors
 ### 1.7.2
 - [Feature] Added exchange properties to persist log
 ### 1.7.0

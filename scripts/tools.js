@@ -221,6 +221,14 @@ var formatTrace = function (input, id) {
   }
 
   var result = document.createElement("div");
+
+  if (!input) {
+
+    result.innerHTML = '<div class="cpiHelper_infoPopUp_content">No elements found. If this should be part of the trace of an adapter step, try other tabs with same step Id on top of this popup.</div>';
+    return result;
+
+  }
+
   result.appendChild(beautifyButton);
   result.appendChild(copyButton);
 
@@ -245,7 +253,7 @@ var formatHeadersAndPropertiesToTable = function (inputList) {
   inputList = inputList.sort(function (a, b) { return a.Name.toLowerCase() > b.Name.toLowerCase() ? 1 : -1 });
 
   if (inputList == null || inputList.length == 0) {
-    return "<div>No elements found</div>";
+    return '<div class="cpiHelper_infoPopUp_content">No elements found. If this should be part of the trace of an adapter step, try other tabs with same step Id on top of this popup.</div>';
   }
 
   result = "<table><tr><th>Name</th><th>Value</th></tr>"

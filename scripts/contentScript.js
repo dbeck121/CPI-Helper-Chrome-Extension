@@ -278,8 +278,12 @@ async function clickTrace(e) {
     return result;
   }
   var getTraceTabContent = async function (object) {
-    var traceId = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/TraceMessages?$format=json", true)).d.results[0].TraceId;
-
+    var trace = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/TraceMessages?$format=json", true)).d.results[0];
+    if (!trace) {
+      showSnackbar("No trace available. It is already deleted or not in trace mode.");
+      throw new Error("no trace found");
+    }
+    var traceId = trace.TraceId
     let html = "";
     if (object.traceType == "properties") {
       let elements = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/TraceMessages(" + traceId + ")/ExchangeProperties?$format=json", true)).d.results;
@@ -489,7 +493,7 @@ async function showInlineTrace(MessageGuid) {
 
         if (/MessageFlow_\d+/.test(run.ModelStepId) && /#/.test(run.ModelStepId) != true) {
           element = document.getElementById("BPMNEdge_" + run.ModelStepId);
-          target = element.children[getChild(element, ["path"])];
+          target = element.children[getChild(element, ["text"], "shapeText")];
         }
 
         if (/ExclusiveGateway/.test(run.ModelStepId)) {
@@ -544,13 +548,20 @@ async function showInlineTrace(MessageGuid) {
 
 
 
-function getChild(node, childNames) {
+function getChild(node, childNames, childClass = null) {
   let index;
   for (var i = 0; i < node.children.length; i++) {
     if (childNames.indexOf(node.children[i].localName) > -1) {
-      return i;
-    }
+      if (childClass != null) {
+        if (node.children[i].classList.contains(childClass)) {
+          return i;
+        }
 
+      } else {
+        return i;
+      }
+
+    }
   }
   return null;
 }
@@ -589,6 +600,8 @@ function createElementFromHTML(htmlString) {
 var powertraceflow = null
 var powertrace = null;
 function buildButtonBar() {
+  var headerBar = document.getElementById('__xmlview0--iflowObjectPageHeader-identifierLine');
+  headerBar.style.paddingBottom = "0px";
   if (!document.getElementById("__buttonxx")) {
     whatsNewCheck();
     //create Trace Button
@@ -607,7 +620,13 @@ function buildButtonBar() {
     var infobutton = createElementFromHTML(' <button id="__buttoninfo" data-sap-ui="__buttoninfo" title="Info" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; float: right;"><span id="__buttonxy-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button13-content"><bdi id="__button134343-BDI-content">Info</bdi></span></span></button>');
     //append buttons
     area = document.querySelector("[id*='--iflowObjectPageHeader-actions']");
-    area.appendChild(createElementFromHTML("<br />"));
+
+    var breakLine = document.createElement('br');
+    breakLine.style.content = ""
+    breakLine.style.display = "block";
+    breakLine.style.margin = "0px"
+
+    area.appendChild(breakLine);
     area.appendChild(infobutton);
     area.appendChild(messagebutton);
     area.appendChild(tracebutton);
@@ -693,7 +712,7 @@ async function getIflowInfo(callback, silent = false) {
 async function openIflowInfoPopup() {
 
   var x = document.createElement('div');
-  x.id = "cpiHelper_infoPopUp_content";
+  x.classList.add("cpiHelper_infoPopUp_content");
   x.innerHTML = "";
 
   var deployedOn = cpiData?.flowData?.artifactInformation?.deployedOn;
@@ -891,12 +910,12 @@ async function openIflowInfoPopup() {
           }
         } else {
           text.classList.add("cpiHelper_infoPopUp_TR_hide");
-          text.innerHTML = "<td colspan=4>Please wait...</td>";
+          text.innerHTML = '<td colspan=4>Please wait...</td>';
         }
       }
 
       deleteButton.onclick = async (element) => {
-        var doDelete = getConfirmation(`Do you really want to delete variable \"${item.id}\"? You can not undo this later.`);
+        var doDelete = getConfirmation(`Do you really want to delete variable \"${item.id}\"? You can not undo this.`);
         if (doDelete) {
           //delete Variable
           try {
@@ -927,7 +946,7 @@ async function openIflowInfoPopup() {
       trShowButton.className = even;
       trShowButton.classList.add("cpiHelper_infoPopUp_TR_hide")
       trShowButton.id = item.id + item.storeName + "_value";
-      trShowButton.innerHTML = "<td colspan=4>Please wait...</td>";
+      trShowButton.innerHTML = '<td colspan=4>Please wait...</td>';
 
       result.appendChild(tr);
       result.appendChild(trShowButton);
@@ -1277,27 +1296,28 @@ async function whatsNewCheck() {
 
   if (!check) {
     html = `<div id="cpiHelper_WhatsNew">Thank you for using the CPI Helper by Dominic Beckbauer. <p>You hace successfully updated to version ${manifestVersion}</p> 
+    <h3>Info!</h3>
+    We have a new <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">GitHub Page</a>
+    <h3>Main Features</h3>
+    <ul>
+    <li>Message Sidebar with Logs and InlineTrace</li>
+    <li>Log Viewer</li>
+    <li>PowerTrace - Trace keeps running even after 15 minutes</li>
+     </ul>
     <h3>Recent Innovations</h3>
     <ul>
+    <li>Version 1.8.0: InlineTrace for Adapters in Beta Mode (Click the colored adapter text)</li>
+    <li>Version 1.7.3: Adjusted InlineTrace Colors</li>
     <li>Version 1.7.2: Added properties to persist logs</li>
     <li>Version 1.7.0: New colors, new logo and a log viewer in beta mode</li>
     <li>Version 1.6.0: Some UI improvements, works in OData mode and some bugfixes</li>
-    <li>Version 1.5.0: Slightly improved Message Window</li>
-    <li>Version 1.4.0: Show Integration Flow name in title</li>
-    <li>Version 1.3.0: Tracebutton will retrigger trace after pressed again</li>
-    <li>Version 1.2.3: Minor bugfixes and discarded messages are not shown in sidebar anymore</li>
-    <li>Version 1.2.2: If you had issues that CPI Helper improvements wasn't shown in the header bar, this should be fixed now.</li>
-    <li>Version 1.2.0: You can now change the tab icon, text and main color of your different CPI tenants. This is very helpful when you have dev and prod tenant or different customers. You can make these settings on the CPI Helper icon (the cloud) in your browser bar (normally on the top right).</li>
-    <li>Version 1.1.0: You can now view and delete variables in the Integration Flow Info-PopUp (Press Info in the right top corner)</li>
-    <li>Version 1.0.0: Activate InlineTrace to debug your Integration Flows directly in the Designer (<a href="https://blogs.sap.com/2020/03/31/cpi-the-next-evolution-see-traces-directly-in-the-integration-flow-designer-of-sap-cloud-platform-integration/" target="_blank">more</a>)</li> 
-  </ul>
-  <p>Unfortunately SAP does not want to work with me together and does not inform me when the APIs changes. So be gentle if sth does not work correctly. I do this in my free time and sometimes it takes a while to fix.
-     <p>If you like our work you can tell your coworkers about this plug-in. To stay informed about updates, you can follow <a href="https://people.sap.com/dbeckbauer"  target="_blank">me</a> or leave a like or message in the <a href="https://blogs.sap.com/2020/03/31/cpi-the-next-evolution-see-traces-directly-in-the-integration-flow-designer-of-sap-cloud-platform-integration/"  target="_blank">SAP Community</a>.</p>
+     </ul>
+  <p>Unfortunately SAP does not work with me together and does not inform me when the APIs changes. So be gentle if sth. does not work. I do this in my free time and sometimes it takes a while to adapt to SAP changes.
      <p>The CPI Helper is free and Open Source. If you want to contribute or you have found any bugs than have a look at our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">GitHub Page</a>. You can also find me on <a href="https://www.linkedin.com/in/dominic-beckbauer-515894188/">LinkedIn</a></p>
  
   </div>
   `;
-    showBigPopup(html);
+    showBigPopup(html, "Your CPI Toolbox since 1865");
     var obj = {};
     obj["whatsNewV" + manifestVersion] = "show";
     chrome.storage.local.set(obj, function () {
