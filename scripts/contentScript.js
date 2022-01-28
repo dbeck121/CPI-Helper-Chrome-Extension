@@ -277,6 +277,48 @@ async function clickTrace(e) {
     result += "</table>";
     return result;
   }
+
+  var formatInfoContent = function (inputList) {
+
+    valueList = [];
+
+    var stepStart = new Date(parseInt(inputList.StepStart.substr(6, 13)));
+    stepStart.setTime(stepStart.getTime() - stepStart.getTimezoneOffset() * 60 * 1000);
+
+    valueList.push({ Name: "Start Time", Value: stepStart.toISOString().substr(0, 23) });
+
+    if (inputList.StepStop) {
+      var stepStop = new Date(parseInt(inputList.StepStop.substr(6, 13)));
+      stepStop.setTime(stepStop.getTime() - stepStop.getTimezoneOffset() * 60 * 1000);
+      valueList.push({ Name: "End Time", Value: stepStop.toISOString().substr(0, 23) });
+      valueList.push({ Name: "Duration in ms", Value: (stepStop - stepStart) });
+    }
+
+    valueList.push({ Name: "BranchId", Value: inputList.BranchId });
+
+    valueList.push({ Name: "RunId", Value: inputList.RunId });
+
+    valueList.push({ Name: "StepId", Value: inputList.StepId });
+
+    valueList.push({ Name: "ModelStepId", Value: inputList.ModelStepId });
+
+    valueList.push({ Name: "ChildCount", Value: inputList.ChildCount });
+
+
+    result = "<table><tr><th>Name</th><th>Value</th></tr>"
+    var even = "";
+    valueList.forEach(item => {
+      result += "<tr class=\"" + even + "\"><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + item.Value + "</td></tr>"
+      if (even == "even") {
+        even = "";
+      } else {
+        even = "even";
+      }
+    });
+    result += "</table>";
+    return result;
+  }
+
   var getTraceTabContent = async function (object) {
     var trace = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/TraceMessages?$format=json", true)).d.results[0];
     if (!trace) {
@@ -302,6 +344,11 @@ async function clickTrace(e) {
     if (object.traceType == "logContent") {
       let elements = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/?$expand=RunStepProperties&$format=json", true)).d.RunStepProperties.results;
       html = formatLogContent(elements);
+    }
+
+    if (object.traceType == "info") {
+      let elements = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/?$expand=RunStepProperties&$format=json", true)).d;
+      html = formatInfoContent(elements);
     }
 
     return html;
@@ -351,6 +398,14 @@ async function clickTrace(e) {
         childCount: childCount,
         runId: runId,
         traceType: "logContent"
+      },
+      {
+        label: "Info",
+        content: getTraceTabContent,
+        active: false,
+        childCount: childCount,
+        runId: runId,
+        traceType: "info"
       }
       ]
 
