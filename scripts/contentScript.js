@@ -259,7 +259,14 @@ async function getLogs() {
   }, null, false);//
 }
 
+var inlineTraceRunning = false;
 async function clickTrace(e) {
+
+  if (inlineTraceRunning) {
+    return;
+  }
+
+  inlineTraceRunning = true;
 
 
   var formatLogContent = function (inputList) {
@@ -460,7 +467,7 @@ async function clickTrace(e) {
   } else {
     showBigPopup(await createTabHTML(runs, "runstab", 0), "Content Before Step");
   }
-
+  inlineTraceRunning = false;
 }
 
 async function hideInlineTrace() {
