@@ -1385,11 +1385,18 @@ async function whatsNewCheck() {
      </ul>
     <h3>Recent Innovations</h3>
     <ul>
+    <li>Version 2.0.0: <ul>
+    <li>One can now view XML in properties view of logs and InlineTrace</li>
+    <li>Option to open Message Sidebar on start of the Integration Flow Designer</li>
+    <li>Info tab in logs popup to see Custom Header Logs and more</li>
+    <li>Info tab in InlineTrace popup with some step information</li>
+    </ul>
     <li>Version 1.8.0: InlineTrace for Adapters in Beta Mode (Click the colored adapter text)</li>
     <li>Version 1.7.3: Adjusted InlineTrace Colors</li>
     <li>Version 1.7.2: Added properties to persist logs</li>
     <li>Version 1.7.0: New colors, new logo and a log viewer in beta mode</li>
     <li>Version 1.6.0: Some UI improvements, works in OData mode and some bugfixes</li>
+    </ul>
      </ul>
   <p>Unfortunately SAP does not work with me together and does not inform me when the APIs changes. So be gentle if sth. does not work. I do this in my free time and sometimes it takes a while to adapt to SAP changes.
      <p>The CPI Helper is free and Open Source. If you want to contribute or you have found any bugs than have a look at our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">GitHub Page</a>. You can also find me on <a href="https://www.linkedin.com/in/dominic-beckbauer-515894188/">LinkedIn</a></p>
