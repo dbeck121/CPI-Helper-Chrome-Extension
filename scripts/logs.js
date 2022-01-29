@@ -390,7 +390,7 @@ createLogsInfo = async (messageId) => {
     result = '<div id="cpiHelper_logsInfo"><table><tr><th>Name</th><th>Value</th></tr>'
     var even = "";
     valueList.forEach(item => {
-        result += `<tr ${item.Type == 'header' ? 'style=\"font-weight: bold;\" ' : ''}  class=\"" + even + "\"><td>${item.Name}</td><td style=\"word-break: break-all;\">${item.Value}</td></tr>`
+        result += `<tr ${item.Type == 'header' ? 'style=\"font-weight: bold;\" ' : ''}  class=\"" + even + "\"><td>${item.Name}</td><td style=\"word-break: break-all;\">${htmlEscape(item.Value)}</td></tr>`
         if (even == "even") {
             even = "";
         } else {
