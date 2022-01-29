@@ -734,7 +734,16 @@ function buildButtonBar() {
       updateArtifactList()
       updateLogList()
     });
-    sidebar.init()
+    if (sidebar.active == null) {
+      chrome.storage.sync.get(["openMessageSidebarOnStartup"], function (result) {
+        var openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
+        if (openMessageSidebarOnStartupValue) {
+
+          sidebar.init();
+        }
+      }
+      );
+    }
   }
 
 
@@ -1075,7 +1084,7 @@ function getConfirmation(message) {
 var sidebar = {
 
   //indicator if active or not
-  active: false,
+  active: null,
 
   //function to deactivate the sidebar
   deactivate: function () {
