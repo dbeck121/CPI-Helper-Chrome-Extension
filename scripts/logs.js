@@ -38,7 +38,7 @@ createLogsLeftSide = async (leftActive = false) => {
         console.log(element.target.value)
         selectorIflowStatusEntry = element.target.value;
     };
-    selectorIflowStatus.innerHTML = `<option ${selectorIflowStatusEntry == "all" ? "selected" : ""} value="all">all</option><option ${toggleCustomOrLastEntries == "FAILED" ? "selected" : ""}>FAILED</option><option ${toggleCustomOrLastEntries == "SUCCESS" ? "selected" : ""}>SUCCESS</option>`;
+    selectorIflowStatus.innerHTML = `<option ${selectorIflowStatusEntry == "all" ? "selected" : ""} value="all">all</option><option ${toggleCustomOrLastEntries == "FAILED" ? "selected" : ""}>FAILED</option><option ${toggleCustomOrLastEntries == "COMPLETED" ? "selected" : ""}>COMPLETED</option>`;
     list.appendChild(createElementFromHTML('<label>Status: </label>'));
     list.appendChild(selectorIflowStatus);
     list.appendChild(createElementFromHTML(`<br />`));
@@ -102,7 +102,8 @@ updateLogList = async () => {
         var endTime = document.getElementById("cpiHelper_logs_end_time").value;
         var artifact = document.getElementById("logs-left-side_cpiHelper_artifactList").value;
         var dateType = document.getElementById("cpiHelper_logs_date_type").value;
-        var list = document.getElementById("cpiHelper_log_list_for_entries");
+        var listPlace = document.getElementById("cpiHelper_log_list_for_entries");
+        listPlace.innerHTML = "";
 
         if (!artifact) {
             artifact = cpiData.integrationFlowId;
@@ -116,29 +117,34 @@ updateLogList = async () => {
             case "FAILED":
                 statusfilter = "and Status eq 'FAILED' ";
                 break;
-            case "SUCCESS":
-                statusfilter = "and Status eq 'SUCCESS' ";
+            case "COMPLETED":
+                statusfilter = "and Status eq 'COMPLETED' ";
                 break;
             default:
                 statusfilter = "";
         }
 
         if (dateType == "custom") {
-            var response = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + artifact + "' and Status ne 'DISCARDED' " + statusfilter + "and LogStart gt datetime'" + startDate + "T" + startTime + ":00.000' and LogStart lt datetime'" + endDate + "T" + endTime + ":00.000'&$top=60&$format=json&$orderby=LogStart desc", false)).d.results;
+            var response = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + artifact + "' and Status ne 'DISCARDED' " + statusfilter + "and LogStart gt datetime'" + startDate + "T" + startTime + ":00.000' and LogStart lt datetime'" + endDate + "T" + endTime + ":00.000'&$top=40&$format=json&$orderby=LogStart desc", false)).d.results;
         } else {
-            var response = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + artifact + "' " + statusfilter + "and Status ne 'DISCARDED'&$top=50&$format=json&$orderby=LogStart desc", false)).d.results;
+            var response = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + artifact + "' " + statusfilter + "and Status ne 'DISCARDED'&$top=35&$format=json&$orderby=LogStart desc", false)).d.results;
 
         }
 
-        list.innerHTML = "";
+        list = document.createElement('table');
+
         lastDay = "";
 
         if (response.length == 0) {
-            list.innerHTML = "No logs found";
+            let element = document.createElement('tr');
+            element.innerHTML = '<td style="padding:0px;" colspan="2">No logs found</td>';
+            list.appendChild(element);
         }
 
-        if (response.length == 60) {
-            list.appendChild(createElementFromHTML(`<div>last 60 logs in period</div>`));
+        if (response.length == 40) {
+            let element = document.createElement('tr');
+            element.innerHTML = '<td style="padding:0px;" colspan="2">last 40 logs in period</td>';
+            list.appendChild(element);
         }
 
         for (let i = 0; i < response.length; i++) {
@@ -149,8 +155,8 @@ updateLogList = async () => {
             date = date.toISOString();
 
             if (date.substr(0, 10) != lastDay) {
-                let day = document.createElement('div');
-                day.innerText = date.substr(0, 10);
+                let day = document.createElement('tr');
+                day.innerHTML = `<td style="padding:0px;" colspan="2">${date.substr(0, 10)}</td>`;
                 list.appendChild(day);
                 lastDay = date.substr(0, 10);
             }
@@ -168,25 +174,29 @@ updateLogList = async () => {
                 statusIcon = "";
             }
 
-            let statusicon = createElementFromHTML("<span data-sap-ui-icon-content='" + statusIcon + "' class='" + response[i].MessageGuid + " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" + statusColor + ";'> </span>");
+            let statusicon = createElementFromHTML("<td  style='padding:0px;'><span data-sap-ui-icon-content='" + statusIcon + "' class='" + response[i].MessageGuid + " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" + statusColor + ";'> </span></td>");
 
 
 
             //end statusicon
-
+            let buttonWrap = document.createElement('td');
+            buttonWrap.style.padding = "0px";
             let button = document.createElement('button');
             button.innerText = date.substr(11, 8);
             button.onclick = () => {
                 updateRightSide(response[i].MessageGuid)
             }
+            buttonWrap.appendChild(button);
 
-            let div = document.createElement('div');
+            let div = document.createElement('tr');
             div.appendChild(statusicon);
-            div.appendChild(button);
+            div.appendChild(buttonWrap);
 
 
             list.appendChild(div);
         }
+
+        listPlace.appendChild(list);
 
         console.log(response);
     } catch (error) {
@@ -247,7 +257,7 @@ createLogsRightSide = async (runId, leftActive = false) => {
 
     } else {
         logs = document.createElement('div');
-        logs.innerHTML = '<div class="cpiHelper_tabs">Please choose logs to show on left side!</div>';
+        logs.innerHTML = '<div class="cpiHelper_tabs">Please choose a message to show logs. You can also click the speech bubble icon in Messages Sidebar.</div>';
     }
 
     var right = document.createElement('div');
