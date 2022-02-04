@@ -27,6 +27,8 @@ I recommend to read the readme first but if you know what you are doing, you can
 - [Feature] Option to open Message Sidebar on start of the Integration Flow Designer
 - [Feature] Info tab in logs popup to see Custom Header Logs and more
 - [Feature] Info tab in InlineTrace popup with some step information
+### 1.8.1
+- [Bugfix] Button bar sometimes needed a refresh
 ### 1.8.0
 - [Feature] InlineTrace for Adapters in Beta Mode (Click the colored adapter text)
 ### 1.7.3
