@@ -600,8 +600,13 @@ function createElementFromHTML(htmlString) {
 var powertraceflow = null
 var powertrace = null;
 function buildButtonBar() {
-  var headerBar = document.getElementById('__xmlview0--iflowObjectPageHeader-identifierLine');
-  headerBar.style.paddingBottom = "0px";
+  try {
+    var headerBar = document.getElementById('__xmlview0--iflowObjectPageHeader-identifierLine');
+    headerBar.style.paddingBottom = "0px";
+  } catch (e) {
+
+  }
+
   if (!document.getElementById("__buttonxx")) {
     whatsNewCheck();
     //create Trace Button
@@ -1306,6 +1311,7 @@ async function whatsNewCheck() {
      </ul>
     <h3>Recent Innovations</h3>
     <ul>
+    <li>Version 1.8.1: Killed some bugs</li>
     <li>Version 1.8.0: InlineTrace for Adapters in Beta Mode (Click the colored adapter text)</li>
     <li>Version 1.7.3: Adjusted InlineTrace Colors</li>
     <li>Version 1.7.2: Added properties to persist logs</li>
@@ -1317,7 +1323,7 @@ async function whatsNewCheck() {
  
   </div>
   `;
-    showBigPopup(html, "Your CPI Toolbox since 1865");
+    showBigPopup(html, "Your CPI Toolbox since 1963");
     var obj = {};
     obj["whatsNewV" + manifestVersion] = "show";
     chrome.storage.local.set(obj, function () {

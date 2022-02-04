@@ -22,6 +22,8 @@ I recommend to read the readme first but if you know what you are doing, you can
 - Last visited iflows in browser-bar-popup
 
 ## Changelog
+### 1.8.1
+- [Bugfix] Button bar sometimes needed a refresh
 ### 1.8.0
 - [Feature] InlineTrace for Adapters in Beta Mode (Click the colored adapter text)
 ### 1.7.3
