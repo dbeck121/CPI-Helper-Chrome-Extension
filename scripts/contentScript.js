@@ -1113,7 +1113,7 @@ var sidebar = {
     //create sidebar div
     var elem = document.createElement('div');
     elem.innerHTML = `
-    <div id="cpiHelper_contentheader">CPI Helper<span id='sidebar_modal_close' style="float:right;" class='cpiHelper_closeButton'>X</span></div> 
+    <div id="cpiHelper_contentheader">CPI Helper<span id='sidebar_modal_close' style="float:right;" class='cpiHelper_closeButton_sidebar'>X</span></div> 
     <div id="outerFrame">
     <div id="updatedText" class="contentText"></div>
     <div id="deploymentText" class="contentText">State: </div>
