@@ -327,7 +327,10 @@ async function clickTrace(e) {
   }
 
   var getTraceTabContent = async function (object) {
-    var trace = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/TraceMessages?$format=json", true)).d.results[0];
+    var traceData = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/TraceMessages?$format=json", true)).d.results;
+    var trace = traceData.sort((a, b) => {
+      return a.TraceId - b.TraceId;
+    })[0];
     if (!trace) {
       showSnackbar("No trace available. It is already deleted or not in trace mode.");
       throw new Error("no trace found");
