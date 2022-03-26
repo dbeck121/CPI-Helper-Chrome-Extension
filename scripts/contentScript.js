@@ -326,14 +326,17 @@ async function clickTrace(e) {
     return result;
   }
 
+
+  //get the content for a tab in a trace popup
   var getTraceTabContent = async function (object) {
     var traceData = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/TraceMessages?$format=json", true)).d.results;
     var trace = traceData.sort((a, b) => {
       return a.TraceId - b.TraceId;
     })[0];
     if (!trace) {
-      showSnackbar("No trace available. It is already deleted or not in trace mode.");
-      throw new Error("no trace found");
+      showSnackbar("No trace for this step exists, it is already deleted or not in trace mode.");
+      return "No trace for this step exists, it is already deleted or not in trace mode.";
+      //   throw new Error("no trace found");
     }
     var traceId = trace.TraceId
     let html = "";
@@ -433,11 +436,18 @@ async function clickTrace(e) {
         );
       }
 
+      let label = "" + branch
+      let content = await createTabHTML(objects, "tracetab-" + childCount)
 
-      runs.push({
-        label: "" + branch,
-        content: await createTabHTML(objects, "tracetab-" + childCount),
-      });
+      if (content) {
+
+        runs.push({
+          label,
+          content
+        });
+
+      }
+
 
     } catch (error) {
       console.log("error catching trace");
@@ -1384,7 +1394,7 @@ async function whatsNewCheck() {
   if (!check) {
     html = `<div id="cpiHelper_WhatsNew">Thank you for using the CPI Helper by Dominic Beckbauer. <p>You hace successfully updated to version ${manifestVersion}</p> 
     <h3>News</h3>
-    The plugin is now backed by Kangoolutions. A SAP Integration Consulting Company. We try to bring you more features and functionalities the next year. <br>Check our <a href="https://kangoolutions.com" target="_blank">website</a> to learn more about us.<br />
+    The plugin is now backed by Kangoolutions. A SAP Integration Consulting Company. We try to bring you more features and functionalities the next year. <br>Check our <a href="https://kangoolutions.com/blog" target="_blank">website</a> to learn more about us.<br />
     Does your company want to become sponsor of the CPI Helper? Get in contact with us.
     <h3>We reached nearly 5000 users</h3>
     4900 active installations during the last two weeks to be precise. We are looking forward to break the 5000 user barrier. 
