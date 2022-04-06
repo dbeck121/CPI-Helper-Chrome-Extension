@@ -1394,7 +1394,7 @@ async function whatsNewCheck() {
   if (!check) {
     html = `<div id="cpiHelper_WhatsNew">Thank you for using the CPI Helper by Dominic Beckbauer. <p>You hace successfully updated to version ${manifestVersion}</p> 
     <h3>News</h3>
-    The plugin is now backed by Kangoolutions. A SAP Integration Consulting Company. We try to bring you more features and functionalities the next year. <br>Check our <a href="https://kangoolutions.com/blog" target="_blank">website</a> to learn more about us.<br />
+    The plugin is now backed by Kangoolutions. A SAP Integration Consulting Company. We try to bring you more features and functionalities the next year. <br>Check our <a href="https://kangoolutions.com/blog" target="_blank">website</a> to learn more about us. We are open for new projects, feedback and new topics<br />
     Does your company want to become sponsor of the CPI Helper? Get in contact with us.
     <h3>We reached nearly 5000 users</h3>
     4900 active installations during the last two weeks to be precise. We are looking forward to break the 5000 user barrier. 
