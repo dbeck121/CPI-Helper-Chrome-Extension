@@ -264,6 +264,19 @@ text-decoration: none;
 cursor: pointer;
 }
 
+.cpiHelper_closeButton_sidebar {
+
+  font-weight: bold;
+  float:right;
+  }
+
+.cpiHelper_closeButton_sidebar:hover,
+.cpiHelper_closeButton_sidebar:focus {
+color: rgb(255, 78, 78);
+text-decoration: none;
+cursor: pointer;
+}
+
 /*tabs  */
 
 .cpiHelper_tabs {

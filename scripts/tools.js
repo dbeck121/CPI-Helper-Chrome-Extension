@@ -259,7 +259,7 @@ var formatHeadersAndPropertiesToTable = function (inputList) {
   result = "<table><tr><th>Name</th><th>Value</th></tr>"
   var even = "";
   inputList.forEach(item => {
-    result += "<tr class=\"" + even + "\"><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + item.Value + "</td></tr>"
+    result += "<tr class=\"" + even + "\"><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + htmlEscape(item.Value) + "</td></tr>"
     if (even == "even") {
       even = "";
     } else {
@@ -268,4 +268,13 @@ var formatHeadersAndPropertiesToTable = function (inputList) {
   });
   result += "</table>";
   return result;
+}
+
+var htmlEscape = function (rawStr) {
+  if (!rawStr || typeof rawStr != "string") {
+    return rawStr;
+  }
+  return rawStr.replace(/[\u00A0-\u9999<>\&]/g, function (i) {
+    return '&#' + i.charCodeAt(0) + ';';
+  });
 }

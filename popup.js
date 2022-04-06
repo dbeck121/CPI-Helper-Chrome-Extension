@@ -28,6 +28,19 @@ function addLastVisitedIflows() {
     });
 }
 
+function addLastVisitedIflows() {
+
+    chrome.storage.sync.get(["openMessageSidebarOnStartup"], function (result) {
+        var openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
+
+        var openMessageSidebarOnStartup = document.getElementById("openMessageSidebarOnStartup");
+        openMessageSidebarOnStartup.checked = openMessageSidebarOnStartupValue;
+        openMessageSidebarOnStartup.onclick = function () {
+            chrome.storage.sync.set({ "openMessageSidebarOnStartup": openMessageSidebarOnStartup.checked });
+        }
+    });
+}
+
 function addTenantUrls() {
 
     var tenantUrls = document.getElementById("tenantUrls");
@@ -148,7 +161,7 @@ function makeCallPromise(method, url, useCache, accept) {
 function checkUpdate() {
     var manifestVersion = chrome.runtime.getManifest().version;
     var cpihelper_version = document.getElementById("cpihelper_version");
-    var html = "<span>You are running version " + manifestVersion + "</span>";
+    var html = "<span>Curent version: " + manifestVersion + "</span>";
     cpihelper_version.innerHTML = html;
 }
 
@@ -206,6 +219,7 @@ async function main() {
     addLastVisitedIflows();
     addTenantUrls();
     tenantIdentityChanges();
+    addLastVisitedIflows();
 }
 
 main().catch(e => console.error(e))

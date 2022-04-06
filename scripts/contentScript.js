@@ -259,7 +259,14 @@ async function getLogs() {
   }, null, false);//
 }
 
+var inlineTraceRunning = false;
 async function clickTrace(e) {
+
+  if (inlineTraceRunning) {
+    return;
+  }
+
+  inlineTraceRunning = true;
 
 
   var formatLogContent = function (inputList) {
@@ -277,11 +284,59 @@ async function clickTrace(e) {
     result += "</table>";
     return result;
   }
+
+  var formatInfoContent = function (inputList) {
+
+    valueList = [];
+
+    var stepStart = new Date(parseInt(inputList.StepStart.substr(6, 13)));
+    stepStart.setTime(stepStart.getTime() - stepStart.getTimezoneOffset() * 60 * 1000);
+
+    valueList.push({ Name: "Start Time", Value: stepStart.toISOString().substr(0, 23) });
+
+    if (inputList.StepStop) {
+      var stepStop = new Date(parseInt(inputList.StepStop.substr(6, 13)));
+      stepStop.setTime(stepStop.getTime() - stepStop.getTimezoneOffset() * 60 * 1000);
+      valueList.push({ Name: "End Time", Value: stepStop.toISOString().substr(0, 23) });
+      valueList.push({ Name: "Duration in ms", Value: (stepStop - stepStart) });
+    }
+
+    valueList.push({ Name: "BranchId", Value: inputList.BranchId });
+
+    valueList.push({ Name: "RunId", Value: inputList.RunId });
+
+    valueList.push({ Name: "StepId", Value: inputList.StepId });
+
+    valueList.push({ Name: "ModelStepId", Value: inputList.ModelStepId });
+
+    valueList.push({ Name: "ChildCount", Value: inputList.ChildCount });
+
+
+    result = "<table><tr><th>Name</th><th>Value</th></tr>"
+    var even = "";
+    valueList.forEach(item => {
+      result += "<tr class=\"" + even + "\"><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + item.Value + "</td></tr>"
+      if (even == "even") {
+        even = "";
+      } else {
+        even = "even";
+      }
+    });
+    result += "</table>";
+    return result;
+  }
+
+
+  //get the content for a tab in a trace popup
   var getTraceTabContent = async function (object) {
-    var trace = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/TraceMessages?$format=json", true)).d.results[0];
+    var traceData = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/TraceMessages?$format=json", true)).d.results;
+    var trace = traceData.sort((a, b) => {
+      return a.TraceId - b.TraceId;
+    })[0];
     if (!trace) {
-      showSnackbar("No trace available. It is already deleted or not in trace mode.");
-      throw new Error("no trace found");
+      showSnackbar("No trace for this step exists, it is already deleted or not in trace mode.");
+      return "No trace for this step exists, it is already deleted or not in trace mode.";
+      //   throw new Error("no trace found");
     }
     var traceId = trace.TraceId
     let html = "";
@@ -302,6 +357,11 @@ async function clickTrace(e) {
     if (object.traceType == "logContent") {
       let elements = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/?$expand=RunStepProperties&$format=json", true)).d.RunStepProperties.results;
       html = formatLogContent(elements);
+    }
+
+    if (object.traceType == "info") {
+      let elements = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/?$expand=RunStepProperties&$format=json", true)).d;
+      html = formatInfoContent(elements);
     }
 
     return html;
@@ -351,6 +411,14 @@ async function clickTrace(e) {
         childCount: childCount,
         runId: runId,
         traceType: "logContent"
+      },
+      {
+        label: "Info",
+        content: getTraceTabContent,
+        active: false,
+        childCount: childCount,
+        runId: runId,
+        traceType: "info"
       }
       ]
 
@@ -368,11 +436,18 @@ async function clickTrace(e) {
         );
       }
 
+      let label = "" + branch
+      let content = await createTabHTML(objects, "tracetab-" + childCount)
 
-      runs.push({
-        label: "" + branch,
-        content: await createTabHTML(objects, "tracetab-" + childCount),
-      });
+      if (content) {
+
+        runs.push({
+          label,
+          content
+        });
+
+      }
+
 
     } catch (error) {
       console.log("error catching trace");
@@ -405,7 +480,7 @@ async function clickTrace(e) {
   } else {
     showBigPopup(await createTabHTML(runs, "runstab", 0), "Content Before Step");
   }
-
+  inlineTraceRunning = false;
 }
 
 async function hideInlineTrace() {
@@ -677,7 +752,19 @@ function buildButtonBar() {
       updateArtifactList()
       updateLogList()
     });
+    if (sidebar.active == null) {
+      chrome.storage.sync.get(["openMessageSidebarOnStartup"], function (result) {
+        var openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
+        if (openMessageSidebarOnStartupValue) {
+
+          sidebar.init();
+        }
+      }
+      );
+    }
   }
+
+
 }
 
 //Collect Infos to Iflow
@@ -1015,7 +1102,7 @@ function getConfirmation(message) {
 var sidebar = {
 
   //indicator if active or not
-  active: false,
+  active: null,
 
   //function to deactivate the sidebar
   deactivate: function () {
@@ -1026,12 +1113,17 @@ var sidebar = {
 
   //function to create and initialise the message sidebar
   init: function () {
+
+    if (this.active == true) {
+      return;
+    }
+
     this.active = true;
 
     //create sidebar div
     var elem = document.createElement('div');
     elem.innerHTML = `
-    <div id="cpiHelper_contentheader">CPI Helper<span id='sidebar_modal_close' class='cpiHelper_closeButton'>X</span></div> 
+    <div id="cpiHelper_contentheader">CPI Helper<span id='sidebar_modal_close' style="float:right;" class='cpiHelper_closeButton_sidebar'>X</span></div> 
     <div id="outerFrame">
     <div id="updatedText" class="contentText"></div>
     <div id="deploymentText" class="contentText">State: </div>
@@ -1301,6 +1393,11 @@ async function whatsNewCheck() {
 
   if (!check) {
     html = `<div id="cpiHelper_WhatsNew">Thank you for using the CPI Helper by Dominic Beckbauer. <p>You hace successfully updated to version ${manifestVersion}</p> 
+    <h3>News</h3>
+    The plugin is now backed by Kangoolutions. A SAP Integration Consulting Company. We try to bring you more features and functionalities the next year. <br>Check our <a href="https://kangoolutions.com/blog" target="_blank">website</a> to learn more about us. We are open for new projects, feedback and new topics<br />
+    Does your company want to become sponsor of the CPI Helper? Get in contact with us.
+    <h3>We reached nearly 5000 users</h3>
+    4900 active installations during the last two weeks to be precise. We are looking forward to break the 5000 user barrier. 
     <h3>Info!</h3>
     We have a new <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">GitHub Page</a>
     <h3>Main Features</h3>
@@ -1311,12 +1408,19 @@ async function whatsNewCheck() {
      </ul>
     <h3>Recent Innovations</h3>
     <ul>
+    <li>Version 2.0.0: <ul>
+    <li>One can now view XML in properties view of logs and InlineTrace</li>
+    <li>Option to open Message Sidebar on start of the Integration Flow Designer</li>
+    <li>Info tab in logs popup to see Custom Header Logs and more</li>
+    <li>Info tab in InlineTrace popup with some step information</li>
+    </ul>
     <li>Version 1.8.1: Killed some bugs</li>
     <li>Version 1.8.0: InlineTrace for Adapters in Beta Mode (Click the colored adapter text)</li>
     <li>Version 1.7.3: Adjusted InlineTrace Colors</li>
     <li>Version 1.7.2: Added properties to persist logs</li>
     <li>Version 1.7.0: New colors, new logo and a log viewer in beta mode</li>
     <li>Version 1.6.0: Some UI improvements, works in OData mode and some bugfixes</li>
+    </ul>
      </ul>
   <p>Unfortunately SAP does not work with me together and does not inform me when the APIs changes. So be gentle if sth. does not work. I do this in my free time and sometimes it takes a while to adapt to SAP changes.
      <p>The CPI Helper is free and Open Source. If you want to contribute or you have found any bugs than have a look at our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">GitHub Page</a>. You can also find me on <a href="https://www.linkedin.com/in/dominic-beckbauer-515894188/">LinkedIn</a></p>
