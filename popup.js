@@ -28,7 +28,7 @@ function addLastVisitedIflows() {
     });
 }
 
-function addLastVisitedIflows() {
+function getSideBarAlwaysVisible() {
 
     chrome.storage.sync.get(["openMessageSidebarOnStartup"], function (result) {
         var openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
@@ -216,7 +216,7 @@ function tenantIdentityChanges() {
 async function main() {
     checkUpdate();
     host = await getHost();
-    addLastVisitedIflows();
+    getSideBarAlwaysVisible();
     addTenantUrls();
     tenantIdentityChanges();
     addLastVisitedIflows();
