@@ -22,6 +22,11 @@ I recommend to read the readme first but if you know what you are doing, you can
 - Last visited iflows in browser-bar-popup
 
 ## Changelog
+### 2.0.2
+- [Improvement] Some UI improvements. Thx to [Robert Fels](https://github.com/robertfels)
+- [Bugfix] Recently visited IFlows are back again
+### 2.0.1
+- [Improvement] Some UI improvements
 ### 2.0.0
 - [Feature] One can now view XML in properties view of logs and InlineTrace
 - [Feature] Option to open Message Sidebar on start of the Integration Flow Designer
