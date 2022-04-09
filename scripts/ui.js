@@ -45,6 +45,12 @@ async function showBigPopup(content, header) {
   if (!x) {
     x = document.createElement('div');
     x.id = "cpiHelper_bigPopup";
+    x.onclick = function(event) { /* Added modal close when clicking on to the background */
+      console.log(event.target.id);
+      if (event.target.id == 'cpiHelper_bigPopup') {
+        x.remove();
+      }
+    }
     x.classList.add("cpiHelper");
     document.body.appendChild(x);
   }

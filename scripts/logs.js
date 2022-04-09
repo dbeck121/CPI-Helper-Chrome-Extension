@@ -336,7 +336,6 @@ createPersistLogsContent = async (messageId) => {
     }
     else {
         content.innerHTML = "No persist logs found. To learn more about persist logs check <a href='https://help.sap.com/viewer/368c481cd6954bdfa5d0435479fd4eaf/Cloud/en-US/8c35f3fa3b9c42c5b810332eccbc5a2f.html' target='_blank'>Persist Messages</a> in the docs";
-        content.style.padding = "15px";
     }
 
     return content;
@@ -439,7 +438,6 @@ createRunLogsContent = async (messageId) => {
     }
     else {
         content.innerHTML = "No log attachements found. For more information see <a href='https://help.sap.com/viewer/368c481cd6954bdfa5d0435479fd4eaf/Cloud/en-US/17dba92e6ed4402f8cb0f05093a34269.html' target='_blank'>Create Log Attachments with Groovy</a> in the docs";
-        content.style.padding = "15px";
     }
     return content;
 }
