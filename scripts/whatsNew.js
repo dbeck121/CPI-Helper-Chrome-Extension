@@ -20,7 +20,6 @@ async function whatsNewCheck() {
        </ul>
       <h3>Recent Innovations</h3>
       <li>Version 2.0.2: Killed some bugs and ui improvements</li>
-      <ul>
       <li>Version 2.0.0: <ul>
       <li>You can now see XML in properties view of logs and InlineTrace</li>
       <li>Option to open Message Sidebar on start of the Integration Flow Designer</li>
