@@ -1,3 +1,26 @@
+function callChromeStoragePromise(key) {
+  return new Promise(async function (resolve, reject) {
+    var input = key ? [key] : null;
+    chrome.storage.sync.get(input, function (storage) {
+      if (!key) {
+        resolve(storage);
+      }
+      resolve(storage[key]);
+    });
+  });
+}
+
+function syncChromeStoragePromise(keyName, value) {
+  return new Promise(async function (resolve, reject) {
+    myobj = {};
+    myobj[keyName] = value;
+    chrome.storage.sync.set(myobj, function () {
+      resolve();
+    });
+  });
+}
+
+
 
 var callCache = new Map();
 function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo = true) {
@@ -277,4 +300,10 @@ var htmlEscape = function (rawStr) {
   return rawStr.replace(/[\u00A0-\u9999<>\&]/g, function (i) {
     return '&#' + i.charCodeAt(0) + ';';
   });
+}
+
+function createElementFromHTML(htmlString) {
+  var div = document.createElement('div');
+  div.innerHTML = htmlString.trim();
+  return div.firstChild;
 }
