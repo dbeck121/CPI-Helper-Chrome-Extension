@@ -1,12 +1,15 @@
 //GNU GPL v3
 //Please visit our github page: https://github.com/dbeck121/CPI-Helper-Chrome-Extension
 
-//cpiData stores data for this extension
+//cpiData stores data for this extension and is provided as context element for plugins
 var cpiData = {};
 
 //initialize used elements
-cpiData.lastMessageHashList = [];
+cpiData.messageSidebar = {}
+cpiData.messageSidebar.lastMessageHashList = [];
 cpiData.integrationFlowId = "";
+cpiData.tenant = document.location.host;
+cpiData.functions = {}
 
 
 //opens a new window with the Trace for a MessageGuid
@@ -23,6 +26,7 @@ function openTrace(MessageGuid) {
     }
   })
 }
+cpiData.functions.openTrace = openTrace;
 
 //open new window for infos
 function openInfo(url) {
@@ -33,7 +37,9 @@ function openInfo(url) {
 var getLogsTimer;
 var activeInlineItem;
 var numberEntries = 10
-async function getLogs() {
+
+//fill the message sidebar
+async function renderMessageSidebar() {
 
   var createRow = function (elements) {
     var tr = document.createElement("tr");
@@ -84,7 +90,7 @@ async function getLogs() {
 
 
   //get the messagelogs for current iflow
-  makeCall("GET", "/itspaces/odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogStart desc", false, "", (xhr) => {
+  makeCall("GET", "/itspaces/odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogStart desc", false, "", async (xhr) => {
 
     if (xhr.readyState == 4 && sidebar.active) {
 
@@ -101,7 +107,7 @@ async function getLogs() {
       if (resp.length != 0) {
         thisMessageHash = resp[0].MessageGuid + resp[0].LogStart + resp[0].LogEnd + resp[0].Status;
 
-        if (thisMessageHash != cpiData.lastMessageHashList[0]) {
+        if (thisMessageHash != cpiData.messageSidebar.lastMessageHashList[0]) {
 
           let thisMessageHashList = [];
 
@@ -125,7 +131,7 @@ async function getLogs() {
 
             //flash animation for new elements
             let flash = "";
-            if (cpiData.lastMessageHashList.length != 0 && !cpiData.lastMessageHashList.includes(thisMessageHashList[i])) {
+            if (cpiData.messageSidebar.lastMessageHashList.length != 0 && !cpiData.messageSidebar.lastMessageHashList.includes(thisMessageHashList[i])) {
               flash = " flash";
             }
             let loglevel = resp[i].LogLevel.toLowerCase();
@@ -193,22 +199,12 @@ async function getLogs() {
                   activeInlineItem = null;
                   showSnackbar("Inline debugging not possible. No data found.");
                 }
-
               }
-
-
-              //   e.target.style.backgroundColor = 'red';
-
             };
 
+            var pluginButtons = createPluginButtonsInMessageSidebar();
 
-
-            //      listItem.appendChild(statusicon);
-            //      listItem.appendChild(inlineTraceButton);
-            //      listItem.appendChild(infoButton);
-            //      listItem.appendChild(traceButton);
-
-            messageList.appendChild(createRow([statusicon, timeButton, logButton, infoButton, traceButton, quickInlineTraceButton]));
+            messageList.appendChild(createRow([statusicon, timeButton, logButton, infoButton, traceButton, quickInlineTraceButton, ...pluginButtons]));
 
             infoButton.addEventListener("click", (a) => {
               openInfo(a.currentTarget.classList[0]);
@@ -216,7 +212,6 @@ async function getLogs() {
 
             logButton.addEventListener("click", async (a) => {
 
-              //   showBigPopup(await createContentNodeForLogs(a.currentTarget.classList[0]), "Logs (beta feature)");
               await showBigPopup(await createContentNodeForLogs(a.currentTarget.classList[0], false), "Logs (beta feature)");
 
             });
@@ -229,22 +224,47 @@ async function getLogs() {
             });
 
 
-            cpiData.lastMessageHashList = thisMessageHashList;
+            cpiData.messageSidebar.lastMessageHashList = thisMessageHashList;
           }
 
-          var moreButton = document.getElementById('showmore');
+          /*       var moreButton = document.getElementById('showmore');
+       
+                 moreButton.onclick = (a) => {
+                   if (numberEntries == 10) {
+                     numberEntries = 20
+                     cpiData.messageSidebar.lastMessageHashList = []
+                     a.currentTarget.innerText = "show less"
+       
+                   } else {
+       
+                     cpiData.messageSidebar.lastMessageHashList = []
+                     numberEntries = 10;
+                     a.currentTarget.innerText = "show more"
+                   }
+                 }
+       
+                 */
 
-          moreButton.onclick = (a) => {
-            if (numberEntries == 10) {
-              numberEntries = 20
-              cpiData.lastMessageHashList = []
-              a.currentTarget.innerText = "show less"
+          var pluginArea = document.getElementById('cpiHelper_messageSidebar_pluginArea');
+          pluginArea.innerHTML = "";
 
-            } else {
+          for (element of pluginList) {
+            var storage = await callChromeStoragePromise(null);
+            storage = Object.keys(storage)
+              .filter(key => key.startsWith(element.id))
+              .reduce((obj, key) => {
+                obj[key] = storage[key];
+                return obj;
+              }, {});
 
-              cpiData.lastMessageHashList = []
-              numberEntries = 10;
-              a.currentTarget.innerText = "show more"
+            if (storage[element.id + "---isActive"] === true) {
+              if (element?.messageSidebarContent?.onRender) {
+                var div = document.createElement("fieldset");
+                div.id = "cpiHelper_messageSidebar_pluginArea_" + element.id;
+                div.appendChild(createElementFromHTML("<legend>" + element.name + "</legend>"));
+                div.appendChild(element.messageSidebarContent.onRender(cpiData, storage));
+                pluginArea.appendChild(div);
+              }
             }
           }
 
@@ -253,7 +273,7 @@ async function getLogs() {
       }
       //new update in 3 seconds
       if (sidebar.active) {
-        var getLogsTimer = setTimeout(getLogs, 3000);
+        var getLogsTimer = setTimeout(renderMessageSidebar, 3000);
       }
     }
   }, null, false);//
@@ -655,7 +675,9 @@ function setLogLevel(logLevel, iflowId) {
 }
 
 //makes a http call to set the log level to trace
-function undeploy(tenant, artifactId) {
+function undeploy(tenant = null, artifactId = null) {
+  tenant ??= cpiData.tenantId;
+  artifactId ??= cpiData.artifactId;
   makeCall("POST", "/itspaces/Operations/com.sap.it.nm.commands.deploy.DeleteContentCommand", true, 'artifactIds=' + artifactId + '&tenantId=' + tenant, (xhr) => {
     if (xhr.readyState == 4 && xhr.status == 200) {
       showSnackbar("Undeploy triggered");
@@ -665,13 +687,12 @@ function undeploy(tenant, artifactId) {
     }
   }, "application/x-www-form-urlencoded; charset=UTF-8");
 }
+cpiData.functions.undeploy = undeploy;
 
-function createElementFromHTML(htmlString) {
-  var div = document.createElement('div');
-  div.innerHTML = htmlString.trim();
-  return div.firstChild;
-}
 
+
+
+//injected buttons are created here
 var powertraceflow = null
 var powertrace = null;
 function buildButtonBar() {
@@ -698,6 +719,7 @@ function buildButtonBar() {
     //Create Toggle Message Bar Button
     var messagebutton = createElementFromHTML(' <button id="__buttonxy" data-sap-ui="__buttonxy" title="Messages" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; float: right;"><span id="__buttonxy-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button13-content"><bdi id="__button18778-BDI-content">Messages</bdi></span></span></button>');
     var infobutton = createElementFromHTML(' <button id="__buttoninfo" data-sap-ui="__buttoninfo" title="Info" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; float: right;"><span id="__buttonxy-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button13-content"><bdi id="__button134343-BDI-content">Info</bdi></span></span></button>');
+    var pluginbutton = createElementFromHTML(' <button id="__buttonplugin" data-sap-ui="__buttoninfo" title="plugins" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; float: right;"><span id="__buttonxy-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button13-content"><bdi id="__button134343-BDI-content">Plugins</bdi></span></span></button>');
     //append buttons
     area = document.querySelector("[id*='--iflowObjectPageHeader-actions']");
 
@@ -707,10 +729,13 @@ function buildButtonBar() {
     breakLine.style.margin = "0px"
 
     area.appendChild(breakLine);
+    area.appendChild(pluginbutton);
     area.appendChild(infobutton);
     area.appendChild(messagebutton);
     area.appendChild(tracebutton);
     area.appendChild(logsbutton);
+
+
     tracebutton.addEventListener("click", () => {
       btn = document.getElementById("button134345-BDI-content")
       btn.classList.toggle("cpiHelper_powertrace")
@@ -734,7 +759,7 @@ function buildButtonBar() {
 
     });
     messagebutton.addEventListener("click", (btn) => {
-      numberEntries = 10;
+      numberEntries = 15;
 
       if (sidebar.active) {
         sidebar.deactivate();
@@ -752,6 +777,15 @@ function buildButtonBar() {
       updateArtifactList()
       updateLogList()
     });
+
+    pluginbutton.addEventListener("click", async (btn) => {
+      // the logs popup opens and it shows the sidebar. the sidebar elements are updated
+      showBigPopup(await createContentNodeForPlugins(), "Plugins");
+
+    });
+
+
+
     if (sidebar.active == null) {
       chrome.storage.sync.get(["openMessageSidebarOnStartup"], function (result) {
         var openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
@@ -791,6 +825,8 @@ async function getIflowInfo(callback, silent = false) {
     var resp = JSON.parse(response);
     cpiData.flowData = resp;
     cpiData.flowData.lastUpdate = new Date().toISOString();
+    cpiData.tenantId = cpiData?.flowData?.artifactInformation?.tenantId
+    cpiData.artifactId = cpiData?.flowData?.artifactInformation?.id;
     callback();
     return;
   }).catch((error) => {
@@ -1128,7 +1164,8 @@ var sidebar = {
     <div id="updatedText" class="contentText"></div>
     <div id="deploymentText" class="contentText">State: </div>
     <div><table id="messageList" class="contentText"></table></div>
-    <button id="showmore">show more</button>
+    <!--<button id="showmore">show more</button>-->
+    <div id="cpiHelper_messageSidebar_pluginArea"></div>
     </div>
     `;
     elem.id = "cpiHelper_content";
@@ -1145,10 +1182,10 @@ var sidebar = {
     dragElement(document.getElementById("cpiHelper_content"));
 
     //lastMessageHashList must be empty when message sidebar is created
-    cpiData.lastMessageHashList = [];
+    cpiData.messageSidebar.lastMessageHashList = [];
 
     //refresh messages
-    getLogs();
+    renderMessageSidebar();
   }
 };
 
@@ -1433,7 +1470,6 @@ setInterval(function () {
   }
   checkURLchange(window.location.href);
 }, 3000);
-
 
 
 
