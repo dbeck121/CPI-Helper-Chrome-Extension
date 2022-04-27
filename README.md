@@ -10,7 +10,7 @@ I recommend to read the readme first but if you know what you are doing, you can
 - Activate InlineTrace to see message route in integration flow designer
 - Directly see trace messages in integration flow designer
 - Pretty print for trace messages in integration flow designer
-- Button to switch on trace
+- Button to switch trace
 - Directly go to traces of specific message
 - Directly go to logs and attachements of specific message
 - Pop-up with error-message when hovering message in sidebar
@@ -22,6 +22,10 @@ I recommend to read the readme first but if you know what you are doing, you can
 - Last visited iflows in browser-bar-popup
 
 ## Changelog
+### 2.1.0
+- [Feature] There is a very limited plugin engine that you can use to add features to CPI-Helper. (see [plugin readme](plugins/README.md))
+- [Improvement] Shows size of payload in inline trace body viewer
+- [Improvement] Info tab has more info in inline trace
 ### 2.0.2
 - [Improvement] Some UI improvements. Thx to [Robert Fels](https://github.com/robertfels)
 - [Bugfix] Recently visited IFlows are back again
@@ -124,7 +128,7 @@ First public version.
 - [Feature] Trace button 
 
 ## Installation
-You need Google Chrome to install this plugin. I tested it with version 80. I assume that older versions will work too.
+You need Google Chrome to install this plugin. I tested it with version 100. I assume that older versions will work too.
 There are two options to install this plugin:
 ### Install directly from Chrome Web Store (recommended)
 Just add the plugin in the [Chrome Web Store](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb).
@@ -184,10 +188,6 @@ SAP deletes trace messages after a while. Trace messages normally do not live lo
 ## Contributing
 See [Contribution guidelines for this project](docs/CONTRIBUTING.md) if you want to take part in this project. As I am a beginner myself, beginners are welcome.
 
-## Todos
-- Change tab name to tenant name to better differentiate between different tenants
-- Inject data from trace in the simulation function
-
 If you have any ideas, please write a message or comment at the [SAP Community](https://blogs.sap.com/2020/03/05/cpi-chrome-plugin-to-enhance-sap-cloud-platform-integration-usability/#)
 
 ### Contributers
@@ -196,5 +196,6 @@ If you have any ideas, please write a message or comment at the [SAP Community](
 >- [Raffael Herrmann](https://github.com/codebude): Speed up handling of large XML structures in beautifier.
 >- [Ivo Vermeer](https://github.com/IvoVermeer): Change icon, text and tenant color
 >- [bdais](https://github.com/bdbais/): filter discarded entries
+>- [Robert Fels](https://github.com/robertfels)
 ## License
 [GNU GPLv3](https://choosealicense.com/licenses/gpl-3.0/)
