@@ -46,20 +46,20 @@ var plugin = {
     },
     
     messageSidebarButton: {                    //if you want to add a button to message sidebar, add a "messageSidebarButton" element
-        "text": "E",                           //text for the button. please keep it short
+        "text": "E",                           //text for the button. please keep it short (will be truncated after 3 letters)
         "title": "Example Title",              //hover title
         "icon": "",                            //icon for the button (not yet implemented)
-        "onClick": (pluginHelper, storage, runInfo) => {         //write the javascript you need in the onclick method
+        "onClick": (pluginHelper, settings, runInfo) => {         //write the javascript you need in the onclick method
             console.log("clicked");
             console.log(pluginHelper);
-            console.log(storage);
+            console.log(settings);
             console.log(runInfo);
         }
     },
     messageSidebarContent: {                    //can be used to show sth in message sidebar
         "onRender": (pluginHelper, settings) => {           //implement and return html element
             console.log(pluginHelper);
-            console.log(storage);
+            console.log(settings);
             var div = document.createElement("div");
             div.innerText = "Example content";
             return div;                                     //html element to return.
@@ -74,7 +74,7 @@ pluginList.push(plugin);
 
 pluginHelper: an object with additional iflow information and functions that you can user
 
-storage: data that is stored (see settings element)
+settings: data that is stored (see settings element)
 
 runInfo: details to the message run that belongs to the specific button
 
@@ -82,4 +82,4 @@ runInfo: details to the message run that belongs to the specific button
 
 pluginHelper: an object with additional iflow information and functions that you can user
 
-storage: data that is stored (see settings element)
+settings: data that is stored (see settings element)
