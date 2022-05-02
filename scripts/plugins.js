@@ -1,18 +1,44 @@
 // ----------------------
+// content in message sidebar
+// ----------------------
+
+//creates plugin content area in message sidebar
+
+async function messageSidebarPluginContent() {
+    var pluginArea = document.getElementById('cpiHelper_messageSidebar_pluginArea');
+    pluginArea.innerHTML = "";
+
+    for (element of pluginList) {
+        var settings = await getPluginSettings(element.id);
+
+        if (settings[element.id + "---isActive"] === true) {
+            if (element?.messageSidebarContent?.onRender) {
+                var div = document.createElement("fieldset");
+                div.id = "cpiHelper_messageSidebar_pluginArea_" + element.id;
+                div.appendChild(createElementFromHTML("<legend>" + element.name + "</legend>"));
+                div.appendChild(element.messageSidebarContent.onRender(cpiData, settings));
+                pluginArea.appendChild(div);
+            }
+        }
+    }
+}
+
+
+// ----------------------
 // buttons in message sidebar
 // ----------------------
 
 //creates buttons in message sidebar
-function createPluginButtonsInMessageSidebar() {
+async function createPluginButtonsInMessageSidebar(runInfoElement) {
     var pluginButtons = [];
     for (var plugin of pluginList) {
         if (plugin.messageSidebarButton) {
-            var button = createElementFromHTML(`<button title='${plugin.messageSidebarButton.title}' id='trace--" + i + "' class='" + resp[i].MessageGuid + flash + "'>${plugin.messageSidebarButton.text}</button>`);
+            var button = createElementFromHTML(`<button title='${plugin.messageSidebarButton.title}' id='trace--" + i + "' class='" + resp[i].MessageGuid + flash + "'>${plugin?.messageSidebarButton?.text?.substring(0, 3)}</button>`);
 
-            var pluginStorage = {};
+            var settings = await getPluginSettings(plugin.id);
 
             button.onclick = () => {
-                plugin.messageSidebarButton.onClick(cpiData, pluginStorage);
+                plugin.messageSidebarButton.onClick(cpiData, settings, runInfoElement);
             };
 
             pluginButtons.push(button);
@@ -124,7 +150,7 @@ async function createContentNodeForPlugins() {
     return pluginUIList;
 }
 
-
+// creates the path for a storage element
 function getStoragePath(pluginId, key, type = null) {
     return `${pluginId}---${type == "tenant" || type == "iflow" ? cpiData.tenant + "---" : ""}${type == "iflow" ? cpiData.integrationFlowId + "---" : ""}${key}`;
 }
@@ -135,6 +161,15 @@ async function getStorageValue(pluginId, key, type = null) {
         return ""
     }
     return result;
+}
 
-
+async function getPluginSettings(id) {
+    var storage = await callChromeStoragePromise(null);
+    var settings = Object.keys(storage)
+        .filter(key => key.startsWith(id))
+        .reduce((obj, key) => {
+            obj[key] = storage[key];
+            return obj;
+        }, {});
+    return settings;
 }

@@ -105,7 +105,16 @@ async function renderMessageSidebar() {
 
       let thisMessageHash = "";
       if (resp.length != 0) {
+
+        //stores information for this run to be used with plugin engine
+        var runInfoElement = {}
         thisMessageHash = resp[0].MessageGuid + resp[0].LogStart + resp[0].LogEnd + resp[0].Status;
+        runInfoElement.messageHash = thisMessageHash;
+        runInfoElement.messageGuid = resp[0].MessageGuid;
+        runInfoElement.logStart = resp[0].LogStart;
+        runInfoElement.logEnd = resp[0].LogEnd;
+        runInfoElement.status = resp[0].Status;
+        runInfoElement.message = resp[0].LogLevel;
 
         if (thisMessageHash != cpiData.messageSidebar.lastMessageHashList[0]) {
 
@@ -120,9 +129,11 @@ async function renderMessageSidebar() {
 
             //write date if necessary
             let date = new Date(parseInt(resp[i].LogEnd.match(/\d+/)[0]));
+            runInfoElement.date = date;
             //add offset to utc time. The offset is not correct anymore but isostring can be used to show local time
             date.setTime(date.getTime() - date.getTimezoneOffset() * 60 * 1000);
             date = date.toISOString();
+            runInfoElement.dateInCurrentTimezone = date;
 
             if (date.substr(0, 10) != lastDay) {
               messageList.appendChild(createRow([date.substr(0, 10)]));
@@ -202,7 +213,7 @@ async function renderMessageSidebar() {
               }
             };
 
-            var pluginButtons = createPluginButtonsInMessageSidebar();
+            var pluginButtons = await createPluginButtonsInMessageSidebar(runInfoElement);
 
             messageList.appendChild(createRow([statusicon, timeButton, logButton, infoButton, traceButton, quickInlineTraceButton, ...pluginButtons]));
 
@@ -245,28 +256,7 @@ async function renderMessageSidebar() {
        
                  */
 
-          var pluginArea = document.getElementById('cpiHelper_messageSidebar_pluginArea');
-          pluginArea.innerHTML = "";
-
-          for (element of pluginList) {
-            var storage = await callChromeStoragePromise(null);
-            storage = Object.keys(storage)
-              .filter(key => key.startsWith(element.id))
-              .reduce((obj, key) => {
-                obj[key] = storage[key];
-                return obj;
-              }, {});
-
-            if (storage[element.id + "---isActive"] === true) {
-              if (element?.messageSidebarContent?.onRender) {
-                var div = document.createElement("fieldset");
-                div.id = "cpiHelper_messageSidebar_pluginArea_" + element.id;
-                div.appendChild(createElementFromHTML("<legend>" + element.name + "</legend>"));
-                div.appendChild(element.messageSidebarContent.onRender(cpiData, storage));
-                pluginArea.appendChild(div);
-              }
-            }
-          }
+          await messageSidebarPluginContent();
 
 
         }
@@ -319,6 +309,8 @@ async function clickTrace(e) {
       stepStop.setTime(stepStop.getTime() - stepStop.getTimezoneOffset() * 60 * 1000);
       valueList.push({ Name: "End Time", Value: stepStop.toISOString().substr(0, 23) });
       valueList.push({ Name: "Duration in ms", Value: (stepStop - stepStart) });
+      valueList.push({ Name: "Duration in s", Value: (stepStop - stepStart) / 1000 });
+      valueList.push({ Name: "Duration in min", Value: (stepStop - stepStart) / 1000 / 60 });
     }
 
     valueList.push({ Name: "BranchId", Value: inputList.BranchId });
@@ -827,6 +819,7 @@ async function getIflowInfo(callback, silent = false) {
     cpiData.flowData.lastUpdate = new Date().toISOString();
     cpiData.tenantId = cpiData?.flowData?.artifactInformation?.tenantId
     cpiData.artifactId = cpiData?.flowData?.artifactInformation?.id;
+    cpiData.version = cpiData?.flowData?.artifactInformation?.version;
     callback();
     return;
   }).catch((error) => {

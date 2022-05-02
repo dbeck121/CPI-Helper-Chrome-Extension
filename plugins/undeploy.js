@@ -4,6 +4,7 @@ var plugin = {
     name: "undeploy plugin",
     version: "1.0.0",
     author: "Kangoolutions",
+    email: "cpihelper@kangoolutions.com",
     website: "https://kangoolutions.com",
     description: "Adds an undeploy button to the message sidebar.",
 
@@ -16,6 +17,7 @@ var plugin = {
             var button = document.createElement("button");
             button.innerText = "Undeploy";
             button.addEventListener("click", () => {
+                console.log("undeploy plugin clicked");
                 pluginHelper.functions.undeploy();
             });
             return button;

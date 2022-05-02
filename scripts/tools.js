@@ -254,6 +254,19 @@ var formatTrace = function (input, id) {
 
   result.appendChild(beautifyButton);
   result.appendChild(copyButton);
+  var textEncoder = new TextEncoder().encode(input)
+  if (textEncoder.length) {
+    var span = document.createElement("span");
+    var kb = Math.round(textEncoder.length / 1024 * 100) / 100;
+
+    var additionalText = "";
+    if (kb > 25000) {
+      additionalText = " - maybe original payload is larger but we can't show it here and load more";
+    }
+
+    span.innerText = " Length unformated: " + input.split(/\r\n|\r|\n/).length + " lines; Size unformated: " + textEncoder.length + " bytes, " + kb + " KB, " + Math.round(kb / 1024 * 100) / 100 + " MB" + additionalText;
+    result.appendChild(span);
+  }
 
   var unformattedTrace = document.createElement("div");
   var formattedTrace = document.createElement("div");
