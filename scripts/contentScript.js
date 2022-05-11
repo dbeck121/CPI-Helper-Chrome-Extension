@@ -308,9 +308,9 @@ async function clickTrace(e) {
       var stepStop = new Date(parseInt(inputList.StepStop.substr(6, 13)));
       stepStop.setTime(stepStop.getTime() - stepStop.getTimezoneOffset() * 60 * 1000);
       valueList.push({ Name: "End Time", Value: stepStop.toISOString().substr(0, 23) });
-      valueList.push({ Name: "Duration in ms", Value: (stepStop - stepStart) });
-      valueList.push({ Name: "Duration in s", Value: (stepStop - stepStart) / 1000 });
-      valueList.push({ Name: "Duration in min", Value: (stepStop - stepStart) / 1000 / 60 });
+      valueList.push({ Name: "Duration in milliseconds", Value: (stepStop - stepStart) });
+      valueList.push({ Name: "Duration in seconds", Value: (stepStop - stepStart) / 1000 });
+      valueList.push({ Name: "Duration in minutes", Value: (stepStop - stepStart) / 1000 / 60 });
     }
 
     valueList.push({ Name: "BranchId", Value: inputList.BranchId });

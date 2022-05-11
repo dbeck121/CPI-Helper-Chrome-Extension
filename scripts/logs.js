@@ -361,9 +361,9 @@ createLogsInfo = async (messageId) => {
         var logEnd = new Date(parseInt(input.LogEnd.substr(6, 13)));
         logEnd.setTime(logEnd.getTime() - logEnd.getTimezoneOffset() * 60 * 1000);
         valueList.push({ Name: "End Time", Value: logEnd.toISOString().substr(0, 23) });
-        valueList.push({ Name: "Duration in ms", Value: (logEnd - logStart) });
-        valueList.push({ Name: "Duration in s", Value: (logEnd - logStart) / 1000 });
-        valueList.push({ Name: "Duration in m", Value: (logEnd - logStart) / 1000 / 60 });
+        valueList.push({ Name: "Duration in milliseconds", Value: (logEnd - logStart) });
+        valueList.push({ Name: "Duration in seconds", Value: (logEnd - logStart) / 1000 });
+        valueList.push({ Name: "Duration in minutes", Value: (logEnd - logStart) / 1000 / 60 });
     }
     valueList.push({ Name: "IntegrationFlowName", Value: input.IntegrationFlowName });
     valueList.push({ Name: "Status", Value: input.Status });
