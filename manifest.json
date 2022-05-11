@@ -25,6 +25,7 @@
       ],
       "js": [
         "/lib/prettify/prettify.js",
+        "/lib/prettify/prettify-sql.js",
         "/lib/jszip/jszip.min.js",
         "/scripts/identify-tenant.js",
         "/lib/xmlToJson/xmlToJson.js",

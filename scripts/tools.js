@@ -167,7 +167,7 @@ var formatTrace = function (input, id) {
 
     try {
       stringToFormat = JSON.stringify(JSON.parse(input), null, 4);
-      type = "json";
+      type = "js";
     } catch (error) {
 
     }
@@ -181,15 +181,23 @@ var formatTrace = function (input, id) {
     }
 
     if (stringToFormat == null) {
-      type = "unknown";
+      let sqloccurence = input.substring(0, 100).toLowerCase().match(/select|from|where|update|insert|upsert|create table|union|join|values|group by/gm)?.length
+      if (sqloccurence && sqloccurence >= 2 || input.substring(0, 2).match("--")?.length === 2 && sqloccurence >= 1 || input.substring(0, 6).match("--sql")) {
+        stringToFormat = input;
+        type = "sql"
+      }
+    }
+
+    if (stringToFormat == null) {
       stringToFormat = input;
     }
 
     PR.prettyPrint();
-    showSnackbar("Autodetect content: " + type);
-    return PR.prettyPrintOne(stringToFormat, null, 1);
+    showSnackbar("Autodetect content: " + type ? type : "unknown");
+    return PR.prettyPrintOne(stringToFormat, type, 1);
 
   }
+
 
 
 
@@ -260,8 +268,11 @@ var formatTrace = function (input, id) {
     var kb = Math.round(textEncoder.length / 1024 * 100) / 100;
 
     var additionalText = "";
+    if (kb > 2000) {
+      additionalText += " - large payload. Beautify could take a while. Browser might freeze.";
+    }
     if (kb > 25000) {
-      additionalText = " - maybe original payload is larger but we can't show it here and load more";
+      additionalText += " - maybe original payload is larger but we can't show it here and load more";
     }
 
     span.innerText = " Length unformated: " + input.split(/\r\n|\r|\n/).length + " lines; Size unformated: " + textEncoder.length + " bytes, " + kb + " KB, " + Math.round(kb / 1024 * 100) / 100 + " MB" + additionalText;
