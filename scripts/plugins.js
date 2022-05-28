@@ -29,11 +29,11 @@ async function messageSidebarPluginContent() {
 // ----------------------
 
 //creates buttons in message sidebar
-async function createPluginButtonsInMessageSidebar(runInfoElement) {
+async function createPluginButtonsInMessageSidebar(runInfoElement, i, flash) {
     var pluginButtons = [];
     for (var plugin of pluginList) {
         if (plugin.messageSidebarButton) {
-            var button = createElementFromHTML(`<button title='${plugin.messageSidebarButton.title}' id='trace--" + i + "' class='" + resp[i].MessageGuid + flash + "'>${plugin?.messageSidebarButton?.text?.substring(0, 3)}</button>`);
+            var button = createElementFromHTML("<button title='" + plugin.messageSidebarButton.title + "' id='trace--" + i + "' class='" + runInfoElement.messageGuid + flash + "'>" + plugin?.messageSidebarButton?.text?.substring(0, 3) + "</button>");
 
             var settings = await getPluginSettings(plugin.id);
 

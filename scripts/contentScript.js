@@ -213,7 +213,7 @@ async function renderMessageSidebar() {
               }
             };
 
-            var pluginButtons = await createPluginButtonsInMessageSidebar(runInfoElement);
+            var pluginButtons = await createPluginButtonsInMessageSidebar(runInfoElement, i, flash);
 
             messageList.appendChild(createRow([statusicon, timeButton, logButton, infoButton, traceButton, quickInlineTraceButton, ...pluginButtons]));
 
@@ -1280,11 +1280,11 @@ function createErrorMessageElement(message) {
 
 //to check for errors and inline trace
 async function getMessageProcessingLogRuns(MessageGuid, store = true) {
-  return makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=500", store).then((responseText) => {
+  return makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store).then((responseText) => {
     var resp = JSON.parse(responseText);
     return resp.d.results[0].Id;
   }).then((runId) => {
-    return makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json&$top=999", store);
+    return makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json&$top=300", store);
   }).then((response) => {
     return JSON.parse(response).d.results;
   }).catch((e) => {

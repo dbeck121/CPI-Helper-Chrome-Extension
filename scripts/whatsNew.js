@@ -7,7 +7,7 @@ async function whatsNewCheck() {
     if (!check) {
         html = `<div id="cpiHelper_WhatsNew">Thank you for using the CPI Helper by Dominic Beckbauer. <p>You hace successfully updated to version ${manifestVersion}</p> 
       <h3>News</h3>
-      <p>CPI-Helper has a very limited plugin engine now. Read more about whats new in this blog article</p>
+      <p>CPI-Helper has a very limited plugin engine now. Read more about whats new in <a href= "https://kangoolutions.com/2022/05/02/cpi-helper-2-1-x-some-improvements-and-early-version-of-plugin-interface/">this</a> blog article</p>
       <p>The plugin is now backed by Kangoolutions. A SAP Integration Consulting Company. We try to bring you more features and functionalities this year. <br>Check our <a href="https://kangoolutions.com/blog" target="_blank">website</a> to learn more about us. We are open for new projects, feedback and new topics.</p>
       <h3>We reached 5200 users!</h3>
       <h3>Info!</h3>
@@ -35,8 +35,9 @@ async function whatsNewCheck() {
       <li>Version 1.6.0: Some UI improvements, works in OData mode and some bugfixes</li>
       </ul>
        </ul>
-    <p>Unfortunately SAP does not work with me together and does not inform me when the APIs changes. So be gentle if sth. does not work. I do this in my free time and sometimes it takes a while to adapt to SAP changes.
-       <p>The CPI Helper is free and Open Source. If you want to contribute or you have found any bugs than have a look at our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">GitHub Page</a>. You can also find me on <a href="https://www.linkedin.com/in/dominic-beckbauer-515894188/">LinkedIn</a></p>
+    <p>Unfortunately SAP does not work with us together and does not inform us when the APIs changes. So be gentle if sth. does not work. we do this in our free time and sometimes it takes a while to adapt to SAP changes.
+       <p>The CPI Helper is free and Open Source. If you want to contribute or you have found any bugs than have a look at our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">GitHub Page</a> and our <a href="https://kangoolutions.com" target="_blank">Homepage</a>. You can find the main developer Dominic Beckbauer on <a href="https://www.linkedin.com/in/dominic-beckbauer-515894188/">LinkedIn</a></p>
+    
    
     </div>
     `;

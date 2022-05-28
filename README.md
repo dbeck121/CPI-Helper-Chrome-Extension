@@ -24,8 +24,10 @@ I recommend to read the readme first but if you know what you are doing, you can
 ## Changelog
 ### 2.1.0
 - [Feature] There is a very limited plugin engine that you can use to add features to CPI-Helper. (see [plugin readme](plugins/README.md))
+- [Feature] Syntax highlghting for SQL in Payloads
 - [Improvement] Shows size of payload in inline trace body viewer
 - [Improvement] Info tab has more info in inline trace
+
 ### 2.0.2
 - [Improvement] Some UI improvements. Thx to [Robert Fels](https://github.com/robertfels)
 - [Bugfix] Recently visited IFlows are back again
