@@ -109,12 +109,6 @@ async function renderMessageSidebar() {
         //stores information for this run to be used with plugin engine
         var runInfoElement = {}
         thisMessageHash = resp[0].MessageGuid + resp[0].LogStart + resp[0].LogEnd + resp[0].Status;
-        runInfoElement.messageHash = thisMessageHash;
-        runInfoElement.messageGuid = resp[0].MessageGuid;
-        runInfoElement.logStart = resp[0].LogStart;
-        runInfoElement.logEnd = resp[0].LogEnd;
-        runInfoElement.status = resp[0].Status;
-        runInfoElement.message = resp[0].LogLevel;
 
         if (thisMessageHash != cpiData.messageSidebar.lastMessageHashList[0]) {
 
@@ -126,14 +120,23 @@ async function renderMessageSidebar() {
 
           for (var i = 0; i < resp.length; i++) {
             thisMessageHashList.push(resp[i].MessageGuid + resp[i].LogStart + resp[i].LogEnd + resp[i].Status);
+            runInfoElement[thisMessageHash] = {}
+            runInfoElement[thisMessageHash].messageHash = resp[i].MessageGuid + resp[i].LogStart + resp[i].LogEnd + resp[i].Status;
+            runInfoElement[thisMessageHash].messageGuid = resp[i].MessageGuid;
+            runInfoElement[thisMessageHash].logStart = new Date(parseInt(resp[i].LogStart.match(/\d+/)[0]))
+            runInfoElement[thisMessageHash].logEnd = new Date(parseInt(resp[i].LogEnd.match(/\d+/)[0]))
+            runInfoElement[thisMessageHash].status = resp[i].Status;
+            runInfoElement[thisMessageHash].message = resp[i].LogLevel;
 
             //write date if necessary
             let date = new Date(parseInt(resp[i].LogEnd.match(/\d+/)[0]));
-            runInfoElement.date = date;
+
+
             //add offset to utc time. The offset is not correct anymore but isostring can be used to show local time
             date.setTime(date.getTime() - date.getTimezoneOffset() * 60 * 1000);
+            runInfoElement[thisMessageHash].timeZoneOffset = date.getTimezoneOffset()
             date = date.toISOString();
-            runInfoElement.dateInCurrentTimezone = date;
+
 
             if (date.substr(0, 10) != lastDay) {
               messageList.appendChild(createRow([date.substr(0, 10)]));
@@ -147,6 +150,7 @@ async function renderMessageSidebar() {
             }
             let loglevel = resp[i].LogLevel.toLowerCase();
             // logLevel[0] = logLevel[0].toUpperCase();
+            runInfoElement[thisMessageHash].logLevel = loglevel;
 
             let traceButton = createElementFromHTML("<button title='jump to trace page' id='trace--" + i + "' class='" + resp[i].MessageGuid + flash + "'>" + loglevel.substr(0, 1).toUpperCase() + "</button>");
 
@@ -213,7 +217,7 @@ async function renderMessageSidebar() {
               }
             };
 
-            var pluginButtons = await createPluginButtonsInMessageSidebar(runInfoElement, i, flash);
+            var pluginButtons = await createPluginButtonsInMessageSidebar(runInfoElement[thisMessageHash], i, flash);
 
             messageList.appendChild(createRow([statusicon, timeButton, logButton, infoButton, traceButton, quickInlineTraceButton, ...pluginButtons]));
 

@@ -54,6 +54,13 @@ var plugin = {
             console.log(pluginHelper);
             console.log(settings);
             console.log(runInfo);
+        },
+        "condition": (pluginHelper, settings, runInfo) => {       // can be missing. that means it is always true
+            console.log(pluginHelper);
+            console.log(settings);
+            console.log(runInfo);
+            //eg runInfo.logLevel === "trace"
+            return true;
         }
     },
     messageSidebarContent: {                    //can be used to show sth in message sidebar

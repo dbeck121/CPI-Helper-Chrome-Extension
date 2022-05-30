@@ -32,16 +32,17 @@ async function messageSidebarPluginContent() {
 async function createPluginButtonsInMessageSidebar(runInfoElement, i, flash) {
     var pluginButtons = [];
     for (var plugin of pluginList) {
-        if (plugin.messageSidebarButton) {
-            var button = createElementFromHTML("<button title='" + plugin.messageSidebarButton.title + "' id='trace--" + i + "' class='" + runInfoElement.messageGuid + flash + "'>" + plugin?.messageSidebarButton?.text?.substring(0, 3) + "</button>");
+        var settings = await getPluginSettings(plugin.id);
+        if (settings[plugin.id + "---isActive"] === true) {
+            if (plugin.messageSidebarButton && !plugin.messageSidebarButton.condition || plugin.messageSidebarButton && plugin.messageSidebarButton.condition(cpiData, settings, runInfoElement)) {
+                var button = createElementFromHTML("<button title='" + plugin.messageSidebarButton.title + "' id='trace--" + i + "' class='" + runInfoElement.messageGuid + flash + "'>" + plugin?.messageSidebarButton?.text?.substring(0, 3) + "</button>");
 
-            var settings = await getPluginSettings(plugin.id);
+                button.onclick = () => {
+                    plugin.messageSidebarButton.onClick(cpiData, settings, runInfoElement);
+                };
 
-            button.onclick = () => {
-                plugin.messageSidebarButton.onClick(cpiData, settings, runInfoElement);
-            };
-
-            pluginButtons.push(button);
+                pluginButtons.push(button);
+            }
         }
     }
     return pluginButtons;

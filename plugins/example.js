@@ -22,6 +22,10 @@ var plugin = {
             console.log(pluginHelper);
             console.log(settings);
             console.log(runInfo);
+        },
+        "condition": (pluginHelper, settings, runInfo) => {
+            //eg runInfo.logLevel === "trace"
+            return runInfo.logLevel === "trace";
         }
     },
     messageSidebarContent: {
