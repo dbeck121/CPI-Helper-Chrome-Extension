@@ -31,6 +31,7 @@
         "/lib/xmlToJson/xmlToJson.js",
         "/plugins/run.js",
         "/plugins/undeploy.js",
+        "/plugins/figaf.js",
         "/scripts/ui.js",
         "/scripts/tools.js",
         "/scripts/logs.js",
