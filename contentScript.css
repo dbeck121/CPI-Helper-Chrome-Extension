@@ -499,6 +499,15 @@
   display: flex;
 }
 
+.cpiHelper_logs_selected_button{
+  background-color:lightblue !important; 
+}
+
+.cpiHelper_logs_table_div {
+  overflow-y: scroll;
+  height: 400px;
+}
+
 #logs-left-side_cpiHelper {
   overflow-y: scroll;
   max-height: 100%;
