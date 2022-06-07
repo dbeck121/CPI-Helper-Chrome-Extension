@@ -260,11 +260,12 @@ async function renderMessageSidebar() {
        
                  */
 
-          await messageSidebarPluginContent();
+
 
 
         }
       }
+      await messageSidebarPluginContent();
       //new update in 3 seconds
       if (sidebar.active) {
         var getLogsTimer = setTimeout(renderMessageSidebar, 3000);
