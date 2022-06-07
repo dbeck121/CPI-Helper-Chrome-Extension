@@ -18,7 +18,7 @@ var plugin = {
             button.addEventListener("click", () => {
                 var flow = pluginHelper.integrationFlowId;
                 var tenant = pluginHelper.tenant;
-                var url = "https://beta.cpi-transporter.com/api/transport/?system="+tenant+"&artifact="+flow;
+                var url = "https://cpi-transporter.com/api/transport/?system="+tenant+"&artifact="+flow;
                 window.open(url,'_blank');
             });
             return button;
