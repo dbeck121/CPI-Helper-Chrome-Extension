@@ -87,7 +87,7 @@ createLogsLeftSide = async (leftActive = false) => {
     button.style.margin = "10px";
     button.style.marginLeft = "0px";
     list.appendChild(button);
-    list.appendChild(createElementFromHTML(`<div id="cpiHelper_log_list_for_entries" />`));
+    list.appendChild(createElementFromHTML(`<div id="cpiHelper_log_list_for_entries" class="cpiHelper_logs_table_div"/>`));
 
     return list;
 
@@ -103,6 +103,8 @@ updateLogList = async () => {
         var artifact = document.getElementById("logs-left-side_cpiHelper_artifactList").value;
         var dateType = document.getElementById("cpiHelper_logs_date_type").value;
         var listPlace = document.getElementById("cpiHelper_log_list_for_entries");
+        var startDateTimeInUTC = new Date(startDate + "T" + startTime + ":00.000").toISOString().replace("Z", "");
+        var endDateTimeInUTC = new Date(endDate + "T" + endTime + ":00.000").toISOString().replace("Z", "");
         listPlace.innerHTML = "";
 
         if (!artifact) {
@@ -125,7 +127,7 @@ updateLogList = async () => {
         }
 
         if (dateType == "custom") {
-            var response = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + artifact + "' and Status ne 'DISCARDED' " + statusfilter + "and LogStart gt datetime'" + startDate + "T" + startTime + ":00.000' and LogStart lt datetime'" + endDate + "T" + endTime + ":00.000'&$top=40&$format=json&$orderby=LogStart desc", false)).d.results;
+            var response = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + artifact + "' and Status ne 'DISCARDED' " + statusfilter + "and LogStart ge datetime'" + startDateTimeInUTC +"' and LogStart le datetime'" + endDateTimeInUTC +"'&$top=40&$format=json&$orderby=LogStart desc", false)).d.results;
         } else {
             var response = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + artifact + "' " + statusfilter + "and Status ne 'DISCARDED'&$top=35&$format=json&$orderby=LogStart desc", false)).d.results;
 
@@ -183,7 +185,11 @@ updateLogList = async () => {
             buttonWrap.style.padding = "0px";
             let button = document.createElement('button');
             button.innerText = date.substr(11, 8);
-            button.onclick = () => {
+            button.onclick = (event) => {
+                if (document.getElementsByClassName("cpiHelper_logs_selected_button").length > 0) {
+                    document.getElementsByClassName("cpiHelper_logs_selected_button")[0].classList.remove("cpiHelper_logs_selected_button");
+                }
+                event.target.classList.add("cpiHelper_logs_selected_button")
                 updateRightSide(response[i].MessageGuid)
             }
             buttonWrap.appendChild(button);

@@ -22,6 +22,13 @@ I recommend to read the readme first but if you know what you are doing, you can
 - Last visited iflows in browser-bar-popup
 
 ## Changelog
+### 2.1.2
+- [Improvement] Enhanced logs popup. Thanks to [Nick Yang](https://github.com/SAPNickYang)
+- [Bugfix] Fixed timezone in logs popup. Thanks to [Nick Yang](https://github.com/SAPNickYang)
+### 2.1.1
+- [Improvement] More features for plugins
+- [Bugfix] Some bugs fixed in plugin engine
+
 ### 2.1.0
 - [Feature] There is a very limited plugin engine that you can use to add features to CPI-Helper. (see [plugin readme](plugins/README.md))
 - [Feature] Syntax highlghting for SQL in Payloads
