@@ -720,10 +720,8 @@ function buildButtonBar() {
     //append buttons
     area = document.querySelector("[id*='--iflowObjectPageHeader-actions']");
 
+    area.style.textAlign = "right";
     var breakLine = document.createElement('br');
-    breakLine.style.content = ""
-    breakLine.style.display = "block";
-    breakLine.style.margin = "0px"
 
     area.appendChild(breakLine);
     area.appendChild(pluginbutton);
