@@ -22,6 +22,8 @@ I recommend to read the readme first but if you know what you are doing, you can
 - Last visited iflows in browser-bar-popup
 
 ## Changelog
+### 2.2.0
+- [Feature] First third party plugins are shipped with CPI-Helper like the [figaf plugin](https://figaf.com/cpihelper/)
 ### 2.1.2
 - [Improvement] Enhanced logs popup. Thanks to [Nick Yang](https://github.com/SAPNickYang)
 - [Bugfix] Fixed timezone in logs popup. Thanks to [Nick Yang](https://github.com/SAPNickYang)
