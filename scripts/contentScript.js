@@ -1317,15 +1317,20 @@ function errorPopupClose() {
 //function to get the iFlow name from the URL
 function getIflowName() {
   var url = window.location.href;
-  let dateRegexpForIFlows = /\/integrationflows\/(?<integrationFlowId>[0-9a-zA-Z_\-.]+)/;
-  let dataRegexpForODataAPI = /\/odataservices\/(?<odataServiceId>[0-9a-zA-Z_\-.]+)/;
+  let allDataRegexp = [/\/integrationflows\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, /\/odataservices\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, /\/restapis\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, /\/soapapis\/(?<artifactId>[0-9a-zA-Z_\-.]+)/];
   var result;
 
   try {
-    let groups = dataRegexpForODataAPI.test(url) ? url.match(dataRegexpForODataAPI).groups : url.match(dateRegexpForIFlows).groups;
+    let groups = "";
 
-    result = groups.odataServiceId ? groups.odataServiceId : groups.integrationFlowId;
-    console.log("Found iFlow:" + result);
+    for (const dataRegexp of allDataRegexp) {
+      if (dataRegexp.test(url) === true) {
+        groups = url.match(dataRegexp).groups;
+        result = groups.artifactId;
+      }
+    }    
+
+    console.log("Found artifact: " + result);
 
   } catch (e) {
     cpiData.integrationFlowId = null;
