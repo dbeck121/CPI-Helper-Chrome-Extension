@@ -19,6 +19,7 @@ async function whatsNewCheck() {
       <li>PowerTrace - Trace keeps running even after 15 minutes</li>
        </ul>
       <h3>Recent Innovations</h3>
+      <li>Version 2.3.0: Works now with "Rest API" Iflow type</li>
       <li>Version 2.2.0: First third-party-plugins are shipped with CPI-Helper like the <a href="https://figaf.com/cpihelper/">figaf plugin</a></li>
       <li>Version 2.1.2: Some improvements in logs popup</li>
       <li>Version 2.1.0: A very basic plugin engine and some ui improvements. Visit our <a href="https://kangoolutions.com/2022/05/02/cpi-helper-2-1-x-some-improvements-and-early-version-of-plugin-interface/">blog</a> for more information</li>
