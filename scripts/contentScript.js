@@ -5,12 +5,20 @@
 var cpiData = {};
 
 //initialize used elements
-cpiData.messageSidebar = {}
+cpiData.messageSidebar = {};
 cpiData.messageSidebar.lastMessageHashList = [];
 cpiData.integrationFlowId = "";
 cpiData.tenant = document.location.host;
-cpiData.functions = {}
-
+cpiData.functions = {};
+cpiArtifactURIRegexp = [
+  /\/integrationflows\/(?<artifactId>[0-9a-zA-Z_\-.]+)/,
+  /\/odataservices\/(?<artifactId>[0-9a-zA-Z_\-.]+)/,
+  /\/restapis\/(?<artifactId>[0-9a-zA-Z_\-.]+)/,
+  /\/soapapis\/(?<artifactId>[0-9a-zA-Z_\-.]+)/,
+  /\/valuemappings\/(?<artifactId>[0-9a-zA-Z_\-.]+)/,
+  /\/scriptcollections\/(?<artifactId>[0-9a-zA-Z_\-.]+)/,
+  /\/messagemappings\/(?<artifactId>[0-9a-zA-Z_\-.]+)/
+];
 
 //opens a new window with the Trace for a MessageGuid
 function openTrace(MessageGuid) {
@@ -720,15 +728,17 @@ function buildButtonBar() {
     //append buttons
     area = document.querySelector("[id*='--iflowObjectPageHeader-actions']");
 
-    area.style.textAlign = "right";
-    var breakLine = document.createElement('br');
+    if (area) {
+      area.style.textAlign = "right";
+      var breakLine = document.createElement('br');
 
-    area.appendChild(breakLine);
-    area.appendChild(pluginbutton);
-    area.appendChild(infobutton);
-    area.appendChild(messagebutton);
-    area.appendChild(tracebutton);
-    area.appendChild(logsbutton);
+      area.appendChild(breakLine);
+      area.appendChild(pluginbutton);
+      area.appendChild(infobutton);
+      area.appendChild(messagebutton);
+      area.appendChild(tracebutton);
+      area.appendChild(logsbutton);
+    }
 
 
     tracebutton.addEventListener("click", () => {
@@ -1317,13 +1327,12 @@ function errorPopupClose() {
 //function to get the iFlow name from the URL
 function getIflowName() {
   var url = window.location.href;
-  let allDataRegexp = [/\/integrationflows\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, /\/odataservices\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, /\/restapis\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, /\/soapapis\/(?<artifactId>[0-9a-zA-Z_\-.]+)/];
   var result;
 
   try {
     let groups = "";
 
-    for (const dataRegexp of allDataRegexp) {
+    for (const dataRegexp of cpiArtifactURIRegexp) {
       if (dataRegexp.test(url) === true) {
         groups = url.match(dataRegexp).groups;
         result = groups.artifactId;
@@ -1359,11 +1368,10 @@ function checkURLchange() {
 
 //this function is fired when the url changes
 function handleUrlChange() {
+  storeVisitedIflowsForPopup();
   if (getIflowName()) {
     //if iflow found, inject buttons   
-    storeVisitedIflowsForPopup();
     setDocumentTitle(hostData.title)
-
   } else {
     setDocumentTitle(hostData.title)
     //deactivate sidebar if not on iflow page
@@ -1427,37 +1435,46 @@ async function storageGetPromise(name) {
 
 //Visited IFlows are stored to show in the popup that appears when pressing the button in browser bar
 function storeVisitedIflowsForPopup() {
-  var tenant = document.location.href.split("/")[2].split(".")[0];
+  var url = window.location.href;
+  var tenant = url.split("/")[2].split(".")[0];
   var name = 'visitedIflows_' + tenant;
-  chrome.storage.sync.get([name], function (result) {
-    var visitedIflows = result[name];
 
-    if (!visitedIflows) {
-      visitedIflows = [];
+  for (const dataRegexp of cpiArtifactURIRegexp) {
+    if (dataRegexp.test(url) === true) {
+      let groups = url.match(dataRegexp);
+      if (groups.length === 2) {
+        let cpiArtifactId = groups.groups.artifactId;
+        chrome.storage.sync.get([name], function (result) {
+          var visitedIflows = result[name];
+      
+          if (!visitedIflows) {
+            visitedIflows = [];
+          }
+      
+          //filter out the current flow
+          if (visitedIflows.length > 0) {
+            visitedIflows = visitedIflows.filter((element) => {
+              return element.name != cpiArtifactId;
+            });
+          }
+      
+          //put the current flow to the last element. last position indicates last visited element
+          visitedIflows.push({ name: cpiArtifactId, "url": document.location.href, "favorit": false });
+      
+          //delete the first one when there are more than 10 iflows in visited list
+          if (visitedIflows.length > 10) {
+            visitedIflows.shift();
+          }
+      
+          var obj = {};
+          obj[name] = visitedIflows;
+      
+          chrome.storage.sync.set(obj, function () {
+          });
+        });
+      }
     }
-
-    //filter out the current flow
-    if (visitedIflows.length > 0) {
-      visitedIflows = visitedIflows.filter((element) => {
-        return element.name != cpiData.integrationFlowId;
-      });
-    }
-
-    //put the current flow to the last element. last position indicates last visited element
-    visitedIflows.push({ name: cpiData.integrationFlowId, "url": document.location.href, "favorit": false });
-
-    //delete the first one when there are more than 10 iflows in visited list
-    if (visitedIflows.length > 10) {
-      visitedIflows.shift();
-    }
-
-    var obj = {};
-    obj[name] = visitedIflows;
-
-    chrome.storage.sync.set(obj, function () {
-    });
-
-  });
+  }
 }
 
 //start
