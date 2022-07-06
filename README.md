@@ -23,7 +23,8 @@ I recommend to read the readme first but if you know what you are doing, you can
 
 ## Changelog
 ### 2.3.0
-- [Feature] Works now with "Rest API" IFlow Type. Thanks to [Nick Yang](https://github.com/SAPNickYang)
+- [Feature] "Last Visited" now includes all types of Artifacts. Thanks to [Nick Yang](https://github.com/SAPNickYang)
+- [Feature] Works now with "Rest API" and "SOAP API" IFlow Type. Thanks to [Nick Yang](https://github.com/SAPNickYang)
 ### 2.2.0
 - [Feature] First third party plugins are shipped with CPI-Helper like the [figaf plugin](https://figaf.com/cpihelper/)
 ### 2.1.2
