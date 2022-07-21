@@ -9,7 +9,7 @@ async function whatsNewCheck() {
       <h3>News</h3>
       <p>CPI-Helper has a very limited plugin engine now. Read more about whats new in <a href= "https://kangoolutions.com/2022/05/02/cpi-helper-2-1-x-some-improvements-and-early-version-of-plugin-interface/">this</a> blog article</p>
       <p>The plugin is now backed by Kangoolutions. A SAP Integration Consulting Company. We try to bring you more features and functionalities this year. <br>Check our <a href="https://kangoolutions.com/blog" target="_blank">website</a> to learn more about us. We are open for new projects, feedback and new topics.</p>
-      <h3>We reached 5500 users!</h3>
+      <h3>We reached 5700 users!</h3>
       <h3>Info!</h3>
       We have a new <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">GitHub Page</a>.
       <h3>Main Features</h3>
@@ -19,7 +19,9 @@ async function whatsNewCheck() {
       <li>PowerTrace - Trace keeps running even after 15 minutes</li>
        </ul>
       <h3>Recent Innovations</h3>
-      <li>Version 2.1.0: A very basic plugin engine and some ui improvements. Visit our <a href= "https://kangoolutions.com/2022/05/02/cpi-helper-2-1-x-some-improvements-and-early-version-of-plugin-interface/">blog</a> for more information</li>
+      <li>Version 2.2.0: First third-party-plugins are shipped with CPI-Helper like the <a href="https://figaf.com/cpihelper/">figaf plugin</a></li>
+      <li>Version 2.1.2: Some improvements in logs popup</li>
+      <li>Version 2.1.0: A very basic plugin engine and some ui improvements. Visit our <a href="https://kangoolutions.com/2022/05/02/cpi-helper-2-1-x-some-improvements-and-early-version-of-plugin-interface/">blog</a> for more information</li>
       <li>Version 2.0.2: Killed some bugs and ui improvements</li>
       <li>Version 2.0.0: <ul>
       <li>You can now see XML in properties view of logs and InlineTrace</li>
