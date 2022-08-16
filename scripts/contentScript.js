@@ -1240,30 +1240,77 @@ async function errorPopupOpen(MessageGuid) {
   ///MessageProcessingLogRuns('AF5eUbNwAc1SeL_vdh09y4njOvwO')/RunSteps?$inlinecount=allpages&$format=json&$top=500
   var resp = await getMessageProcessingLogRuns(MessageGuid, false)
 
-  var y = document.getElementById("cpiHelper_sidebar_popup");
+
+  y = document.createElement('div');
   y.innerText = "";
+
+  try {
+    var customHeaders = await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')?$format=json&$expand=CustomHeaderProperties", false)
+    customHeaders = JSON.parse(customHeaders).d
+
+    //Duration
+    var stepStart = new Date(parseInt(customHeaders.LogStart.substr(6, 13)));
+    stepStart.setTime(stepStart.getTime() - stepStart.getTimezoneOffset() * 60 * 1000);
+
+    var stepStop = new Date(parseInt(customHeaders.LogEnd.substr(6, 13)));
+    stepStop.setTime(stepStop.getTime() - stepStop.getTimezoneOffset() * 60 * 1000);
+
+
+    let status = document.createElement("div");
+    status.className = "contentText";
+    status.innerText = "Status: " + customHeaders.CustomStatus
+    y.appendChild(status)
+
+
+    let text = document.createElement("div");
+    text.className = "contentText";
+    text.innerText = "Duration: " + ((stepStop - stepStart) / 1000).toFixed(2) + " seconds"
+    y.appendChild(text)
+
+    let text2 = document.createElement("div");
+    text2.className = "contentText";
+    text2.innerText = "Duration: " + ((stepStop - stepStart) / 1000 / 60).toFixed(2) + " minutes"
+    y.appendChild(text2)
+
+    //custom Headers and Properties
+    customHeaders?.CustomHeaderProperties?.results.forEach(
+      (element) => {
+        let text = document.createElement("div");
+        text.className = "contentText";
+        text.innerText = element?.Name + ": " + element?.Value?.substr(0, 150)
+        y.appendChild(text)
+      }
+    )
+  } catch (err) {
+    console.log(err + "no custom headers available")
+  }
 
 
   if (resp == null || resp.length == 0) {
-    y.innerText = "No data available.";
-    return;
-  }
+    let text = document.createElement("div");
+    text.className = "contentText";
+    text.innerText = "No Errormessage found."
+    y.appendChild(text)
+
+  } else {
 
 
-  let error = false;
-  for (var i = 0; i < resp.length; i++) {
-    if (resp[i].Error) {
-      error = true;
-      let errorText = createErrorMessageElement(resp[i].Error);
+    let error = false;
+    for (var i = 0; i < resp.length; i++) {
+      if (resp[i].Error) {
+        error = true;
+        let errorText = createErrorMessageElement(resp[i].Error);
+        y.appendChild(errorText);
+      }
+    }
+    if (!error || resp.length == 0) {
+      let errorText = document.createElement("div");
+      errorText.className = "contentText";
       y.appendChild(errorText);
     }
   }
-  if (!error || resp.length == 0) {
-    let errorText = document.createElement("span");
-    errorText.className = "contentText";
-    y.appendChild(errorText);
-    y.innerText = "No errors found in processed message";
-  }
+  x.innerHTML = "";
+  x.appendChild(y)
 
 };
 
@@ -1337,7 +1384,7 @@ function getIflowName() {
         groups = url.match(dataRegexp).groups;
         result = groups.artifactId;
       }
-    }    
+    }
 
     console.log("Found artifact: " + result);
 
@@ -1446,29 +1493,29 @@ function storeVisitedIflowsForPopup() {
         let cpiArtifactId = groups.groups.artifactId;
         chrome.storage.sync.get([name], function (result) {
           var visitedIflows = result[name];
-      
+
           if (!visitedIflows) {
             visitedIflows = [];
           }
-      
+
           //filter out the current flow
           if (visitedIflows.length > 0) {
             visitedIflows = visitedIflows.filter((element) => {
               return element.name != cpiArtifactId;
             });
           }
-      
+
           //put the current flow to the last element. last position indicates last visited element
           visitedIflows.push({ name: cpiArtifactId, "url": document.location.href, "favorit": false });
-      
+
           //delete the first one when there are more than 10 iflows in visited list
           if (visitedIflows.length > 10) {
             visitedIflows.shift();
           }
-      
+
           var obj = {};
           obj[name] = visitedIflows;
-      
+
           chrome.storage.sync.set(obj, function () {
           });
         });
