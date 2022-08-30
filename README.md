@@ -149,7 +149,7 @@ There are two options to install this plugin:
 ### Install directly from Chrome Web Store (recommended)
 Just add the plugin in the [Chrome Web Store](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb).
 This is probably the easiest way. Updates will be installed automatically.
-[![Chrome Web Store](https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png)](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb)
+[![Chrome Web Store](https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/YT2Grfi9vEBa2wAPzhWa.png)](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb)
 
 Please note: there was an old Chrome Store entry that is not updated anymore. If you installed the plugin before 21 March 2020, you have to uninstall it and install it again with the link above.
 ### Install in Developer Mode from Sources
