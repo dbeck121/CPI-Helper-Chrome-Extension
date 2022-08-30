@@ -161,7 +161,7 @@ function makeCallPromise(method, url, useCache, accept) {
 function checkUpdate() {
     var manifestVersion = chrome.runtime.getManifest().version;
     var cpihelper_version = document.getElementById("cpihelper_version");
-    var html = "<span>Curent version: " + manifestVersion + "</span>";
+    var html = "<span>Current version: " + manifestVersion + "</span>";
     cpihelper_version.innerHTML = html;
 }
 

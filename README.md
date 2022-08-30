@@ -1,7 +1,7 @@
 # CPI-Helper Chrome-Extension
 This Chrome Plugin extends the SAP Cloud Platform Integration with some useful features.
 
-I recommend to read the readme first but if you know what you are doing, you can add it to your Chrome Browser directly:
+I recommend reading the readme first but if you know what you are doing, you can add it to your Chrome Browser directly:
 [Chrome Web Store](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb)
 
 ## Features
@@ -12,7 +12,7 @@ I recommend to read the readme first but if you know what you are doing, you can
 - Pretty print for trace messages in integration flow designer
 - Button to switch trace
 - Directly go to traces of specific message
-- Directly go to logs and attachements of specific message
+- Directly go to logs and attachments of specific message
 - Pop-up with error-message when hovering message in sidebar
 - Pop-up with deployment info
 - View and delete variables in info pop-up
@@ -28,7 +28,7 @@ I recommend to read the readme first but if you know what you are doing, you can
 - [Feature] "Last Visited" now includes all types of Artifacts. Thanks to [Nick Yang](https://github.com/SAPNickYang)
 - [Feature] Works now with "Rest API" and "SOAP API" IFlow Type. Thanks to [Nick Yang](https://github.com/SAPNickYang)
 ### 2.2.0
-- [Feature] First third party plugins are shipped with CPI-Helper like the [figaf plugin](https://figaf.com/cpihelper/)
+- [Feature] First third-party plugins are shipped with CPI-Helper like the [figaf plugin](https://figaf.com/cpihelper/)
 ### 2.1.2
 - [Improvement] Enhanced logs popup. Thanks to [Nick Yang](https://github.com/SAPNickYang)
 - [Bugfix] Fixed timezone in logs popup. Thanks to [Nick Yang](https://github.com/SAPNickYang)
@@ -38,7 +38,7 @@ I recommend to read the readme first but if you know what you are doing, you can
 
 ### 2.1.0
 - [Feature] There is a very limited plugin engine that you can use to add features to CPI-Helper. (see [plugin readme](plugins/README.md))
-- [Feature] Syntax highlghting for SQL in Payloads
+- [Feature] Syntax highlighting for SQL in Payloads
 - [Improvement] Shows size of payload in inline trace body viewer
 - [Improvement] Info tab has more info in inline trace
 
@@ -49,7 +49,7 @@ I recommend to read the readme first but if you know what you are doing, you can
 - [Improvement] Some UI improvements
 ### 2.0.0
 - [Feature] One can now view XML in properties view of logs and InlineTrace
-- [Feature] Option to open Message Sidebar on start of the Integration Flow Designer
+- [Feature] Option to open Message Sidebar at start of the Integration Flow Designer
 - [Feature] Info tab in logs popup to see Custom Header Logs and more
 - [Feature] Info tab in InlineTrace popup with some step information
 ### 1.8.1
@@ -64,7 +64,7 @@ I recommend to read the readme first but if you know what you are doing, you can
 - [Feature] New logo, new colors
 - [Feature] Logs viewer in beta mode
 ### 1.6.0
-- [Feature] More links in regards to monitoring in popup. Thanks to [Nick Yang](https://github.com/SAPNickYang)
+- [Feature] More links in regards to monitoring in pop-up. Thanks to [Nick Yang](https://github.com/SAPNickYang)
 - [Feature] Showing "DeployedVersion" in Info menu. Thanks to [Nick Yang](https://github.com/SAPNickYang)
 - [Feature] Loading indicator.
 - [Feature] Some design improvements.
@@ -151,7 +151,7 @@ Just add the plugin in the [Chrome Web Store](https://chrome.google.com/webstore
 This is probably the easiest way. Updates will be installed automatically.
 [![Chrome Web Store](https://developer.chrome.com/webstore/images/ChromeWebStore_Badge_v2_206x58.png)](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb)
 
-Please note: there was an old Chrome Store entry that is not updated anymore. If you installed the plugin before 21 March 2020, you have to uninstall and install again with the link above.
+Please note: there was an old Chrome Store entry that is not updated anymore. If you installed the plugin before 21 March 2020, you have to uninstall it and install it again with the link above.
 ### Install in Developer Mode from Sources
 If you know what you are doing, you can install the plugin directly from sources.
 Clone the repo and add the folder directly to Google Chrome
@@ -161,44 +161,44 @@ Clone the repo and add the folder directly to Google Chrome
 >- Click: "Load Unpacked Extension" and select the folder with the plugin data
 
 ## Update
-Attention: If you installed the plugin from Chrome Store before 21 March 2020, please uninstall and install again with the link on the top.
+Attention: If you installed the plugin from Chrome Store before 21 March 2020, please uninstall and install it again with the link on the top.
 Chrome updates extensions that are installed from the Chrome Web Store automatically. 
 If you installed the plugin from sources:
-Please replace the folder with the new version on your disk. After that you must delete and add the plugin in Chrome Browser.
-If you have cloned the repository, pull new data. Than delete and add the plugin in Chrome. Restart Chrome.
+Please replace the folder with the new version on your disk. After that, you must delete and add the plugin to Chrome Browser.
+If you have cloned the repository, pull new data. Then delete and add the plugin in Chrome. Restart Chrome.
 
 ## Usage
 ### New Buttons
-If you open an Integration Flow, the plugin will automatically add a "Messages", a "Trace" and a "Info" button in the Integration-Flow-Designer. 
+If you open an Integration Flow, the plugin will automatically add a "Messages", a "Trace" and an "Info" button in the Integration-Flow-Designer. 
 #### Message Button
-The "Message" button opens a small dragable sidebar with the last processed messages. You can jump directly to infos and traces of the message run. If you hover status icon of message, you will see a pop-up with the error message directly. If you click on the time button,InlineTrace is activated (Only when trace was activated for message). If you click on a color coded integration flow item and trace is available, a pop-up opens with the trace of the message at this point.
+The "Message" button opens a small draggable sidebar with the last processed messages. You can jump directly to infos and traces of the message run. If you hover over the status icon of message, you will see a pop-up with the error message directly. If you click on the time button, InlineTrace is activated (Only when trace was activated for message). If you click on a color coded integration flow item and trace is available, a pop-up opens with the trace of the message at this point.
 ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/images/screenshots/chrome1.png)
 
 ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/images/screenshots/chrome4.png)
 #### Trace Button
-The "Trace buttons" sets the loglevel of the current Iflow to trace.
+The "Trace" button sets the loglevel of the current Iflow to trace.
 #### Info Button
-The "Info"-Button lets you see detailed informations of the deployment state of your Integration Flow.
+The "Info" button lets you see detailed information of the deployment state of your Integration Flow.
 ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/images/screenshots/chrome2.png)
 ### Toolbar Popup
-The button of the plugin in the toolbar gives you a list of useful links of you current tenant. It includes last visited Integration Flows.
+The button of the plugin in the toolbar gives you a list of useful links of your current tenant. It includes last visited Integration Flows.
 ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/images/screenshots/chrome3.png)
 See also the [SAP Community Blog](https://blogs.sap.com/2020/03/05/cpi-chrome-plugin-to-enhance-sap-cloud-platform-integration-usability/#)
 ### Inline Trace
-On the message sidebar, press the time-button next to the status icon of a processed message. If run steps exist, the elements of the Integration Flow will change colors accordingly. This will give you a quick overview over the run.
+On the message sidebar, press the time button next to the status icon of a processed message. If run steps exist, the elements of the Integration Flow will change colors accordingly. This will give you a quick overview of the run.
 >- Blue elements are successfully processed steps
 >- Red elements are elements with errors.
-SAP does not provide good information about errors. So when an error at a Splitter-Element occurs, this does not have to mean that the error occured here. It can also be a catched error from elements after the Splitter.
+SAP does not provide good information about errors. So when an error at a Splitter-Element occurs, this does not have to mean that the error occurred here. It can also be a catched error from elements after the Splitter.
 
-Run steps exists for processed messages with trace and for a short time in processed messages with errors.
+Run steps exist for processed messages with trace and for a short time in processed messages with errors.
 ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/images/screenshots/chrome_inlinetrace.png)
 ### Inline Trace - Show Headers, Properties, Trace, Error and Logs
-If you activated the Inline Trace feature, you can get more details. Traces only exist for processed messages with loglevel trace and will be deleted after round about 1 hour by SAP.
+If you activated the Inline Trace feature, you can get more details. Traces only exist for processed messages with loglevel trace and will be deleted after around about 1 hour by SAP.
 ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/images/screenshots/chrome_trace_properties.png)
 ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/images/screenshots/chrome_after_beautify.png)
 ## FAQ
 ### How can I activate InlineTrace?
-Run a message with trace activated. You see the message in the message sidebar. Click on the button with the time for the specific message. If trace is available, items which processed the message change color. You can click on integration flow elements to see the trace message before this step.
+Run a message with trace activated. You see the message in the message sidebar. Click on the button with the time for the specific message. If trace is available, items that processed the message change color. You can click on integration flow elements to see the trace message before this step.
 ### How long is the trace available?
 SAP deletes trace messages after a while. Trace messages normally do not live longer than 1 hour.
 ## Contributing
@@ -206,7 +206,7 @@ See [Contribution guidelines for this project](docs/CONTRIBUTING.md) if you want
 
 If you have any ideas, please write a message or comment at the [SAP Community](https://blogs.sap.com/2020/03/05/cpi-chrome-plugin-to-enhance-sap-cloud-platform-integration-usability/#)
 
-### Contributers
+### Contributors
 >- [Dominic Beckbauer](https://github.com/dbeck121): Main work
 >- [Nick Yang](https://github.com/SAPNickYang): Bug fixes and UI improvements
 >- [Raffael Herrmann](https://github.com/codebude): Speed up handling of large XML structures in beautifier.
