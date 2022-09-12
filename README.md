@@ -22,6 +22,8 @@ I recommend reading the readme first but if you know what you are doing, you can
 - Last visited iflows in browser-bar-popup
 
 ## Changelog
+### 2.4.1
+- [Bugfix] MessageList is now ordered by LogEnd not LogStart. 
 ### 2.4.0
 - [Feature] More information in message sidebar like CustomHeaderProperties and duration on mouse hover.
 ### 2.3.0
