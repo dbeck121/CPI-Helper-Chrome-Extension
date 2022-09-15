@@ -376,7 +376,7 @@ async function clickTrace(e) {
 
     if (object.traceType == "trace") {
       let elements = await makeCallPromise("GET", "/itspaces/odata/api/v1/TraceMessages(" + traceId + ")/$value", true);
-      html = formatTrace(elements, object.runId + "_" + object.childCount);
+      html = formatTrace(elements, object.runId + "_" + object.childCount, traceId);
     }
 
     if (object.traceType == "logContent") {
