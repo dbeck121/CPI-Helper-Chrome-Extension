@@ -130,7 +130,7 @@ async function makeCall(type, url, includeXcsrf, payload, callback, contentType,
   xhr.send(payload);
 }
 
-var formatTrace = function (input, id) {
+var formatTrace = function (input, id, traceId) {
 
   var encodeHTML = function (str) {
 
@@ -200,7 +200,16 @@ var formatTrace = function (input, id) {
 
 
 
+  var downloadButton = document.createElement("button");
+  downloadButton.innerText = "Download";
+  downloadButton.onclick = async (element) => {
+    var response = await makeCallPromise("GET", "/itspaces/Operations/com.sap.it.op.tmn.commands.dashboard.webui.GetTraceArchiveCommand?traceIds=" + traceId, true);
+    var value = response.match(/<payload>(.*)<\/payload>/sg)[0];
+    value = value.substring(9, value.length - 10)
 
+    window.open("data:application/zip;base64," + value);
+    showSnackbar("Download complete.");
+  };
 
   var copyButton = document.createElement("button");
   copyButton.innerText = "Copy";
@@ -262,6 +271,7 @@ var formatTrace = function (input, id) {
 
   result.appendChild(beautifyButton);
   result.appendChild(copyButton);
+  result.appendChild(downloadButton);
   var textEncoder = new TextEncoder().encode(input)
   if (textEncoder.length) {
     var span = document.createElement("span");
