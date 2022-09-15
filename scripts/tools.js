@@ -110,7 +110,7 @@ async function makeCall(type, url, includeXcsrf, payload, callback, contentType,
     xhr.setRequestHeader("X-CSRF-Token", xcsrf);
   }
 
-  xhr.timeout = 4000; // Set timeout to 4 seconds (4000 milliseconds)
+  xhr.timeout = 6500; // Set timeout to 6.5 seconds
   xhr.ontimeout = function () {
 
     showInfo ? showSnackbar("CPI-Helper has run into a timeout. Please refresh site and try again.") : {};
