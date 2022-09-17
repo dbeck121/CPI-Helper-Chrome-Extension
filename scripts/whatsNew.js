@@ -18,6 +18,8 @@ async function whatsNewCheck() {
       <li>PowerTrace - Trace keeps running even after 15 minutes</li>
        </ul>
       <h3>Recent Innovations</h3>
+      
+      <li>Version 2.5.0: <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension/issues/29">Download option</a> for message step in trace mode. Special thanks to <a href="https://github.com/SAPNickYang">Nick Yang</a></li>
       <li>Version 2.4.1: Some bugfixes</li>
       <li>Version 2.4.0: More information in message sidebar like CustomHeaderProperties and duration on mouse hover.</li>
       <li>Version 2.3.0: Works now with "Rest API" and "SOAP API" IFlow type and "Last Visited" includes all types of artifacts now. Special thanks to <a href="https://github.com/SAPNickYang">Nick Yang</a></li>
