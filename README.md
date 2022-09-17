@@ -22,6 +22,9 @@ I recommend reading the readme first but if you know what you are doing, you can
 - Last visited iflows in browser-bar-popup
 
 ## Changelog
+### 2.5.0
+- [Feature] Download option for message step in trace mode. [See Issue #29](https://github.com/dbeck121/CPI-Helper-Chrome-Extension/issues/29). Thanks to [Nick Yang](https://github.com/SAPNickYang)
+- [Bugfix] Longer Timeouts for API calls to CI-Tenant
 ### 2.4.1
 - [Bugfix] MessageList is now ordered by LogEnd not LogStart. 
 ### 2.4.0
