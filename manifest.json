@@ -9,6 +9,7 @@
     "declarativeContent",
     "storage",
     "https://*.hana.ondemand.com/itspaces",
+    "https://*.platform.sapcloud.cn/itspaces",
     "webRequest"
   ],
   "background": {
@@ -21,7 +22,8 @@
   "content_scripts": [
     {
       "matches": [
-        "https://*.hana.ondemand.com/itspaces/*"
+        "https://*.hana.ondemand.com/itspaces/*",
+        "https://*.platform.sapcloud.cn/itspaces/*"
       ],
       "js": [
         "/lib/prettify/prettify.js",

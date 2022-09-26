@@ -38,5 +38,5 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
     return { requestHeaders: details.requestHeaders };
 
   },
-  { urls: ["https://*.hana.ondemand.com/itspaces/api/1.0/workspace*/artifacts/*/iflows/*?lockinfo=true&webdav=LOCK", "https://*.hana.ondemand.com/itspaces/api/1.0/workspace*/odata/*?lockinfo=true&webdav=LOCK"] },
+  { urls: ["https://*.hana.ondemand.com/itspaces/api/1.0/workspace*/artifacts/*/iflows/*?lockinfo=true&webdav=LOCK", "https://*.hana.ondemand.com/itspaces/api/1.0/workspace*/odata/*?lockinfo=true&webdav=LOCK", "https://*.platform.sapcloud.cn/itspaces/api/1.0/workspace*/artifacts/*/iflows/*?lockinfo=true&webdav=LOCK", "https://*.platform.sapcloud.cn/itspaces/api/1.0/workspace*/odata/*?lockinfo=true&webdav=LOCK"] },
   ["requestHeaders"]);
