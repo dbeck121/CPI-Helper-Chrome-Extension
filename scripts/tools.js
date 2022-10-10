@@ -200,16 +200,18 @@ var formatTrace = function (input, id, traceId) {
 
 
 
-  var downloadButton = document.createElement("button");
-  downloadButton.innerText = "Download";
-  downloadButton.onclick = async (element) => {
-    var response = await makeCallPromise("GET", "/itspaces/Operations/com.sap.it.op.tmn.commands.dashboard.webui.GetTraceArchiveCommand?traceIds=" + traceId, true);
-    var value = response.match(/<payload>(.*)<\/payload>/sg)[0];
-    value = value.substring(9, value.length - 10)
-
-    window.open("data:application/zip;base64," + value);
-    showSnackbar("Download complete.");
-  };
+  if (traceId) {
+    var downloadButton = document.createElement("button");
+    downloadButton.innerText = "Download";
+    downloadButton.onclick = async (element) => {
+      var response = await makeCallPromise("GET", "/itspaces/Operations/com.sap.it.op.tmn.commands.dashboard.webui.GetTraceArchiveCommand?traceIds=" + traceId, true);
+      var value = response.match(/<payload>(.*)<\/payload>/sg)[0];
+      value = value.substring(9, value.length - 10)
+  
+      window.open("data:application/zip;base64," + value);
+      showSnackbar("Download complete.");
+    };
+  }
 
   var copyButton = document.createElement("button");
   copyButton.innerText = "Copy";
@@ -271,7 +273,10 @@ var formatTrace = function (input, id, traceId) {
 
   result.appendChild(beautifyButton);
   result.appendChild(copyButton);
-  result.appendChild(downloadButton);
+  if (traceId) {
+    result.appendChild(downloadButton);
+  }
+
   var textEncoder = new TextEncoder().encode(input)
   if (textEncoder.length) {
     var span = document.createElement("span");
