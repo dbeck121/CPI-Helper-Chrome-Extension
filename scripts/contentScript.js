@@ -10,6 +10,7 @@ cpiData.messageSidebar.lastMessageHashList = [];
 cpiData.integrationFlowId = "";
 cpiData.tenant = document.location.host;
 cpiData.urlExtension = "";
+cpiData.classicUrl = false;
 cpiData.functions = {};
 cpiArtifactURIRegexp = [
   /\/integrationflows\/(?<artifactId>[0-9a-zA-Z_\-.]+)/,
@@ -25,12 +26,12 @@ cpiArtifactURIRegexp = [
 function openTrace(MessageGuid) {
 
   //we have to get the RunID first
-  makeCall("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$format=json", false, "", (xhr) => {
+  makeCall("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$format=json", false, "", (xhr) => {
     if (xhr.readyState == 4) {
       var resp = JSON.parse(xhr.responseText);
       var runId = resp.d.results[0].Id;
 
-      let url = '/'+cpiData.urlExtension+'shell/monitoring/MessageProcessingRun/%7B"parentContext":%7B"MessageMonitor":%7B"artifactKey":"__ALL__MESSAGE_PROVIDER","artifactName":"All%20Artifacts"%7D%7D,"messageProcessingLog":"' + MessageGuid + '","RunId":"' + runId + '"%7D';
+      let url = '/' + cpiData.urlExtension + 'shell/monitoring/MessageProcessingRun/%7B"parentContext":%7B"MessageMonitor":%7B"artifactKey":"__ALL__MESSAGE_PROVIDER","artifactName":"All%20Artifacts"%7D%7D,"messageProcessingLog":"' + MessageGuid + '","RunId":"' + runId + '"%7D';
       window.open(url, '_blank');
     }
   })
@@ -99,7 +100,7 @@ async function renderMessageSidebar() {
 
 
   //get the messagelogs for current iflow
-  makeCall("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogEnd desc", false, "", async (xhr) => {
+  makeCall("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogEnd desc", false, "", async (xhr) => {
 
     if (xhr.readyState == 4 && sidebar.active) {
 
@@ -355,7 +356,7 @@ async function clickTrace(e) {
 
   //get the content for a tab in a trace popup
   var getTraceTabContent = async function (object) {
-    var traceData = JSON.parse(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/TraceMessages?$format=json", true)).d.results;
+    var traceData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/TraceMessages?$format=json", true)).d.results;
     var trace = traceData.sort((a, b) => {
       return a.TraceId - b.TraceId;
     })[0];
@@ -367,26 +368,26 @@ async function clickTrace(e) {
     var traceId = trace.TraceId
     let html = "";
     if (object.traceType == "properties") {
-      let elements = JSON.parse(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/TraceMessages(" + traceId + ")/ExchangeProperties?$format=json", true)).d.results;
+      let elements = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + traceId + ")/ExchangeProperties?$format=json", true)).d.results;
       html = formatHeadersAndPropertiesToTable(elements);
     }
     if (object.traceType == "headers") {
-      let elements = JSON.parse(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/TraceMessages(" + traceId + ")/Properties?$format=json", true)).d.results;
+      let elements = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + traceId + ")/Properties?$format=json", true)).d.results;
       html = formatHeadersAndPropertiesToTable(elements);
     }
 
     if (object.traceType == "trace") {
-      let elements = await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/TraceMessages(" + traceId + ")/$value", true);
+      let elements = await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + traceId + ")/$value", true);
       html = formatTrace(elements, object.runId + "_" + object.childCount, traceId);
     }
 
     if (object.traceType == "logContent") {
-      let elements = JSON.parse(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/?$expand=RunStepProperties&$format=json", true)).d.RunStepProperties.results;
+      let elements = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/?$expand=RunStepProperties&$format=json", true)).d.RunStepProperties.results;
       html = formatLogContent(elements);
     }
 
     if (object.traceType == "info") {
-      let elements = JSON.parse(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/?$expand=RunStepProperties&$format=json", true)).d;
+      let elements = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/?$expand=RunStepProperties&$format=json", true)).d;
       html = formatInfoContent(elements);
     }
 
@@ -670,7 +671,9 @@ function getChild(node, childNames, childClass = null) {
 //makes a http call to set the log level to trace
 function setLogLevel(logLevel, iflowId) {
 
-  makeCall("POST", "/"+cpiData.urlExtension+"Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentSetMplLogLevelCommand", true, '{"artifactSymbolicName":"' + iflowId + '","mplLogLevel":"' + logLevel.toUpperCase() + '","nodeType":"IFLMAP"}', (xhr) => {
+
+
+  makeCall("POST", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentSetMplLogLevelCommand", true, '{"artifactSymbolicName":"' + iflowId + '","mplLogLevel":"' + logLevel.toUpperCase() + '","nodeType":"IFLMAP"}', (xhr) => {
     if (xhr.readyState == 4 && xhr.status == 200) {
       showSnackbar("Trace is activated");
     }
@@ -684,7 +687,7 @@ function setLogLevel(logLevel, iflowId) {
 function undeploy(tenant = null, artifactId = null) {
   tenant ??= cpiData.tenantId;
   artifactId ??= cpiData.artifactId;
-  makeCall("POST", "/"+cpiData.urlExtension+"Operations/com.sap.it.nm.commands.deploy.DeleteContentCommand", true, 'artifactIds=' + artifactId + '&tenantId=' + tenant, (xhr) => {
+  makeCall("POST", "/" + cpiData.urlExtension + "Operations/com.sap.it.nm.commands.deploy.DeleteContentCommand", true, 'artifactIds=' + artifactId + '&tenantId=' + tenant, (xhr) => {
     if (xhr.readyState == 4 && xhr.status == 200) {
       showSnackbar("Undeploy triggered");
     }
@@ -810,7 +813,7 @@ function buildButtonBar() {
 //Collect Infos to Iflow
 async function getIflowInfo(callback, silent = false) {
 
-  return makeCallPromise("GET", "/"+cpiData.urlExtension+"Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", false, null, null, null, null, !silent).then((response) => {
+  return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", false, null, null, null, null, !silent).then((response) => {
     response = new XmlToJson().parse(response)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
     var resp = response.artifactInformations;
 
@@ -826,7 +829,7 @@ async function getIflowInfo(callback, silent = false) {
     if (!resp) {
       throw "Integration Flow was not found. Probably it is not deployed.";
     }
-    return makeCallPromise("GET", "/"+cpiData.urlExtension+"Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + resp.id, false, 'application/json', null, null, null, !silent);
+    return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + resp.id, false, 'application/json', null, null, null, !silent);
   }).then((response) => {
     var resp = JSON.parse(response);
     cpiData.flowData = resp;
@@ -902,7 +905,7 @@ async function openIflowInfoPopup() {
     var variableList =
       await makeCallPromise(
         "GET",
-        "/"+cpiData.urlExtension+"Operations/com.sap.esb.monitoring.datastore.access.command.ListDataStoreEntriesCommand?storeName=sap_global_store&allStores=true&maxNum=100000",
+        "/" + cpiData.urlExtension + "Operations/com.sap.esb.monitoring.datastore.access.command.ListDataStoreEntriesCommand?storeName=sap_global_store&allStores=true&maxNum=100000",
         false,
         "application/json", null, false
 
@@ -973,7 +976,7 @@ async function openIflowInfoPopup() {
         if (item.qualifier) {
           payload.qualifier = item.qualifier;
         }
-        var response = await makeCallPromise("POST", "/"+cpiData.urlExtension+"Operations/com.sap.esb.monitoring.datastore.access.command.GetDataStorePayloadCommand", false, "", JSON.stringify(payload), true, "application/json;charset=UTF-8");
+        var response = await makeCallPromise("POST", "/" + cpiData.urlExtension + "Operations/com.sap.esb.monitoring.datastore.access.command.GetDataStorePayloadCommand", false, "", JSON.stringify(payload), true, "application/json;charset=UTF-8");
         var value = response.match(/<payload>(.*)<\/payload>/sg)[0];
         value = value.substring(9, value.length - 10)
 
@@ -994,7 +997,7 @@ async function openIflowInfoPopup() {
             }
 
 
-            var response = await makeCallPromise("POST", "/"+cpiData.urlExtension+"Operations/com.sap.esb.monitoring.datastore.access.command.GetDataStoreVariableCommand", false, "", JSON.stringify(payload), true, "application/json;charset=UTF-8");
+            var response = await makeCallPromise("POST", "/" + cpiData.urlExtension + "Operations/com.sap.esb.monitoring.datastore.access.command.GetDataStoreVariableCommand", false, "", JSON.stringify(payload), true, "application/json;charset=UTF-8");
 
 
 
@@ -1014,7 +1017,7 @@ async function openIflowInfoPopup() {
                 return buffer;
               }
 
-              var response = await makeCallPromise("POST", "/"+cpiData.urlExtension+"Operations/com.sap.esb.monitoring.datastore.access.command.GetDataStorePayloadCommand", false, "", JSON.stringify(payload), true, "application/json;charset=UTF-8");
+              var response = await makeCallPromise("POST", "/" + cpiData.urlExtension + "Operations/com.sap.esb.monitoring.datastore.access.command.GetDataStorePayloadCommand", false, "", JSON.stringify(payload), true, "application/json;charset=UTF-8");
               var base = response.match(/<payload>(.*)<\/payload>/sg)[0];
               base = base.substring(9, base.length - 10)
 
@@ -1058,7 +1061,7 @@ async function openIflowInfoPopup() {
             if (item.qualifier) {
               payload.qualifier = item.qualifier;
             }
-            var response = await makeCallPromise("POST", "/"+cpiData.urlExtension+"Operations/com.sap.esb.monitoring.datastore.access.command.DeleteDataStoreEntryCommand", false, "", JSON.stringify(payload), true, "application/json;charset=UTF-8");
+            var response = await makeCallPromise("POST", "/" + cpiData.urlExtension + "Operations/com.sap.esb.monitoring.datastore.access.command.DeleteDataStoreEntryCommand", false, "", JSON.stringify(payload), true, "application/json;charset=UTF-8");
             showSnackbar("Variable deleted.");
             let cpiHelper_infoPopUp_Variables = document.getElementById("cpiHelper_infoPopUp_Variables")
 
@@ -1246,7 +1249,7 @@ async function errorPopupOpen(MessageGuid) {
   y.innerText = "";
 
   try {
-    var customHeaders = await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')?$format=json&$expand=CustomHeaderProperties", false)
+    var customHeaders = await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')?$format=json&$expand=CustomHeaderProperties", false)
     customHeaders = JSON.parse(customHeaders).d
 
     //Duration
@@ -1341,11 +1344,11 @@ function createErrorMessageElement(message) {
 
 //to check for errors and inline trace
 async function getMessageProcessingLogRuns(MessageGuid, store = true) {
-  return makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store).then((responseText) => {
+  return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store).then((responseText) => {
     var resp = JSON.parse(responseText);
     return resp.d.results[0].Id;
   }).then((runId) => {
-    return makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json&$top=300", store);
+    return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json&$top=300", store);
   }).then((response) => {
     return JSON.parse(response).d.results;
   }).catch((e) => {
@@ -1420,6 +1423,13 @@ function handleUrlChange() {
   if (getIflowName()) {
     //if iflow found, inject buttons   
     setDocumentTitle(hostData.title)
+
+    //check type of tenant
+    if (!document.location.host.match(/.*\.integrationsuite\..*/)) {
+      cpiData.classicUrl = true
+      cpiData.urlExtension = "itspaces/"
+    }
+
   } else {
     setDocumentTitle(hostData.title)
     //deactivate sidebar if not on iflow page

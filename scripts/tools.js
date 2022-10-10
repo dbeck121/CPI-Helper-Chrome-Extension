@@ -20,7 +20,60 @@ function syncChromeStoragePromise(keyName, value) {
   });
 }
 
+async function getCsrfToken(showInfo = false) {
 
+  if (!cpiData.classicUrl) {
+    return new Promise(async function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      xhr.withCredentials = true;
+
+      xhr.open("GET", "/api/1.0/user");
+
+      xhr.setRequestHeader("X-CSRF-Token", "Fetch");
+
+
+      xhr.onload = function () {
+        if (this.status >= 200 && this.status < 300) {
+
+          showInfo ? workingIndicator(false) : {};
+          resolve(xhr.getResponseHeader("x-csrf-token"));
+        } else {
+          showInfo ? workingIndicator(false) : {};
+          showInfo ? showSnackbar("CPI-Helper has run into a problem while catching X-CSRF-Token.") : {};
+
+          reject({
+            status: this.status,
+            statusText: xhr.statusText
+          });
+        }
+      };
+      xhr.ontimeout = function () {
+
+        showInfo ? showSnackbar("CPI-Helper has run into a timeout while refreshing X-CSRF-Token. Please refresh site and try again.") : {};
+        showInfo ? workingIndicator(false) : {};
+      }
+
+      xhr.onerror = function () {
+        reject({
+          status: this.status,
+          statusText: xhr.statusText
+        });
+      };
+      showInfo ? workingIndicator(true) : {};
+      xhr.send();
+    }
+    );
+
+
+  } else {
+
+    var tenant = document.location.href.split("/")[2].split(".")[0];
+    var name = 'xcsrf_' + tenant;
+    xcsrf = await storageGetPromise(name)
+    return xcsrf
+
+  }
+}
 
 var callCache = new Map();
 function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo = true) {
@@ -47,10 +100,7 @@ function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, c
       }
 
       if (includeXcsrf) {
-        var tenant = document.location.href.split("/")[2].split(".")[0];
-        var name = 'xcsrf_' + tenant;
-        var xcsrf = await storageGetPromise(name)
-        xhr.setRequestHeader("X-CSRF-Token", xcsrf);
+        xhr.setRequestHeader("X-CSRF-Token", await getCsrfToken(true));
       }
 
       xhr.onload = function () {
@@ -104,10 +154,7 @@ async function makeCall(type, url, includeXcsrf, payload, callback, contentType,
   }
 
   if (includeXcsrf) {
-    var tenant = document.location.href.split("/")[2].split(".")[0];
-    var name = 'xcsrf_' + tenant;
-    var xcsrf = await storageGetPromise(name)
-    xhr.setRequestHeader("X-CSRF-Token", xcsrf);
+    xhr.setRequestHeader("X-CSRF-Token", await getCsrfToken(true));
   }
 
   xhr.timeout = 6500; // Set timeout to 6.5 seconds
@@ -204,10 +251,10 @@ var formatTrace = function (input, id, traceId) {
     var downloadButton = document.createElement("button");
     downloadButton.innerText = "Download";
     downloadButton.onclick = async (element) => {
-      var response = await makeCallPromise("GET", "/"+cpiData.urlExtension+"Operations/com.sap.it.op.tmn.commands.dashboard.webui.GetTraceArchiveCommand?traceIds=" + traceId, true);
+      var response = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.GetTraceArchiveCommand?traceIds=" + traceId, true);
       var value = response.match(/<payload>(.*)<\/payload>/sg)[0];
       value = value.substring(9, value.length - 10)
-  
+
       window.open("data:application/zip;base64," + value);
       showSnackbar("Download complete.");
     };

@@ -22,6 +22,10 @@ I recommend reading the readme first but if you know what you are doing, you can
 - Last visited iflows in browser-bar-popup
 
 ## Changelog
+### 2.6.0
+- [Feature] Support for new SAP Integration Suite version.
+- [Feature] Support for Chinese CI tenant
+- [Bugfix] Some bugfixes
 ### 2.5.0
 - [Feature] Download option for message step in trace mode. [See Issue #29](https://github.com/dbeck121/CPI-Helper-Chrome-Extension/issues/29). Thanks to [Nick Yang](https://github.com/SAPNickYang)
 - [Bugfix] Longer Timeouts for API calls to CI-Tenant
