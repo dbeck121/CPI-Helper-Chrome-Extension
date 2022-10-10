@@ -127,9 +127,9 @@ updateLogList = async () => {
         }
 
         if (dateType == "custom") {
-            var response = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + artifact + "' and Status ne 'DISCARDED' " + statusfilter + "and LogStart ge datetime'" + startDateTimeInUTC +"' and LogStart le datetime'" + endDateTimeInUTC +"'&$top=40&$format=json&$orderby=LogStart desc", false)).d.results;
+            var response = JSON.parse(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + artifact + "' and Status ne 'DISCARDED' " + statusfilter + "and LogStart ge datetime'" + startDateTimeInUTC +"' and LogStart le datetime'" + endDateTimeInUTC +"'&$top=40&$format=json&$orderby=LogStart desc", false)).d.results;
         } else {
-            var response = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + artifact + "' " + statusfilter + "and Status ne 'DISCARDED'&$top=35&$format=json&$orderby=LogStart desc", false)).d.results;
+            var response = JSON.parse(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + artifact + "' " + statusfilter + "and Status ne 'DISCARDED'&$top=35&$format=json&$orderby=LogStart desc", false)).d.results;
 
         }
 
@@ -217,7 +217,7 @@ updateLogList = async () => {
 updateArtifactList = async () => {
     var list = document.getElementById('logs-left-side_cpiHelper_artifactList');
     if (list) {
-        var response = await makeCallPromise("GET", "/itspaces/Operations/com.sap.it.op.tmn.commands.dashboard.webui.KnownArtifactsListCommand", false)
+        var response = await makeCallPromise("GET", "/"+cpiData.urlExtension+"Operations/com.sap.it.op.tmn.commands.dashboard.webui.KnownArtifactsListCommand", false)
         console.log("response");
         responseList = new XmlToJson().parse(response)["com.sap.it.op.tmn.commands.dashboard.webui.KnownArtifactsListResponse"]["knownArtifacts"];
         list.innerHTML = "";
@@ -298,7 +298,7 @@ createPersistLogsContent = async (messageId) => {
         var persistTabs = [{
             label: "Log",
             content: async (input) => {
-                return formatTrace(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageStoreEntries('" + input.item + "')/$value", false), "cpiHelper_persistLogsItem" + input.item)
+                return formatTrace(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageStoreEntries('" + input.item + "')/$value", false), "cpiHelper_persistLogsItem" + input.item)
             },
             item: input.item,
             active: true
@@ -306,7 +306,7 @@ createPersistLogsContent = async (messageId) => {
         {
             label: "Properties",
             content: async (input) => {
-                let elements = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageStoreEntries('" + input.item + "')/Properties?$format=json", true)).d.results;
+                let elements = JSON.parse(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageStoreEntries('" + input.item + "')/Properties?$format=json", true)).d.results;
                 return formatHeadersAndPropertiesToTable(elements);
             },
             item: input.item,
@@ -317,7 +317,7 @@ createPersistLogsContent = async (messageId) => {
 
     }
 
-    entriesList = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogs('" + messageId + "')/MessageStoreEntries?$format=json", false));
+    entriesList = JSON.parse(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogs('" + messageId + "')/MessageStoreEntries?$format=json", false));
     console.log(entriesList);
 
     var tabs = [];
@@ -349,7 +349,7 @@ createPersistLogsContent = async (messageId) => {
 
 createLogsInfo = async (messageId) => {
 
-    var input = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogs('" + messageId + "')?$format=json&$expand=CustomHeaderProperties", false)).d;
+    var input = JSON.parse(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogs('" + messageId + "')?$format=json&$expand=CustomHeaderProperties", false)).d;
 
     valueList = [];
 
@@ -420,7 +420,7 @@ createLogsInfo = async (messageId) => {
 createRunLogsContent = async (messageId) => {
 
 
-    entriesList = JSON.parse(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogs('" + messageId + "')/Attachments?$format=json", false));
+    entriesList = JSON.parse(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogs('" + messageId + "')/Attachments?$format=json", false));
     console.log(entriesList);
 
     var tabs = [];
@@ -429,7 +429,7 @@ createRunLogsContent = async (messageId) => {
         tabs.push({
             label: item.Name,
             content: async (input) => {
-                return formatTrace(await makeCallPromise("GET", "/itspaces/odata/api/v1/MessageProcessingLogAttachments('" + input.item + "')/$value", false), "cpiHelper_runLogsItem" + input.item)
+                return formatTrace(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogAttachments('" + input.item + "')/$value", false), "cpiHelper_runLogsItem" + input.item)
             },
             item: item.Id,
             active
