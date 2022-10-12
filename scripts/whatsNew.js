@@ -1,13 +1,19 @@
-async function whatsNewCheck() {
+async function whatsNewCheck(showOnlyOnce = true) {
 
     var manifestVersion = chrome.runtime.getManifest().version;
 
     check = await storageGetPromise("whatsNewV" + manifestVersion);
 
-    if (!check) {
-        html = `<div id="cpiHelper_WhatsNew">Thank you for using the CPI Helper by Dominic Beckbauer. <p>You hace successfully updated to version ${manifestVersion}</p> 
-      <h3>News</h3>
-      <h4>25.000 Active Installations</h4>
+    if (!check || showOnlyOnce == false) {
+        html = `<div id="cpiHelper_WhatsNew"><p>You hace successfully updated to version ${manifestVersion}</p> 
+        <h3>CPI Helper Info</h3>
+        <div><p>We are a small company of passionate SAP CI developers from Cologne, Germany. If you want to learn more about us, please visit our website <a href="https://kangoolutions.com" target="_blank">kangoolutions.com</a>. Or maybe you want to become part of the team? Then have a look <a href="https://ich-will-zur.kangoolutions.com/" target="_blank">here</a> (German only). Unfortunately we can only consider applicants with german residence due to legal reasons.</p></div>
+        <div>License: <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU GPL v3</a></div>
+        <div>Please also check our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">Github
+        Page</a>.</div>
+        <div>Created by: Dominic Beckbauer and Kangoolutions.com</div>
+  
+      <h3>25.000 Active Installations</h3>
       The CPI-Helper was installed and active on 25.000 Chrome Browser in Oktober 2022. Thats amazing!
       <h4>Info!</h4>
       We have a new <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">GitHub Page</a>.
@@ -42,7 +48,7 @@ async function whatsNewCheck() {
       </ul>
        </ul>
     <p>Unfortunately SAP does not work with us together and does not inform us when the APIs changes. So be gentle if sth. does not work. we do this in our free time and sometimes it takes a while to adapt to SAP changes.
-       <p>The CPI Helper is free and Open Source. If you want to contribute or you have found any bugs than have a look at our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">GitHub Page</a> and our <a href="https://kangoolutions.com" target="_blank">Homepage</a>. You can find the main developer Dominic Beckbauer on <a href="https://www.linkedin.com/in/dominic-beckbauer-515894188/">LinkedIn</a></p>
+       <p>The CPI Helper is free and Open Source. If you want to contribute (especially improve overall CPI Helper visual design. We really aren't frontend developers) or you have found any bugs than have a look at our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">GitHub Page</a> and our <a href="https://kangoolutions.com" target="_blank">Homepage</a>. You can find the main developer Dominic Beckbauer on <a href="https://www.linkedin.com/in/dominic-beckbauer-515894188/">LinkedIn</a></p>
     
    
     </div>
