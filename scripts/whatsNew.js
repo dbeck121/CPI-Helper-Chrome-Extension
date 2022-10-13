@@ -5,16 +5,16 @@ async function whatsNewCheck(showOnlyOnce = true) {
     check = await storageGetPromise("whatsNewV" + manifestVersion);
 
     if (!check || showOnlyOnce == false) {
-        html = `<div id="cpiHelper_WhatsNew"><p>You hace successfully updated to version ${manifestVersion}</p> 
+        html = `<div id="cpiHelper_WhatsNew"><p>You have successfully updated to version ${manifestVersion}</p> 
         <h3>CPI Helper Info</h3>
-        <div><p>We are a small company of passionate SAP CI developers from Cologne, Germany. If you want to learn more about us, please visit our website <a href="https://kangoolutions.com" target="_blank">kangoolutions.com</a>. Or maybe you want to become part of the team? Then have a look <a href="https://ich-will-zur.kangoolutions.com/" target="_blank">here</a> (German only). Unfortunately we can only consider applicants with german residence due to legal reasons.</p></div>
+        <div><p>We are a small company of passionate SAP CI developers from Cologne, Germany. If you want to learn more about us, please visit our website <a href="https://kangoolutions.com" target="_blank">kangoolutions.com</a>. Or maybe you want to become part of the team? Then have a look <a href="https://ich-will-zur.kangoolutions.com/" target="_blank">here</a> (German only). Unfortunately, we can only consider applicants with german residence due to legal reasons.</p></div>
         <div>License: <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU GPL v3</a></div>
         <div>Please also check our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">Github
         Page</a>.</div>
         <div>Created by: Dominic Beckbauer and Kangoolutions.com</div>
   
       <h3>25.000 Active Installations</h3>
-      The CPI-Helper was installed and active on 25.000 Chrome Browser in Oktober 2022. Thats amazing!
+      The CPI-Helper was installed and active on 25.000 Chrome Browser in October 2022. That's amazing!
       <h4>Info!</h4>
       We have a new <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">GitHub Page</a>.
       <h3>Main Features</h3>
@@ -31,8 +31,8 @@ async function whatsNewCheck(showOnlyOnce = true) {
       <li>Version 2.3.0: Works now with "Rest API" and "SOAP API" IFlow type and "Last Visited" includes all types of artifacts now. Special thanks to <a href="https://github.com/SAPNickYang">Nick Yang</a></li>
       <li>Version 2.2.0: First third-party-plugins are shipped with CPI-Helper like the <a href="https://figaf.com/cpihelper/">figaf plugin</a></li>
       <li>Version 2.1.2: Some improvements in logs popup</li>
-      <li>Version 2.1.0: A very basic plugin engine and some ui improvements. Visit our <a href="https://kangoolutions.com/2022/05/02/cpi-helper-2-1-x-some-improvements-and-early-version-of-plugin-interface/">blog</a> for more information</li>
-      <li>Version 2.0.2: Killed some bugs and ui improvements</li>
+      <li>Version 2.1.0: A very basic plugin engine and some UI improvements. Visit our <a href="https://kangoolutions.com/2022/05/02/cpi-helper-2-1-x-some-improvements-and-early-version-of-plugin-interface/">blog</a> for more information</li>
+      <li>Version 2.0.2: Killed some bugs and UI improvements</li>
       <li>Version 2.0.0: <ul>
       <li>You can now see XML in properties view of logs and InlineTrace</li>
       <li>Option to open Message Sidebar on start of the Integration Flow Designer</li>
