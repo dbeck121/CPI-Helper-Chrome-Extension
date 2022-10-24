@@ -10,7 +10,7 @@
     "storage",
     "https://*.hana.ondemand.com/itspaces",
     "https://*.platform.sapcloud.cn/itspaces",
-    "https://*.hana.ondemand.com",
+    "https://*.hana.ondemand.com/shell",
     "webRequest"
   ],
   "background": {
@@ -25,6 +25,7 @@
       "matches": [
         "https://*.hana.ondemand.com/shell/design/*",
         "https://*.hana.ondemand.com/itspaces/*",
+        "https://*.hana.ondemand.com/shell/*",
         "https://*.platform.sapcloud.cn/itspaces/*"
       ],
       "js": [

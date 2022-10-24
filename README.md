@@ -22,6 +22,10 @@ I recommend reading the readme first but if you know what you are doing, you can
 - Last visited iflows in browser-bar-popup
 
 ## Changelog
+### 2.6.2
+- [Bugfix] Some bugfixes
+### 2.6.1
+- [Bugfix] Some bugfixes
 ### 2.6.0
 - [Feature] Support for new SAP Integration Suite version.
 - [Feature] Support for Chinese CI tenant
