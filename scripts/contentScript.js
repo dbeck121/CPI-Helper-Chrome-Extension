@@ -1126,7 +1126,8 @@ async function openIflowInfoPopup() {
 
   //more information about cpi helper
   var textElement2 = `<div class="cpiHelper_infoPopUp_items">
-  <h2>CPI Helper Info</h2>
+  <h3>News</h3>
+  <div><p>For news and interesting blog posts about SAP CI, <b>please follow our company <a href="https://www.linkedin.com/company/kangoolutions" target="_blank">LinkedIn-Page</a></b>.</p></div>
   <div><p>We are a bunch of passionate SAP CI developers from Cologne, Germany. If you want to do a CPI project with us then you can reach us through our website <a href="https://kangoolutions.com" target="_blank">kangoolutions.com</a>. Or maybe you want to become part of the team? Then have a look <a href="https://ich-will-zur.kangoolutions.com/" target="_blank">here</a> (German only). Unfortunately, we can only consider applicants with german residence due to legal reasons.</p></div>
   <div>Created by: Dominic Beckbauer and Kangoolutions.com</div>
   <div>License: <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU GPL v3</a></div>
@@ -1445,7 +1446,7 @@ function handleUrlChange() {
     setDocumentTitle(hostData.title)
 
     //check type of tenant
-    if (!document.location.host.match(/.*\.integrationsuite\..*/)) {
+    if (!document.location.host.match(/.*\.integrationsuite(-trial){0,1}\..*/)) {
       cpiData.classicUrl = true
       cpiData.urlExtension = "itspaces/"
     }
