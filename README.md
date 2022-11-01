@@ -1,8 +1,11 @@
 # CPI-Helper Chrome-Extension
-This Chrome Plugin extends the SAP Cloud Platform Integration with some useful features.
+This Browser Plugin extends the SAP Cloud Platform Integration with some useful features.
 
-I recommend reading the readme first but if you know what you are doing, you can add it to your Chrome Browser directly:
+For news about CPI-Helper please follow our [LinkedIn Page](https://www.linkedin.com/company/kangoolutions) 
+
+I recommend reading the readme first but if you know what you are doing, you can add it to your Chrome or Edge Browser directly:
 [Chrome Web Store](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb)
+[Edge Browser](https://microsoftedge.microsoft.com/addons/detail/sap-cpi-helper/chnohkopccdfgpglplooonoaigfgfkda)
 
 ## Features
 ### Integration Flow Designer Improvements
@@ -22,6 +25,8 @@ I recommend reading the readme first but if you know what you are doing, you can
 - Last visited iflows in browser-bar-popup
 
 ## Changelog
+### 2.6.3
+- [Bugfix] Trial account of Integration Suite is working again
 ### 2.6.2
 - [Bugfix] Some bugfixes
 ### 2.6.1
@@ -159,12 +164,11 @@ First public version.
 ## Installation
 You need Google Chrome to install this plugin. I tested it with version 100. I assume that older versions will work too.
 There are two options to install this plugin:
-### Install directly from Chrome Web Store (recommended)
-Just add the plugin in the [Chrome Web Store](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb).
+### Install directly from Chrome Web Store or Microsoft Store (recommended)
+Just add the plugin in the [Chrome Web Store](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb) or [Microsoft Store](https://microsoftedge.microsoft.com/addons/detail/sap-cpi-helper/chnohkopccdfgpglplooonoaigfgfkda).
 This is probably the easiest way. Updates will be installed automatically.
 [![Chrome Web Store](https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/YT2Grfi9vEBa2wAPzhWa.png)](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb)
 
-Please note: there was an old Chrome Store entry that is not updated anymore. If you installed the plugin before 21 March 2020, you have to uninstall it and install it again with the link above.
 ### Install in Developer Mode from Sources
 If you know what you are doing, you can install the plugin directly from sources.
 Clone the repo and add the folder directly to Google Chrome

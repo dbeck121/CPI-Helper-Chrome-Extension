@@ -6,6 +6,8 @@ async function whatsNewCheck(showOnlyOnce = true) {
 
     if (!check || showOnlyOnce == false) {
         html = `<div id="cpiHelper_WhatsNew"><p>You have successfully updated to version ${manifestVersion}</p> 
+        <h3>News</h3>
+        <div><p>For news and interesting blog posts about SAP CI, please <b>follow our company <a href="https://www.linkedin.com/company/kangoolutions" target="_blank">LinkedIn-Page</a></b>.</p></div>
         <h3>CPI Helper Info</h3>
         <div><p>We are a small company of passionate SAP CI developers from Cologne, Germany. If you want to learn more about us, please visit our website <a href="https://kangoolutions.com" target="_blank">kangoolutions.com</a>. Or maybe you want to become part of the team? Then have a look <a href="https://ich-will-zur.kangoolutions.com/" target="_blank">here</a> (German only). Unfortunately, we can only consider applicants with german residence due to legal reasons.</p></div>
         <div>License: <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU GPL v3</a></div>
@@ -24,6 +26,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
       <li>PowerTrace - Trace keeps running even after 15 minutes</li>
        </ul>
       <h3>Recent Innovations</h3>
+      <li>Version 2.6.3: Fixed issue with BTP Trial account</li>
       <li>Version 2.6.0: Support new SAP Integration Suite and Chinese tenants</li>
       <li>Version 2.5.0: <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension/issues/29">Download option</a> for message step in trace mode. Special thanks to <a href="https://github.com/SAPNickYang">Nick Yang</a></li>
       <li>Version 2.4.1: Some bugfixes</li>
