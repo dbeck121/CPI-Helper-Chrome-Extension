@@ -17,12 +17,12 @@ function addLastVisitedIflows() {
 
         var html = `
         <h3>Last Visited on Tenant ${name.split("_")[1]}</h3>
-        <ul style="list-style-type:disc;"> `;
+        <ol style="list-style-type:decimal-leading-zero;"> `;
 
         for (var i = visitedIflows.length - 1; i > -1; i--) {
-            html += `<li><a href="${visitedIflows[i].url}" target="_blank">${visitedIflows[i].name}</a></li>`;
+            html += `<li style="line-height: 1.5;"><a href="${visitedIflows[i].url}" target="_blank">${visitedIflows[i].name}</a></li>`;
         }
-        html += `</ul>`;
+        html += `</ol>`;
         var lastVisitedIflows = document.getElementById("lastVisitedIflows");
         lastVisitedIflows.innerHTML = html;
     });
@@ -70,25 +70,25 @@ function addTenantUrls() {
         </div>
         <h3>Tenant URLs</h3>
         <ul>
-        <li><a href="${host + '/itspaces/shell/monitoring/Messages/'}" target="_blank">Processed Messages</a></li>
-        <li><a href="${host + '/itspaces/shell/monitoring/Messages/%7B%22status%22%3A%22FAILED%22%2C%22time%22%3A%22PASTHOUR%22%2C%22type%22%3A%22INTEGRATION_FLOW%22%7D'}" target="_blank">Failed Messages</a></li>
-        <li><a href="${host + '/itspaces/shell/monitoring/Artifacts/'}" target="_blank">Artifacts</a></li>
-        <li><a href="${host + '/itspaces/shell/design'}" target="_blank">Design</a></li>   
-        <li><a href="${host + '/itspaces/shell/monitoring/Overview'}" target="_blank">Monitoring</a>
-            <ul><li><a href="${host + '/itspaces/shell/monitoring/SecurityMaterials'}" target="_blank">Security Material</a></li></ul>
-            <ul><li><a href="${host + '/itspaces/shell/monitoring/Keystore'}" target="_blank">Keystore</a></li></ul>
-            <ul><li><a href="${host + '/itspaces/shell/monitoring/CertificateUserMappings'}" target="_blank">Certificate-to-User Mappings</a></li></ul>
-            <ul><li><a href="${host + '/itspaces/shell/monitoring/AccessPolicies'}" target="_blank">Access Policies</a></li></ul>
-            <ul><li><a href="${host + '/itspaces/shell/monitoring/JdbcMaterial'}" target="_blank">JDBC Material</a></li></ul>
-            <ul><li><a href="${host + '/itspaces/shell/monitoring/Connectivity'}" target="_blank">Connectivity Tests</a></li></ul>
-            <ul><li><a href="${host + '/itspaces/shell/monitoring/DataStores'}" target="_blank">Data Stores</a></li></ul>
-            <ul><li><a href="${host + '/itspaces/shell/monitoring/Variables'}" target="_blank">Variables</a></li></ul>
-            <ul><li><a href="${host + '/itspaces/shell/monitoring/MessageQueues'}" target="_blank">Message Queues</a></li></ul>
-            <ul><li><a href="${host + '/itspaces/shell/monitoring/NumberRangeObject'}" target="_blank">Number Ranges</a></li></ul>
-            <ul><li><a href="${host + '/itspaces/shell/monitoring/AuditLog'}" target="_blank">Audit Log</a></li></ul>
-            <ul><li><a href="${host + '/itspaces/shell/monitoring/SystemLogs'}" target="_blank">System Logs</a></li></ul>    
-            <ul><li><a href="${host + '/itspaces/shell/monitoring/Locks'}" target="_blank">Message Locks</a></li></ul>
-            <ul><li><a href="${host + '/itspaces/shell/monitoring/DesigntimeLocks'}" target="_blank">Designtime Artifact Locks</a></li></ul>       
+        <li><a href="${host + '/shell/monitoring/Messages/'}" target="_blank">Processed Messages</a></li>
+        <li><a href="${host + '/shell/monitoring/Messages/%7B%22status%22%3A%22FAILED%22%2C%22time%22%3A%22PASTHOUR%22%2C%22type%22%3A%22INTEGRATION_FLOW%22%7D'}" target="_blank">Failed Messages</a></li>
+        <li><a href="${host + '/shell/monitoring/Artifacts/'}" target="_blank">Artifacts</a></li>
+        <li><a href="${host + '/shell/design'}" target="_blank">Design</a></li>   
+        <li><a href="${host + '/shell/monitoring/Overview'}" target="_blank">Monitoring</a>
+            <ul><li><a href="${host + '/shell/monitoring/SecurityMaterials'}" target="_blank">Security Material</a></li></ul>
+            <ul><li><a href="${host + '/shell/monitoring/Keystore'}" target="_blank">Keystore</a></li></ul>
+            <ul><li><a href="${host + '/shell/monitoring/CertificateUserMappings'}" target="_blank">Certificate-to-User Mappings</a></li></ul>
+            <ul><li><a href="${host + '/shell/monitoring/AccessPolicies'}" target="_blank">Access Policies</a></li></ul>
+            <ul><li><a href="${host + '/shell/monitoring/JdbcMaterial'}" target="_blank">JDBC Material</a></li></ul>
+            <ul><li><a href="${host + '/shell/monitoring/Connectivity'}" target="_blank">Connectivity Tests</a></li></ul>
+            <ul><li><a href="${host + '/shell/monitoring/DataStores'}" target="_blank">Data Stores</a></li></ul>
+            <ul><li><a href="${host + '/shell/monitoring/Variables'}" target="_blank">Variables</a></li></ul>
+            <ul><li><a href="${host + '/shell/monitoring/MessageQueues'}" target="_blank">Message Queues</a></li></ul>
+            <ul><li><a href="${host + '/shell/monitoring/NumberRangeObject'}" target="_blank">Number Ranges</a></li></ul>
+            <ul><li><a href="${host + '/shell/monitoring/AuditLog'}" target="_blank">Audit Log</a></li></ul>
+            <ul><li><a href="${host + '/shell/monitoring/SystemLogs'}" target="_blank">System Logs</a></li></ul>    
+            <ul><li><a href="${host + '/shell/monitoring/Locks'}" target="_blank">Message Locks</a></li></ul>
+            <ul><li><a href="${host + '/shell/monitoring/DesigntimeLocks'}" target="_blank">Designtime Artifact Locks</a></li></ul>       
         </li>
        </ul> `;
 
@@ -105,6 +105,10 @@ async function getHost() {
 
             var url = currentTab.url;
             var tempHost = "https://" + url.split("/")[2];
+
+            if (!url.match(/.*\.integrationsuite(-trial){0,1}\..*/)) {
+                tempHost += "/itspaces"
+            }
             resolve(tempHost);
         };
 

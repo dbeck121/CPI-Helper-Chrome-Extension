@@ -25,6 +25,8 @@ I recommend reading the readme first but if you know what you are doing, you can
 - Last visited iflows in browser-bar-popup
 
 ## Changelog
+### 2.7.0
+- [Feature] Better popup window with last visited artifacts. Now includes packages.  
 ### 2.6.3
 - [Bugfix] Trial account of Integration Suite is working again
 ### 2.6.2
@@ -141,7 +143,7 @@ I recommend reading the readme first but if you know what you are doing, you can
 - [Bugfix] Fixed bug in info-popup
 ### 0.5.0
 - [Improvement] Improved design of plugin-popup in browser-bar
-- [Feature] Added last visited iflows in browser-bar-popup
+- [Feature] Added last visited IFlows in browser-bar-popup
 - [Feature] Added useful links in browser-bar-popup
 - [Feature] Added undeploy button in info-popup
 ### 0.4.0

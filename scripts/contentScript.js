@@ -13,13 +13,14 @@ cpiData.urlExtension = "";
 cpiData.classicUrl = false;
 cpiData.functions = {};
 cpiArtifactURIRegexp = [
-  /\/integrationflows\/(?<artifactId>[0-9a-zA-Z_\-.]+)/,
-  /\/odataservices\/(?<artifactId>[0-9a-zA-Z_\-.]+)/,
-  /\/restapis\/(?<artifactId>[0-9a-zA-Z_\-.]+)/,
-  /\/soapapis\/(?<artifactId>[0-9a-zA-Z_\-.]+)/,
-  /\/valuemappings\/(?<artifactId>[0-9a-zA-Z_\-.]+)/,
-  /\/scriptcollections\/(?<artifactId>[0-9a-zA-Z_\-.]+)/,
-  /\/messagemappings\/(?<artifactId>[0-9a-zA-Z_\-.]+)/
+  [/\/integrationflows\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "IFlow"],
+  [/\/odataservices\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "ODATA API"],
+  [/\/restapis\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "REST API"],
+  [/\/soapapis\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "SOAP API"],
+  [/\/valuemappings\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Value Mapping"],
+  [/\/scriptcollections\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Script Collection"],
+  [/\/messagemappings\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Message Mapping"],
+  [/\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)$/, "Package"],
 ];
 
 //opens a new window with the Trace for a MessageGuid
@@ -1405,8 +1406,8 @@ function getIflowName() {
     let groups = "";
 
     for (const dataRegexp of cpiArtifactURIRegexp) {
-      if (dataRegexp.test(url) === true) {
-        groups = url.match(dataRegexp).groups;
+      if (dataRegexp[0].test(url) === true) {
+        groups = url.match(dataRegexp[0]).groups;
         result = groups.artifactId;
       }
     }
@@ -1519,8 +1520,8 @@ function storeVisitedIflowsForPopup() {
   var name = 'visitedIflows_' + tenant;
 
   for (const dataRegexp of cpiArtifactURIRegexp) {
-    if (dataRegexp.test(url) === true) {
-      let groups = url.match(dataRegexp);
+    if (dataRegexp[0].test(url) === true) {
+      let groups = url.match(dataRegexp[0]);
       if (groups.length === 2) {
         let cpiArtifactId = groups.groups.artifactId;
         chrome.storage.sync.get([name], function (result) {
@@ -1533,15 +1534,15 @@ function storeVisitedIflowsForPopup() {
           //filter out the current flow
           if (visitedIflows.length > 0) {
             visitedIflows = visitedIflows.filter((element) => {
-              return element.name != cpiArtifactId;
+              return element.name != `${dataRegexp[1]}: <b>${cpiArtifactId}</b>`;
             });
           }
 
           //put the current flow to the last element. last position indicates last visited element
-          visitedIflows.push({ name: cpiArtifactId, "url": document.location.href, "favorit": false });
+          visitedIflows.push({ name: `${dataRegexp[1]}: <b>${cpiArtifactId}</b>`, "url": document.location.href, "favorit": false });
 
           //delete the first one when there are more than 10 iflows in visited list
-          if (visitedIflows.length > 10) {
+          if (visitedIflows.length > 15) {
             visitedIflows.shift();
           }
 
