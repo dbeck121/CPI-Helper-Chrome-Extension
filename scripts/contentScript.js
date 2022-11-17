@@ -105,9 +105,13 @@ async function renderMessageSidebar() {
 
     if (xhr.readyState == 4 && sidebar.active) {
 
-      var resp = JSON.parse(xhr.responseText);
-      resp = resp.d.results;
-
+      var resp = null
+      try {
+        resp = JSON.parse(xhr.responseText);
+        resp = resp.d.results;
+      } catch (e) {
+        console.log("There was a faulty message from CI-API. CPI Helper will ignore it: " + e)
+      }
       //    document.getElementById('iflowName').innerText = cpiData.integrationFlowId;
 
       let updatedText = document.getElementById('updatedText');
@@ -115,7 +119,7 @@ async function renderMessageSidebar() {
       updatedText.innerHTML = "<span>Updated: " + new Date().toLocaleTimeString("de-DE") + "</span>";
 
       let thisMessageHash = "";
-      if (resp.length != 0) {
+      if (resp && resp.length != 0) {
 
         //stores information for this run to be used with plugin engine
         var runInfoElement = {}
