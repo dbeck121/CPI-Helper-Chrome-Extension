@@ -393,3 +393,53 @@ function createElementFromHTML(htmlString) {
   div.innerHTML = htmlString.trim();
   return div.firstChild;
 }
+
+async function statistic(event, value = null, value2 = null) {
+  try {
+    var sessionId = await storageGetPromise("sessionId")
+
+
+    var img = document.createElement("img");
+    img.src = `https://mmjs2inijoe3rpwsdmqbgtyvdu0ldvfj.lambda-url.eu-central-1.on.aws/?version=${chrome.runtime.getManifest().version}&event=${event}&session=${sessionId}&value=${value}&value2=${value2}&nonse=${Date.now()}`;
+  } catch (e) {
+
+  }
+}
+
+async function onInitStatistic() {
+  var lastInitDay = await storageGetPromise("lastInitDay")
+  var lastInitMonth = await storageGetPromise("lastInitMonth")
+  var today = new Date().toISOString().substring(0, 10);
+  var tomonth = new Date().toISOString().substring(0, 7);
+  if (!lastInitDay || lastInitDay != today) {
+
+    var sessionId = (Math.random().toString(36) + '00000000000000000').slice(2, 15 + 2)
+    var obj = {};
+    obj["sessionId"] = sessionId
+    await storageSetPromise(obj);
+    statistic("init", "day", lastInitMonth != tomonth ? "month" : "")
+  }
+
+  var obj = {};
+  obj["lastInitDay"] = today
+  obj["lastInitMonth"] = tomonth
+  await storageSetPromise(obj);
+
+}
+
+
+async function storageGetPromise(name) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get([name], function (result) {
+      resolve(result[name]);
+    });
+  })
+}
+
+async function storageSetPromise(obj) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.set(obj, function (result) {
+      resolve("OK");
+    });
+  })
+}

@@ -39,6 +39,7 @@ async function createPluginButtonsInMessageSidebar(runInfoElement, i, flash) {
 
                 button.onclick = () => {
                     plugin.messageSidebarButton.onClick(cpiData, settings, runInfoElement);
+                    statistic("messagebar_btn_plugin_click")
                 };
 
                 pluginButtons.push(button);
@@ -66,6 +67,7 @@ async function createPluginPopupUI(plugin) {
     activeCheckbox.addEventListener('change', async function () {
         console.log(activeCheckbox.checked);
         await syncChromeStoragePromise(getStoragePath(plugin.id, "isActive"), activeCheckbox.checked);
+        statistic("toggle_plugin_active", plugin.id, activeCheckbox.checked)
         showBigPopup(await createContentNodeForPlugins(), "Plugins")
 
     });
@@ -94,6 +96,7 @@ async function createPluginPopupUI(plugin) {
                         chrome.storage.sync.set({ [this.key]: this.value }, function () {
                             console.log(`${plugin.id}--${key}` + " is set to " + checkbox.checked);
                         });
+
                     });
 
                     var div = document.createElement('div');

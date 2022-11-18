@@ -215,14 +215,15 @@ async function renderMessageSidebar() {
               if (activeInlineItem == e.currentTarget.classList[0]) {
 
                 hideInlineTrace();
-                showSnackbar("Inline Debugging Deactivated");
+                showSnackbar("Inline-Debugging Deactivated");
 
 
               } else {
                 hideInlineTrace();
                 var inlineTrace = await showInlineTrace(e.currentTarget.classList[0]);
                 if (inlineTrace) {
-                  showSnackbar("Inline Debugging Activated");
+                  statistic("messagebar_btn_inlinetrace_click")
+                  showSnackbar("Inline-Debugging Activated");
                   mytarget.classList.add("cpiHelper_inlineInfo-active");
                   activeInlineItem = mytarget.classList[0];
                 } else {
@@ -237,18 +238,21 @@ async function renderMessageSidebar() {
             messageList.appendChild(createRow([statusicon, timeButton, logButton, infoButton, traceButton, quickInlineTraceButton, ...pluginButtons]));
 
             infoButton.addEventListener("click", (a) => {
+              statistic("messagebar_btn_info_click")
               openInfo(a.currentTarget.classList[0]);
             });
 
             logButton.addEventListener("click", async (a) => {
 
-              await showBigPopup(await createContentNodeForLogs(a.currentTarget.classList[0], false), "Logs (beta feature)");
+              statistic("messagebar_btn_logs_click")
+              await showBigPopup(await createContentNodeForLogs(a.currentTarget.classList[0], false), "Logs");
 
             });
 
 
             traceButton.addEventListener("click", (a) => {
 
+              statistic("messagebar_btn_trace_click")
               openTrace(a.currentTarget.classList[0]);
 
             });
@@ -686,6 +690,8 @@ function setLogLevel(logLevel, iflowId) {
       showSnackbar("Error activating Trace");
     }
   }, 'application/json;charset=UTF-8');
+
+  statistic("set_log_level", logLevel)
 }
 
 //makes a http call to set the log level to trace
@@ -773,19 +779,21 @@ function buildButtonBar() {
 
     });
     messagebutton.addEventListener("click", (btn) => {
-      numberEntries = 15;
 
       if (sidebar.active) {
         sidebar.deactivate();
       }
       else {
         sidebar.init();
+        statistic("headerbar_btn_message_click")
       }
     });
     infobutton.addEventListener("click", (btn) => {
+      statistic("headerbar_btn_info_click")
       getIflowInfo(openIflowInfoPopup);
     });
     logsbutton.addEventListener("click", async (btn) => {
+      statistic("headerbar_btn_logs_click")
       // the logs popup opens and it shows the sidebar. the sidebar elements are updated
       showBigPopup(await createContentNodeForLogs(null, true), "Logs");
       updateArtifactList()
@@ -793,6 +801,7 @@ function buildButtonBar() {
     });
 
     pluginbutton.addEventListener("click", async (btn) => {
+      statistic("headerbar_btn_plugins_click")
       // the logs popup opens and it shows the sidebar. the sidebar elements are updated
       showBigPopup(await createContentNodeForPlugins(), "Plugins");
 
@@ -1507,16 +1516,6 @@ function dragElement(elmnt) {
   }
 }
 
-async function storageGetPromise(name) {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.get([name], function (result) {
-      resolve(result[name]);
-    });
-  })
-}
-
-
-
 //Visited IFlows are stored to show in the popup that appears when pressing the button in browser bar
 function storeVisitedIflowsForPopup() {
   var url = window.location.href;
@@ -1563,6 +1562,9 @@ function storeVisitedIflowsForPopup() {
 
 //start
 checkURLchange();
+onInitStatistic();
+
+
 setInterval(function () {
   var elements = document.querySelectorAll("[id$='-BDI-content']");
   for (var i = 0; i < elements.length; i++) {
