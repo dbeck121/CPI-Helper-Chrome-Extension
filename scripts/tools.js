@@ -394,13 +394,25 @@ function createElementFromHTML(htmlString) {
   return div.firstChild;
 }
 
+function isDevMode() {
+  return !('update_url' in chrome.runtime.getManifest());
+}
+
+function stage() {
+  if (isDevMode()) {
+    return "dev"
+  }
+
+  return "prod"
+}
+
 async function statistic(event, value = null, value2 = null) {
+  info = await chrome.management
   try {
     var sessionId = await storageGetPromise("sessionId")
 
-
     var img = document.createElement("img");
-    img.src = `https://mmjs2inijoe3rpwsdmqbgtyvdu0ldvfj.lambda-url.eu-central-1.on.aws/?version=${chrome.runtime.getManifest().version}&event=${event}&session=${sessionId}&value=${value}&value2=${value2}&nonse=${Date.now()}`;
+    img.src = `https://mmjs2inijoe3rpwsdmqbgtyvdu0ldvfj.lambda-url.eu-central-1.on.aws/?version=${chrome.runtime.getManifest().version}&event=${event}&session=${sessionId}&value=${value}&value2=${value2}&installtype=${stage()}&nonse=${Date.now()}`;
   } catch (e) {
 
   }
