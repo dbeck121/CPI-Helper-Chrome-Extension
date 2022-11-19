@@ -40,3 +40,12 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
   },
   { urls: ["https://*.hana.ondemand.com/itspaces/api/1.0/workspace*/artifacts/*/iflows/*?lockinfo=true&webdav=LOCK", "https://*.hana.ondemand.com/itspaces/api/1.0/workspace*/odata/*?lockinfo=true&webdav=LOCK", "https://*.platform.sapcloud.cn/itspaces/api/1.0/workspace*/artifacts/*/iflows/*?lockinfo=true&webdav=LOCK", "https://*.platform.sapcloud.cn/itspaces/api/1.0/workspace*/odata/*?lockinfo=true&webdav=LOCK"] },
   ["requestHeaders"]);
+
+chrome.management.getSelf((item) => {
+  var obj = {};
+  obj["installtype"] = item.installType;
+
+  chrome.storage.local.set(obj, function () {
+    console.log("xcsrf token saved");
+  });
+})

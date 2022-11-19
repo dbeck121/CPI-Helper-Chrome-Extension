@@ -217,6 +217,25 @@ function tenantIdentityChanges() {
     })
 }
 
+async function storageGetPromise(name) {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get([name], function (result) {
+            resolve(result[name]);
+        });
+    })
+}
+
+async function statistic(event, value = null, value2 = null) {
+    try {
+        var sessionId = await storageGetPromise("sessionId")
+        var installtype = await storageGetPromise("installtype")
+        var img = document.createElement("img");
+        img.src = `https://mmjs2inijoe3rpwsdmqbgtyvdu0ldvfj.lambda-url.eu-central-1.on.aws/?version=${chrome.runtime.getManifest().version}&event=${event}&session=${sessionId}&value=${value}&value2=${value2}&installtype=${installtype}&nonse=${Date.now()}`;
+    } catch (e) {
+        console.log(e)
+    }
+}
+
 async function main() {
     checkUpdate();
     host = await getHost();
@@ -224,6 +243,7 @@ async function main() {
     addTenantUrls();
     tenantIdentityChanges();
     addLastVisitedIflows();
+    statistic("popup_open")
 }
 
 main().catch(e => console.error(e))

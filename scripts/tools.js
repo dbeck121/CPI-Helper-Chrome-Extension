@@ -407,14 +407,13 @@ function stage() {
 }
 
 async function statistic(event, value = null, value2 = null) {
-  info = await chrome.management
   try {
     var sessionId = await storageGetPromise("sessionId")
-
+    var installtype = await storageGetPromise("installtype")
     var img = document.createElement("img");
-    img.src = `https://mmjs2inijoe3rpwsdmqbgtyvdu0ldvfj.lambda-url.eu-central-1.on.aws/?version=${chrome.runtime.getManifest().version}&event=${event}&session=${sessionId}&value=${value}&value2=${value2}&installtype=${stage()}&nonse=${Date.now()}`;
+    img.src = `https://mmjs2inijoe3rpwsdmqbgtyvdu0ldvfj.lambda-url.eu-central-1.on.aws/?version=${chrome.runtime.getManifest().version}&event=${event}&session=${sessionId}&value=${value}&value2=${value2}&installtype=${installtype}&nonse=${Date.now()}`;
   } catch (e) {
-
+    console.log(e)
   }
 }
 
