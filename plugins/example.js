@@ -38,7 +38,9 @@ var plugin = {
             div.innerText = "Example content ";
             var button = document.createElement("button")
             button.innerHTML = "click for popup"
-            button.onclick = (x) => pluginHelper.functions.popup("<h1>Hello World</h1>", "Header")
+            var popupContent = document.createElement("h1")
+            popupContent.innerText = "Hello World!"
+            button.onclick = (x) => pluginHelper.functions.popup(popupContent, "Header")
             div.appendChild(button)
             return div;
         }
