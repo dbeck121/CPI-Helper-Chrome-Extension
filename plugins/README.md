@@ -70,7 +70,8 @@ var plugin = {
             var div = document.createElement("div");
             div.innerText = "Example content";
             return div;                                     //html element to return.
-        }
+        },
+        "static": false             //set true to not reload plugin content with every message sidebar refresh
     }
 };
 

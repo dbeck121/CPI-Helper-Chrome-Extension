@@ -4,17 +4,23 @@
 
 //creates plugin content area in message sidebar
 
-async function messageSidebarPluginContent() {
+async function messageSidebarPluginContent(forceRender = false) {
     var pluginArea = document.getElementById('cpiHelper_messageSidebar_pluginArea');
-    pluginArea.innerHTML = "";
+    //pluginArea.innerHTML = "";
 
     for (element of pluginList) {
         var settings = await getPluginSettings(element.id);
 
         if (settings[element.id + "---isActive"] === true) {
-            if (element?.messageSidebarContent?.onRender) {
-                var div = document.createElement("fieldset");
-                div.id = "cpiHelper_messageSidebar_pluginArea_" + element.id;
+            if (element?.messageSidebarContent?.onRender && (!element?.messageSidebarContent?.static || forceRender == true)) {
+                var div = document.getElementById("cpiHelper_messageSidebar_pluginArea_" + element.id)
+                if (!div) {
+                    div = document.createElement("fieldset");
+                    div.id = "cpiHelper_messageSidebar_pluginArea_" + element.id;
+                }
+
+                div.innerHTML = ""
+
                 div.appendChild(createElementFromHTML("<legend>" + element.name + "</legend>"));
                 div.appendChild(element.messageSidebarContent.onRender(cpiData, settings));
                 pluginArea.appendChild(div);

@@ -12,6 +12,7 @@ cpiData.tenant = document.location.host;
 cpiData.urlExtension = "";
 cpiData.classicUrl = false;
 cpiData.functions = {};
+cpiData.functions["popup"] = showBigPopup;
 cpiArtifactURIRegexp = [
   [/\/integrationflows\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "IFlow"],
   [/\/odataservices\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "ODATA API"],
@@ -1230,6 +1231,7 @@ var sidebar = {
     cpiData.messageSidebar.lastMessageHashList = [];
 
     //refresh messages
+    messageSidebarPluginContent(true);
     renderMessageSidebar();
   }
 };

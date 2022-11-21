@@ -29,12 +29,17 @@ var plugin = {
         }
     },
     messageSidebarContent: {
+        "static": true,
         "onRender": (pluginHelper, settings) => {
-            console.log("clicked");
+            console.log("render");
             console.log(pluginHelper);
             console.log(settings);
             var div = document.createElement("div");
-            div.innerText = "Example content";
+            div.innerText = "Example content ";
+            var button = document.createElement("button")
+            button.innerHTML = "click for popup"
+            button.onclick = (x) => pluginHelper.functions.popup("<h1>Hello World</h1>", "Header")
+            div.appendChild(button)
             return div;
         }
     }
