@@ -38,6 +38,7 @@
         "/plugins/undeploy.js",
         "/plugins/cpitransporter.js",
         "/plugins/figaf.js",
+        "/plugins/OpenAIServices.js",
         "/scripts/ui.js",
         "/scripts/tools.js",
         "/scripts/logs.js",
