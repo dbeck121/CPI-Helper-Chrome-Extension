@@ -32,6 +32,8 @@
         "/lib/jszip/jszip.min.js",
         "/scripts/identify-tenant.js",
         "/lib/xmlToJson/xmlToJson.js",
+        "/lib/jQuery/jquery-3.1.1.min.js",
+        "/lib/semanticui/semantic.min.js",
         "/plugins/run.js",
         "/plugins/undeploy.js",
         "/plugins/cpitransporter.js",
@@ -47,6 +49,7 @@
       "css": [
         "/lib/prettify/prettify.css",
         "/lib/threeDots/three-dots.min.css",
+        "/lib/semanticui/semantic.min.css",
         "contentScript.css"
       ]
     }
@@ -69,7 +72,12 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "images/favicons/*.png"
+        "images/favicons/*.png",
+        "lib/semanticui/icons.eot",
+        "lib/semanticui/icons.woff",
+        "lib/semanticui/icons.ttf",
+        "lib/semanticui/icons.svg",
+        "lib/semanticui/icons.woff2"
       ],
       "matches": [
         "https://*.hana.ondemand.com/*",
