@@ -188,7 +188,10 @@
   top: 120px;
   right: 50px;
   width: fit-content;
-  opacity: 0.9;
+  border: 0;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .3), 0 1px 3px 1px rgba(60, 64, 67, .15);
+  opacity: 1 !important;
 }
 
 #cpiHelper_contentheader {
@@ -499,8 +502,8 @@
   display: flex;
 }
 
-.cpiHelper_logs_selected_button{
-  background-color:lightblue !important; 
+.cpiHelper_logs_selected_button {
+  background-color: lightblue !important;
 }
 
 .cpiHelper_logs_table_div {
