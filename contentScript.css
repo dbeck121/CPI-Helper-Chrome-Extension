@@ -283,8 +283,6 @@
   display: flex;
   flex-wrap: wrap;
   background: #efefef;
-  box-shadow: 0 48px 80px -32px rgba(0, 0, 0, 0.3);
-  padding: 15px;
 }
 
 .cpiHelper_tabs .cpiHelper_tabs_panel .cpiHelper_tabs {
