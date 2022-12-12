@@ -791,7 +791,8 @@ function buildButtonBar() {
     });
     infobutton.addEventListener("click", (btn) => {
       statistic("headerbar_btn_info_click")
-      getIflowInfo(openIflowInfoPopup);
+
+      openIflowInfoPopup();
     });
     logsbutton.addEventListener("click", async (btn) => {
       statistic("headerbar_btn_logs_click")
@@ -864,20 +865,31 @@ async function getIflowInfo(callback, silent = false) {
 //opens the popup that is triggered bei the info button
 async function openIflowInfoPopup() {
 
-  var x = document.createElement('div');
-  x.classList.add("cpiHelper_infoPopUp_content");
-  x.innerHTML = "";
+  async function getInfoContent() {
 
-  var deployedOn = cpiData?.flowData?.artifactInformation?.deployedOn;
-  if (deployedOn) {
-    let date = new Date(deployedOn);
-    //handle time zone differences
-    date.setTime(date.getTime() - date.getTimezoneOffset() * 60 * 1000);
-    deployedOn = date.toLocaleString();
-  }
+    await getIflowInfo()
 
-  var textElement = `<div class="cpiHelper_infoPopUp_items">
-  <h2>iFlow Info</h2>
+    var x = document.createElement('div');
+    x.classList.add("cpiHelper_infoPopUp_content");
+    x.innerHTML = "";
+
+    var deployedOn = cpiData?.flowData?.artifactInformation?.deployedOn;
+    if (deployedOn) {
+      let date = new Date(deployedOn);
+      //handle time zone differences
+      date.setTime(date.getTime() - date.getTimezoneOffset() * 60 * 1000);
+      deployedOn = date.toLocaleString();
+    }
+
+    var textElement = `
+<h4 class="ui horizontal divider header">
+  <i class="info icon"></i>
+  iFlow Info
+</h4>
+`
+    x.appendChild(createElementFromHTML(textElement));
+    textElement = `<div class="cpiHelper_infoPopUp_items">
+
   <div>Name: ${cpiData?.flowData?.artifactInformation?.name}</div>
   <div>SymbolicName: ${cpiData?.flowData?.artifactInformation?.symbolicName}</div>
   <div>Trace: ${cpiData?.flowData?.logConfiguration?.traceActive}</div>
@@ -888,278 +900,298 @@ async function openIflowInfoPopup() {
   <div>DeployedBy: ${cpiData?.flowData?.artifactInformation?.deployedBy}</div>
   </div>`;
 
-  x.appendChild(createElementFromHTML(textElement));
+    x.appendChild(createElementFromHTML(textElement));
 
-  if (cpiData.flowData.endpointInformation && cpiData.flowData.endpointInformation.length > 0) {
-    cpiData.flowData.endpointInformation.forEach(element => {
-      if (element.endpointInstances && element.endpointInstances.length > 0) {
-        var e = document.createElement('div');
-        e.classList.add("cpiHelper_infoPopUp_items");
-        e.innerHTML = `<div>Endpoints:</div>`;
-        x.appendChild(e);
-        for (var i = 0; i < element.endpointInstances.length; i++) {
-          let f = document.createElement('div');
-          f.className = "contentText";
-          f.innerText = `${element.endpointInstances[i]?.endpointCategory}: ${element.endpointInstances[i]?.endpointUrl}`;
-          var quickCopyToClipboardButton = createElementFromHTML("<button class='cpiHelper_inlineInfo-button' style='cursor: pointer;'><span data-sap-ui-icon-content='' data-text='" + `${element.endpointInstances[i]?.endpointUrl}` + "' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
-          quickCopyToClipboardButton.onclick = (event) => {
-            copyText(event.srcElement.getAttribute('data-text'));
-          };
-          f.appendChild(quickCopyToClipboardButton);
-          e.appendChild(f);
+    if (cpiData?.flowData?.endpointInformation && cpiData?.flowData?.endpointInformation.length > 0) {
+      cpiData.flowData.endpointInformation.forEach(element => {
+        if (element.endpointInstances && element.endpointInstances.length > 0) {
+          var e = document.createElement('div');
+          e.classList.add("cpiHelper_infoPopUp_items");
+          e.innerHTML = `<div>Endpoints:</div>`;
+          x.appendChild(e);
+          for (var i = 0; i < element.endpointInstances.length; i++) {
+            let f = document.createElement('div');
+            f.className = "contentText";
+            f.innerText = `${element.endpointInstances[i]?.endpointCategory}: ${element.endpointInstances[i]?.endpointUrl}`;
+            var quickCopyToClipboardButton = createElementFromHTML("<button class='cpiHelper_inlineInfo-button' style='cursor: pointer;'><span data-sap-ui-icon-content='' data-text='" + `${element.endpointInstances[i]?.endpointUrl}` + "' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
+            quickCopyToClipboardButton.onclick = (event) => {
+              copyText(event.srcElement.getAttribute('data-text'));
+            };
+            f.appendChild(quickCopyToClipboardButton);
+            e.appendChild(f);
+          }
         }
-      }
-    });
-  }
-  //JSON?
+      });
+    }
+    //JSON?
 
-  // List Variables
-  // GET https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/Operations/com.sap.esb.monitoring.datastore.access.command.ListDataStoreEntriesCommand?storeName=sap_global_store&allStores=true&maxNum=100000
-
-
-  async function createTableForVariables() {
-    var variableList =
-      await makeCallPromise(
-        "GET",
-        "/" + cpiData.urlExtension + "Operations/com.sap.esb.monitoring.datastore.access.command.ListDataStoreEntriesCommand?storeName=sap_global_store&allStores=true&maxNum=100000",
-        false,
-        "application/json", null, false
-
-      )
-
-    variableList = JSON.parse(variableList).entries;
-
-    //check if variables exist
-    if (variableList == null || variableList.length == 0) { return document.createElement("div"); }
-
-    //filter only global variables or variables from this flow
-    variableList = variableList.filter(element => !element.qualifier || element.qualifier == cpiData?.flowData?.artifactInformation?.symbolicName);
-
-    //check if array is now empty
-    if (variableList == null || variableList.length == 0) { return document.createElement("div"); }
-
-    //if not, build table
-    var result = document.createElement("table");
-    result.classList.add("cpiHelper_infoPopUp_Table")
-
-    tr0 = document.createElement("tr");
-    tr0th1 = document.createElement("th");
-    tr0th1.innerText = "Store";
-    tr0th2 = document.createElement("th");
-    tr0th2.innerText = "Name";
-    tr0th2.style.width = "100%";
-
-    tr0.appendChild(document.createElement("td"));
-    tr0.appendChild(tr0th1);
-
-    tr0.appendChild(tr0th2);
+    // List Variables
+    // GET https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/Operations/com.sap.esb.monitoring.datastore.access.command.ListDataStoreEntriesCommand?storeName=sap_global_store&allStores=true&maxNum=100000
 
 
+    async function createTableForVariables() {
+      var variableList =
+        await makeCallPromise(
+          "GET",
+          "/" + cpiData.urlExtension + "Operations/com.sap.esb.monitoring.datastore.access.command.ListDataStoreEntriesCommand?storeName=sap_global_store&allStores=true&maxNum=100000",
+          false,
+          "application/json", null, false
 
-    result.appendChild(tr0);
+        )
 
-    var even = "";
-    variableList.forEach(item => {
-      let tr = document.createElement("tr");
-      tr.id = item.id + item.storeName;
-      tr.className = even;
+      variableList = JSON.parse(variableList).entries;
 
-      let tdfunctions = document.createElement("td");
-      tdfunctions.style.whiteSpace = "nowrap";
+      //check if variables exist
+      if (variableList == null || variableList.length == 0) { return document.createElement("div"); }
 
-      let showButton = createElementFromHTML("<button><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
+      //filter only global variables or variables from this flow
+      variableList = variableList.filter(element => !element.qualifier || element.qualifier == cpiData?.flowData?.artifactInformation?.symbolicName);
 
-      tdfunctions.appendChild(showButton);
+      //check if array is now empty
+      if (variableList == null || variableList.length == 0) { return document.createElement("div"); }
 
-      let downloadButton = createElementFromHTML("<button><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
-      tdfunctions.appendChild(downloadButton);
+      //if not, build table
+      var result = document.createElement("table");
+      result.classList.add("cpiHelper_infoPopUp_Table")
 
-      let deleteButton = createElementFromHTML("<button><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
-      tdfunctions.appendChild(deleteButton);
+      tr0 = document.createElement("tr");
+      tr0th1 = document.createElement("th");
+      tr0th1.innerText = "Store";
+      tr0th2 = document.createElement("th");
+      tr0th2.innerText = "Name";
+      tr0th2.style.width = "100%";
 
-      tr.appendChild(tdfunctions);
+      tr0.appendChild(document.createElement("td"));
+      tr0.appendChild(tr0th1);
 
-      let td1 = document.createElement("td");
-      td1.innerText = (item.qualifier == null ? "global" : "local");
-      tr.appendChild((td1));
+      tr0.appendChild(tr0th2);
 
-      let td2 = document.createElement("td");
-      td2.innerText = item.id;
-      tr.appendChild((td2));
 
-      downloadButton.onclick = async (element) => {
-        let payload = { "storeName": item.storeName, "id": item.id };
-        if (item.qualifier) {
-          payload.qualifier = item.qualifier;
+
+      result.appendChild(tr0);
+
+      var even = "";
+      variableList.forEach(item => {
+        let tr = document.createElement("tr");
+        tr.id = item.id + item.storeName;
+        tr.className = even;
+
+        let tdfunctions = document.createElement("td");
+        tdfunctions.style.whiteSpace = "nowrap";
+
+        let showButton = createElementFromHTML("<button><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
+
+        tdfunctions.appendChild(showButton);
+
+        let downloadButton = createElementFromHTML("<button><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
+        tdfunctions.appendChild(downloadButton);
+
+        let deleteButton = createElementFromHTML("<button><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
+        tdfunctions.appendChild(deleteButton);
+
+        tr.appendChild(tdfunctions);
+
+        let td1 = document.createElement("td");
+        td1.innerText = (item.qualifier == null ? "global" : "local");
+        tr.appendChild((td1));
+
+        let td2 = document.createElement("td");
+        td2.innerText = item.id;
+        tr.appendChild((td2));
+
+        downloadButton.onclick = async (element) => {
+          let payload = { "storeName": item.storeName, "id": item.id };
+          if (item.qualifier) {
+            payload.qualifier = item.qualifier;
+          }
+          var response = await makeCallPromise("POST", "/" + cpiData.urlExtension + "Operations/com.sap.esb.monitoring.datastore.access.command.GetDataStorePayloadCommand", false, "", JSON.stringify(payload), true, "application/json;charset=UTF-8");
+          var value = response.match(/<payload>(.*)<\/payload>/sg)[0];
+          value = value.substring(9, value.length - 10)
+
+          window.open("data:application/zip;base64," + value);
         }
-        var response = await makeCallPromise("POST", "/" + cpiData.urlExtension + "Operations/com.sap.esb.monitoring.datastore.access.command.GetDataStorePayloadCommand", false, "", JSON.stringify(payload), true, "application/json;charset=UTF-8");
-        var value = response.match(/<payload>(.*)<\/payload>/sg)[0];
-        value = value.substring(9, value.length - 10)
-
-        window.open("data:application/zip;base64," + value);
-      }
 
 
-      showButton.onclick = async (element) => {
-        text = document.getElementById(item.id + item.storeName + "_value");
+        showButton.onclick = async (element) => {
+          text = document.getElementById(item.id + item.storeName + "_value");
 
-        if (text.classList.contains("cpiHelper_infoPopUp_TR_hide")) {
+          if (text.classList.contains("cpiHelper_infoPopUp_TR_hide")) {
 
-          try {
+            try {
 
-            let payload = { "storeName": item.storeName, "id": item.id };
-            if (item.qualifier) {
-              payload.qualifier = item.qualifier;
-            }
-
-
-            var response = await makeCallPromise("POST", "/" + cpiData.urlExtension + "Operations/com.sap.esb.monitoring.datastore.access.command.GetDataStoreVariableCommand", false, "", JSON.stringify(payload), true, "application/json;charset=UTF-8");
-
-
-
-            var value = response.match(/<value>(.*)<\/value>/sg)[0];
-
-            //aggressive mode means we look into the zip file from variable
-            var agressiveMode = false;
-            if (!value) {
-              aggressiveMode = true;
-              function base64ToBuffer(str) {
-                str = window.atob(str); // creates a ASCII string
-                var buffer = new ArrayBuffer(str.length),
-                  view = new Uint8Array(buffer);
-                for (var i = 0; i < str.length; i++) {
-                  view[i] = str.charCodeAt(i);
-                }
-                return buffer;
+              let payload = { "storeName": item.storeName, "id": item.id };
+              if (item.qualifier) {
+                payload.qualifier = item.qualifier;
               }
 
-              var response = await makeCallPromise("POST", "/" + cpiData.urlExtension + "Operations/com.sap.esb.monitoring.datastore.access.command.GetDataStorePayloadCommand", false, "", JSON.stringify(payload), true, "application/json;charset=UTF-8");
-              var base = response.match(/<payload>(.*)<\/payload>/sg)[0];
-              base = base.substring(9, base.length - 10)
 
-              var new_zip = new JSZip();
-              await new_zip.loadAsync(base64ToBuffer(base));
+              var response = await makeCallPromise("POST", "/" + cpiData.urlExtension + "Operations/com.sap.esb.monitoring.datastore.access.command.GetDataStoreVariableCommand", false, "", JSON.stringify(payload), true, "application/json;charset=UTF-8");
 
-              value = await new_zip.files[Object.keys(new_zip.files)[0]].async("string");
 
-            } else {
-              //when no aggressive mode, data has still to be transformed from base64
-              value = atob(value.substring(7, value.length - 8));
+
+              var value = response.match(/<value>(.*)<\/value>/sg)[0];
+
+              //aggressive mode means we look into the zip file from variable
+              var agressiveMode = false;
+              if (!value) {
+                aggressiveMode = true;
+                function base64ToBuffer(str) {
+                  str = window.atob(str); // creates a ASCII string
+                  var buffer = new ArrayBuffer(str.length),
+                    view = new Uint8Array(buffer);
+                  for (var i = 0; i < str.length; i++) {
+                    view[i] = str.charCodeAt(i);
+                  }
+                  return buffer;
+                }
+
+                var response = await makeCallPromise("POST", "/" + cpiData.urlExtension + "Operations/com.sap.esb.monitoring.datastore.access.command.GetDataStorePayloadCommand", false, "", JSON.stringify(payload), true, "application/json;charset=UTF-8");
+                var base = response.match(/<payload>(.*)<\/payload>/sg)[0];
+                base = base.substring(9, base.length - 10)
+
+                var new_zip = new JSZip();
+                await new_zip.loadAsync(base64ToBuffer(base));
+
+                value = await new_zip.files[Object.keys(new_zip.files)[0]].async("string");
+
+              } else {
+                //when no aggressive mode, data has still to be transformed from base64
+                value = atob(value.substring(7, value.length - 8));
+              }
+
+
+              let valueTd = document.createElement("td");
+              valueTd.colSpan = 4;
+
+              valueTd.innerText = value;
+              text.innerHTML = "";
+              text.appendChild(valueTd);
+              if (agressiveMode) {
+                showSnackbar("Aggressive mode was used to show variable");
+              }
+
+              text.classList.remove("cpiHelper_infoPopUp_TR_hide");
+            } catch (error) {
+              showSnackbar("It was not possible to extract the data. Please download and try manually.");
             }
-
-
-            let valueTd = document.createElement("td");
-            valueTd.colSpan = 4;
-
-            valueTd.innerText = value;
-            text.innerHTML = "";
-            text.appendChild(valueTd);
-            if (agressiveMode) {
-              showSnackbar("Aggressive mode was used to show variable");
-            }
-
-            text.classList.remove("cpiHelper_infoPopUp_TR_hide");
-          } catch (error) {
-            showSnackbar("It was not possible to extract the data. Please download and try manually.");
+          } else {
+            text.classList.add("cpiHelper_infoPopUp_TR_hide");
+            text.innerHTML = '<td colspan=4>Please wait...</td>';
           }
-        } else {
-          text.classList.add("cpiHelper_infoPopUp_TR_hide");
-          text.innerHTML = '<td colspan=4>Please wait...</td>';
         }
-      }
 
-      deleteButton.onclick = async (element) => {
-        var doDelete = getConfirmation(`Do you really want to delete variable \"${item.id}\"? You can not undo this.`);
-        if (doDelete) {
-          //delete Variable
-          try {
-            let payload = { "storeName": item.storeName, "ids": [item.id] };
-            if (item.qualifier) {
-              payload.qualifier = item.qualifier;
+        deleteButton.onclick = async (element) => {
+          var doDelete = getConfirmation(`Do you really want to delete variable \"${item.id}\"? You can not undo this.`);
+          if (doDelete) {
+            //delete Variable
+            try {
+              let payload = { "storeName": item.storeName, "ids": [item.id] };
+              if (item.qualifier) {
+                payload.qualifier = item.qualifier;
+              }
+              var response = await makeCallPromise("POST", "/" + cpiData.urlExtension + "Operations/com.sap.esb.monitoring.datastore.access.command.DeleteDataStoreEntryCommand", false, "", JSON.stringify(payload), true, "application/json;charset=UTF-8");
+              showSnackbar("Variable deleted.");
+              let cpiHelper_infoPopUp_Variables = document.getElementById("cpiHelper_infoPopUp_Variables")
+
+              cpiHelper_infoPopUp_Variables.appendChild(await createTableForVariables());
+              cpiHelper_infoPopUp_Variables.children[0].remove();
+
+            } catch (err) {
+              showSnackbar("Can not delete variable. Do you have sufficient rights?");
             }
-            var response = await makeCallPromise("POST", "/" + cpiData.urlExtension + "Operations/com.sap.esb.monitoring.datastore.access.command.DeleteDataStoreEntryCommand", false, "", JSON.stringify(payload), true, "application/json;charset=UTF-8");
-            showSnackbar("Variable deleted.");
-            let cpiHelper_infoPopUp_Variables = document.getElementById("cpiHelper_infoPopUp_Variables")
 
-            cpiHelper_infoPopUp_Variables.appendChild(await createTableForVariables());
-            cpiHelper_infoPopUp_Variables.children[0].remove();
-
-          } catch (err) {
-            showSnackbar("Can not delete variable. Do you have sufficient rights?");
           }
 
         }
 
-      }
 
 
 
 
+        let trShowButton = document.createElement("tr");
+        trShowButton.className = even;
+        trShowButton.classList.add("cpiHelper_infoPopUp_TR_hide")
+        trShowButton.id = item.id + item.storeName + "_value";
+        trShowButton.innerHTML = '<td colspan=4>Please wait...</td>';
 
-      let trShowButton = document.createElement("tr");
-      trShowButton.className = even;
-      trShowButton.classList.add("cpiHelper_infoPopUp_TR_hide")
-      trShowButton.id = item.id + item.storeName + "_value";
-      trShowButton.innerHTML = '<td colspan=4>Please wait...</td>';
+        result.appendChild(tr);
+        result.appendChild(trShowButton);
 
-      result.appendChild(tr);
-      result.appendChild(trShowButton);
-
-      even = even == "even" ? "" : "even";
-    });
-
-
-    return result;
-
-  }
-
-  var variablesDiv = document.createElement("div");
-  variablesDiv.id = "cpiHelper_infoPopUp_Variables";
-  variablesDiv.classList.add("cpiHelper_infoPopUp_items");
-  variablesDiv.appendChild(await createTableForVariables());
-  x.appendChild(variablesDiv);
-
-  //Get Variable XCSRF
-  //https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/Operations/com.sap.esb.monitoring.datastore.access.command.GetDataStoreVariableCommand
-  // {"storeName":"sap_global_store","id":"keywordsSinceIds","qualifier":"Sentiment_Engagement_-_Twitter_Keywords_Search_Integration_Flow"}
-
-  //delete variables XCSRF
-  // POST https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/Operations/com.sap.esb.monitoring.datastore.access.command.DeleteDataStoreEntryCommand
-  // {"storeName":"sap_global_store","ids":["dateglobal"]}
+        even = even == "even" ? "" : "even";
+      });
 
 
-  //undeploy button
-  if (deployedOn) {
-    var undeploybutton = document.createElement('button');
-    undeploybutton.innerText = "Undeploy";
-    undeploybutton.id = "undeploybutton";
-    undeploybutton.addEventListener("click", (a) => {
-      undeploy(cpiData?.flowData?.artifactInformation?.tenantId, cpiData?.flowData?.artifactInformation?.id);
-    });
-    x.appendChild(undeploybutton);
-  }
+      return result;
 
-  //more information about cpi helper
-  var textElement2 = `<div class="cpiHelper_infoPopUp_items">
-  <h3>News</h3>
-  <div><p>For news and interesting blog posts about SAP CI, <b>please follow our company <a href="https://www.linkedin.com/company/kangoolutions" target="_blank">LinkedIn-Page</a></b>.</p></div>
+    }
+
+    var variablesDiv = document.createElement("div");
+    variablesDiv.id = "cpiHelper_infoPopUp_Variables";
+    variablesDiv.classList.add("cpiHelper_infoPopUp_items");
+    variablesDiv.appendChild(await createTableForVariables());
+    x.appendChild(variablesDiv);
+
+    //Get Variable XCSRF
+    //https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/Operations/com.sap.esb.monitoring.datastore.access.command.GetDataStoreVariableCommand
+    // {"storeName":"sap_global_store","id":"keywordsSinceIds","qualifier":"Sentiment_Engagement_-_Twitter_Keywords_Search_Integration_Flow"}
+
+    //delete variables XCSRF
+    // POST https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/Operations/com.sap.esb.monitoring.datastore.access.command.DeleteDataStoreEntryCommand
+    // {"storeName":"sap_global_store","ids":["dateglobal"]}
+
+
+    //undeploy button
+    if (deployedOn) {
+      var undeploybutton = document.createElement('button');
+      undeploybutton.classList.add("ui")
+      undeploybutton.classList.add("button")
+
+      undeploybutton.innerText = "Undeploy";
+      undeploybutton.id = "undeploybutton";
+      undeploybutton.addEventListener("click", (a) => {
+        undeploy(cpiData?.flowData?.artifactInformation?.tenantId, cpiData?.flowData?.artifactInformation?.id);
+      });
+      x.appendChild(undeploybutton);
+    }
+    var textElement2 = `
+<h4 class="ui horizontal divider header">
+  <i class="envelope icon"></i>
+  News
+</h4>
+`
+    x.appendChild(createElementFromHTML(textElement2));
+    //more information about cpi helper
+    textElement2 = `<div class="cpiHelper_infoPopUp_items">
+
+  <p>For news and interesting blog posts about SAP CI, <b>please follow our company <a href="https://www.linkedin.com/company/kangoolutions" target="_blank">LinkedIn-Page</a></b>.</p>
   <div><p>We are a bunch of passionate SAP CI developers from Cologne, Germany. If you want to do a CPI project with us then you can reach us through our website <a href="https://kangoolutions.com" target="_blank">kangoolutions.com</a>. Or maybe you want to become part of the team? Then have a look <a href="https://ich-will-zur.kangoolutions.com/" target="_blank">here</a> (German only). Unfortunately, we can only consider applicants with german residence due to legal reasons.</p></div>
+  <h4 class="ui horizontal divider header">
+  <i class="envelope icon"></i>
+  General Information
+</h4>
   <div>Created by: Dominic Beckbauer and Kangoolutions.com</div>
   <div>License: <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU GPL v3</a></div>
   <div>Please also check our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">Github
   Page</a>.</div>
   </div>`;
 
-  x.appendChild(createElementFromHTML(textElement2));
+    x.appendChild(createElementFromHTML(textElement2));
 
-  var whatsNewButton = document.createElement('button');
-  whatsNewButton.innerText = "Whats New?";
-  whatsNewButton.addEventListener("click", (a) => {
-    whatsNewCheck(false)
-  });
-  x.appendChild(whatsNewButton);
+    var whatsNewButton = document.createElement('button');
+    whatsNewButton.classList.add("ui")
+    whatsNewButton.classList.add("button")
 
-  showBigPopup(x, "General Information");
+    whatsNewButton.innerText = "Whats New?";
+    whatsNewButton.addEventListener("click", (a) => {
+      whatsNewCheck(false)
+      $('#cpiHelper_semanticui_modal').modal('hide');
+    });
+    x.appendChild(whatsNewButton);
+
+    return x
+  }
+
+  showBigPopup(getInfoContent, "General Information", { fullscreen: false });
 }
 
 function copyText(input) {

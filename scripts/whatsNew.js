@@ -5,8 +5,22 @@ async function whatsNewCheck(showOnlyOnce = true) {
     check = await storageGetPromise("whatsNewV" + manifestVersion);
 
     if (!check || showOnlyOnce == false) {
-        html = `<div id="cpiHelper_WhatsNew"><p>You have successfully updated to version ${manifestVersion}</p> 
-        <h3>News</h3>
+        html = `
+        <div class="ui icon positive message">
+  <i class="info icon"></i>
+  <div class="content">
+    <div class="header">
+    You updated successfully to version ${manifestVersion}
+    </div>
+    <p>Follow our LinkedIn Page for updates and whats new.</p>
+  </div>
+</div>
+        <h4 class="ui horizontal divider header">
+        <i class="info icon"></i>
+        News
+        </h4>
+        <div id="cpiHelper_WhatsNew">
+       
         <div><p>For news and interesting blog posts about SAP CI, <b>follow our company <a href="https://www.linkedin.com/company/kangoolutions" target="_blank">LinkedIn-Page</a></b>.</p></div>
         <h3>CPI Helper Info</h3>
         <div><p>We are a small company of passionate SAP CI developers from Cologne, Germany. If you want to learn more about us, please visit our website <a href="https://kangoolutions.com" target="_blank">kangoolutions.com</a>. Or maybe you want to become part of the team? Then have a look <a href="https://ich-will-zur.kangoolutions.com/" target="_blank">here</a> (German only). Unfortunately, we can only consider applicants with german residence due to legal reasons.</p></div>
@@ -57,7 +71,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
    
     </div>
     `;
-        showBigPopup(html, "Your CPI Toolbox since 1963");
+        showBigPopup(html, "Your CPI Toolbox since 1963", { "fullscreen": true });
         var obj = {};
         obj["whatsNewV" + manifestVersion] = "show";
         chrome.storage.local.set(obj, function () {
