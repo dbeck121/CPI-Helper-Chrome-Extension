@@ -73,11 +73,7 @@
     {
       "resources": [
         "images/favicons/*.png",
-        "lib/semanticui/icons.eot",
-        "lib/semanticui/icons.woff",
-        "lib/semanticui/icons.ttf",
-        "lib/semanticui/icons.svg",
-        "lib/semanticui/icons.woff2"
+        "lib/semanticui/*"
       ],
       "matches": [
         "https://*.hana.ondemand.com/*",
