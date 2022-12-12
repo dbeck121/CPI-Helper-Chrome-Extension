@@ -39,23 +39,13 @@ function showSnackbar(message) {
   setTimeout(function () { x.className = x.className.replace("cpiHelper_snackbar_show", ""); }, 3000);
 }
 
-async function showBigPopup(content, header) {
+async function showBigPopup(content, header, parameters = { fullscreen: true }) {
   //create traceInfo div element
-  var x = document.getElementById("cpiHelper_bigPopup");
-  if (!x) {
-    x = document.createElement('div');
-    x.id = "cpiHelper_bigPopup";
-    x.onclick = function(event) { /* Added modal close when clicking on to the background */
-      console.log(event.target.id);
-      if (event.target.id == 'cpiHelper_bigPopup') {
-        x.remove();
-      }
-    }
-    x.classList.add("cpiHelper");
-    document.body.appendChild(x);
+  var x = document.getElementById("cpiHelper_semanticui_modal");
+
+  if (x) {
+    x.remove()
   }
-  x.style.display = "block";
-  x.innerHTML = "";
 
   if (header) {
     header = "- " + header;
@@ -64,27 +54,55 @@ async function showBigPopup(content, header) {
   }
 
   var textElement = `
-     <div id="cpiHelper_bigPopup_outerFrame">
-     <div id="cpiHelper_bigPopup_contentheader"><span style="margin-right: 1rem" id="" class="cpiHelper_closeButton">X</span>CPI Helper ${header}<span id="" style="float:right;" class="cpiHelper_closeButton">X</span></div>
-       <div id="cpiHelper_bigPopup_content">
-       Please Wait...
-     </div> 
-     </div>
-     `;
+  <div>
+    <i class="close icon"></i>
+    <div class="header">
+      CPI Helper ${header}
+    </div>
+    <div class="scrolling content">
+      
+      <div class="description" id="cpiHelper_bigPopup_content_semanticui" style="min-height: 50vh; transition: all 100ms ease-in-out;">
+        <div class="ui active inverted dimmer">
+        <div class="ui loader"></div>
+
+      </div>
+    </div>
+
+    </div>
+    <div class="actions">
+      <div class="ui black deny button" onclick="$('#cpiHelper_semanticui_modal').modal('hide');">
+        Close
+      </div>
+  
+    </div>
+    </div>
+    `;
 
 
 
-  x.appendChild(createElementFromHTML(textElement));
+  x = createElementFromHTML(textElement)
+  x.classList.add("cpiHelper");
+  x.classList.add("ui");
+  x.classList.add("modal");
 
-  var spans = document.getElementsByClassName("cpiHelper_closeButton");
-  for (span of spans) {
-    span.onclick = (element) => {
-      var x = document.getElementById("cpiHelper_bigPopup");
-      x.remove();
-    };
+  x.id = "cpiHelper_semanticui_modal"
+  document.body.appendChild(x);
+
+
+  if (parameters.fullscreen) {
+    x.classList.add("fullscreen");
+  } else {
+    x.classList.remove("fullscreen")
   }
 
-  var infocontent = document.getElementById("cpiHelper_bigPopup_content");
+  $('#cpiHelper_semanticui_modal').modal('show');
+
+
+
+
+
+
+  var infocontent = document.getElementById("cpiHelper_bigPopup_content_semanticui");
   if (typeof (content) == "string") {
     infocontent.innerHTML = content;
   }
@@ -95,8 +113,9 @@ async function showBigPopup(content, header) {
   }
 
   if (typeof (content) == "function") {
+    var result = await content();
     infocontent.innerHTML = "";
-    infocontent.appendChild(content());
+    infocontent.appendChild(result);
   }
 }
 
