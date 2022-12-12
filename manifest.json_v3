@@ -5,20 +5,18 @@
   "description": "Extends the SAP Cloud Platform Integration with some useful features to improve usability.",
   "author": "Dominic Beckbauer",
   "homepage_url": "https://github.com/dbeck121/CPI-Helper-Chrome-Extension",
+  "host_permissions": [
+    "https://*.hana.ondemand.com/itspaces",
+    "https://*.platform.sapcloud.cn/itspaces",
+    "https://*.hana.ondemand.com/shell"
+  ],
   "permissions": [
     "declarativeContent",
     "storage",
-    "https://*.hana.ondemand.com/itspaces",
-    "https://*.platform.sapcloud.cn/itspaces",
-    "https://*.hana.ondemand.com/shell",
     "webRequest"
   ],
   "background": {
-    "scripts": [
-      "background.js",
-      "hot-reload.js"
-    ],
-    "persistent": true
+    "service_worker": "background.js"
   },
   "content_scripts": [
     {
@@ -56,7 +54,7 @@
       ]
     }
   ],
-  "page_action": {
+  "action": {
     "default_popup": "popup.html",
     "default_icon": {
       "16": "images/cpi_helper16_full.png",
@@ -72,12 +70,20 @@
     "128": "images/cpi_helper128_full.png"
   },
   "web_accessible_resources": [
-    "images/favicons/*.png",
-    "lib/semanticui/icons.eot",
-    "lib/semanticui/icons.woff",
-    "lib/semanticui/icons.ttf",
-    "lib/semanticui/icons.svg",
-    "lib/semanticui/icons.woff2"
+    {
+      "resources": [
+        "images/favicons/*.png",
+        "lib/semanticui/icons.eot",
+        "lib/semanticui/icons.woff",
+        "lib/semanticui/icons.ttf",
+        "lib/semanticui/icons.svg",
+        "lib/semanticui/icons.woff2"
+      ],
+      "matches": [
+        "https://*.hana.ondemand.com/*",
+        "https://*.platform.sapcloud.cn/*"
+      ]
+    }
   ],
-  "manifest_version": 2
+  "manifest_version": 3
 }
