@@ -6,58 +6,6 @@
   border-radius: 5px 5px 5px 5px;
 }
 
-/* start snackbar */
-
-#cpiHelper_snackbar {
-  visibility: hidden;
-  min-width: 250px;
-  margin-left: -125px;
-  background-color: #3d5672;
-  color: #fff;
-  text-align: center;
-  border-radius: 2px;
-  padding: 16px;
-  position: fixed;
-  z-index: 500;
-  left: 50%;
-  bottom: 30px;
-  font-size: 17px;
-  box-sizing: border-box;
-  border-radius: 5px;
-}
-
-#cpiHelper_snackbar.cpiHelper_snackbar_show {
-  visibility: visible;
-  -webkit-animation: cpiHelper_fadein 0.5s, cpiHelper_fadeout 0.5s 2.5s;
-  animation: cpiHelper_fadein 0.5s, cpiHelper_fadeout 0.5s 2.5s;
-}
-
-@keyframes cpiHelper_fadein {
-  from {
-    bottom: 0;
-    opacity: 0;
-  }
-
-  to {
-    bottom: 30px;
-    opacity: 1;
-  }
-}
-
-@keyframes cpiHelper_fadeout {
-  from {
-    bottom: 30px;
-    opacity: 1;
-  }
-
-  to {
-    bottom: 0;
-    opacity: 0;
-  }
-}
-
-/* end snackbar */
-
 /* start working indicator */
 
 #cpiHelper_workingIndicator {

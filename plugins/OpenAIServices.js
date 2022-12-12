@@ -102,11 +102,11 @@ var plugin = {
             `;
             var models_list = {
                 "code-davinci-002": { "desc": "Codex model can be used for generating code based on description in request.", "maxRequestTokens": 4000 },
-                "text-davinci-002": {"desc":"Davinci 002 model can be used for generating code or text.", "maxRequestTokens": 2048 },
+                "text-davinci-002": { "desc": "Davinci 002 model can be used for generating code or text.", "maxRequestTokens": 2048 },
                 "text-davinci-003": { "desc": "Davinci 003 model is the most capable model and can be used for generating code or text. Max request 4000 tokens.", "maxRequestTokens": 4000 },
-                "code-davinci-edit-001": {"desc":"A specialized model in the Codex series that can be used to edit code. Provide some code and an instruction, and the model will attempt to modify it accordingly.", "maxRequestTokens": 8000 },
-                "text-davinci-edit-001": {"desc":"A specialized model in the GPT-3 series that can be used to edit text. Provide some text and an instruction, and the model will attempt to modify it accordingly.", "maxRequestTokens": 2048 },
-            };            
+                "code-davinci-edit-001": { "desc": "A specialized model in the Codex series that can be used to edit code. Provide some code and an instruction, and the model will attempt to modify it accordingly.", "maxRequestTokens": 8000 },
+                "text-davinci-edit-001": { "desc": "A specialized model in the GPT-3 series that can be used to edit text. Provide some text and an instruction, and the model will attempt to modify it accordingly.", "maxRequestTokens": 2048 },
+            };
             div.querySelector("#mode").addEventListener("click", () => {
                 var mode = div.querySelector("#mode").value;
 
@@ -139,7 +139,7 @@ var plugin = {
                         }
                     }
                 }
-                
+
             });
             div.querySelector("#submit").addEventListener("click", () => {
                 let apiKey = div.querySelector("#apiKey").value;
@@ -187,7 +187,7 @@ var plugin = {
                         ...baseData,
                         "input": request,
                         "instruction": instructions
-                    });                    
+                    });
                 }
                 else if (mode == "complete") {
                     data = JSON.stringify({
@@ -214,7 +214,7 @@ var plugin = {
                 xhr.open("POST", url, true);
                 xhr.setRequestHeader("Content-Type", "application/json");
                 xhr.setRequestHeader("Authorization", "Bearer " + apiKey);
-                xhr.onreadystatechange = function() {
+                xhr.onreadystatechange = function () {
                     if (xhr.readyState === 4 && xhr.status === 200) {
                         var json = JSON.parse(xhr.responseText);
                         if (mode == "insert") {
@@ -222,7 +222,7 @@ var plugin = {
                         } else {
                             div.querySelector("#response").value = json.choices[0].text;
                         }
-                        
+
                     } else {
                         div.querySelector("#response").value = xhr.responseText + " (" + xhr.status + ")";
                     }
@@ -230,11 +230,11 @@ var plugin = {
                     status.innerHTML = "";
                 };
                 xhr.send(data);
-                xhr.onerror = function() {
+                xhr.onerror = function () {
                     div.querySelector("#response").value = "Error: " + xhr.responseText;
                     clearInterval(interval);
                     status.innerHTML = "";
-                };                
+                };
                 interval = setInterval(() => {
                     i++;
                     if (i < 5) {
@@ -280,7 +280,7 @@ var plugin = {
                     let keyPass = prompt("Please enter a password to encrypt your key.");
                     if (keyPass != null) {
                         try {
-                            let keyMaterial =  await window.crypto.subtle.importKey(
+                            let keyMaterial = await window.crypto.subtle.importKey(
                                 "raw",
                                 enc.encode(keyPass),
                                 { name: "PBKDF2" },
@@ -309,12 +309,12 @@ var plugin = {
                                 secretKey,
                                 encodedAPIKey
                             );
-    
+
                             await syncChromeStoragePromise(getStoragePath("OpenAI", "APIKey"), btoa(new Uint8Array(encryptedAPIKey)));
-                                
-                            showSnackbar("API key encrypted and save successfully!");
+
+                            showToast("API key encrypted and save successfully!");
                             div.querySelector("#apiKey").value = apiKey;
-                        } catch (ex){
+                        } catch (ex) {
                             alert('Failed to save. Exception:' + ex);
                         }
                     }
@@ -327,7 +327,7 @@ var plugin = {
                         let encryptedKey = await getStorageValue("OpenAI", "APIKey");
 
                         if (encryptedKey != "") {
-                            let keyMaterial =  await window.crypto.subtle.importKey(
+                            let keyMaterial = await window.crypto.subtle.importKey(
                                 "raw",
                                 enc.encode(keyPass),
                                 { name: "PBKDF2" },
@@ -356,11 +356,11 @@ var plugin = {
                                 Uint8Array.from(atob(encryptedKey).split(","), c => c)
                             );
                             div.querySelector("#apiKey").value = dec.decode(decryptedKey);
-                            showSnackbar("API key loaded successfully!");
+                            showToast("API key loaded successfully!");
                         } else {
                             alert("Key doesn't exist or decrypt failed.");
                         }
-                    } catch (ex){
+                    } catch (ex) {
                         alert('Failed to load. Exception:' + ex);
                     }
                 }

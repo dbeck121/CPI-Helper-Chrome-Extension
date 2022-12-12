@@ -1,4 +1,3 @@
-//snackbar for messages (e.g. trace is on)
 function workingIndicator(status) {
   //  console.log(`CPI-Helper show indicator: $status`)
   //css for snackbar is already there. see initIflowPage()
@@ -24,19 +23,19 @@ function workingIndicator(status) {
 }
 
 //snackbar for messages (e.g. trace is on)
-function showSnackbar(message) {
-  //css for snackbar is already there. see initIflowPage()
+function showToast(title, message, type = "") {
 
-  //create snackbar div element
-  var x = document.getElementById("cpiHelper_snackbar");
-  if (!x) {
-    x = document.createElement('div');
-    x.id = "cpiHelper_snackbar";
-    document.body.appendChild(x);
-  }
-  x.innerHTML = message;
-  x.className = "cpiHelper_snackbar_show";
-  setTimeout(function () { x.className = x.className.replace("cpiHelper_snackbar_show", ""); }, 3000);
+  //type = success, error, warning
+
+  $.toast({
+    class: type,
+    position: 'bottom center',
+    title,
+    message,
+    newestOnTop: true
+
+  })
+    ;
 }
 
 async function showBigPopup(content, header, parameters = { fullscreen: true }) {

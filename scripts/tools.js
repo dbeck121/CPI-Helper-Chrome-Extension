@@ -39,7 +39,7 @@ async function getCsrfToken(showInfo = false) {
           resolve(xhr.getResponseHeader("x-csrf-token"));
         } else {
           showInfo ? workingIndicator(false) : {};
-          showInfo ? showSnackbar("CPI-Helper has run into a problem while catching X-CSRF-Token.") : {};
+          showInfo ? showToast("CPI-Helper has run into a problem while catching X-CSRF-Token.", "", "error") : {};
 
           reject({
             status: this.status,
@@ -49,7 +49,7 @@ async function getCsrfToken(showInfo = false) {
       };
       xhr.ontimeout = function () {
 
-        showInfo ? showSnackbar("CPI-Helper has run into a timeout while refreshing X-CSRF-Token. Please refresh site and try again.") : {};
+        showInfo ? showToast("CPI-Helper has run into a timeout while refreshing X-CSRF-Token.", "Please refresh site and try again.", "error") : {};
         showInfo ? workingIndicator(false) : {};
       }
 
@@ -112,7 +112,7 @@ function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, c
           resolve(xhr.responseText);
         } else {
           showInfo ? workingIndicator(false) : {};
-          showInfo ? showSnackbar("CPI-Helper has run into a problem while loading data.") : {};
+          showInfo ? showToast("CPI-Helper has run into a problem while loading data.", "", "error") : {};
 
           reject({
             status: this.status,
@@ -122,7 +122,7 @@ function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, c
       };
       xhr.ontimeout = function () {
 
-        showInfo ? showSnackbar("CPI-Helper has run into a timeout. Please refresh site and try again.") : {};
+        showInfo ? showToast("CPI-Helper has run into a timeout", "Please refresh site and try again.", "error") : {};
         showInfo ? workingIndicator(false) : {};
       }
 
@@ -160,7 +160,7 @@ async function makeCall(type, url, includeXcsrf, payload, callback, contentType,
   xhr.timeout = 6500; // Set timeout to 6.5 seconds
   xhr.ontimeout = function () {
 
-    showInfo ? showSnackbar("CPI-Helper has run into a timeout. Please refresh site and try again.") : {};
+    showInfo ? showToast("CPI-Helper has run into a timeout", "Please refresh site and try again.", "error") : {};
     showInfo ? workingIndicator(false) : {};
 
   }
@@ -240,7 +240,7 @@ var formatTrace = function (input, id, traceId) {
     }
 
     PR.prettyPrint();
-    showSnackbar("Autodetect content: " + type ? type : "unknown");
+    showToast("Autodetect content: " + type ? type : "unknown");
     return PR.prettyPrintOne(stringToFormat, type, 1);
 
   }
@@ -256,7 +256,7 @@ var formatTrace = function (input, id, traceId) {
       value = value.substring(9, value.length - 10)
 
       window.open("data:application/zip;base64," + value);
-      showSnackbar("Download complete.");
+      showToast("Download complete.");
     };
   }
 

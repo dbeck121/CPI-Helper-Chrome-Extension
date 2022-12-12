@@ -216,7 +216,7 @@ async function renderMessageSidebar() {
               if (activeInlineItem == e.currentTarget.classList[0]) {
 
                 hideInlineTrace();
-                showSnackbar("Inline-Debugging Deactivated");
+                showToast("Inline-Debugging Deactivated");
 
 
               } else {
@@ -224,12 +224,12 @@ async function renderMessageSidebar() {
                 var inlineTrace = await showInlineTrace(e.currentTarget.classList[0]);
                 if (inlineTrace) {
                   statistic("messagebar_btn_inlinetrace_click")
-                  showSnackbar("Inline-Debugging Activated");
+                  showToast("Inline-Debugging Activated");
                   mytarget.classList.add("cpiHelper_inlineInfo-active");
                   activeInlineItem = mytarget.classList[0];
                 } else {
                   activeInlineItem = null;
-                  showSnackbar("Inline debugging not possible. No data found.");
+                  showToast("Inline debugging not possible", "No data found.", "warning");
                 }
               }
             };
@@ -371,7 +371,7 @@ async function clickTrace(e) {
       return a.TraceId - b.TraceId;
     })[0];
     if (!trace) {
-      showSnackbar("No trace for this step exists, it is already deleted or not in trace mode.");
+      showToast("No trace exists", "it is already deleted or not in trace mode.", "warning");
       return "No trace for this step exists, it is already deleted or not in trace mode.";
       //   throw new Error("no trace found");
     }
@@ -508,7 +508,7 @@ async function clickTrace(e) {
   //https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='AF57ga2G45vKDTfn7zqO0zwJ9n93',ChildCount=17)/TraceMessages?$format=json
 
   if (runs.length == 0) {
-    showSnackbar("No Trace Found.");
+    showToast("No Trace Found", "", "warning");
     return;
   }
 
@@ -685,10 +685,10 @@ function setLogLevel(logLevel, iflowId) {
 
   makeCall("POST", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentSetMplLogLevelCommand", true, '{"artifactSymbolicName":"' + iflowId + '","mplLogLevel":"' + logLevel.toUpperCase() + '","nodeType":"IFLMAP"}', (xhr) => {
     if (xhr.readyState == 4 && xhr.status == 200) {
-      showSnackbar("Trace is activated");
+      showToast("Trace is activated");
     }
     else {
-      showSnackbar("Error activating Trace");
+      showToast("Error activating Trace", "", "error");
     }
   }, 'application/json;charset=UTF-8');
 
@@ -701,10 +701,10 @@ function undeploy(tenant = null, artifactId = null) {
   artifactId ??= cpiData.artifactId;
   makeCall("POST", "/" + cpiData.urlExtension + "Operations/com.sap.it.nm.commands.deploy.DeleteContentCommand", true, 'artifactIds=' + artifactId + '&tenantId=' + tenant, (xhr) => {
     if (xhr.readyState == 4 && xhr.status == 200) {
-      showSnackbar("Undeploy triggered");
+      showToast("Undeploy triggered");
     }
     else {
-      showSnackbar("Error triggering undeploy");
+      showToast("Error triggering undeploy", "", "error");
     }
   }, "application/x-www-form-urlencoded; charset=UTF-8");
 }
@@ -775,7 +775,7 @@ function buildButtonBar() {
           }
         }, 60 * 1000 * 5)
       } else {
-        showSnackbar("Trace will not be retriggered anymore.");
+        showToast("Trace will not be retriggered anymore.");
       }
 
     });
@@ -857,7 +857,7 @@ async function getIflowInfo(callback, silent = false) {
     return;
   }).catch((error) => {
     if (!silent) {
-      showSnackbar(JSON.stringify(error));
+      showToast(JSON.stringify(error));
     }
   });
 }
@@ -1067,12 +1067,12 @@ async function openIflowInfoPopup() {
               text.innerHTML = "";
               text.appendChild(valueTd);
               if (agressiveMode) {
-                showSnackbar("Aggressive mode was used to show variable");
+                showToast("Aggressive mode was used to show variable");
               }
 
               text.classList.remove("cpiHelper_infoPopUp_TR_hide");
             } catch (error) {
-              showSnackbar("It was not possible to extract the data. Please download and try manually.");
+              showToast("It was not possible to extract the data.", "Please download and try manually.");
             }
           } else {
             text.classList.add("cpiHelper_infoPopUp_TR_hide");
@@ -1090,14 +1090,14 @@ async function openIflowInfoPopup() {
                 payload.qualifier = item.qualifier;
               }
               var response = await makeCallPromise("POST", "/" + cpiData.urlExtension + "Operations/com.sap.esb.monitoring.datastore.access.command.DeleteDataStoreEntryCommand", false, "", JSON.stringify(payload), true, "application/json;charset=UTF-8");
-              showSnackbar("Variable deleted.");
+              showToast("Variable deleted.");
               let cpiHelper_infoPopUp_Variables = document.getElementById("cpiHelper_infoPopUp_Variables")
 
               cpiHelper_infoPopUp_Variables.appendChild(await createTableForVariables());
               cpiHelper_infoPopUp_Variables.children[0].remove();
 
             } catch (err) {
-              showSnackbar("Can not delete variable. Do you have sufficient rights?");
+              showToast("Can not delete variable", "Do you have sufficient rights?", "error");
             }
 
           }
@@ -1196,7 +1196,7 @@ async function openIflowInfoPopup() {
 
 function copyText(input) {
   navigator.clipboard.writeText(input).then(function () {
-    showSnackbar("Copied!")
+    showToast("Copied to clipboard")
     console.log('Async: Copying to clipboard was successful!');
   }, function (err) {
     console.error('Async: Could not copy text: ', err);
