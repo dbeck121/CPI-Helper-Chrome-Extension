@@ -25,21 +25,21 @@ async function whatsNewCheck(showOnlyOnce = true) {
     </div>
     <div class="ui bottom attached tab segment" data-tab="one">
     <div class="ui segment">
-    <a href="https://figaf.com/cpihelper-and-figaf" target="_blank"><img class="ui small left floated image" src="https://figaf.com/wp-content/uploads/elementor/thumbs/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png"></a>
+
+    <div class="ui grid">
+          <div class="four wide column">
+              <a href="https://figaf.com/cpihelper-and-figaf" target="_blank"><img class="ui small left floated image" src="https://figaf.com/wp-content/uploads/elementor/thumbs/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png"></a>
  
-  <div class="ui header">This release is sponsored by Figaf </div>
-     
-      
-  <div>
-      <p>Figaf makes it easier for you to manage your SAP Cloud Integration, so you can focus on development not paperwork.</p>
-      <p>Figaf is an all-in-one solution that covers testing, transport, alerting and migration.
-        Read more and try it for free <a href="https://figaf.com/cpihelper-and-figaf" target="_blank">here</a>.
-      </p>
-  
+          </div>
+    <div class="twelve wide column">
+         <div class="ui header">This release is sponsored by Figaf </div>
+          <p>Figaf makes it easier for you to manage your SAP Cloud Integration, so you can focus on development not paperwork.</p>
+          <p>Figaf is an all-in-one solution that covers testing, transport, alerting and migration.
+            Read more and try it for free <a href="https://figaf.com/cpihelper-and-figaf" target="_blank">here</a>.
+          </p>
+    </div>
   </div>
 
- 
- 
   </div>
 
   <h3 class="ui header">
@@ -58,11 +58,10 @@ async function whatsNewCheck(showOnlyOnce = true) {
       <div class="description">New design</div>
     </div>
   </a>
-  <a class="item">
-  <i class="right triangle icon"></i>
+  <a class="item"><i class="right triangle icon"></i>
   <div class="content">
     <div class="header">Feature</div>
-    <div class="description">New plugin "My AI Coding Buddy" thanks to </div>
+    <div class="description">New plugin "My AI Coding Buddy" thanks to Nick Yang.</div>
   </div>
 </a>
 <a class="item">
@@ -78,7 +77,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
 <h3 class="ui header">
 <a href="https://www.linkedin.com/company/kangoolutions" target="_blank"><i class="linkedin icon"></i></a>
 <div class="content">
-Follow us on <a href="https://www.linkedin.com/company/kangoolutions" target="_blank">LinkedIn</a></a>
+Follow us on <a href="https://www.linkedin.com/company/kangoolutions" target="_blank">LinkedIn</a>
 </div>
 </h3>
 
@@ -173,7 +172,7 @@ Follow us on <a href="https://www.linkedin.com/company/kangoolutions" target="_b
     </div>
     
     `;
-    await showBigPopup(html, "Your CPI Toolbox since 1963", { "fullscreen": false, callback: () => { $('.menu .item').tab(); } });
+    await showBigPopup(html, "Your SAP CI Toolbox since 1963", { "fullscreen": false, callback: () => { $('.menu .item').tab(); } });
 
 
     var obj = {};
