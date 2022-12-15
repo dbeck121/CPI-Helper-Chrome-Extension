@@ -80,7 +80,7 @@ async function createPluginPopupUI(plugin) {
 
     var div = document.createElement('div');
     div.appendChild(activeCheckbox);
-    div.appendChild(createElementFromHTML(`<label for="cpiHelper_popup_plugins-${plugin.id}">activate</label>`));
+    div.appendChild(createElementFromHTML(`<label for="cpiHelper_popup_plugins-${plugin.id}"> activate</label>`));
     div.appendChild(createElementFromHTML(`<br>`));
     div.appendChild(createElementFromHTML(`<span>${plugin.description}</span>`));
     div.appendChild(createElementFromHTML(`<br>`));

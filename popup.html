@@ -2,13 +2,18 @@
 <html>
 
 <head>
+	<!-- You MUST include jQuery before Fomantic -->
+	<script src="/lib/jQuery/jquery-3.1.1.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="/lib/semanticui/semantic.min.css">
+	<script src="/lib/semanticui/semantic.min.js"></script>
 	<style>
 		body {
 			margin: 0px;
 		}
 
 		#main {
-			width: 450px;
+			width: 200vh;
+
 			font-family: 'Arial', sans-serif;
 		}
 
@@ -67,44 +72,78 @@
 	<div id="main">
 		<div id="cpiHelper_contentheader">CPI Helper</div>
 		<div id="cpiHelper_content">
-			<div id="lastVisitedIflows"></div>
+			<div class="ui segment">
+				<div class="ui top attached tabular menu">
+					<a class="active item" data-tab="one">Last Visited</a>
+					<a class="item" data-tab="two">Links</a>
+					<a class="item" data-tab="three">Settings</a>
+					<a class="item" data-tab="four">Info</a>
+				</div>
+				<div class="ui bottom attached active tab segment" data-tab="one">
 
-			<div id="tenantUrls"></div>
-			<input type="checkbox" id="openMessageSidebarOnStartup" checked=""><label
-				for="openMessageSidebarOnStartup">Open Message Sidebar on start?</label>
+					<div id="lastVisitedIflows"></div>
 
-
-			<h3>General Links*</h3>
-			<ul style="list-style-type:disc;">
-				<li><a href="https://kangoolutions.com/blog/" target="_blank">CPI Helper Blog</a></li>
-				<li><a href="https://help.sap.com/viewer/product/CLOUD_INTEGRATION/Cloud/" target="_blank">SAP CPI
-						Help</a></li>
-				<li><a href="https://help.sap.com/viewer/product/CLOUD_INTEGRATION/Cloud/en-US?task=develop_task"
-						target="_blank">SAP CPI
-						Development</a></li>
-				<li><a href="https://blogs.sap.com/2020/03/05/cpi-chrome-plugin-to-enhance-sap-cloud-platform-integration-usability/"
-						target="_blank">CPI Helper Blog Post</a></li>
-
-				<li><a href="https://groovyide.com/cpi" target="_blank">Groovy IDE</a></li>
-
-			</ul>
+				</div>
+				<div class="ui bottom attached tab segment" data-tab="two">
+					<div id="tenantUrls"></div>
 
 
 
 
-			<p>For news and interesting blog posts about SAP CI, please <b>follow our <a
-						href="https://www.linkedin.com/company/kangoolutions" target="_blank">company
-						LinkedIn-Page</a></b>.</p>
-			<p>This plugin is developed by <a href="https://www.linkedin.com/in/dominic-beckbauer-515894188/"
-					target="_blank">Dominic
-					Beckbauer</a> and <a href="https://kangoolutions.com" target="_blank">kangoolutions</a>.</p>
-			<p>Feel free to contribute to our
-				<a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">Github
-					Page</a>.
-			</p>
-			<p id="cpihelper_version"></p>
-			<p>License: <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU GPL v3</a></p>
-			<p>*we are not responsible for the content of external links</p>
+
+					<h3>General Links*</h3>
+					<ul style="list-style-type:disc;">
+						<li><a href="https://kangoolutions.com/blog/" target="_blank">CPI Helper Blog</a></li>
+						<li><a href="https://help.sap.com/viewer/product/CLOUD_INTEGRATION/Cloud/" target="_blank">SAP
+								CPI
+								Help</a></li>
+						<li><a href="https://help.sap.com/viewer/product/CLOUD_INTEGRATION/Cloud/en-US?task=develop_task"
+								target="_blank">SAP CPI
+								Development</a></li>
+						<li><a href="https://blogs.sap.com/2020/03/05/cpi-chrome-plugin-to-enhance-sap-cloud-platform-integration-usability/"
+								target="_blank">CPI Helper Blog Post</a></li>
+
+						<li><a href="https://groovyide.com/cpi" target="_blank">Groovy IDE</a></li>
+
+					</ul>
+
+
+
+					<p>For news and interesting blog posts about SAP CI, please <b>follow our <a
+								href="https://www.linkedin.com/company/kangoolutions" target="_blank">company
+								LinkedIn-Page</a></b>.</p>
+					<p>This plugin is developed by <a href="https://www.linkedin.com/in/dominic-beckbauer-515894188/"
+							target="_blank">Dominic
+							Beckbauer</a> and <a href="https://kangoolutions.com" target="_blank">kangoolutions</a>.</p>
+					<p>Feel free to contribute on our
+						<a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">Github
+							Page</a>.
+					</p>
+
+
+				</div>
+
+				<div class="ui bottom attached tab segment" data-tab="three">
+
+					<div id="tenantSettings"></div>
+
+					<input type="checkbox" id="openMessageSidebarOnStartup" checked="">
+					<label for="openMessageSidebarOnStartup">Open Message Sidebar on start?</label>
+
+
+				</div>
+				<div class="ui bottom attached tab segment" data-tab="four">
+
+					<p id="cpihelper_version"></p>
+					<p>License: <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU GPL v3</a>
+					</p>
+					<p>*we are not responsible for the content of external links</p>
+
+
+				</div>
+			</div>
+
+
 		</div>
 	</div>
 

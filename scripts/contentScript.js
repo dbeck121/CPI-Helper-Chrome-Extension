@@ -168,9 +168,12 @@ async function renderMessageSidebar() {
             // logLevel[0] = logLevel[0].toUpperCase();
             runInfoElement[thisMessageHash].logLevel = loglevel;
 
+
+
             let traceButton = createElementFromHTML("<button title='jump to trace page' id='trace--" + i + "' class='" + resp[i].MessageGuid + flash + "'>" + loglevel.substr(0, 1).toUpperCase() + "</button>");
 
             if (loglevel.toLowerCase() === "trace") {
+
               var quickInlineTraceButton = createElementFromHTML("<button title='activate inline trace for debugging' class='" + resp[i].MessageGuid + flash + " cpiHelper_inlineInfo-button' style='cursor: pointer;'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
             } else {
               var quickInlineTraceButton = createElementFromHTML("<span />")
@@ -853,7 +856,9 @@ async function getIflowInfo(callback, silent = false) {
     cpiData.tenantId = cpiData?.flowData?.artifactInformation?.tenantId
     cpiData.artifactId = cpiData?.flowData?.artifactInformation?.id;
     cpiData.version = cpiData?.flowData?.artifactInformation?.version;
-    callback();
+    if (callback) {
+      callback();
+    }
     return;
   }).catch((error) => {
     if (!silent) {
@@ -882,7 +887,7 @@ async function openIflowInfoPopup() {
     }
 
     var textElement = `
-<h4 class="ui horizontal divider header">
+<h4 class="ui horizontal divider left aligned header">
   <i class="info icon"></i>
   iFlow Info
 </h4>
@@ -1154,7 +1159,7 @@ async function openIflowInfoPopup() {
       x.appendChild(undeploybutton);
     }
     var textElement2 = `
-<h4 class="ui horizontal divider header">
+<h4 class="ui horizontal divider left aligned header">
   <i class="envelope icon"></i>
   News
 </h4>
@@ -1165,7 +1170,7 @@ async function openIflowInfoPopup() {
 
   <p>For news and interesting blog posts about SAP CI, <b>please follow our company <a href="https://www.linkedin.com/company/kangoolutions" target="_blank">LinkedIn-Page</a></b>.</p>
   <div><p>We are a bunch of passionate SAP CI developers from Cologne, Germany. If you want to do a CPI project with us then you can reach us through our website <a href="https://kangoolutions.com" target="_blank">kangoolutions.com</a>. Or maybe you want to become part of the team? Then have a look <a href="https://ich-will-zur.kangoolutions.com/" target="_blank">here</a> (German only). Unfortunately, we can only consider applicants with german residence due to legal reasons.</p></div>
-  <h4 class="ui horizontal divider header">
+  <h4 class="ui horizontal divider left aligned header">
   <i class="envelope icon"></i>
   General Information
 </h4>
@@ -1571,12 +1576,12 @@ function storeVisitedIflowsForPopup() {
           //filter out the current flow
           if (visitedIflows.length > 0) {
             visitedIflows = visitedIflows.filter((element) => {
-              return element.name != `${dataRegexp[1]}: <b>${cpiArtifactId}</b>`;
+              return element.name != `${cpiArtifactId}` && element.type != dataRegexp[1];
             });
           }
 
           //put the current flow to the last element. last position indicates last visited element
-          visitedIflows.push({ name: `${dataRegexp[1]}: <b>${cpiArtifactId}</b>`, "url": document.location.href, "favorit": false });
+          visitedIflows.push({ name: `${cpiArtifactId}`, "url": document.location.href, "favorit": false, "type": `${dataRegexp[1]}` });
 
           //delete the first one when there are more than 10 iflows in visited list
           if (visitedIflows.length > 15) {

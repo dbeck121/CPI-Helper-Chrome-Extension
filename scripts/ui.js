@@ -38,7 +38,7 @@ function showToast(title, message, type = "") {
     ;
 }
 
-async function showBigPopup(content, header, parameters = { fullscreen: true }) {
+async function showBigPopup(content, header, parameters = { fullscreen: true, callback: null }) {
   //create traceInfo div element
   var x = document.getElementById("cpiHelper_semanticui_modal");
 
@@ -115,6 +115,10 @@ async function showBigPopup(content, header, parameters = { fullscreen: true }) 
     var result = await content();
     infocontent.innerHTML = "";
     infocontent.appendChild(result);
+  }
+
+  if (parameters.callback) {
+    parameters.callback()
   }
 }
 

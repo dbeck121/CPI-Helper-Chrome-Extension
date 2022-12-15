@@ -8,21 +8,73 @@ var host = "";
 //List a history of visited iflows
 function addLastVisitedIflows() {
     let name = 'visitedIflows_' + host.split("/")[2].split(".")[0];
+    var elements = {}
+
+
     chrome.storage.sync.get([name], function (result) {
         var visitedIflows = result[name];
+        console.log(visitedIflows)
         if (!visitedIflows || visitedIflows.length == 0) {
             return;
         }
 
 
         var html = `
-        <h3>Last Visited on Tenant ${name.split("_")[1]}</h3>
-        <ol style="list-style-type:decimal-leading-zero;"> `;
+        <h3>Last Visited on Tenant ${name.split("_")[1]}</h3>`;
 
         for (var i = visitedIflows.length - 1; i > -1; i--) {
-            html += `<li style="line-height: 1.5;"><a href="${visitedIflows[i].url}" target="_blank">${visitedIflows[i].name}</a></li>`;
+            if (visitedIflows[i].type) {
+                if (elements[visitedIflows[i].type]) {
+                    elements[visitedIflows[i].type].push(visitedIflows[i])
+                } else {
+                    elements[visitedIflows[i].type] = [visitedIflows[i]]
+                }
+            } else {
+                if (elements["noheader"]) {
+                    elements["noheader"].push(visitedIflows[i])
+                } else {
+                    elements["noheader"] = [visitedIflows[i]]
+                }
+            }
         }
-        html += `</ol>`;
+
+        var artifactTypes = ["Package", "IFlow", "Message Mapping", "Script Collection", "Value Mapping", "SOAP API", "REST API", "ODATA API"]
+
+        artifactTypes.map((artifact) => {
+            var subject = artifact
+            if (elements[subject]) {
+
+                html += `<h4 class="ui header">${subject}</h4>
+                <div class="ui list">`
+                elements[subject].map((item) => {
+                    html += `<div class="item">
+                    <i class="right triangle icon"></i>
+                    <div class="content">
+                    <a href="${item.url}" target="_blank">${item.name}</a>
+                    </div>
+                    </div>`
+                })
+                html += `</div>`
+            }
+        })
+
+        var subject = "noheader"
+        if (elements[subject]) {
+            html += `
+            <h4 class="ui header">Old CPI Helper version items</h4>
+            <div class="ui list">`
+            elements[subject].map((item) => {
+                html += `<div class="item">
+                <i class="right triangle icon"></i>
+                <div class="content">
+                <a href="${item.url}" target="_blank">${item.name}</a>
+                </div>
+                </div>`
+            })
+            html += `</div>`
+        }
+
+
         var lastVisitedIflows = document.getElementById("lastVisitedIflows");
         lastVisitedIflows.innerHTML = html;
     });
@@ -41,56 +93,64 @@ function getSideBarAlwaysVisible() {
     });
 }
 
+function addTenantSettings() {
+    var tenantSettings = document.getElementById("tenantSettings");
+    tenantSettings.innerHTML = `
+                <h3>Tenant Settings</h3>
+    <div>
+        <label for="tenanName">Set custom name for tab:</label><br>
+        <input type="text" name="tenantName" id="tenantName" class="input_fields"/>
+        <div style="margin-bottom: 0.6em;">use $iflow.name to show current iflow name.</div>
+    </div>
+   
+    <div>
+        <label for="color">Select tenant color:</label><br>
+        <input type="color" name="color"  class="input_fields" id="colorSelect"/>
+    </div>
+    <div>
+        <label for="icon-select">Choose an icon:</label><br>
+        <select name="pets" id="icon-select" class="input_fields">
+            <option value="default">Default</option>
+            <option value="1">Blue</option>
+            <option value="2">Green</option>
+            <option value="3">Red</option>
+            <option value="4">Purple</option>
+            <option value="5">Yellow</option>
+            <option value="6">Orange</option>
+        </select>
+    </div>
+
+
+            `
+}
+
 function addTenantUrls() {
 
     var tenantUrls = document.getElementById("tenantUrls");
     tenantUrls.innerHTML = `
-        <h3>Tenant Settings</h3>
-        <div>
-            <label for="tenanName">Set custom name for tab:</label><br>
-            <input type="text" name="tenantName" id="tenantName" class="input_fields"/>
-            <div style="margin-bottom: 0.6em;">use $iflow.name to show current iflow name.</div>
-        </div>
-       
-        <div>
-            <label for="color">Select tenant color:</label><br>
-            <input type="color" name="color"  class="input_fields" id="colorSelect"/>
-        </div>
-        <div>
-            <label for="icon-select">Choose an icon:</label><br>
-            <select name="pets" id="icon-select" class="input_fields">
-                <option value="default">Default</option>
-                <option value="1">Blue</option>
-                <option value="2">Green</option>
-                <option value="3">Red</option>
-                <option value="4">Purple</option>
-                <option value="5">Yellow</option>
-                <option value="6">Orange</option>
-            </select>
-        </div>
-        <h3>Tenant URLs</h3>
-        <ul>
-        <li><a href="${host + '/shell/monitoring/Messages/'}" target="_blank">Processed Messages</a></li>
-        <li><a href="${host + '/shell/monitoring/Messages/%7B%22status%22%3A%22FAILED%22%2C%22time%22%3A%22PASTHOUR%22%2C%22type%22%3A%22INTEGRATION_FLOW%22%7D'}" target="_blank">Failed Messages</a></li>
-        <li><a href="${host + '/shell/monitoring/Artifacts/'}" target="_blank">Artifacts</a></li>
-        <li><a href="${host + '/shell/design'}" target="_blank">Design</a></li>   
-        <li><a href="${host + '/shell/monitoring/Overview'}" target="_blank">Monitoring</a>
-            <ul><li><a href="${host + '/shell/monitoring/SecurityMaterials'}" target="_blank">Security Material</a></li></ul>
-            <ul><li><a href="${host + '/shell/monitoring/Keystore'}" target="_blank">Keystore</a></li></ul>
-            <ul><li><a href="${host + '/shell/monitoring/CertificateUserMappings'}" target="_blank">Certificate-to-User Mappings</a></li></ul>
-            <ul><li><a href="${host + '/shell/monitoring/AccessPolicies'}" target="_blank">Access Policies</a></li></ul>
-            <ul><li><a href="${host + '/shell/monitoring/JdbcMaterial'}" target="_blank">JDBC Material</a></li></ul>
-            <ul><li><a href="${host + '/shell/monitoring/Connectivity'}" target="_blank">Connectivity Tests</a></li></ul>
-            <ul><li><a href="${host + '/shell/monitoring/DataStores'}" target="_blank">Data Stores</a></li></ul>
-            <ul><li><a href="${host + '/shell/monitoring/Variables'}" target="_blank">Variables</a></li></ul>
-            <ul><li><a href="${host + '/shell/monitoring/MessageQueues'}" target="_blank">Message Queues</a></li></ul>
-            <ul><li><a href="${host + '/shell/monitoring/NumberRangeObject'}" target="_blank">Number Ranges</a></li></ul>
-            <ul><li><a href="${host + '/shell/monitoring/AuditLog'}" target="_blank">Audit Log</a></li></ul>
-            <ul><li><a href="${host + '/shell/monitoring/SystemLogs'}" target="_blank">System Logs</a></li></ul>    
-            <ul><li><a href="${host + '/shell/monitoring/Locks'}" target="_blank">Message Locks</a></li></ul>
-            <ul><li><a href="${host + '/shell/monitoring/DesigntimeLocks'}" target="_blank">Designtime Artifact Locks</a></li></ul>       
-        </li>
-       </ul> `;
+                <h3> Tenant URLs</h3 >
+                    <ul>
+                        <li><a href="${host + '/shell/monitoring/Messages/'}" target="_blank">Processed Messages</a></li>
+                        <li><a href="${host + '/shell/monitoring/Messages/%7B%22status%22%3A%22FAILED%22%2C%22time%22%3A%22PASTHOUR%22%2C%22type%22%3A%22INTEGRATION_FLOW%22%7D'}" target="_blank">Failed Messages</a></li>
+                        <li><a href="${host + '/shell/monitoring/Artifacts/'}" target="_blank">Artifacts</a></li>
+                        <li><a href="${host + '/shell/design'}" target="_blank">Design</a></li>
+                        <li><a href="${host + '/shell/monitoring/Overview'}" target="_blank">Monitoring</a>
+                            <ul><li><a href="${host + '/shell/monitoring/SecurityMaterials'}" target="_blank">Security Material</a></li></ul>
+                            <ul><li><a href="${host + '/shell/monitoring/Keystore'}" target="_blank">Keystore</a></li></ul>
+                            <ul><li><a href="${host + '/shell/monitoring/CertificateUserMappings'}" target="_blank">Certificate-to-User Mappings</a></li></ul>
+                            <ul><li><a href="${host + '/shell/monitoring/AccessPolicies'}" target="_blank">Access Policies</a></li></ul>
+                            <ul><li><a href="${host + '/shell/monitoring/JdbcMaterial'}" target="_blank">JDBC Material</a></li></ul>
+                            <ul><li><a href="${host + '/shell/monitoring/Connectivity'}" target="_blank">Connectivity Tests</a></li></ul>
+                            <ul><li><a href="${host + '/shell/monitoring/DataStores'}" target="_blank">Data Stores</a></li></ul>
+                            <ul><li><a href="${host + '/shell/monitoring/Variables'}" target="_blank">Variables</a></li></ul>
+                            <ul><li><a href="${host + '/shell/monitoring/MessageQueues'}" target="_blank">Message Queues</a></li></ul>
+                            <ul><li><a href="${host + '/shell/monitoring/NumberRangeObject'}" target="_blank">Number Ranges</a></li></ul>
+                            <ul><li><a href="${host + '/shell/monitoring/AuditLog'}" target="_blank">Audit Log</a></li></ul>
+                            <ul><li><a href="${host + '/shell/monitoring/SystemLogs'}" target="_blank">System Logs</a></li></ul>
+                            <ul><li><a href="${host + '/shell/monitoring/Locks'}" target="_blank">Message Locks</a></li></ul>
+                            <ul><li><a href="${host + '/shell/monitoring/DesigntimeLocks'}" target="_blank">Designtime Artifact Locks</a></li></ul>
+                        </li>
+                    </ul> `;
 
 }
 
@@ -183,9 +243,11 @@ function tenantIdentityChanges() {
         // get the current document title - this runs evey time the popup is opened
         chrome.tabs.sendMessage(tab.id, 'get', response => {
             console.dir(response)
-            tenantName.value = hostData.title = response.title;
-            tenantColor.value = hostData.color = response.color;
-            tenantIcon.value = hostData.icon = response.icon
+            if (response) {
+                tenantName.value = hostData.title = response.title;
+                tenantColor.value = hostData.color = response.color;
+                tenantIcon.value = hostData.icon = response.icon
+            }
         });
 
         // Autosave on change after 1s
@@ -241,9 +303,14 @@ async function main() {
     host = await getHost();
     getSideBarAlwaysVisible();
     addTenantUrls();
+    addTenantSettings();
     tenantIdentityChanges();
     addLastVisitedIflows();
     statistic("popup_open")
 }
 
 main().catch(e => console.error(e))
+
+$('.menu .item')
+    .tab()
+    ;
