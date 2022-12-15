@@ -25,6 +25,10 @@ I recommend reading the readme first but if you know what you are doing, you can
 - Last visited iflows in browser-bar-popup
 
 ## Changelog
+### 3.0.0
+- [Design] New design
+- [Feature] New plugin "My AI Coding Buddy". More details [here](https://blogs.sap.com/2022/12/13/how-i-use-ai-models-from-openai-in-my-sap-ci-is-development/). Thanks to [Nick Yang](https://github.com/SAPNickYang)
+- [Feature] Better popup window with last visited artifacts. Now better structured. 
 ### 2.7.0
 - [Feature] Better popup window with last visited artifacts. Now includes packages.  
 ### 2.6.3
