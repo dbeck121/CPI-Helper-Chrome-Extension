@@ -61,7 +61,7 @@ function addLastVisitedIflows() {
         var subject = "noheader"
         if (elements[subject]) {
             html += `
-            <h4 class="ui header">Old CPI Helper version items</h4>
+            <h4 class="ui header">CPI Helper old version items</h4>
             <div class="ui list">`
             elements[subject].map((item) => {
                 html += `<div class="item">
