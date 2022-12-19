@@ -34,7 +34,7 @@
         "/lib/jszip/jszip.min.js",
         "/scripts/identify-tenant.js",
         "/lib/xmlToJson/xmlToJson.js",
-        "/lib/jQuery/jquery-3.1.1.min.js",
+        "/lib/jQuery/jquery.min.js",
         "/lib/semanticui/semantic.min.js",
         "/plugins/run.js",
         "/plugins/undeploy.js",
