@@ -1576,7 +1576,7 @@ function storeVisitedIflowsForPopup() {
           //filter out the current flow
           if (visitedIflows.length > 0) {
             visitedIflows = visitedIflows.filter((element) => {
-              return element.name != `${cpiArtifactId}` && element.type != dataRegexp[1];
+              return !(element.name == `${cpiArtifactId}` && dataRegexp[1] == element.type);
             });
           }
 
