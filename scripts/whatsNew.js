@@ -4,7 +4,9 @@ async function whatsNewCheck(showOnlyOnce = true) {
 
   check = await storageGetPromise("whatsNewV" + manifestVersion);
 
-  if (!check || showOnlyOnce == false) {
+  silentupdates = ["3.0.3"]
+
+  if (!check && !silentupdates.includes(manifestVersion) || showOnlyOnce == false) {
     html = `
 
  
