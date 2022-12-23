@@ -694,8 +694,6 @@ function setLogLevel(logLevel, iflowId) {
       showToast("Error activating Trace", "", "error");
     }
   }, 'application/json;charset=UTF-8');
-
-  statistic("set_log_level", logLevel)
 }
 
 //makes a http call to set the log level to trace
@@ -766,6 +764,7 @@ function buildButtonBar() {
       if (btn.classList.contains("cpiHelper_powertrace")) {
         setLogLevel("TRACE", cpiData.integrationFlowId);
         powertraceflow = cpiData.integrationFlowId;
+        statistic("set_log_level", logLevel)
         powertrace = setInterval(function () {
           btn = document.getElementById("button134345-BDI-content")
           if (btn && btn.classList.contains("cpiHelper_powertrace") || cpiData.integrationFlowId == powertraceflow) {
