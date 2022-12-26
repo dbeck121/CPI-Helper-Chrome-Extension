@@ -127,9 +127,9 @@ updateLogList = async () => {
         }
 
         if (dateType == "custom") {
-            var response = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + artifact + "' and Status ne 'DISCARDED' " + statusfilter + "and LogStart ge datetime'" + startDateTimeInUTC + "' and LogStart le datetime'" + endDateTimeInUTC + "'&$top=40&$format=json&$orderby=LogStart desc", false)).d.results;
+            var response = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + artifact + "' and Status ne 'DISCARDED' " + statusfilter + "and LogStart ge datetime'" + startDateTimeInUTC + "' and LogStart le datetime'" + endDateTimeInUTC + "'&$top=40&$format=json&$orderby=LogEnd desc", false)).d.results;
         } else {
-            var response = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + artifact + "' " + statusfilter + "and Status ne 'DISCARDED'&$top=35&$format=json&$orderby=LogStart desc", false)).d.results;
+            var response = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + artifact + "' " + statusfilter + "and Status ne 'DISCARDED'&$top=35&$format=json&$orderby=LogEnd desc", false)).d.results;
 
         }
 
