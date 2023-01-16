@@ -764,7 +764,7 @@ function buildButtonBar() {
       if (btn.classList.contains("cpiHelper_powertrace")) {
         setLogLevel("TRACE", cpiData.integrationFlowId);
         powertraceflow = cpiData.integrationFlowId;
-        statistic("set_log_level", logLevel)
+        statistic("set_log_level", "TRACE")
         powertrace = setInterval(function () {
           btn = document.getElementById("button134345-BDI-content")
           if (btn && btn.classList.contains("cpiHelper_powertrace") || cpiData.integrationFlowId == powertraceflow) {
@@ -1579,8 +1579,13 @@ function storeVisitedIflowsForPopup() {
             });
           }
 
+          let urlext = ""
+          if(dataRegexp[1] == "Package") {
+            urlext = "?section=ARTIFACTS"
+          }
+
           //put the current flow to the last element. last position indicates last visited element
-          visitedIflows.push({ name: `${cpiArtifactId}`, "url": document.location.href, "favorit": false, "type": `${dataRegexp[1]}` });
+          visitedIflows.push({ name: `${cpiArtifactId}`, "url": document.location.href+urlext, "favorit": false, "type": `${dataRegexp[1]}` });
 
           //delete the first one when there are more than 10 iflows in visited list
           if (visitedIflows.length > 15) {
