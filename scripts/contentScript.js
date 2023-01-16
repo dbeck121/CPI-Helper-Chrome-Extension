@@ -243,7 +243,11 @@ async function renderMessageSidebar() {
 
             infoButton.addEventListener("click", (a) => {
               statistic("messagebar_btn_info_click")
-              openInfo(a.currentTarget.classList[0]);
+              let url = a.currentTarget.classList[0]
+              if(url.match(/.*\.integrationsuite(-trial){0,1}\..*/)) {
+                  url = url.replace("/itspaces","")
+              }
+              openInfo(url);
             });
 
             logButton.addEventListener("click", async (a) => {

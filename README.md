@@ -35,6 +35,7 @@ I recommend reading the readme first but if you know what you are doing, you can
 - [Bugfix] Logs now sorted with LogEnd attribute instead LogStart
 - [Bugfix] Some UI fixes
 - [Bugfix] Fixes in Plugin Engine
+- [Bugfix] Log button
 
 ### 3.0.x
 
