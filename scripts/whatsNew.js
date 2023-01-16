@@ -35,9 +35,9 @@ async function whatsNewCheck(showOnlyOnce = true) {
           </div>
     <div class="twelve wide column">
          <div class="ui header">This release is sponsored by Figaf </div>
-          <p>Figaf makes it easier for you to manage your SAP Cloud Integration, so you can focus on development, not paperwork.</p>
-          <p>Figaf is an all-in-one solution that covers testing, transport, alerting and migration.
-            Read more and try it for free <a href="https://figaf.com/cpihelper-and-figaf" target="_blank">here</a>.
+          <p>Are you planning an SAP PI to Integration Suite migration? Figaf can support you with your migration process. 
+          Start with creating a free assessment of your landscape. In 30 minutes, you will have a report with all your ICO/receiver information and all the necessary information to estimate and plan your migration.</p>
+            Read more <a href="https://figaf.com/migration-assessment-tooling-for-sap-pi-7-1-7-5/?utm_source=cpihelper&utm_medium=sponsored&utm_campaign=cpihelper-promotion&utm_content=migrationassessment" target="_blank">here</a>.
           </p>
     </div>
   </div>
