@@ -41,11 +41,14 @@ async function createPluginButtonsInMessageSidebar(runInfoElement, i, flash) {
         var settings = await getPluginSettings(plugin.id);
         if (settings[plugin.id + "---isActive"] === true) {
             if (plugin.messageSidebarButton && !plugin.messageSidebarButton.condition || plugin.messageSidebarButton && plugin.messageSidebarButton.condition(cpiData, settings, runInfoElement)) {
-                var button = createElementFromHTML("<button title='" + plugin.messageSidebarButton.title + "' id='trace--" + i + "' class='" + runInfoElement.messageGuid + flash + "'>" + plugin?.messageSidebarButton?.text?.substring(0, 3) + "</button>");
+                var button = createElementFromHTML("<button title='" + plugin.messageSidebarButton.title + "' id='cpiHelperPlugin--" + plugin.id + "' class='" + runInfoElement.messageGuid + flash + "'>" + plugin?.messageSidebarButton?.text?.substring(0, 3) + "</button>");
 
-                button.onclick = () => {
-                    plugin.messageSidebarButton.onClick(cpiData, settings, runInfoElement);
-                    statistic("messagebar_btn_plugin_click")
+                button.onclick = async (btn) => {
+                    let pluginID = btn.target.id.replace("cpiHelperPlugin--","")
+                    let pluginItem = pluginList.find((element) => element.id == pluginID)
+                    let pluginsettings = await getPluginSettings(pluginID);
+                    pluginItem.messageSidebarButton.onClick(cpiData, pluginsettings, runInfoElement);
+                    statistic("messagebar_btn_plugin_click",pluginID)
                 };
 
                 pluginButtons.push(button);
