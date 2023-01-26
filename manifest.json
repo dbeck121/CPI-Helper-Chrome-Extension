@@ -41,6 +41,7 @@
         "/plugins/cpitransporter.js",
         "/plugins/figaf.js",
         "/plugins/OpenAIServices.js",
+        "/plugins/simplenotepad.js",
         "/scripts/ui.js",
         "/scripts/tools.js",
         "/scripts/logs.js",
