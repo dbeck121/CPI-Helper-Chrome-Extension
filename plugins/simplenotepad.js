@@ -6,7 +6,7 @@ var plugin = {
     author: "Kangoolutions",
     email: "cpihelper@kangoolutions.com",
     website: "https://kangoolutions.com",
-    description: "Adds an button to the message sidebar to open a simple notepad. The data you enter is only stored in your browser.",
+    description: "Adds an button to the message sidebar to open a simple notepad. The data you enter is only stored in your browser for you. You can use this to store data that you need during development like property names or naming conventions. It is just for your convenience. Other developers will not see what you have written.",
 
     settings: {
         "text1": { "text": "There are no additional settings.", "type": "label" }
