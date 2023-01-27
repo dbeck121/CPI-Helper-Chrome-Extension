@@ -43,6 +43,7 @@
         "/plugins/cpitransporter.js",
         "/plugins/figaf.js",
         "/plugins/OpenAIServices.js",
+        "/plugins/WHINT_IFD.js",
         "/scripts/ui.js",
         "/scripts/tools.js",
         "/scripts/logs.js",
