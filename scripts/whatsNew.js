@@ -53,18 +53,24 @@ async function whatsNewCheck(showOnlyOnce = true) {
  
   <div class="ui list">
 
-  <a class="item">
-    <i class="right triangle icon"></i>
-    <div class="content">
-      <div class="header">Feature</div>
-      <div class="description">New design</div>
-    </div>
-  </a>
+  
   <a class="item"><i class="right triangle icon"></i>
   <div class="content">
     <div class="header">Feature</div>
-    <div class="description">New plugin "My AI Coding Buddy" thanks to Nick Yang.</div>
+    <div class="description">New plugin: "Simple Notepad" that let's you store information for you in your browser directly in CI Designer</div>
   </div>
+</a>
+<a class="item"><i class="right triangle icon"></i>
+<div class="content">
+  <div class="header">Feature</div>
+  <div class="description">New plugin: "Simple Reference" helps you with remembering built in Headers, Properties, Simple Expressions and Groovy Script</div>
+</div>
+</a>
+<a class="item"><i class="right triangle icon"></i>
+<div class="content">
+  <div class="header">Feature</div>
+  <div class="description">New plugin: "WHINT® Interface Documentation" that generates links to your documentation in Sharepoint. Needs WHINT® Interface Documentation</div>
+</div>
 </a>
 <a class="item">
 <i class="right triangle icon"></i>
