@@ -1,7 +1,7 @@
 var plugin = {
     metadataVersion: "1.0.0",
     id: "simplenotepad",
-    name: "Simple Notepad",
+    name: "Simple Notepad (Beta)",
     version: "1.0.0",
     author: "Kangoolutions",
     email: "cpihelper@kangoolutions.com",

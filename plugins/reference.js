@@ -1,7 +1,7 @@
 var plugin = {
     metadataVersion: "1.0.0",
     id: "simple_reference",
-    name: "Simple Reference",
+    name: "Simple Reference (Beta)",
     version: "0.1.0",
     author: "Kangoolutions",
     email: "cpihelper@kangoolutions.com",
@@ -25,8 +25,8 @@ var plugin = {
        
         <div class="ui segment">
             <div class="ui top attached tabular menu">
-                <a class="item active" data-tab="one">Camel's Simple Expressions</a>
-                <a class="item" data-tab="two">Headers and Properties</a>
+                <a class="item active" data-tab="one">Headers and Properties</a>
+                <a class="item" data-tab="two">Camel's Simple Expressions</a>
                 <a class="item" data-tab="three">Groovy</a>
                 <a class="item" data-tab="four">Links</a>
             </div>

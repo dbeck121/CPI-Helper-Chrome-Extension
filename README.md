@@ -30,6 +30,12 @@ I recommend reading the readme first but if you know what you are doing, you can
 
 ## Changelog
 
+### 3.1.0
+
+- [Feature] New plugin "WHINT IFD".
+- [Feature] New plugin "Simple Notepad".
+- [Feature] New plugin "Reference".
+
 ### 3.0.7
 
 - [Bugfix] Logs now sorted with LogEnd attribute instead LogStart

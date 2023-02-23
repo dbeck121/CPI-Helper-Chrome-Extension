@@ -35,9 +35,9 @@ async function whatsNewCheck(showOnlyOnce = true) {
           </div>
     <div class="twelve wide column">
          <div class="ui header">This release is sponsored by Figaf </div>
-          <p>Are you planning an SAP PI to Integration Suite migration? Figaf can support you with your migration process. 
-          Start with creating a free assessment of your landscape. In 30 minutes, you will have a report with all your ICO/receiver information and all the necessary information to estimate and plan your migration.</p>
-            Read more <a href="https://figaf.com/migration-assessment-tooling-for-sap-pi-7-1-7-5/?utm_source=cpihelper&utm_medium=sponsored&utm_campaign=cpihelper-promotion&utm_content=migrationassessment" target="_blank">here</a>.
+          <p>We all want to have good tests of our integration, however it can be difficult to make it work. With Figaf and CPIHelper, you can click one button and create a test case for an iFlow message.
+          Now everybody can create test cases and run them before and after they need to fix an iFlow. This gives you a much better control of your integration.</p>
+            Read more <a href="https://figaf.com/automate-your-sap-cloud-integration-test-cases/?utm_source=cpihelper&utm_medium=sponsored&utm_campaign=cpihelper-promotion&utm_content=automate-your-cpi-test-cases" target="_blank">here</a>.
           </p>
     </div>
   </div>
@@ -53,23 +53,22 @@ async function whatsNewCheck(showOnlyOnce = true) {
  
   <div class="ui list">
 
-  
+  <a class="item"><i class="right triangle icon"></i>
+<div class="content">
+  <div class="header">Feature</div>
+  <div class="description">New plugin: "WHINT® Interface Documentation" that generates links to your documentation in Sharepoint. Needs WHINT® Interface Documentation</div>
+</div>
+</a>
   <a class="item"><i class="right triangle icon"></i>
   <div class="content">
     <div class="header">Feature</div>
-    <div class="description">New plugin: "Simple Notepad" that let's you store information for you in your browser directly in CI Designer</div>
+    <div class="description">New plugin: "Simple Notepad (Beta)" that let's you store information for you in your browser directly in CI Designer</div>
   </div>
 </a>
 <a class="item"><i class="right triangle icon"></i>
 <div class="content">
   <div class="header">Feature</div>
-  <div class="description">New plugin: "Simple Reference" helps you with remembering built in Headers, Properties, Simple Expressions and Groovy Script</div>
-</div>
-</a>
-<a class="item"><i class="right triangle icon"></i>
-<div class="content">
-  <div class="header">Feature</div>
-  <div class="description">New plugin: "WHINT® Interface Documentation" that generates links to your documentation in Sharepoint. Needs WHINT® Interface Documentation</div>
+  <div class="description">New plugin: "Simple Reference (Beta)" helps you with remembering built in Headers, Properties, Simple Expressions and Groovy Script</div>
 </div>
 </a>
 <a class="item">
