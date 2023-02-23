@@ -47,7 +47,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
   <h3 class="ui header">
   <i class="bell icon"></i>
   <div class="content">
-    Whats New?
+    What's New?
   </div>
 </h3>
  
@@ -57,7 +57,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
   <a class="item"><i class="right triangle icon"></i>
   <div class="content">
     <div class="header">Feature</div>
-    <div class="description">New plugin: "Simple Notepad" that let's you store information for you in your browser directly in CI Designer</div>
+    <div class="description">New plugin: "Simple Notepad" that lets you store information for you in your browser directly in CI Designer</div>
   </div>
 </a>
 <a class="item"><i class="right triangle icon"></i>
@@ -132,7 +132,7 @@ Follow us on <a href="https://www.linkedin.com/company/kangoolutions" target="_b
 
           <p>To learn more about CPI Helper features and what's new on our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">Github
           Page</a>.</p>
-          <p>Unfortunately, SAP does not work with us together and does not inform us when the APIs change. So be gentle if sth. does not work. we do this in our free time and sometimes it takes a while to adapt to SAP changes.</p>
+          <p>Unfortunately, SAP does not work with us together and does not inform us when the APIs change. So be gentle if sth. does not work. We do this in our free time and sometimes it takes a while to adapt to SAP changes.</p>
         </div>
        <div class="ui bottom attached tab segment active" data-tab="three">
  
