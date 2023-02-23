@@ -35,7 +35,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
           </div>
     <div class="twelve wide column">
          <div class="ui header">This release is sponsored by Figaf </div>
-          <p>We all want to have good tests of our integration, however it can be difficult to make it work. With Figaf and CPIHelper, you can click one button and create a test case for an iFlow message.
+          <p>We all want to have good tests of our integration, however it can be difficult to make it work. With Figaf and CPI Helper, you can click one button and create a test case for an iFlow message.
           Now everybody can create test cases and run them before and after they need to fix an iFlow. This gives you a much better control of your integration.</p>
             Read more <a href="https://figaf.com/automate-your-sap-cloud-integration-test-cases/?utm_source=cpihelper&utm_medium=sponsored&utm_campaign=cpihelper-promotion&utm_content=automate-your-cpi-test-cases" target="_blank">here</a>.
           </p>
