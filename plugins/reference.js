@@ -150,16 +150,16 @@ var plugin = {
                     <div class="ui bottom attached tab segment" data-tab="three">
                     <div class="ui segment">
                     A comprehensive list of Groovy Scripts can be found on following Notion page.
-                    <a href="https://kangoolutions.notion.site/Groovy-bf09f39f392c41dd8ae87350032fb60a">Kangoolutions Groovy Script Collection</a>
+                    <a href="https://kangoolutions.notion.site/Groovy-bf09f39f392c41dd8ae87350032fb60a" target="_blanc">Kangoolutions Groovy Script Collection</a>
                     </diV>
                 </div>
                 <div class="ui bottom attached tab segment" data-tab="four">
                 <div class="ui segment">
                 <h3 class="ui header">Official SAP Help Links</h3>
                 
-                    <p>Official SAP Help <a href="https://help.sap.com/docs/CLOUD_INTEGRATION">Link</a></p>
-                    <p>List of Framework Headers and Properties <a href="https://help.sap.com/docs/CLOUD_INTEGRATION/368c481cd6954bdfa5d0435479fd4eaf/d0fcb0988f034e889f611c6e36d43ad5.html?locale=en-US">SAP Help</a></p>
-                    <p>Link to Groovy API and more <a href="https://help.sap.com/docs/CLOUD_INTEGRATION/368c481cd6954bdfa5d0435479fd4eaf/c5c7933b77ba46dbaa9a2c1576dbb381.html?locale=en-US">here</a></p>   
+                    <p>Official SAP Help <a href="https://help.sap.com/docs/CLOUD_INTEGRATION" target="_blanc">Link</a></p>
+                    <p>List of Framework Headers and Properties <a href="https://help.sap.com/docs/CLOUD_INTEGRATION/368c481cd6954bdfa5d0435479fd4eaf/d0fcb0988f034e889f611c6e36d43ad5.html?locale=en-US "target="_blanc">SAP Help</a></p>
+                    <p>Link to Groovy API and more <a href="https://help.sap.com/docs/CLOUD_INTEGRATION/368c481cd6954bdfa5d0435479fd4eaf/c5c7933b77ba46dbaa9a2c1576dbb381.html?locale=en-US" target="_blanc">here</a></p>   
                     </div>
                 </div>
           
