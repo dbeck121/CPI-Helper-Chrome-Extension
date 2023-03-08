@@ -44,11 +44,11 @@ async function createPluginButtonsInMessageSidebar(runInfoElement, i, flash) {
                 var button = createElementFromHTML("<button title='" + plugin.messageSidebarButton.title + "' id='cpiHelperPlugin--" + plugin.id + "' class='" + runInfoElement.messageGuid + flash + "'>" + plugin?.messageSidebarButton?.text?.substring(0, 3) + "</button>");
 
                 button.onclick = async (btn) => {
-                    let pluginID = btn.target.id.replace("cpiHelperPlugin--","")
+                    let pluginID = btn.target.id.replace("cpiHelperPlugin--", "")
                     let pluginItem = pluginList.find((element) => element.id == pluginID)
                     let pluginsettings = await getPluginSettings(pluginID);
                     pluginItem.messageSidebarButton.onClick(cpiData, pluginsettings, runInfoElement);
-                    statistic("messagebar_btn_plugin_click",pluginID)
+                    statistic("messagebar_btn_plugin_click", pluginID)
                 };
 
                 pluginButtons.push(button);
@@ -99,17 +99,22 @@ async function createPluginPopupUI(plugin) {
                     checkbox.id = `cpiHelper_popup_plugins-${plugin.id}-${key}`;
                     checkbox.key = `${getStoragePath(plugin.id, key, plugin.settings[key].scope)}`
                     checkbox.type = 'checkbox';
+                    checkbox.checked = await getStorageValue(plugin.id, key, plugin.settings[key].scope);
 
                     checkbox.addEventListener('change', function () {
                         console.log(checkbox.checked);
-                        chrome.storage.sync.set({ [this.key]: this.value }, function () {
+                        chrome.storage.sync.set({ [this.key]: this.checked }, function () {
                             console.log(`${plugin.id}--${key}` + " is set to " + checkbox.checked);
                         });
-
                     });
+
+                    var checkBoxLabel = document.createElement('label');
+                    checkBoxLabel.htmlFor = checkbox.id;
+                    checkBoxLabel.innerText = ` ${plugin.settings[key].text}`;
 
                     var div = document.createElement('div');
                     div.appendChild(checkbox);
+                    div.appendChild(checkBoxLabel);
                     container.appendChild(div);
                 }
 
