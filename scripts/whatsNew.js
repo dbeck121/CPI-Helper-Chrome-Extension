@@ -60,18 +60,17 @@ async function whatsNewCheck(showOnlyOnce = true) {
   <div class="description">New plugin: "WHINT® Interface Documentation" that generates links to your documentation in Sharepoint. Needs WHINT® Interface Documentation</div>
 </div>
 </a>
+
+
   <a class="item"><i class="right triangle icon"></i>
   <div class="content">
     <div class="header">Feature</div>
-    <div class="description">New plugin: "Simple Notepad (Beta)" that let's you store information for you in your browser directly in CI Designer</div>
+    <div class="description">Improved plugin: "Simple Notepad (Beta)" now with optional encryption. Thanks to Nick Yang</div>
   </div>
 </a>
-<a class="item"><i class="right triangle icon"></i>
-<div class="content">
-  <div class="header">Feature</div>
-  <div class="description">New plugin: "Simple Reference (Beta)" helps you with remembering built in Headers, Properties, Simple Expressions and Groovy Script</div>
-</div>
-</a>
+
+
+
 <a class="item">
 <i class="right triangle icon"></i>
 <div class="content">

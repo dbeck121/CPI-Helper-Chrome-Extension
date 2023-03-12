@@ -30,6 +30,11 @@ I recommend reading the readme first but if you know what you are doing, you can
 
 ## Changelog
 
+### 3.2,0
+
+- [Feature] Improved plugin: "Simple Notepad (Beta)" now with optional encryption. Thanks to [Nick Yang](https://github.com/SAPNickYang)
+- [Bugfix] Some bugfixes
+
 ### 3.1.0
 
 - [Feature] New plugin "WHINT IFD".
