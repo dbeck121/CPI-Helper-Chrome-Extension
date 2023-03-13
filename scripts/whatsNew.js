@@ -6,6 +6,8 @@ async function whatsNewCheck(showOnlyOnce = true) {
 
   silentupdates = ["3.0.3"]
 
+  const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
+
   if (!check && !silentupdates.includes(manifestVersion) || showOnlyOnce == false) {
     html = `
 
@@ -30,7 +32,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
 
     <div class="ui grid">
           <div class="four wide column">
-              <a href="https://figaf.com/cpihelper-and-figaf" target="_blank"><img class="ui small left floated image" src="https://figaf.com/wp-content/uploads/elementor/thumbs/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png"></a>
+              <a href="https://figaf.com/cpihelper-and-figaf" target="_blank"><img class="ui small left floated image" src="${FIGAF_IMG}"></a>
  
           </div>
     <div class="twelve wide column">
