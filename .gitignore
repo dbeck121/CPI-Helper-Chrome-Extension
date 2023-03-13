@@ -13,3 +13,5 @@
 .TemporaryItems
 .Trashes
 .VolumeIcon.icns
+.vscode/launch.json
+.vscode/settings.json

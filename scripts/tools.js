@@ -89,7 +89,7 @@ function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, c
       var xhr = new XMLHttpRequest();
       xhr.withCredentials = true;
 
-      xhr.open(method, url);
+      xhr.open(method, absolutePath(url));
       if (accept) {
         //Example for accept: 'application/json' 
         xhr.setRequestHeader('Accept', accept);
@@ -147,7 +147,7 @@ async function makeCall(type, url, includeXcsrf, payload, callback, contentType,
   //console.log("make call")
   var xhr = new XMLHttpRequest();
   xhr.withCredentials = true;
-  xhr.open(type, url, true);
+  xhr.open(type, absolutePath(url), true);
 
   if (contentType) {
     xhr.setRequestHeader('Content-type', contentType);
@@ -175,6 +175,12 @@ async function makeCall(type, url, includeXcsrf, payload, callback, contentType,
 
   showInfo ? workingIndicator(true) : {};
   xhr.send(payload);
+}
+
+let absolutePath = function(href) {
+  var link = document.createElement("a");
+  link.href = href;
+  return (link.protocol+"//"+link.host+link.pathname+link.search+link.hash);
 }
 
 var formatTrace = function (input, id, traceId) {

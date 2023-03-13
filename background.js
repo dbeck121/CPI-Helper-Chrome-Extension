@@ -3,15 +3,14 @@
 
 'use strict';
 
+function pageChangeListener(tabId, changeInfo, tabInfo) {
+  chrome.pageAction.show(tabId);
+}
+
 //activate on this site
 chrome.runtime.onInstalled.addListener(function () {
-  chrome.declarativeContent.onPageChanged.removeRules(undefined, function () {
-    chrome.declarativeContent.onPageChanged.addRules([{
-      conditions: [new chrome.declarativeContent.PageStateMatcher({
-        pageUrl: { urlMatches: '.*?hana\.ondemand\.com\/(itspaces|shell)\/.*?' },
-      })],
-      actions: [new chrome.declarativeContent.ShowPageAction()]
-    }]);
+  chrome.tabs.onUpdated.addListener(pageChangeListener, {
+    urls: '.*?hana\.ondemand\.com\/(itspaces|shell)\/.*?'
   });
 });
 
@@ -42,10 +41,10 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
   ["requestHeaders"]);
 
 chrome.management.getSelf((item) => {
-  var obj = {};
-  obj["installtype"] = item.installType;
+    var obj = {};
+    obj["installtype"] = item.installType;
 
   chrome.storage.local.set(obj, function () {
-    console.log("xcsrf token saved");
-  });
+      console.log("xcsrf token saved");
+    });
 })
