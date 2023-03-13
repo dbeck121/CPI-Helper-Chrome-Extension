@@ -30,6 +30,10 @@ I recommend reading the readme first but if you know what you are doing, you can
 
 ## Changelog
 
+### 3.0.8
+
+- [Improvement] Porting to Firefox
+
 ### 3.0.7
 
 - [Bugfix] Logs now sorted with LogEnd attribute instead LogStart
@@ -303,6 +307,12 @@ Chrome updates extensions that are installed from the Chrome Web Store automatic
 If you installed the plugin from sources:
 Please replace the folder with the new version on your disk. After that, you must delete and add the plugin to Chrome Browser.
 If you have cloned the repository, pull new data. Then delete and add the plugin in Chrome. Restart Chrome.
+
+Since version 3.0.8 the plugin is also available for Firefox and can be installed directly from the browser:
+
+> - In Firefox navigate to about:addons -> Extensions
+> - Search for the CPI-Helper
+> - Install it
 
 ## Usage
 
