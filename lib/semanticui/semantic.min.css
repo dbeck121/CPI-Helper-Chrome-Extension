@@ -215,7 +215,7 @@ template {
 
 @font-face {
     font-family: Lato;
-    src: url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/LatoLatin-Regular.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/LatoLatin-Regular.woff) format('woff');
+    src: url(/lib/semanticui/LatoLatin-Regular.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/LatoLatin-Regular.woff) format('woff');
     font-style: normal;
     font-weight: 400;
     font-display: swap;
@@ -225,7 +225,7 @@ template {
 
 @font-face {
     font-family: Lato;
-    src: url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/LatoLatin-Bold.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/LatoLatin-Bold.woff) format('woff');
+    src: url(/lib/semanticui/LatoLatin-Bold.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/LatoLatin-Bold.woff) format('woff');
     font-style: normal;
     font-weight: 700;
     font-display: swap;
@@ -235,7 +235,7 @@ template {
 
 @font-face {
     font-family: Lato;
-    src: url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/LatoLatin-Italic.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/LatoLatin-Italic.woff) format('woff');
+    src: url(/lib/semanticui/LatoLatin-Italic.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/LatoLatin-Italic.woff) format('woff');
     font-style: italic;
     font-weight: 400;
     font-display: swap;
@@ -245,7 +245,7 @@ template {
 
 @font-face {
     font-family: Lato;
-    src: url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/LatoLatin-BoldItalic.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/LatoLatin-BoldItalic.woff) format('woff');
+    src: url(/lib/semanticui/LatoLatin-BoldItalic.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/LatoLatin-BoldItalic.woff) format('woff');
     font-style: italic;
     font-weight: 700;
     font-display: swap;
@@ -255,7 +255,7 @@ template {
 
 @font-face {
     font-family: Lato;
-    src: url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/Lato-Regular.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/Lato-Regular.woff) format('woff');
+    src: url(/lib/semanticui/Lato-Regular.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/Lato-Regular.woff) format('woff');
     font-style: normal;
     font-weight: 400;
     font-display: swap;
@@ -265,7 +265,7 @@ template {
 
 @font-face {
     font-family: Lato;
-    src: url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/Lato-Bold.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/Lato-Bold.woff) format('woff');
+    src: url(/lib/semanticui/Lato-Bold.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/Lato-Bold.woff) format('woff');
     font-style: normal;
     font-weight: 700;
     font-display: swap;
@@ -275,7 +275,7 @@ template {
 
 @font-face {
     font-family: Lato;
-    src: url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/Lato-Italic.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/Lato-Italic.woff) format('woff');
+    src: url(/lib/semanticui/Lato-Italic.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/Lato-Italic.woff) format('woff');
     font-style: italic;
     font-weight: 400;
     font-display: swap;
@@ -285,7 +285,7 @@ template {
 
 @font-face {
     font-family: Lato;
-    src: url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/Lato-BoldItalic.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/Lato-BoldItalic.woff) format('woff');
+    src: url(/lib/semanticui/Lato-BoldItalic.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/Lato-BoldItalic.woff) format('woff');
     font-style: italic;
     font-weight: 700;
     font-display: swap;
@@ -25541,7 +25541,7 @@ a.ui.inverted.black.header.header.header:hover {
 
 @font-face {
     font-family: icons;
-    src: url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/icons.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/icons.woff) format('woff');
+    src: url(/lib/semanticui/icons.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/icons.woff) format('woff');
     font-style: normal;
     font-weight: 400;
     font-variant: normal;
@@ -25551,7 +25551,7 @@ a.ui.inverted.black.header.header.header:hover {
 
 @font-face {
     font-family: outline-icons;
-    src: url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/outline-icons.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/outline-icons.woff) format('woff');
+    src: url(/lib/semanticui/outline-icons.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/outline-icons.woff) format('woff');
     font-style: normal;
     font-weight: 400;
     font-variant: normal;
@@ -25561,7 +25561,7 @@ a.ui.inverted.black.header.header.header:hover {
 
 @font-face {
     font-family: brand-icons;
-    src: url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/brand-icons.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/brand-icons.woff) format('woff');
+    src: url(/lib/semanticui/brand-icons.woff2) format('woff2'), url(chrome-extension://__MSG_@@extension_id__/lib/semanticui/brand-icons.woff) format('woff');
     font-style: normal;
     font-weight: 400;
     font-variant: normal;

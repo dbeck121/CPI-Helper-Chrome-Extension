@@ -1,4 +1,9 @@
 {
+  "applications": {
+    "gecko": {
+      "id": "cpi_firefox_helper@archetypon"
+    }
+  },
   "name": "SAP CPI Helper",
   "short_name": "CPI Helper",
   "version": "3.2.0",
@@ -76,7 +81,8 @@
   },
   "web_accessible_resources": [
     "images/favicons/*.png",
-    "lib/semanticui/*"
+    "lib/semanticui/*",
+    "images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png"
   ],
   "manifest_version": 2
 }
