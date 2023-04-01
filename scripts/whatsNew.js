@@ -57,7 +57,12 @@ Don't wait – sign up for our Figaf trial and revolutionize your SAP Cloud Inte
  
   <div class="ui list">
 
-
+  <a class="item"><i class="right triangle icon"></i>
+  <div class="content">
+    <div class="header">Feature</div>
+    <div class="description">Now for Firefox in beta! Thanks to Andrea Pagliarani</div>
+  </div>
+</a>
 
   <a class="item"><i class="right triangle icon"></i>
   <div class="content">

@@ -8,6 +8,8 @@ I recommend reading the readme first but if you know what you are doing, you can
 [Chrome Web Store](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb)
 [Edge Browser](https://microsoftedge.microsoft.com/addons/detail/sap-cpi-helper/chnohkopccdfgpglplooonoaigfgfkda)
 
+For Firefox:
+
 ## Features
 
 ### Integration Flow Designer Improvements
@@ -300,6 +302,8 @@ This is probably the easiest way. Updates will be installed automatically.
 
 ### Install in Developer Mode from Sources
 
+#### Google Chrome
+
 If you know what you are doing, you can install the plugin directly from sources.
 Clone the repo and add the folder directly to Google Chrome
 
@@ -308,6 +312,14 @@ Clone the repo and add the folder directly to Google Chrome
 > - Enable Developer Mode (slider on the top-right)
 > - Click: "Load Unpacked Extension" and select the folder with the plugin data
 
+#### Firefox
+
+Since version 3.2.0 the plugin is also available for Firefox and can be installed directly from the browser. This is only a developer preview so no permanent install. It will be available in the stores later.
+
+> - Download or clone the repo from GitHub and unpack if necessary.
+> - Go to bin/ folder and open the .xpi file with Firefox
+> - Install it
+
 ## Update
 
 Attention: If you installed the plugin from Chrome Store before 21 March 2020, please uninstall and install it again with the link on the top.
@@ -315,12 +327,6 @@ Chrome updates extensions that are installed from the Chrome Web Store automatic
 If you installed the plugin from sources:
 Please replace the folder with the new version on your disk. After that, you must delete and add the plugin to Chrome Browser.
 If you have cloned the repository, pull new data. Then delete and add the plugin in Chrome. Restart Chrome.
-
-Since version 3.0.8 the plugin is also available for Firefox and can be installed directly from the browser:
-
-> - In Firefox navigate to about:addons -> Extensions
-> - Search for the CPI-Helper
-> - Install it
 
 ## Usage
 
