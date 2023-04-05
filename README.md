@@ -7,8 +7,7 @@ For news about CPI-Helper please follow our [LinkedIn Page](https://www.linkedin
 I recommend reading the readme first but if you know what you are doing, you can add it to your Chrome or Edge Browser directly:
 [Chrome Web Store](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb)
 [Edge Browser](https://microsoftedge.microsoft.com/addons/detail/sap-cpi-helper/chnohkopccdfgpglplooonoaigfgfkda)
-
-For Firefox:
+[Firefox](https://addons.mozilla.org/de/firefox/addon/cpi-helper/)
 
 ## Features
 
@@ -296,7 +295,7 @@ There are two options to install this plugin:
 
 ### Install directly from Chrome Web Store or Microsoft Store (recommended)
 
-Just add the plugin in the [Chrome Web Store](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb) or [Microsoft Store](https://microsoftedge.microsoft.com/addons/detail/sap-cpi-helper/chnohkopccdfgpglplooonoaigfgfkda).
+Just add the plugin in the [Chrome Web Store](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb), [Firefox](https://addons.mozilla.org/de/firefox/addon/cpi-helper/) or [Microsoft Store](https://microsoftedge.microsoft.com/addons/detail/sap-cpi-helper/chnohkopccdfgpglplooonoaigfgfkda).
 This is probably the easiest way. Updates will be installed automatically.
 [![Chrome Web Store](https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/YT2Grfi9vEBa2wAPzhWa.png)](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb)
 
@@ -314,11 +313,7 @@ Clone the repo and add the folder directly to Google Chrome
 
 #### Firefox
 
-Since version 3.2.0 the plugin is also available for Firefox and can be installed directly from the browser. This is only a developer preview so no permanent install. It will be available in the stores later.
-
-> - Download or clone the repo from GitHub and unpack if necessary.
-> - Go to bin/ folder and open the .xpi file with Firefox
-> - Install it
+Since version 3.2.0 the plugin is also available for Firefox and can be installed directly from the browser. This is only a developer preview so bugs might occur. https://addons.mozilla.org/de/firefox/addon/cpi-helper/
 
 ## Update
 

@@ -3,22 +3,16 @@
 
 'use strict';
 
-//chrome doesn't pass a previousTabId param to the callback
-//thus check if 3 params are passed
-function pageChangeListener(chromeTabId, firefoxTabId, isFirefox) {
-  const tabId = isFirefox ? firefoxTabId : chromeTabId;
-  const showPage = (tab) => {
-    if (tab.match('.*?hana\.ondemand\.com\/(itspaces|shell)\/.*?'))
-      chrome.pageAction.show(tabId);
-  }
-  let tabPromise = chrome.tabs.get(tabId, showPage);
-  if (tabPromise instanceof Promise)
-    tabPromise.then(showPage);
-}
-
 //activate on this site
 chrome.runtime.onInstalled.addListener(function () {
-  chrome.tabs.onActivated.addListener(pageChangeListener);
+  chrome.declarativeContent.onPageChanged.removeRules(undefined, function () {
+    chrome.declarativeContent.onPageChanged.addRules([{
+      conditions: [new chrome.declarativeContent.PageStateMatcher({
+        pageUrl: { urlMatches: '.*?hana\.ondemand\.com\/(itspaces|shell)\/.*?' },
+      })],
+      actions: [new chrome.declarativeContent.ShowPageAction()]
+    }]);
+  });
 });
 
 //scan Headers for X-CSRF Token
