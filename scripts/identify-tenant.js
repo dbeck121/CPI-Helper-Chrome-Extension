@@ -165,7 +165,9 @@
   function setHeaderColor(color) {
     let header = document.querySelector('#shell--toolHeader')
     if (header && header.style && header.style.backgroundColor !== color) {
-      header.style.backgroundColor = color
+      header.style.backgroundColor = color;
+      //sync header with popup header
+      document.querySelector('#cpiHelper_contentheader').style.backgroundColor = color
     }
   }
 

@@ -1245,7 +1245,10 @@ var sidebar = {
     //create sidebar div
     var elem = document.createElement('div');
     elem.innerHTML = `
-    <div id="cpiHelper_contentheader">CPI Helper<span id='sidebar_modal_close' style="float:right;" class='cpiHelper_closeButton_sidebar'>X</span></div> 
+    <div id="cpiHelper_contentheader">
+        <span id='sidebar_modal_minimize' class='cpiHelper_closeButton_sidebar'>CPI Helper</span>
+        <span id='sidebar_modal_close' style='margin-left: 30px;' class='cpiHelper_closeButton_sidebar'>X</span>
+    </div>
     <div id="outerFrame">
     <div id="updatedText" class="contentText"></div>
     <div id="deploymentText" class="contentText">State: </div>
@@ -1257,6 +1260,23 @@ var sidebar = {
     elem.id = "cpiHelper_content";
     elem.classList.add("cpiHelper");
     document.body.appendChild(elem);
+
+    //add minimize button on CPI helper title & color match with tenant color
+    var span = document.getElementById("sidebar_modal_minimize");
+    span.onclick = () => {   
+      var content_header = document.getElementById("cpiHelper_contentheader");
+        var outerFrame_element = document.getElementById("outerFrame");
+        var borderofouterFrame = getComputedStyle(outerFrame_element).borderRadius.split(" ");
+        if (outerFrame_element.offsetHeight > 0) {
+            outerFrame_element.style.display = 'none';
+            content_header.style['border-bottom-left-radius'] = borderofouterFrame[2];
+            content_header.style['border-bottom-right-radius'] = borderofouterFrame[3];
+        } else {
+            outerFrame_element.style.display = 'block';
+            content_header.style['border-bottom-left-radius'] = borderofouterFrame[0];
+            content_header.style['border-bottom-right-radius'] = borderofouterFrame[1];
+        }
+    };
 
     //add close button
     var span = document.getElementById("sidebar_modal_close");
