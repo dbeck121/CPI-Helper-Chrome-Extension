@@ -1245,7 +1245,10 @@ var sidebar = {
     //create sidebar div
     var elem = document.createElement('div');
     elem.innerHTML = `
-    <div id="cpiHelper_contentheader">CPI Helper<span id='sidebar_modal_close' style="float:right;" class='cpiHelper_closeButton_sidebar'>X</span></div> 
+    <div id="cpiHelper_contentheader">
+      <span id='sidebar_modal_minimize' class='cpiHelper_closeButton_sidebar'>CPI Helper</span>
+      <span id='sidebar_modal_close' style='margin-left: 30px;' class='cpiHelper_closeButton_sidebar'>X</span>
+    </div>
     <div id="outerFrame">
     <div id="updatedText" class="contentText"></div>
     <div id="deploymentText" class="contentText">State: </div>
@@ -1257,6 +1260,24 @@ var sidebar = {
     elem.id = "cpiHelper_content";
     elem.classList.add("cpiHelper");
     document.body.appendChild(elem);
+
+    //add minimize button on CPI helper title & color match with tenant color
+    var span = document.getElementById("sidebar_modal_minimize");
+    var content_header = document.getElementById("cpiHelper_contentheader");
+    var outerFrame_element = document.getElementById("outerFrame");
+    var borderofouterFrame = getComputedStyle(outerFrame_element).borderRadius.split(" ");
+    span.onclick = () => {   
+        if (outerFrame_element.offsetHeight > 0) {
+            content_header.style['min-width'] = getComputedStyle(outerFrame_element).width
+            outerFrame_element.style.display = 'none';
+            content_header.style['border-bottom-left-radius'] = borderofouterFrame[2];
+            content_header.style['border-bottom-right-radius'] = borderofouterFrame[3];
+        } else {
+            outerFrame_element.style.display = 'block';
+            content_header.style['border-bottom-left-radius'] = borderofouterFrame[0];
+            content_header.style['border-bottom-right-radius'] = borderofouterFrame[1];
+        }
+    };
 
     //add close button
     var span = document.getElementById("sidebar_modal_close");
@@ -1547,9 +1568,15 @@ function dragElement(elmnt) {
     pos3 = e.clientX;
     pos4 = e.clientY;
     // set the element's new position:
-    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-  }
+    // set the element's new position:
+    newtop = (elmnt.offsetTop - pos2);
+    newleft = (elmnt.offsetLeft - pos1);
+    maxtop = window.innerHeight - document.getElementById("cpiHelper_contentheader").offsetHeight;
+    maxwidth = window.innerWidth - document.getElementById("cpiHelper_contentheader").offsetWidth;
+    // bounding position based on max top and width. making position relative in case of resize.
+    elmnt.style.top  = (((newtop  < 0 || newtop >= maxheight) ? (((newtop  < 0) ? 0 : ((newtop  >= maxheight) ? maxheight : newtop ))) : newtop) * 100 / window.innerHeight + "%");
+    elmnt.style.left = (((newleft < 0 || newleft >= maxwidth) ? (((newleft < 0) ? 0 : ((newleft >= maxwidth ) ? maxwidth  : newleft))) : newleft) * 100 / window.innerWidth + "%");
+ }
 
   function closeDragElement() {
     /* stop moving when mouse button is released:*/
