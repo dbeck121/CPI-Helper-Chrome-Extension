@@ -1571,7 +1571,7 @@ function dragElement(elmnt) {
     // set the element's new position:
     newtop = (elmnt.offsetTop - pos2);
     newleft = (elmnt.offsetLeft - pos1);
-    maxtop = window.innerHeight - document.getElementById("cpiHelper_contentheader").offsetHeight;
+    maxheight = window.innerHeight - document.getElementById("cpiHelper_contentheader").offsetHeight;
     maxwidth = window.innerWidth - document.getElementById("cpiHelper_contentheader").offsetWidth;
     // bounding position based on max top and width. making position relative in case of resize.
     elmnt.style.top  = (((newtop  < 0 || newtop >= maxheight) ? (((newtop  < 0) ? 0 : ((newtop  >= maxheight) ? maxheight : newtop ))) : newtop) * 100 / window.innerHeight + "%");
