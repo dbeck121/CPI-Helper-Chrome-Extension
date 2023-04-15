@@ -60,14 +60,14 @@ Don't wait – sign up for our Figaf trial and revolutionize your SAP Cloud Inte
   <a class="item"><i class="right triangle icon"></i>
   <div class="content">
     <div class="header">Feature</div>
-    <div class="description">Now for Firefox in developer beta! Thanks to Andrea Pagliarani</div>
+    <div class="description">Improved Firefox version. Please leave a review on firefox addon page.</div>
   </div>
 </a>
 
   <a class="item"><i class="right triangle icon"></i>
   <div class="content">
     <div class="header">Feature</div>
-    <div class="description">Improved plugin: "Simple Notepad (Beta)" now with optional encryption. Thanks to Nick Yang</div>
+    <div class="description">Improved handling of message popup.</div>
   </div>
 </a>
 
