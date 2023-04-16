@@ -31,6 +31,16 @@ I recommend reading the readme first but if you know what you are doing, you can
 
 ## Changelog
 
+### 3.3.2
+
+- [Bugfix] Fix bug when using Chinese as browser default language
+
+### 3.3,0
+
+- [Feature] Improved Firefox version
+- [Feature] UI improvements in message popup
+- [Bugfix] Some bugfixes
+
 ### 3.2,0
 
 - [Feature] Porting to Firefox. Thanks to [Andrea Pagliarani](https://github.com/archetypon)
