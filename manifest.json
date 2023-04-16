@@ -49,6 +49,7 @@
         "/plugins/figaf.js",
         "/plugins/OpenAIServices.js",
         "/plugins/WHINT_IFD.js",
+        "/plugins/settingsPaneResizer.js",
         "/scripts/ui.js",
         "/scripts/tools.js",
         "/scripts/logs.js",
