@@ -1640,12 +1640,11 @@ onInitStatistic();
 
 
 setInterval(function () {
-  var elements = document.querySelectorAll("[id$='-BDI-content']");
-  for (var i = 0; i < elements.length; i++) {
-    if (elements[i].innerHTML == "Deploy") {
+ 
+    if (document.getElementById("svgBackgroundPointerPanelLayer-1") && document.getElementsByClassName("spcHeaderActionButton") ) {
       buildButtonBar();
     }
-  }
+  
   checkURLchange(window.location.href);
 }, 3000);
 
