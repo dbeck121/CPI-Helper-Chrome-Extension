@@ -12,7 +12,7 @@ var plugin = {
             "paneHeight": { "text": "Pixel", "type": "text", scope: "browser" },
             "paneHeightPercent": { "text": "%", "type": "text", scope: "browser" },
 			"dynamicResizing": { "text": "Automatic Dynamic Resizing", "type": "checkbox", scope: "browser" },
-            "delay": { "text": "Dynamic Resizing Delay in ms (default: 0) (refresh page to take effect)", "type": "text", scope: "browser" }
+            "delay": { "text": "Dynamic Resizing Delay in ms (default: 1000) (refresh page to take effect)", "type": "text", scope: "browser", default: "1000" }
         },        
     messageSidebarContent: {
         "static": false,
