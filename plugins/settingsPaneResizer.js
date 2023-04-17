@@ -6,9 +6,9 @@ var plugin = {
     author: "Philippe Addor, BMT Consulting AG, Bottighofen, Switzerland",
     email: "philippe.addor@bmtg.ch",
     website: "https://bmtg.ch",
-    description: "Settings Pane Resizer by Philippe Addor - Auto opens the settings pane and keeps it at your chosen size or even dynamically adjust the height to the content! Improves your flow, reduces your pa(i)ne! ;-)",
+    description: "Settings Pane Resizer by Philippe Addor - Auto opens (configure CPI Helper to start on launch) the settings pane and keeps it at your chosen size or even dynamically adjust the height to the content! Improves your flow, reduces your pa(i)ne! ;-)",
     settings: {
-            "text1": { "text": "Enter either settings for pane height in Pixel or percent (pixel takes precedence if both are defined; if both empty, use default)", "type": "label" },
+            "text1": { "text": "Enter either settings for pane height in Pixel or percent (pixel takes precedence if both are defined; if both empty, use CPI default (50%))", "type": "label" },
             "paneHeight": { "text": "Pixel", "type": "text", scope: "browser" },
             "paneHeightPercent": { "text": "%", "type": "text", scope: "browser" },
 			"dynamicResizing": { "text": "Automatic Dynamic Resizing", "type": "checkbox", scope: "browser" },
@@ -62,9 +62,9 @@ var plugin = {
         }
 
 
-        // resizing function
+        // Resizing function
         function doResize() {                
-            console.log("dealy" + delaySetting);
+            //console.log("dealy" + delaySetting);		
 
             // load pause status first
             chrome.storage.local.get("paneResizerPause", function(data) {
@@ -81,18 +81,20 @@ var plugin = {
                 var newWorkAreaHeight;
                 var newPaneHeight;
 
+				workArea.stop(); // stop resize delay timer/animation if still active from previous click 
+
                 // get height of view and content
                 var viewHeight = view.innerHeight();
-                var contentHeight = paneAllContent.innerHeight();	
+                var paneContentHeight = paneAllContent.innerHeight();	
 
                 if (settingsPane != undefined) {
 
                     // Reset size depending on settings
 
                     // auto adjust if content is lower than configured height in Px and pause is off
-                    if (pause == false && dynamicResizing == true && configPaneHeightPx != "" && (contentHeight + 120) <= configPaneHeightPx) {                    
-                        newWorkAreaHeight = viewHeight - (contentHeight+120);
-                        newPaneHeight = (contentHeight + 120);
+                    if (pause == false && dynamicResizing == true && configPaneHeightPx != "" && (paneContentHeight + 120) <= configPaneHeightPx) {                    
+                        newWorkAreaHeight = viewHeight - (paneContentHeight+120);
+                        newPaneHeight = (paneContentHeight + 120);
                     }
                     // height in pixel is configured
                     else if (configPaneHeightPx != "" && configPaneHeightPx != null) {			
@@ -106,7 +108,7 @@ var plugin = {
                     } 
                     
                     // apply new heights                    
-                    workArea.delay(delaySetting).animate({height: newWorkAreaHeight + 'px'});                                                      
+                    workArea.stop().delay(delaySetting).animate({height: newWorkAreaHeight + 'px'});                                                      
                     settingsPane.css("height", newPaneHeight + 'px');
                     paneContentVisible.css("height", (newPaneHeight - 90) + 'px');                    
                 }   
