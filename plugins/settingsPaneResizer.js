@@ -26,38 +26,53 @@ var plugin = {
 
         // create button/text in messages window
         var div = document.createElement("div");        	
-		var pauseButton = document.createElement("button");               
+		var pauseDynButton = document.createElement("button");               
+        var pauseResizeButton = document.createElement("button");   
 
 		if (dynamicResizing == true) {
             var text = document.createElement('div');
             text.innerHTML = "<div>Dyn Resizing:</div>";
-			pauseButton.innerHTML = "Pause";
+			pauseDynButton.innerHTML = "Pause";
             div.appendChild(text);
-			div.appendChild(pauseButton);
+			div.appendChild(pauseDynButton);
 		}
         else {
             var text = document.createElement('div');
             text.innerHTML = "<div>Dyn Resizing deactivated</div>";
             div.appendChild(text);
         }
+        var text = document.createElement('div');
+        text.innerHTML = "<div>All Resizing:</div>";
+        pauseResizeButton.innerHTML = "Pause";
+        div.appendChild(text);
+        div.appendChild(pauseResizeButton);
 	
-        // bind pause toggle logic to button
-        pauseButton.addEventListener("click", async () => { 
+        // bind pause toggle logic to buttons
+        pauseDynButton.addEventListener("click", async () => { 
             // read current pause state
-            await chrome.storage.local.get("paneResizerPause", function(data) {                
-                // revert it and save back to storage
-                pause = !data.paneResizerPause;                
-                chrome.storage.local.set({ "paneResizerPause": pause });
+            await chrome.storage.local.get("paneDynResizePause", function(data) {                
+                // invert status and save back to storage
+                let pause = !data.paneDynResizePause;                
+                chrome.storage.local.set({ "paneDynResizePause": pause });
+                doResize();
+            });
+        });
+        pauseResizeButton.addEventListener("click", async () => { 
+            // read current pause state
+            await chrome.storage.local.get("paneResizePause", function(data) {                
+                // invert status and save back to storage
+                let pause = !data.paneResizePause;                
+                chrome.storage.local.set({ "paneResizePause": pause });
                 doResize();
             });
         });
 
-        function stylePauseButton(pause) {
+        function stylePauseButton(button, pause) {
             if (pause) {                            
-                pauseButton.classList.add("cpiHelper_inlineInfo-active");                            
+                button.classList.add("cpiHelper_inlineInfo-active");                            
             }
             else {
-                pauseButton.classList.remove("cpiHelper_inlineInfo-active");                            
+                button.classList.remove("cpiHelper_inlineInfo-active");                            
             } 
         }
 
@@ -66,53 +81,61 @@ var plugin = {
         function doResize() {                
             //console.log("dealy" + delaySetting);		
 
-            // load pause status first
-            chrome.storage.local.get("paneResizerPause", function(data) {
-                let pause = data.paneResizerPause;
-
-                stylePauseButton(pause);
+            // load both pause status first
+            chrome.storage.local.get("paneDynResizePause", function(data) {
+                var dynPause = data.paneDynResizePause;
+                stylePauseButton(pauseDynButton, dynPause);
                 
-                // get element references (by partial selector due to sometimes changing ID prefixes)
-                var view = $('[id $="iflowObjectPageLayout-scroll"]'); // upper and lower split areas together
-                var workArea = $('[id $="iflowSplitter-content-0"]'); // upper split area, work area
-                var settingsPane = $('[id $="iflowSplitter-content-1"]'); // lower split area (settings pane) incl. tabs/title bars (has height attr.)
-                var paneAllContent = $('[id $="iflowPropertySheetView--iflowPropLayout"]'); // actual settings data container (also invisible part), no height attr.            
-                var paneContentVisible = $('[id $="iflowPropertySheetView--propertySheetPageContainer"]'); // div with visible part of data sheet (has height attr.)
-                var newWorkAreaHeight;
-                var newPaneHeight;
-
-				workArea.stop(); // stop resize delay timer/animation if still active from previous click 
-
-                // get height of view and content
-                var viewHeight = view.innerHeight();
-                var paneContentHeight = paneAllContent.innerHeight();	
-
-                if (settingsPane != undefined) {
-
-                    // Reset size depending on settings
-
-                    // auto adjust if content is lower than configured height in Px and pause is off
-                    if (pause == false && dynamicResizing == true && configPaneHeightPx != "" && (paneContentHeight + 120) <= configPaneHeightPx) {                    
-                        newWorkAreaHeight = viewHeight - (paneContentHeight+120);
-                        newPaneHeight = (paneContentHeight + 120);
-                    }
-                    // height in pixel is configured
-                    else if (configPaneHeightPx != "" && configPaneHeightPx != null) {			
-                        newWorkAreaHeight = viewHeight - configPaneHeightPx;				
-                        newPaneHeight = configPaneHeightPx;					                     
-                    }
-                    // height in % is configured
-                    else if (configPaneHeightPercent != "" && configPaneHeightPercent != null) {
-                        newWorkAreaHeight = viewHeight * (100 - configPaneHeightPercent) / 100;
-                        newPaneHeight = viewHeight * configPaneHeightPercent / 100;
-                    } 
+                chrome.storage.local.get("paneResizePause", function(data) {
+                    var resizePause = data.paneResizePause;
+                    stylePauseButton(pauseResizeButton, resizePause);
                     
-                    // apply new heights                    
-                    workArea.stop().delay(delaySetting).animate({height: newWorkAreaHeight + 'px'});                                                      
-                    settingsPane.css("height", newPaneHeight + 'px');
-                    paneContentVisible.css("height", (newPaneHeight - 90) + 'px');                    
-                }   
-			});
+                    
+                    if (! resizePause) {
+                
+                        // get element references (by partial selector due to sometimes changing ID prefixes)
+                        var view = $('[id $="iflowObjectPageLayout-scroll"]'); // upper and lower split areas together
+                        var workArea = $('[id $="iflowSplitter-content-0"]'); // upper split area, work area
+                        var settingsPane = $('[id $="iflowSplitter-content-1"]'); // lower split area (settings pane) incl. tabs/title bars (has height attr.)
+                        var paneAllContent = $('[id $="iflowPropertySheetView--iflowPropLayout"]'); // actual settings data container (also invisible part), no height attr.            
+                        var paneContentVisible = $('[id $="iflowPropertySheetView--propertySheetPageContainer"]'); // div with visible part of data sheet (has height attr.)
+                        var newWorkAreaHeight;
+                        var newPaneHeight;
+
+                        workArea.stop(); // stop resize delay timer/animation if still active from previous click 
+
+                        // get height of view and content
+                        var viewHeight = view.innerHeight();
+                        var paneContentHeight = paneAllContent.innerHeight();	
+
+                        if (settingsPane != undefined) {
+
+                            // Reset size depending on settings
+
+                            // auto adjust if content is lower than configured height in Px and pause is off
+                            if ( (! dynPause) && dynamicResizing == true && configPaneHeightPx != "" && (paneContentHeight + 120) <= configPaneHeightPx) {                    
+                                newWorkAreaHeight = viewHeight - (paneContentHeight+120);
+                                newPaneHeight = (paneContentHeight + 120);
+                            }
+                            // height in pixel is configured
+                            else if (configPaneHeightPx != "" && configPaneHeightPx != null) {			
+                                newWorkAreaHeight = viewHeight - configPaneHeightPx;				
+                                newPaneHeight = configPaneHeightPx;					                     
+                            }
+                            // height in % is configured
+                            else if (configPaneHeightPercent != "" && configPaneHeightPercent != null) {
+                                newWorkAreaHeight = viewHeight * (100 - configPaneHeightPercent) / 100;
+                                newPaneHeight = viewHeight * configPaneHeightPercent / 100;
+                            } 
+                            
+                            // apply new heights                    
+                            workArea.stop().delay(delaySetting).animate({height: newWorkAreaHeight + 'px'});                                                      
+                            settingsPane.css("height", newPaneHeight + 'px');
+                            paneContentVisible.css("height", (newPaneHeight - 90) + 'px');                    
+                        }
+                    }
+			    });
+            });
 		}
 		
 		
