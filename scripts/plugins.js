@@ -125,9 +125,12 @@ async function createPluginPopupUI(plugin) {
                     text.type = 'text';
                     var defaultValue = plugin.settings[key].default; 
 
-                    var value =  await getStorageValue(plugin.id, key, plugin.settings[key].scope);
-                    if (value != undefined && value != "" || defaultValue == undefined) {
+                    var value =  await getStorageValue(plugin.id, key, plugin.settings[key].scope);                      
+                    console.log("value in store: " + value + " with key: " + key);
+
+                    if ((value != undefined && value != "") || defaultValue == undefined) {
                         text.value = value;
+                        console.log(`${key} is read as ${value}`);
                     }
                     else {
                         text.value = defaultValue;
@@ -139,7 +142,7 @@ async function createPluginPopupUI(plugin) {
                     text.addEventListener('input', function (a) {
                         console.log(a);
                         chrome.storage.sync.set({ [this.key]: this.value }, function () {
-                            console.log(`${this.key} ` + " is set to " + text.value);
+                            console.log(this.key + " is set to " + text.value);
                         });
                     });
                     var div = document.createElement('div');

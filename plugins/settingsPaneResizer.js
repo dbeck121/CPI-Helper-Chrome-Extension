@@ -21,7 +21,7 @@ var plugin = {
         // load settings
         var configPaneHeightPx = settings["settingsPaneResizer---paneHeight"];
         var configPaneHeightPercent = settings["settingsPaneResizer---paneHeightPercent"];
-        var delaySetting = settings["settingsPaneResizer---delay"] || 0;
+        var delaySetting = settings["settingsPaneResizer---delay"] || 1000;
         var dynamicResizing = (settings["settingsPaneResizer---dynamicResizing"] ? true : false);        
 
         // create button/text in messages window
@@ -128,7 +128,8 @@ var plugin = {
                                 newPaneHeight = viewHeight * configPaneHeightPercent / 100;
                             } 
                             
-                            // apply new heights                    
+                            // apply new heights     
+                            console.log("delay " + settings["settingsPaneResizer---delay"] );
                             workArea.stop().delay(delaySetting).animate({height: newWorkAreaHeight + 'px'});                                                      
                             settingsPane.css("height", newPaneHeight + 'px');
                             paneContentVisible.css("height", (newPaneHeight - 90) + 'px');                    
