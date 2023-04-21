@@ -123,27 +123,12 @@ async function createPluginPopupUI(plugin) {
                     text.id = `cpiHelper_popup_plugins-${plugin.id}-${key}`;
                     text.key = `${getStoragePath(plugin.id, key, plugin.settings[key].scope)}`
                     text.type = 'text';
-                    var defaultValue = plugin.settings[key].default; 
+                    text.value = await getStorageValue(plugin.id, key, plugin.settings[key].scope);
 
-                    var value =  await getStorageValue(plugin.id, key, plugin.settings[key].scope);                      
-                    console.log("value in store: " + value + " with key: " + key);
-
-                    if ((value != undefined && value != "") || defaultValue == undefined) {
-                        text.value = value;
-                        console.log(`${key} is read as ${value}`);
-                    }
-                    else {
-                        text.value = defaultValue;
-                        chrome.storage.sync.set({ [key]: defaultValue }, function () {
-                            console.log(`${key} is set by default to ${text.value}`);
-                        });
-                    }
-                        
                     text.addEventListener('input', function (a) {
-                        console.log(a);
-                        chrome.storage.sync.set({ [this.key]: this.value }, function () {
-                            console.log(this.key + " is set to " + text.value);
-                        });
+                        //console.log(a);
+                        console.log(this.key + " is set to " + this.value);
+                        chrome.storage.sync.set({ [this.key]: this.value });
                     });
                     var div = document.createElement('div');
                     div.appendChild(text);
