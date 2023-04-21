@@ -715,8 +715,26 @@ function undeploy(tenant = null, artifactId = null) {
 }
 cpiData.functions.undeploy = undeploy;
 
+// inject breadcrumbs for package if missing
+function addBreadcrumbs() {
+    const crumbs = $('nav[id*="breadcrumbs"]').find('ol:first-child').find('li');
+    if (crumbs) {
 
-
+      if (crumbs.length == 1) {
+        const regex = /(.+\/contentpackage\/)(.+?)\/.*/;
+        const url = document.location.href;      
+        var regexMatch;
+        var packageUrl;
+        var packageName;
+        if ((regexMatch = regex.exec(url)) !== null) {
+          packageUrl = regexMatch[1] + regexMatch[2]  + "?section=ARTIFACTS";
+          packageName = regexMatch[2];
+        }
+        const newLi = $(`<li class="sapMBreadcrumbsItem"><a href="${packageUrl}" tabindex="0" class="sapMLnk sapMLnkMaxWidth">${packageName}</a><span class="sapMBreadcrumbsSeparator">/</span></li>`);
+        crumbs.prepend(newLi);
+      }
+    }
+  }
 
 //injected buttons are created here
 var powertraceflow = null
@@ -731,6 +749,7 @@ function buildButtonBar() {
 
   if (!document.getElementById("__buttonxx")) {
     whatsNewCheck();
+
     //create Trace Button
     var powertraceText = ""
     if (powertrace != null && powertraceflow == cpiData.integrationFlowId) {
@@ -1641,6 +1660,7 @@ setInterval(function () {
  
     if (document.getElementById("svgBackgroundPointerPanelLayer-1") && document.getElementsByClassName("spcHeaderActionButton") ) {
       buildButtonBar();
+      addBreadcrumbs();
     }
   
   checkURLchange(window.location.href);
