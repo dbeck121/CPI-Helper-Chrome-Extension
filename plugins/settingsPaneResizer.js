@@ -6,13 +6,15 @@ var plugin = {
     author: "Philippe Addor, BMT Consulting AG, Bottighofen, Switzerland",
     email: "philippe.addor@bmtg.ch",
     website: "https://bmtg.ch",
-    description: "Settings Pane Resizer by Philippe Addor - Auto opens (configure CPI Helper to start on launch) the settings pane and keeps it at your chosen size or even dynamically adjust the height to the content! Improves your flow, reduces your pa(i)ne! ;-)",
+    description: `Settings Pane Resizer - Auto opens(*) the settings pane and keeps it at your chosen size or even dynamically adjust the height to the content! Improves your flow, reduces your pa(i)ne! ;-) <br>
+                  (*) If you have configured the CPI Helper Extension to open on launch (recommended). <br><br>
+                  By Philippe Addor`,
     settings: {
             "text1": { "text": "Enter either settings for pane height in Pixel or percent (pixel takes precedence if both are defined; if both empty, use CPI default (50%))", "type": "label" },
             "paneHeight": { "text": "Pixel", "type": "text", scope: "browser" },
             "paneHeightPercent": { "text": "%", "type": "text", scope: "browser" },
 			"dynamicResizing": { "text": "Automatic Dynamic Resizing", "type": "checkbox", scope: "browser" },
-            "delay": { "text": "Dynamic Resizing Delay in ms (default: 1000) (refresh page to take effect)", "type": "text", scope: "browser", default: "1000" }
+            "delay": { "text": "Dynamic Resizing Delay in ms (0 = no delay, empty = default 500) (refresh page to take effect)", "type": "text", scope: "browser" }
         },        
     messageSidebarContent: {
         "static": false,
@@ -21,7 +23,7 @@ var plugin = {
         // load settings
         var configPaneHeightPx = settings["settingsPaneResizer---paneHeight"];
         var configPaneHeightPercent = settings["settingsPaneResizer---paneHeightPercent"];
-        var delaySetting = settings["settingsPaneResizer---delay"] || 0;
+        var delaySetting = (settings["settingsPaneResizer---delay"] == "" ? 500 : settings["settingsPaneResizer---delay"]);
         var dynamicResizing = (settings["settingsPaneResizer---dynamicResizing"] ? true : false);        
 
         // create button/text in messages window
@@ -78,8 +80,7 @@ var plugin = {
 
 
         // Resizing function
-        function doResize() {                
-            //console.log("dealy" + delaySetting);		
+        function doResize() {                	
 
             // load both pause status first
             chrome.storage.local.get("paneDynResizePause", function(data) {
@@ -151,7 +152,7 @@ var plugin = {
                             
             document.head.appendChild(scriptElement);
                         
-			// add listener to tabs of the settings pane to immediately trigger resize when changing tab. 
+			// add listener (once) to tabs of the settings pane to immediately trigger resize when changing tab. 
             const contentDiv = document.querySelectorAll('[id $="iflowPropertySheetView--propertySheetPageContainer-cont"]')[0]; // section element with actual pane content
         
             const observer = new MutationObserver(function(mutations) {                        
