@@ -24,7 +24,8 @@ var plugin = {
             // load settings
             var configPaneHeightPx = settings["settingsPaneResizer---paneHeight"];
             var configPaneHeightPercent = settings["settingsPaneResizer---paneHeightPercent"];
-            var delaySetting = (settings["settingsPaneResizer---delay"] == "" ? 500 : settings["settingsPaneResizer---delay"]);
+            var delaySetting = settings["settingsPaneResizer---delay"];
+            delaySetting = (delaySetting == "" || delaySetting == undefined ? 500 : settings["settingsPaneResizer---delay"]);
             var dynamicResizing = (settings["settingsPaneResizer---dynamicResizing"] ? true : false);        
 
             // get element references (by partial selector due to sometimes changing ID prefixes)
