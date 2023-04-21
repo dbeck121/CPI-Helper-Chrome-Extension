@@ -126,10 +126,9 @@ async function createPluginPopupUI(plugin) {
                     text.value = await getStorageValue(plugin.id, key, plugin.settings[key].scope);
 
                     text.addEventListener('input', function (a) {
-                        console.log(a);
-                        chrome.storage.sync.set({ [this.key]: this.value }, function () {
-                            console.log(`${this.key} ` + " is set to " + text.value);
-                        });
+                        //console.log(a);
+                        console.log(this.key + " is set to " + this.value);
+                        chrome.storage.sync.set({ [this.key]: this.value });
                     });
                     var div = document.createElement('div');
                     div.appendChild(text);

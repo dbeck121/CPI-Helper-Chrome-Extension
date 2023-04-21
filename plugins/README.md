@@ -43,6 +43,7 @@ var plugin = {
         "textField1": { "text": "Tenant URL", "type": "text", scope: "tenant" },    //a textfield that is stored for each tenant
         "textField2": { "text": "Iflow xy", "type": "text", scope: "iflow" },       //a textfield that is stored for each iflow
         "textField3": { "text": "general", "type": "text", scope: "browser" },      //a textfield that is stored for each browser
+        "checkbox1": { "text": "xyz", "type": "checkbox", scope: "browser" },      //a checkbox that is stored for each browser
     },
     
     messageSidebarButton: {                    //if you want to add a button to message sidebar, add a "messageSidebarButton" element
