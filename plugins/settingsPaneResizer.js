@@ -12,7 +12,7 @@ var plugin = {
             "text1": { "text": "Enter either settings for pane height in Pixel or percent (pixel takes precedence if both are defined; if both empty, use CPI default (50%))", "type": "label" },
             "paneHeight": { "text": "Pixel", "type": "text", scope: "browser" },
             "paneHeightPercent": { "text": "%", "type": "text", scope: "browser" },
-			"dynamicResizing": { "text": "Automatic Dynamic Resizing", "type": "checkbox", scope: "browser" },
+			"dynamicResizing": { "text": "Automatic Dynamic Resizing (if pane content is lower than above configured values)", "type": "checkbox", scope: "browser" },
             "delay": { "text": "Dynamic Resizing Delay in ms (0 = no delay, empty = default 500) (refresh page to take effect)", "type": "text", scope: "browser" }
         },        
     messageSidebarContent: {
@@ -145,21 +145,32 @@ var plugin = {
                             workArea.stop(); // stop resize delay timer/animation if still active from previous click 
 
                             if (settingsPane != undefined) {
-
+                                
                                 // auto adjust if content is lower than configured height in Px and pause is off
-                                if ( (! dynPause) && dynamicResizing == true && configPaneHeightPx != "" && (paneContentHeight + 120) <= configPaneHeightPx) {                    
+                                if (configPaneHeightPercent != "") {                                    
+                                    paneHeightPx = viewHeight * configPaneHeightPercent / 100;
+                                    console.log("check if : " + paneContentHeight + "+ 120 is larger than " + paneHeightPx);
+                                }
+                                else {
+                                    paneHeightPx = configPaneHeightPx;
+                                }                                                                
+                                if ( (! dynPause) && dynamicResizing == true && (paneContentHeight + 120) <= paneHeightPx) {                    
                                     newWorkAreaHeight = viewHeight - (paneContentHeight+120);
                                     newPaneHeight = (paneContentHeight + 120);
+                                    console.log("1: " + newPaneHeight);
                                 }
+
                                 // height in pixel is configured
                                 else if (configPaneHeightPx != "" && configPaneHeightPx != null) {			
                                     newWorkAreaHeight = viewHeight - configPaneHeightPx;				
                                     newPaneHeight = configPaneHeightPx;					                     
+                                    console.log("2: " + newPaneHeight);
                                 }
                                 // height in % is configured
                                 else if (configPaneHeightPercent != "" && configPaneHeightPercent != null) {
                                     newWorkAreaHeight = viewHeight * (100 - configPaneHeightPercent) / 100;
                                     newPaneHeight = viewHeight * configPaneHeightPercent / 100;
+                                    console.log("3: " + newPaneHeight);
                                 } 
                                 
                                 // apply new heights     
@@ -172,6 +183,7 @@ var plugin = {
                             newPaneHeight = viewHeight / 2;
                             applyHeights(workArea, settingsPane, paneContentVisible, newWorkAreaHeight, newPaneHeight, delaySetting);
                             reset = false;  // reset only once on pause              
+                            console.log("4: " + newPaneHeight);
                         }
                     });
                 });
