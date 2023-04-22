@@ -6,13 +6,13 @@ var plugin = {
     author: "Philippe Addor, BMT Consulting AG, Bottighofen, Switzerland",
     email: "philippe.addor@bmtg.ch",
     website: "https://bmtg.ch",
-    description: `Settings Pane Resizer - Auto opens(*) the settings pane and keeps it at your chosen size or even dynamically adjust the height to the content! Improves your flow, reduces your pa(i)ne! ;-) <br>
+    description: `Auto opens(*) the settings pane and keeps it at your chosen size or even dynamically adjust the height to the content! Improves your flow, reduces your pa(i)ne! ;-) <br>
                   (*) If you have configured the CPI Helper Extension to open on launch (recommended). <br>`,
     settings: {
             "text1": { "text": "Enter either settings for pane height in Pixel or percent (pixel takes precedence if both are defined; if both empty, use CPI default (50%))", "type": "label" },
             "paneHeight": { "text": "Pixel", "type": "text", scope: "browser" },
             "paneHeightPercent": { "text": "%", "type": "text", scope: "browser" },
-			"dynamicResizing": { "text": "Automatic Dynamic Resizing", "type": "checkbox", scope: "browser" },
+			"dynamicResizing": { "text": "Automatic Dynamic Resizing (if pane content is lower than above configured values)", "type": "checkbox", scope: "browser" },
             "delay": { "text": "Dynamic Resizing Delay in ms (0 = no delay, empty = default 500) (refresh page to take effect)", "type": "text", scope: "browser" }
         },        
     messageSidebarContent: {
@@ -145,16 +145,23 @@ var plugin = {
                             workArea.stop(); // stop resize delay timer/animation if still active from previous click 
 
                             if (settingsPane != undefined) {
-
+                                
                                 // auto adjust if content is lower than configured height in Px and pause is off
-                                if ( (! dynPause) && dynamicResizing == true && configPaneHeightPx != "" && (paneContentHeight + 120) <= configPaneHeightPx) {                    
+                                if (configPaneHeightPercent != "") {                                    
+                                    paneHeightPx = viewHeight * configPaneHeightPercent / 100;
+                                }
+                                else {
+                                    paneHeightPx = configPaneHeightPx;
+                                }                                                                
+                                if ( (! dynPause) && dynamicResizing == true && (paneContentHeight + 120) <= paneHeightPx) {                    
                                     newWorkAreaHeight = viewHeight - (paneContentHeight+120);
                                     newPaneHeight = (paneContentHeight + 120);
                                 }
+
                                 // height in pixel is configured
                                 else if (configPaneHeightPx != "" && configPaneHeightPx != null) {			
                                     newWorkAreaHeight = viewHeight - configPaneHeightPx;				
-                                    newPaneHeight = configPaneHeightPx;					                     
+                                    newPaneHeight = configPaneHeightPx;		
                                 }
                                 // height in % is configured
                                 else if (configPaneHeightPercent != "" && configPaneHeightPercent != null) {
