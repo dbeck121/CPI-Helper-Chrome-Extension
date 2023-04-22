@@ -833,7 +833,7 @@ function buildButtonBar() {
       showBigPopup(await createContentNodeForPlugins(), "Plugins");
 
     });
-
+    
     if (sidebar.active == null || sidebar.active == false) {
       chrome.storage.sync.get(["openMessageSidebarOnStartup"], function (result) {
         var openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
