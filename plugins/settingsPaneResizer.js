@@ -6,7 +6,7 @@ var plugin = {
     author: "Philippe Addor, BMT Consulting AG, Bottighofen, Switzerland",
     email: "philippe.addor@bmtg.ch",
     website: "https://bmtg.ch",
-    description: `Settings Pane Resizer - Auto opens(*) the settings pane and keeps it at your chosen size or even dynamically adjust the height to the content! Improves your flow, reduces your pa(i)ne! ;-) <br>
+    description: `Auto opens(*) the settings pane and keeps it at your chosen size or even dynamically adjust the height to the content! Improves your flow, reduces your pa(i)ne! ;-) <br>
                   (*) If you have configured the CPI Helper Extension to open on launch (recommended). <br>`,
     settings: {
             "text1": { "text": "Enter either settings for pane height in Pixel or percent (pixel takes precedence if both are defined; if both empty, use CPI default (50%))", "type": "label" },
@@ -149,7 +149,6 @@ var plugin = {
                                 // auto adjust if content is lower than configured height in Px and pause is off
                                 if (configPaneHeightPercent != "") {                                    
                                     paneHeightPx = viewHeight * configPaneHeightPercent / 100;
-                                    console.log("check if : " + paneContentHeight + "+ 120 is larger than " + paneHeightPx);
                                 }
                                 else {
                                     paneHeightPx = configPaneHeightPx;
@@ -157,20 +156,17 @@ var plugin = {
                                 if ( (! dynPause) && dynamicResizing == true && (paneContentHeight + 120) <= paneHeightPx) {                    
                                     newWorkAreaHeight = viewHeight - (paneContentHeight+120);
                                     newPaneHeight = (paneContentHeight + 120);
-                                    console.log("1: " + newPaneHeight);
                                 }
 
                                 // height in pixel is configured
                                 else if (configPaneHeightPx != "" && configPaneHeightPx != null) {			
                                     newWorkAreaHeight = viewHeight - configPaneHeightPx;				
-                                    newPaneHeight = configPaneHeightPx;					                     
-                                    console.log("2: " + newPaneHeight);
+                                    newPaneHeight = configPaneHeightPx;		
                                 }
                                 // height in % is configured
                                 else if (configPaneHeightPercent != "" && configPaneHeightPercent != null) {
                                     newWorkAreaHeight = viewHeight * (100 - configPaneHeightPercent) / 100;
                                     newPaneHeight = viewHeight * configPaneHeightPercent / 100;
-                                    console.log("3: " + newPaneHeight);
                                 } 
                                 
                                 // apply new heights     
@@ -183,7 +179,6 @@ var plugin = {
                             newPaneHeight = viewHeight / 2;
                             applyHeights(workArea, settingsPane, paneContentVisible, newWorkAreaHeight, newPaneHeight, delaySetting);
                             reset = false;  // reset only once on pause              
-                            console.log("4: " + newPaneHeight);
                         }
                     });
                 });
