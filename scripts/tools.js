@@ -285,7 +285,7 @@ var formatTrace = function (input, id, traceId) {
   };
 
   var beautifyButton = document.createElement("button");
-  beautifyButton.innerText = "Try to Beautify";
+  beautifyButton.innerText = "Beautify";
   beautifyButton.onclick = (event) => {
 
     //check who is active
@@ -295,11 +295,11 @@ var formatTrace = function (input, id, traceId) {
     if (unformatted.classList.contains("cpiHelper_traceText_active")) {
       unformatted.classList.remove("cpiHelper_traceText_active");
       formatted.classList.add("cpiHelper_traceText_active");
-      this.innerText = "Uglify";
+      beautifyButton.innerText = "Linearize";
     } else {
       formatted.classList.remove("cpiHelper_traceText_active");
       unformatted.classList.add("cpiHelper_traceText_active");
-      this.innerText = "Try to Beautify";
+      beautifyButton.innerText = "Beautify";
     }
 
     if (formatted.innerHTML == "") {
