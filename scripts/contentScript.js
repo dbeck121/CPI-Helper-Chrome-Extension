@@ -1495,7 +1495,7 @@ function getIflowName() {
   var url = window.location.href;
   var result;
 
-  try {
+  //try {
     let groups = "";
 
     for (const dataRegexp of cpiArtifactURIRegexp) {
@@ -1505,15 +1505,15 @@ function getIflowName() {
       }
     }
 
-    console.log("Found artifact: " + result);
-
-  } catch (e) {
-    cpiData.integrationFlowId = null;
-    console.log(e);
-    console.log("no integrationflow found");
-  }
-
-  cpiData.integrationFlowId = result;
+    if (result != undefined) {
+      console.log("Found artifact: " + result);
+      cpiData.integrationFlowId = result;
+    }
+    else {
+      cpiData.integrationFlowId = null;
+      console.log("no integration flow found");
+    }
+  
   return result;
 }
 
@@ -1657,8 +1657,7 @@ onInitStatistic();
 
 
 setInterval(function () {
- 
-    if (document.getElementById("svgBackgroundPointerPanelLayer-1") && document.getElementsByClassName("spcHeaderActionButton") ) {
+    if (document.querySelector('[id^="svgBackgroundPointerPanelLayer-"]') && document.getElementsByClassName("spcHeaderActionButton") ) {
       buildButtonBar();
       addBreadcrumbs();
     }
