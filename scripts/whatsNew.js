@@ -60,7 +60,7 @@ Don't wait – sign up for our Figaf trial and revolutionize your SAP Cloud Inte
   <a class="item"><i class="right triangle icon"></i>
   <div class="content">
     <div class="header">Feature</div>
-    <div class="description">Improved Firefox version. Please leave a review on firefox addon page.</div>
+    <div class="description">Improved Firefox version.</div>
   </div>
 </a>
 
@@ -71,6 +71,12 @@ Don't wait – sign up for our Figaf trial and revolutionize your SAP Cloud Inte
   </div>
 </a>
 
+<a class="item"><i class="right triangle icon"></i>
+<div class="content">
+  <div class="header">Feature</div>
+  <div class="description"> Fix bug when using Chinese as browser default language.</div>
+</div>
+</a>
 
 
 <a class="item">
