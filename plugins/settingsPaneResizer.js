@@ -126,6 +126,7 @@ var plugin = {
             function doResize() {                        
                 var newWorkAreaHeight;
                 var newPaneHeight;
+                var newHeightInPx;
                 
                 // get height of view and content
                 var viewHeight = view.innerHeight();
@@ -145,28 +146,30 @@ var plugin = {
                             workArea.stop(); // stop resize delay timer/animation if still active from previous click 
 
                             if (settingsPane != undefined) {
-                                
-                                // auto adjust if content is lower than configured height in Px and pause is off
-                                if (configPaneHeightPercent != "") {                                    
-                                    paneHeightPx = viewHeight * configPaneHeightPercent / 100;
+                                // configured height in pixel takes precedence
+                                if (configPaneHeightPx) {
+                                    newHeightInPx = configPaneHeightPx;
+                                    configPaneHeightPercent = "";
                                 }
-                                else {
-                                    paneHeightPx = configPaneHeightPx;
-                                }                                                                
-                                if ( (! dynPause) && dynamicResizing == true && (paneContentHeight + 120) <= paneHeightPx) {                    
+                                else if (configPaneHeightPercent) {
+                                    newHeightInPx =  viewHeight * configPaneHeightPercent / 100;                                    
+                                }
+
+                                // auto adjust if content is lower than configured height and pause is off
+                                if ( (! dynPause) && dynamicResizing == true && (paneContentHeight + 120) <= newHeightInPx) {                    
                                     newWorkAreaHeight = viewHeight - (paneContentHeight+120);
                                     newPaneHeight = (paneContentHeight + 120);
                                 }
 
                                 // height in pixel is configured
                                 else if (configPaneHeightPx != "" && configPaneHeightPx != null) {			
-                                    newWorkAreaHeight = viewHeight - configPaneHeightPx;				
-                                    newPaneHeight = configPaneHeightPx;		
+                                    newWorkAreaHeight = viewHeight - configPaneHeightPx;				                                    
+                                    newPaneHeight = newHeightInPx;					                
                                 }
                                 // height in % is configured
                                 else if (configPaneHeightPercent != "" && configPaneHeightPercent != null) {
                                     newWorkAreaHeight = viewHeight * (100 - configPaneHeightPercent) / 100;
-                                    newPaneHeight = viewHeight * configPaneHeightPercent / 100;
+                                    newPaneHeight = newHeightInPx;
                                 } 
                                 
                                 // apply new heights     
@@ -178,7 +181,7 @@ var plugin = {
                             newWorkAreaHeight = viewHeight / 2;
                             newPaneHeight = viewHeight / 2;
                             applyHeights(workArea, settingsPane, paneContentVisible, newWorkAreaHeight, newPaneHeight, delaySetting);
-                            reset = false;  // reset only once on pause              
+                            reset = false;  // reset only once on pause                                          
                         }
                     });
                 });
