@@ -150,16 +150,19 @@ var plugin = {
                                 if ( (! dynPause) && dynamicResizing == true && configPaneHeightPx != "" && (paneContentHeight + 120) <= configPaneHeightPx) {                    
                                     newWorkAreaHeight = viewHeight - (paneContentHeight+120);
                                     newPaneHeight = (paneContentHeight + 120);
+                                    console.log("resize 1")
                                 }
                                 // height in pixel is configured
                                 else if (configPaneHeightPx != "" && configPaneHeightPx != null) {			
-                                    newWorkAreaHeight = viewHeight - configPaneHeightPx;				
-                                    newPaneHeight = configPaneHeightPx;					                     
+                                    newWorkAreaHeight = viewHeight - configPaneHeightPx;				                                    
+                                    newPaneHeight = configPaneHeightPx;					                
+                                    console.log("resize 2")     
                                 }
                                 // height in % is configured
                                 else if (configPaneHeightPercent != "" && configPaneHeightPercent != null) {
                                     newWorkAreaHeight = viewHeight * (100 - configPaneHeightPercent) / 100;
                                     newPaneHeight = viewHeight * configPaneHeightPercent / 100;
+                                    console.log("resize 3")
                                 } 
                                 
                                 // apply new heights     
@@ -168,10 +171,11 @@ var plugin = {
                         }
                         // after "pause all resizing" was clicked, reset pane height to default (50%) to prevent ugly jumping on manual draging of the splitter
                         else if (resizePause && reset) {
+                            console.log("resetting")
                             newWorkAreaHeight = viewHeight / 2;
                             newPaneHeight = viewHeight / 2;
                             applyHeights(workArea, settingsPane, paneContentVisible, newWorkAreaHeight, newPaneHeight, delaySetting);
-                            reset = false;  // reset only once on pause              
+                            reset = false;  // reset only once on pause                                          
                         }
                     });
                 });
