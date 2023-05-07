@@ -31,6 +31,11 @@ I recommend reading the readme first but if you know what you are doing, you can
 
 ## Changelog
 
+### 3.4.0
+
+- [Feature] New plugin "Settings Pane Resizer" and many bugfixes. Thanks to Philippe Addor and BMT Business meets Technology AG
+- [Bugfix] Improved handling of message popup. Thanks to Omkar Patel
+
 ### 3.3.2
 
 - [Bugfix] Fix bug when using Chinese as browser default language

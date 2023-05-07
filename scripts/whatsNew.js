@@ -6,7 +6,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
 
   silentupdates = ["3.0.3"]
 
-  const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
+  const FIGAF_IMG = chrome.runtime.getURL("images/figaf5.png");
 
   if (!check && !silentupdates.includes(manifestVersion) || showOnlyOnce == false) {
     html = `
@@ -29,24 +29,17 @@ async function whatsNewCheck(showOnlyOnce = true) {
     </div>
     <div class="ui bottom attached tab segment" data-tab="one">
     <div class="ui segment">
-
-    <div class="ui grid">
-          <div class="four wide column">
-              <a href="https://figaf.com/cpihelper-and-figaf" target="_blank"><img class="ui small left floated image" src="${FIGAF_IMG}"></a>
- 
-          </div>
-    <div class="twelve wide column">
-         <div class="ui header">This release is sponsored by Figaf </div>
-          <p>Experience the power of Figaf today – a seamless DevOps solution for SAP Cloud Integration!
-In just 20 minutes, kickstart your journey with effortless testing and transport processes.
-Unlock your team's potential with streamlined workflows and unparalleled efficiency.
-Don't wait – sign up for our Figaf trial and revolutionize your SAP Cloud Integration experience!</p>
-            Read more <a href="https://figaf.com/cpihelper4" target="_blank">here</a>.
-          </p>
+        <div class="ui grid">
+            <div class="sixteen wide column">
+                <div class="ui header">This release is sponsored by Figaf </div>
+                <p>If you're planning a SAP PI/PO to Integration Suite migration, we highly recommend checking out our infographic. It outlines all the critical factors you need to consider and will help you plan your migration with ease.</p>
+                Read more <a href="https://figaf.com/cpihelper5" target="_blank">here</a>.
+            </div>
+            <div class="sixteen wide">
+                <a href="https://figaf.com/cpihelper5" target="_blank"><img class="ui floated image" src="${FIGAF_IMG}"></a>
+            </div>
+        </div>
     </div>
-  </div>
-
-  </div>
 
   <h3 class="ui header">
   <i class="bell icon"></i>
@@ -64,10 +57,17 @@ Don't wait – sign up for our Figaf trial and revolutionize your SAP Cloud Inte
   </div>
 </a>
 
+<a class="item"><i class="right triangle icon"></i>
+<div class="content">
+  <div class="header">Feature</div>
+  <div class="description">New plugin "Settings Pane Resizer" and many bugfixes. Thanks to Philippe Addor and BMT Business meets Technology AG</div>
+</div>
+</a>
+
   <a class="item"><i class="right triangle icon"></i>
   <div class="content">
     <div class="header">Feature</div>
-    <div class="description">Improved handling of message popup.</div>
+    <div class="description">Improved handling of message popup. Thanks to Omkar Patel</div>
   </div>
 </a>
 
