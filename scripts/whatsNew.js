@@ -50,17 +50,19 @@ async function whatsNewCheck(showOnlyOnce = true) {
  
   <div class="ui list">
 
-  <a class="item"><i class="right triangle icon"></i>
-  <div class="content">
-    <div class="header">Feature</div>
-    <div class="description">Improved Firefox version.</div>
-  </div>
+
+
+<a class="item"><i class="right triangle icon"></i>
+<div class="content">
+  <div class="header">Feature</div>
+  <div class="description">New plugin "Settings Pane Resizer". Thanks to Philippe Addor and BMT Business meets Technology AG</div>
+</div>
 </a>
 
 <a class="item"><i class="right triangle icon"></i>
 <div class="content">
   <div class="header">Feature</div>
-  <div class="description">New plugin "Settings Pane Resizer" and many bugfixes. Thanks to Philippe Addor and BMT Business meets Technology AG</div>
+  <div class="description">Adding breadcrumb link to the parent package if missing. Thanks to Philippe Addor and BMT Business meets Technology AG</div>
 </div>
 </a>
 
@@ -74,6 +76,13 @@ async function whatsNewCheck(showOnlyOnce = true) {
 <a class="item"><i class="right triangle icon"></i>
 <div class="content">
   <div class="header">Feature</div>
+  <div class="description">Improved Firefox version.</div>
+</div>
+</a>
+
+<a class="item"><i class="right triangle icon"></i>
+<div class="content">
+  <div class="header">Bugfixes</div>
   <div class="description"> Fix bug when using Chinese as browser default language.</div>
 </div>
 </a>
