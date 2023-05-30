@@ -84,12 +84,24 @@ var plugin = {
             if (! document.getElementById("settingsPaneResizerScript")) {
                 console.log(`Loading "Settings Pane Resizer" by Philippe Addor`);
                 
+				// get configured height in pixel for initial resizing via UI5
+				var newHeightInPct;
+				if (configPaneHeightPx) {
+					newHeightInPct = Math.floor((100 / view.innerHeight() * configPaneHeightPx));
+				}
+				else if (configPaneHeightPercent) {
+					newHeightInPct =  configPaneHeightPercent;  
+                }
+                
                 // create inline script to trigger the pane restore button in UI5
                 const scriptElement = document.createElement('script');
                 scriptElement.setAttribute("id", "settingsPaneResizerScript");
-                    
-                scriptElement.innerHTML = `
-                    $( document ).ready( window.sap.ui.getCore().byId( $('[id $="--iflowSplitter-bar0-restore-btn"]').eq(0).attr("id")).firePress() );
+                scriptElement.innerHTML = `					                    
+						window.sap.ui.getCore().byId( $('[id $="--iflowSplitter-bar0-restore-btn"]').eq(0).attr("id")).firePress(); 					
+						var s = window.sap.ui.getCore().byId( $('[id^="__xmlview"][id$="-iflowSplitter"]').eq(0).attr("id") );
+						s.getContentAreas()[0].setLayoutData(new sap.ui.layout.SplitterLayoutData({ size: "${(100-newHeightInPct) + "%"}" }));
+						s.getContentAreas()[1].setLayoutData(new sap.ui.layout.SplitterLayoutData({ size: "${newHeightInPct + "%"}" }));
+						s.invalidate();
                     `;
                                 
                 document.head.appendChild(scriptElement);
@@ -123,7 +135,7 @@ var plugin = {
             }
 
             // Resizing function
-            function doResize() {                        
+            function doResize() {                    
                 var newWorkAreaHeight;
                 var newPaneHeight;
                 var newHeightInPx;
@@ -132,66 +144,78 @@ var plugin = {
                 var viewHeight = view.innerHeight();
                 var paneContentHeight = paneAllContent.innerHeight();	
 
-                // load both pause status first
-                chrome.storage.local.get("paneDynResizePause", function(data) {
-                    var dynPause = data.paneDynResizePause;
-                    stylePauseButton(pauseDynButton, dynPause);
-                    
-                    chrome.storage.local.get("paneResizePause", function(data) {
-                        var resizePause = data.paneResizePause;
-                        stylePauseButton(pauseResizeButton, resizePause);        
-                        
-                        // Reset size depending on settings and pause modes
-                        if (! resizePause) {
-                            workArea.stop(); // stop resize delay timer/animation if still active from previous click 
+				var minButton = $('[id $="iflowSplitter-bar0-min-btn-img"]'); // minimize button of the settings pane - only resize when this is visible (= pane expanded)
+				
+				// check if pane is expanded, otherwise don't resize
+				if (minButton.length == 1) {
+					// load both pause status first
+					chrome.storage.local.get("paneDynResizePause", function(data) {
+						var dynPause = data.paneDynResizePause;
+						stylePauseButton(pauseDynButton, dynPause);
+						
+						chrome.storage.local.get("paneResizePause", function(data) {
+							var resizePause = data.paneResizePause;
+							stylePauseButton(pauseResizeButton, resizePause);        
+							
+							// Reset size depending on settings and pause modes
+							if (! resizePause) {
+								workArea.stop(); // stop resize delay timer/animation if still active from previous click 
 
-                            if (settingsPane != undefined) {
-                                // configured height in pixel takes precedence
-                                if (configPaneHeightPx) {
-                                    newHeightInPx = configPaneHeightPx;
-                                    configPaneHeightPercent = "";
-                                }
-                                else if (configPaneHeightPercent) {
-                                    newHeightInPx =  viewHeight * configPaneHeightPercent / 100;                                    
-                                }
+								if (settingsPane != undefined) {
+									// configured height in pixel takes precedence
+									if (configPaneHeightPx) {
+										newHeightInPx = configPaneHeightPx;
+										configPaneHeightPercent = "";
+									}
+									else if (configPaneHeightPercent) {
+										newHeightInPx =  viewHeight * configPaneHeightPercent / 100;                                    
+									}
 
-                                // auto adjust if content is lower than configured height and pause is off
-                                if ( (! dynPause) && dynamicResizing == true && (paneContentHeight + 120) <= newHeightInPx) {                    
-                                    newWorkAreaHeight = viewHeight - (paneContentHeight+120);
-                                    newPaneHeight = (paneContentHeight + 120);
-                                }
+									// auto adjust if content is lower than configured height and pause is off
+									if ( (! dynPause) && dynamicResizing == true && (paneContentHeight + 120) <= newHeightInPx) {                    
+										newWorkAreaHeight = viewHeight - (paneContentHeight+120);
+										newPaneHeight = (paneContentHeight + 120);
+									}
 
-                                // height in pixel is configured
-                                else if (configPaneHeightPx != "" && configPaneHeightPx != null) {			
-                                    newWorkAreaHeight = viewHeight - configPaneHeightPx;				                                    
-                                    newPaneHeight = newHeightInPx;					                
-                                }
-                                // height in % is configured
-                                else if (configPaneHeightPercent != "" && configPaneHeightPercent != null) {
-                                    newWorkAreaHeight = viewHeight * (100 - configPaneHeightPercent) / 100;
-                                    newPaneHeight = newHeightInPx;
-                                } 
-                                
-                                // apply new heights     
-                                applyHeights(workArea, settingsPane, paneContentVisible, newWorkAreaHeight, newPaneHeight, delaySetting);
-                            }
-                        }
-                        // after "pause all resizing" was clicked, reset pane height to default (50%) to prevent ugly jumping on manual draging of the splitter
-                        else if (resizePause && reset) {
-                            newWorkAreaHeight = viewHeight / 2;
-                            newPaneHeight = viewHeight / 2;
-                            applyHeights(workArea, settingsPane, paneContentVisible, newWorkAreaHeight, newPaneHeight, delaySetting);
-                            reset = false;  // reset only once on pause                                          
-                        }
-                    });
-                });
-            }	
+									// height in pixel is configured
+									else if (configPaneHeightPx != "" && configPaneHeightPx != null) {			
+										newWorkAreaHeight = viewHeight - configPaneHeightPx;				                                    
+										newPaneHeight = newHeightInPx;					                
+									}
+									// height in % is configured
+									else if (configPaneHeightPercent != "" && configPaneHeightPercent != null) {
+										newWorkAreaHeight = viewHeight * (100 - configPaneHeightPercent) / 100;
+										newPaneHeight = newHeightInPx;
+									}
+									
+									// apply new heights     
+									applyHeights(workArea, settingsPane, paneContentVisible, newWorkAreaHeight, newPaneHeight, delaySetting);
+								}
+							}
+							// after "pause all resizing" was clicked, reset pane height to initial height to prevent ugly jumping on manual draging of the splitter
+							else if (resizePause && reset) {
+									if (configPaneHeightPx != "" && configPaneHeightPx != null) {			
+										newWorkAreaHeight = viewHeight - configPaneHeightPx;				                                    
+										newPaneHeight = newHeightInPx;					                
+									}
+									else if (configPaneHeightPercent != "" && configPaneHeightPercent != null) {
+										newWorkAreaHeight = viewHeight * (100 - configPaneHeightPercent) / 100;
+										newPaneHeight = newHeightInPx;
+									}
+																	
+								applyHeights(workArea, settingsPane, paneContentVisible, newWorkAreaHeight, newPaneHeight, delaySetting);
+								reset = false;  // reset only once on pause                                          
+							}
+						});
+					});
+                }
+            }
             
         // return div for CPI Helper side bar
         return div;
-        
+            }
         }
-    }
+    
 
 };
 
