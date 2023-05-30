@@ -93,7 +93,6 @@ async function renderMessageSidebar() {
 
       if (cpiData?.flowData?.artifactInformation?.deployState == "FAILED") {
         statusColor = "#FF0000";
-
       }
 
       deploymentText.innerHTML = "State: <span style='color: " + statusColor + "'>" + cpiData?.flowData?.artifactInformation?.deployState + "</span>";
@@ -193,6 +192,11 @@ async function renderMessageSidebar() {
             if (resp[i].Status == "FAILED") {
               statusColor = "#C70039";
               statusIcon = "";
+            }
+
+            if (resp[i].Status == "ESCALATED") {
+              statusColor = "#0193fd";
+              statusIcon = "";
             }
 
 

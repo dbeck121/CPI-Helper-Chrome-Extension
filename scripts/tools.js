@@ -413,14 +413,16 @@ function stage() {
 }
 
 async function statistic(event, value = null, value2 = null) {
-  try {
+/*  try {
     var sessionId = await storageGetPromise("sessionId")
     var installtype = await storageGetPromise("installtype")
     var img = document.createElement("img");
-    img.src = `https://mmjs2inijoe3rpwsdmqbgtyvdu0ldvfj.lambda-url.eu-central-1.on.aws/?version=${chrome.runtime.getManifest().version}&event=${event}&session=${sessionId}&value=${value}&value2=${value2}&installtype=${installtype}&nonse=${Date.now()}`;
+    img.src = `....?version=${chrome.runtime.getManifest().version}&event=${event}&session=${sessionId}&value=${value}&value2=${value2}&installtype=${installtype}&nonse=${Date.now()}`;
   } catch (e) {
     console.log(e)
   }
+
+  */
 }
 
 async function onInitStatistic() {
