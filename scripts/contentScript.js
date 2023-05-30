@@ -195,7 +195,7 @@ async function renderMessageSidebar() {
             }
 
             if (resp[i].Status == "ESCALATED") {
-              statusColor = "#0193fd";
+              statusColor = "#ff8300";
               statusIcon = "";
             }
 
