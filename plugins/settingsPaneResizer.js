@@ -96,13 +96,15 @@ var plugin = {
                 // create inline script to trigger the pane restore button in UI5
                 const scriptElement = document.createElement('script');
                 scriptElement.setAttribute("id", "settingsPaneResizerScript");
-                scriptElement.innerHTML = `					                    
-						window.sap.ui.getCore().byId( $('[id $="--iflowSplitter-bar0-restore-btn"]').eq(0).attr("id")).firePress(); 					
-						var s = window.sap.ui.getCore().byId( $('[id^="__xmlview"][id$="-iflowSplitter"]').eq(0).attr("id") );
-						s.getContentAreas()[0].setLayoutData(new sap.ui.layout.SplitterLayoutData({ size: "${(100-newHeightInPct) + "%"}" }));
-						s.getContentAreas()[1].setLayoutData(new sap.ui.layout.SplitterLayoutData({ size: "${newHeightInPct + "%"}" }));
-						s.invalidate();
-                    `;
+                scriptElement.innerHTML = `		
+                            console.log("go");
+                            window.sap.ui.getCore().byId( $('[id $="--iflowSplitter-bar0-restore-btn"]').eq(0).attr("id")).firePress(); 					
+                            var s = window.sap.ui.getCore().byId( $('[id^="__xmlview"][id$="-iflowSplitter"]').eq(0).attr("id") );
+                            s.getContentAreas()[0].setLayoutData(new sap.ui.layout.SplitterLayoutData({ size: "${(100-newHeightInPct) + "%"}" }));
+                            s.getContentAreas()[1].setLayoutData(new sap.ui.layout.SplitterLayoutData({ size: "${newHeightInPct + "%"}" }));
+                            s.invalidate();
+                    
+                `;
                                 
                 document.head.appendChild(scriptElement);
                             

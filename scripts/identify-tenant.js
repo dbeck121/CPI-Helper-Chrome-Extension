@@ -130,7 +130,7 @@
     setHeaderColor(color)
     setFavIcon(icon)
     // prepare interval function to keep elements updated
-    let intervalCount = 5; // Times to run the interval function
+    let intervalCount = 10; // Times to run the interval function
     let intervalDelay = 2000;
     // set title again aftet 2sec
     console.log('Initiate title update sequence')
