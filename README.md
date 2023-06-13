@@ -9,6 +9,19 @@ I recommend reading the readme first but if you know what you are doing, you can
 [Edge Browser](https://microsoftedge.microsoft.com/addons/detail/sap-cpi-helper/chnohkopccdfgpglplooonoaigfgfkda)
 [Firefox](https://addons.mozilla.org/de/firefox/addon/cpi-helper/)
 
+## Privacy and Data Protection
+
+The plugin does not collect personal data. Nevertheless the stores like Chrome Web Store collect some anonymous data like how many users have the plugin installed. Additionally I collect some statistical data like how many users really use the plugin and which features they are using. I work on CPI-Helper in my free time so I want to make sure to only work on functionality that is realy used. I do not trust Google Analytics and other tools so I implemented my own solution to be sure to not send any personal data
+
+I guarantee:
+
+- No personal data is collected
+- No urls, tenant names iflow names etc are collected
+- only statistical data is collected
+- the data does not leave
+
+It is open source so feel free to check the source code.
+
 ## Features
 
 ### Integration Flow Designer Improvements
