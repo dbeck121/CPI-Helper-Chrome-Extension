@@ -108,8 +108,8 @@ var plugin = {
                         var pauseButton = $("#pauseButton");                        
                         //console.log("extendSettingsPane")
                         if (minButton.length == 0 && !pauseButton.hasClass("cpiHelper_inlineInfo-active") ) {
-                            console.log("minButton not visible - expanding pane to " + "${newHeightInPct}" + "%");
-                            console.log("Settings pane expanded");
+                            //console.log("minButton not visible - expanding pane to " + "${newHeightInPct}" + "%");
+                            //console.log("Settings pane expanded");
                             window.sap.ui.getCore().byId( $('[id $="--iflowSplitter-bar0-restore-btn"]').eq(0).attr("id")).firePress();
                             var s = window.sap.ui.getCore().byId( $('[id^="__xmlview"][id$="-iflowSplitter"]').eq(0).attr("id"));
                             s.getContentAreas()[0].setLayoutData(new sap.ui.layout.SplitterLayoutData({ size: "${(100-newHeightInPct) + "%"}" }));
@@ -120,12 +120,11 @@ var plugin = {
 
                     // add trigger of resizer when page content changes (to also catch page updates via 'ajax' instead of just full page reloads)
                     var body = document.getElementsByTagName("body")[0];
-					//var body = document.getElementById("__xmlview0--iflowObjectPageLayout");
-					//var body = $('[id $="--iflowObjectPageLayout"]')[0];
+					//var body = $('[id $="--iflowObjectPageLayout"]')[0]; // didn't always trigger
                     var bodyObserver = new MutationObserver(function(mutations) {                                                                       
                         mutations.forEach(mutation => {
-                            console.log("checking: " + mutation.target.id)
-							console.log(mutation)
+                            //console.log("checking: " + mutation.target.id)
+							//console.log(mutation)
                             if (mutation.target.id.includes("iflowObjectPageLayout")) {
                                 extendSettingsPane();
                             }
@@ -145,9 +144,7 @@ var plugin = {
    
             function callback(mutationList, obs) {                
                 mutationList.every(mutation => {
-                    //console.log("addedNodes " + mutation.addedNodes.length)
-                    //console.log("removedNodes " + mutation.removedNodes.length)
-                    //obs.disconnect();
+                    //obs.disconnect(); // seems to work lees reliable when disconnecting every time
                     doResize();        
                     return false; // exit loop after first trigger
                 });                
@@ -213,20 +210,20 @@ var plugin = {
 
                                 // auto adjust if content is lower than configured height and pause is off
                                 if ( (! dynPause) && dynamicResizing == true && (paneContentHeight + 120) <= newHeightInPx) {                    
-                                    console.log("doResize 1")
+                                    //console.log("doResize 1")
                                     newWorkAreaHeight = viewHeight - (paneContentHeight+120);
                                     newPaneHeight = (paneContentHeight + 120);
                                 }
 
                                 // height in pixel is configured
                                 else if (configPaneHeightPx != "" && configPaneHeightPx != null) {			
-                                    console.log("doResize 2")
+                                    //console.log("doResize 2")
                                     newWorkAreaHeight = viewHeight - configPaneHeightPx;				                                    
                                     newPaneHeight = newHeightInPx;					                
                                 }
                                 // height in % is configured
                                 else if (configPaneHeightPercent != "" && configPaneHeightPercent != null) {
-                                    console.log("doResize 3")
+                                    //console.log("doResize 3")
                                     newWorkAreaHeight = viewHeight * (100 - configPaneHeightPercent) / 100;
                                     newPaneHeight = newHeightInPx;
                                 }
@@ -237,7 +234,7 @@ var plugin = {
                         }
                         // after "pause all resizing" was clicked, reset pane height to initial height to prevent ugly jumping on manual draging of the splitter
                         else if (resizePause && reset) {
-                                console.log("doResize Reset")                                
+                                //console.log("doResize Reset")                                
                                 if (configPaneHeightPx != "" && configPaneHeightPx != null) {			
                                     newWorkAreaHeight = viewHeight - configPaneHeightPx;				                                    
                                     newPaneHeight = newHeightInPx;					                
