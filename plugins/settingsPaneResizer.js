@@ -1,8 +1,8 @@
 var plugin = {
-    metadataVersion: "1.0.0",
+    metadataVersion: "1.1.0",
     id: "settingsPaneResizer",
     name: "Settings Pane Resizer",
-    version: "1.0.0",
+    version: "1.1.0",
     author: "Philippe Addor, BMT Consulting AG, Bottighofen, Switzerland",
     email: "philippe.addor@bmtg.ch",
     website: "https://bmtg.ch",
@@ -106,10 +106,10 @@ var plugin = {
                         // only press button if pane not yet expanded
                         var minButton = $('[id $="iflowSplitter-bar0-min-btn-img"]');
                         var pauseButton = $("#pauseButton");                        
-                        //console.log("extendSettingsPane")
+                        console.log("Settings Pane expanded by CPI Helper Plugin")
                         if (minButton.length == 0 && !pauseButton.hasClass("cpiHelper_inlineInfo-active") ) {
                             //console.log("minButton not visible - expanding pane to " + "${newHeightInPct}" + "%");
-                            //console.log("Settings pane expanded");
+                            console.log("Settings pane expanded");
                             window.sap.ui.getCore().byId( $('[id $="--iflowSplitter-bar0-restore-btn"]').eq(0).attr("id")).firePress();
                             var s = window.sap.ui.getCore().byId( $('[id^="__xmlview"][id$="-iflowSplitter"]').eq(0).attr("id"));
                             s.getContentAreas()[0].setLayoutData(new sap.ui.layout.SplitterLayoutData({ size: "${(100-newHeightInPct) + "%"}" }));
