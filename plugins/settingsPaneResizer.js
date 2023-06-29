@@ -1,8 +1,8 @@
 var plugin = {
-    metadataVersion: "1.0.0",
+    metadataVersion: "1.1.0",
     id: "settingsPaneResizer",
     name: "Settings Pane Resizer",
-    version: "1.0.0",
+    version: "1.1.0",
     author: "Philippe Addor, BMT Consulting AG, Bottighofen, Switzerland",
     email: "philippe.addor@bmtg.ch",
     website: "https://bmtg.ch",
@@ -38,8 +38,12 @@ var plugin = {
             // create button/text in messages window
             var div = document.createElement("div");        	
             var pauseDynButton = document.createElement("button");               
-            var pauseResizeButton = document.createElement("button");   
-
+            var pauseResizeButton = document.createElement("button");
+            pauseResizeButton.setAttribute("id", "pauseButton")
+            
+            // do a resize on each refresh to keep pane under control at all times
+            doResize()
+            
             if (dynamicResizing == true) {
                 var text = document.createElement('div');
                 text.innerHTML = "<div>Dyn Resizing:</div>";
@@ -59,7 +63,7 @@ var plugin = {
             div.appendChild(pauseResizeButton);
         
             // bind pause toggle logic to buttons
-            pauseDynButton.addEventListener("click", async () => { 
+            pauseDynButton.addEventListener("click", async () => {
                 // read current pause state
                 await chrome.storage.local.get("paneDynResizePause", function(data) {                
                     // invert status and save back to storage
@@ -68,7 +72,7 @@ var plugin = {
                     doResize();
                 });
             });
-            pauseResizeButton.addEventListener("click", async () => { 
+            pauseResizeButton.addEventListener("click", async () => {
                 // read current pause state
                 await chrome.storage.local.get("paneResizePause", function(data) {                
                     // invert status and save back to storage
@@ -80,7 +84,7 @@ var plugin = {
             });
 
             
-            // expand setting pane, only once at the first load of the page (by checking if script element was already added)
+            // inject script to expand settings pane - only once at the first load of the page by checking if script element was already added
             if (! document.getElementById("settingsPaneResizerScript")) {
                 console.log(`Loading "Settings Pane Resizer" by Philippe Addor`);
                 
@@ -96,35 +100,69 @@ var plugin = {
                 // create inline script to trigger the pane restore button in UI5
                 const scriptElement = document.createElement('script');
                 scriptElement.setAttribute("id", "settingsPaneResizerScript");
-                scriptElement.innerHTML = `					                    						
-                        $( document ).ready( window.sap.ui.getCore().byId( $('[id $="--iflowSplitter-bar0-restore-btn"]').eq(0).attr("id")).firePress() );
-						var s = window.sap.ui.getCore().byId( $('[id^="__xmlview"][id$="-iflowSplitter"]').eq(0).attr("id") );
-						s.getContentAreas()[0].setLayoutData(new sap.ui.layout.SplitterLayoutData({ size: "${(100-newHeightInPct) + "%"}" }));
-						s.getContentAreas()[1].setLayoutData(new sap.ui.layout.SplitterLayoutData({ size: "${newHeightInPct + "%"}" }));
-						s.invalidate();
-                    `;
-                                
-                document.head.appendChild(scriptElement);
-                            
-                // add listener (once) to tabs of the settings pane to immediately trigger resize when changing tab. 
-                const contentDiv = document.querySelectorAll('[id $="iflowPropertySheetView--propertySheetPageContainer-cont"]')[0]; // section element with actual pane content
-            
-                const observer = new MutationObserver(function(mutations) {                        
-                    doResize();
-                });
-                const config = { childList: true, characterData: true, subtree: true };
-                observer.observe(contentDiv, config);    
+
+                scriptElement.innerHTML = `
+                    function extendSettingsPane() {
+                        // only press button if pane not yet expanded
+                        var minButton = $('[id $="iflowSplitter-bar0-min-btn-img"]');
+                        var pauseButton = $("#pauseButton");                        
+                        console.log("Settings Pane expanded by CPI Helper Plugin")
+                        if (minButton.length == 0 && !pauseButton.hasClass("cpiHelper_inlineInfo-active") ) {
+                            //console.log("minButton not visible - expanding pane to " + "${newHeightInPct}" + "%");
+                            console.log("Settings pane expanded");
+                            window.sap.ui.getCore().byId( $('[id $="--iflowSplitter-bar0-restore-btn"]').eq(0).attr("id")).firePress();
+                            var s = window.sap.ui.getCore().byId( $('[id^="__xmlview"][id$="-iflowSplitter"]').eq(0).attr("id"));
+                            s.getContentAreas()[0].setLayoutData(new sap.ui.layout.SplitterLayoutData({ size: "${(100-newHeightInPct) + "%"}" }));
+                            s.getContentAreas()[1].setLayoutData(new sap.ui.layout.SplitterLayoutData({ size: "${newHeightInPct + "%"}" }));
+                            //s.invalidate();             
+                        }            
+                    }
+
+                    // add trigger of resizer when page content changes (to also catch page updates via 'ajax' instead of just full page reloads)
+                    var body = document.getElementsByTagName("body")[0];
+					//var body = $('[id $="--iflowObjectPageLayout"]')[0]; // didn't always trigger
+                    var bodyObserver = new MutationObserver(function(mutations) {                                                                       
+                        mutations.forEach(mutation => {
+                            //console.log("checking: " + mutation.target.id)
+							//console.log(mutation)
+                            if (mutation.target.id.includes("iflowObjectPageLayout")) {
+                                extendSettingsPane();
+                            }
+                        });
+                    });
+                    var config = { childList: true, subtree: true };
+                    bodyObserver.observe(body, config);
+                `;
+
+                document.head.appendChild(scriptElement);  
+                
             }
 
-            doResize(); // trigger a resize to keep pane under control at all times
-        
+             
+            // add listener to tabs of the settings pane to immediately trigger resize when changing tab. (Doesn't work 100%, so we need to call doResize() on each plugin refresh too)
+            const contentDiv = document.querySelectorAll('[id $="--autoUIGenMainLayout"]')[0]; // section element with actual pane content            
+   
+            function callback(mutationList, obs) {                
+                mutationList.every(mutation => {
+                    //obs.disconnect(); // seems to work lees reliable when disconnecting every time
+                    doResize();        
+                    return false; // exit loop after first trigger
+                });                
+            }
             
+            const observer = new MutationObserver(callback);
+            const config = { childList: true, subtree: true, attributes: true, characterData: true };
+            observer.observe(contentDiv, config);
+            
+
+            //functions
+
             function stylePauseButton(button, pause) {
                 if (pause) {                            
-                    button.classList.add("cpiHelper_inlineInfo-active");                            
+                    button.classList.add("cpiHelper_inlineInfo-active");
                 }
                 else {
-                    button.classList.remove("cpiHelper_inlineInfo-active");                            
+                    button.classList.remove("cpiHelper_inlineInfo-active");
                 } 
             }
 
@@ -135,7 +173,7 @@ var plugin = {
             }
 
             // Resizing function
-            function doResize() {                    
+            function doResize() {
                 var newWorkAreaHeight;
                 var newPaneHeight;
                 var newHeightInPx;
@@ -145,70 +183,72 @@ var plugin = {
                 var paneContentHeight = paneAllContent.innerHeight();	
 
 				var minButton = $('[id $="iflowSplitter-bar0-min-btn-img"]'); // minimize button of the settings pane - only resize when this is visible (= pane expanded)
-				
-				// check if pane is expanded, otherwise don't resize
-				if (minButton.length == 1) {
-					// load both pause status first
-					chrome.storage.local.get("paneDynResizePause", function(data) {
-						var dynPause = data.paneDynResizePause;
-						stylePauseButton(pauseDynButton, dynPause);
-						
-						chrome.storage.local.get("paneResizePause", function(data) {
-							var resizePause = data.paneResizePause;
-							stylePauseButton(pauseResizeButton, resizePause);        
-							
-							// Reset size depending on settings and pause modes
-							if (! resizePause) {
-								workArea.stop(); // stop resize delay timer/animation if still active from previous click 
 
-								if (settingsPane != undefined) {
-									// configured height in pixel takes precedence
-									if (configPaneHeightPx) {
-										newHeightInPx = configPaneHeightPx;
-										configPaneHeightPercent = "";
-									}
-									else if (configPaneHeightPercent) {
-										newHeightInPx =  viewHeight * configPaneHeightPercent / 100;                                    
-									}
+            
+                // load both pause status first
+                chrome.storage.local.get("paneDynResizePause", function(data) {
+                    var dynPause = data.paneDynResizePause;
+                    stylePauseButton(pauseDynButton, dynPause);
+                    
+                    chrome.storage.local.get("paneResizePause", function(data) {
+                        var resizePause = data.paneResizePause;
+                        stylePauseButton(pauseResizeButton, resizePause);        
+                                                
+                        // Reset size depending on settings and pause modes, and check if pane is expanded, otherwise don't resize
+                        if (! resizePause && minButton.length == 1) {
+                            workArea.stop(); // stop resize delay timer/animation if still active from previous click 
 
-									// auto adjust if content is lower than configured height and pause is off
-									if ( (! dynPause) && dynamicResizing == true && (paneContentHeight + 120) <= newHeightInPx) {                    
-										newWorkAreaHeight = viewHeight - (paneContentHeight+120);
-										newPaneHeight = (paneContentHeight + 120);
-									}
+                            if (settingsPane != undefined) {
+                                // configured height in pixel takes precedence
+                                if (configPaneHeightPx) {
+                                    newHeightInPx = configPaneHeightPx;
+                                    configPaneHeightPercent = "";
+                                }
+                                else if (configPaneHeightPercent) {
+                                    newHeightInPx =  viewHeight * configPaneHeightPercent / 100;                                    
+                                }
 
-									// height in pixel is configured
-									else if (configPaneHeightPx != "" && configPaneHeightPx != null) {			
-										newWorkAreaHeight = viewHeight - configPaneHeightPx;				                                    
-										newPaneHeight = newHeightInPx;					                
-									}
-									// height in % is configured
-									else if (configPaneHeightPercent != "" && configPaneHeightPercent != null) {
-										newWorkAreaHeight = viewHeight * (100 - configPaneHeightPercent) / 100;
-										newPaneHeight = newHeightInPx;
-									}
-									
-									// apply new heights     
-									applyHeights(workArea, settingsPane, paneContentVisible, newWorkAreaHeight, newPaneHeight, delaySetting);
-								}
-							}
-							// after "pause all resizing" was clicked, reset pane height to initial height to prevent ugly jumping on manual draging of the splitter
-							else if (resizePause && reset) {
-									if (configPaneHeightPx != "" && configPaneHeightPx != null) {			
-										newWorkAreaHeight = viewHeight - configPaneHeightPx;				                                    
-										newPaneHeight = newHeightInPx;					                
-									}
-									else if (configPaneHeightPercent != "" && configPaneHeightPercent != null) {
-										newWorkAreaHeight = viewHeight * (100 - configPaneHeightPercent) / 100;
-										newPaneHeight = newHeightInPx;
-									}
-																	
-								applyHeights(workArea, settingsPane, paneContentVisible, newWorkAreaHeight, newPaneHeight, delaySetting);
-								reset = false;  // reset only once on pause                                          
-							}
-						});
-					});
-                }
+                                // auto adjust if content is lower than configured height and pause is off
+                                if ( (! dynPause) && dynamicResizing == true && (paneContentHeight + 120) <= newHeightInPx) {                    
+                                    //console.log("doResize 1")
+                                    newWorkAreaHeight = viewHeight - (paneContentHeight+120);
+                                    newPaneHeight = (paneContentHeight + 120);
+                                }
+
+                                // height in pixel is configured
+                                else if (configPaneHeightPx != "" && configPaneHeightPx != null) {			
+                                    //console.log("doResize 2")
+                                    newWorkAreaHeight = viewHeight - configPaneHeightPx;				                                    
+                                    newPaneHeight = newHeightInPx;					                
+                                }
+                                // height in % is configured
+                                else if (configPaneHeightPercent != "" && configPaneHeightPercent != null) {
+                                    //console.log("doResize 3")
+                                    newWorkAreaHeight = viewHeight * (100 - configPaneHeightPercent) / 100;
+                                    newPaneHeight = newHeightInPx;
+                                }
+                                
+                                // apply new heights     
+                                applyHeights(workArea, settingsPane, paneContentVisible, newWorkAreaHeight, newPaneHeight, delaySetting);
+                            }
+                        }
+                        // after "pause all resizing" was clicked, reset pane height to initial height to prevent ugly jumping on manual draging of the splitter
+                        else if (resizePause && reset) {
+                                //console.log("doResize Reset")                                
+                                if (configPaneHeightPx != "" && configPaneHeightPx != null) {			
+                                    newWorkAreaHeight = viewHeight - configPaneHeightPx;				                                    
+                                    newPaneHeight = newHeightInPx;					                
+                                }
+                                else if (configPaneHeightPercent != "" && configPaneHeightPercent != null) {
+                                    newWorkAreaHeight = viewHeight * (100 - configPaneHeightPercent) / 100;
+                                    newPaneHeight = newHeightInPx;
+                                }
+                                                                
+                            applyHeights(workArea, settingsPane, paneContentVisible, newWorkAreaHeight, newPaneHeight, delaySetting);
+                            reset = false;  // reset only once on pause                                          
+                        }
+                    });
+                });            
             }
             
         // return div for CPI Helper side bar
