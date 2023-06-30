@@ -44,6 +44,12 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.5.0
+
+- [Improvement] "WHINT Interface Documentation" Plugin updated
+- [Improvement] "Settings Pane Resizer" Plugin updated
+- [Bugfix] Many bugfixes
+
 ### 3.4.0
 
 - [Feature] New plugin "Settings Pane Resizer" and many bugfixes. Thanks to Philippe Addor and BMT Business meets Technology AG

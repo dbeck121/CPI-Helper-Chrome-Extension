@@ -6,7 +6,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
 
   silentupdates = ["3.0.3"]
 
-  const FIGAF_IMG = chrome.runtime.getURL("images/figaf5.png");
+  const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
 
   if (!check && !silentupdates.includes(manifestVersion) || showOnlyOnce == false) {
     html = `
@@ -30,14 +30,18 @@ async function whatsNewCheck(showOnlyOnce = true) {
     <div class="ui bottom attached tab segment" data-tab="one">
     <div class="ui segment">
         <div class="ui grid">
-            <div class="sixteen wide column">
+        <div class="four wide column">
+              <a href="https://figaf.com/cpihelper-and-figaf" target="_blank"><img class="ui small left floated image" src="${FIGAF_IMG}"></a>
+ 
+          </div>
+    <div class="twelve wide column">
+         
                 <div class="ui header">This release is sponsored by Figaf </div>
-                <p>If you're planning a SAP PI/PO to Integration Suite migration, we highly recommend checking out our infographic. It outlines all the critical factors you need to consider and will help you plan your migration with ease.</p>
+                <p>Edit and run your Groovy script in Figaf.<br>
+In Figaf, you can now edit and run your Groovy scripts. The integrated approach will make it easier for you to develop. After running the script, you can reuse the test cases you created as input and perform a comparison. You can then save the change directly into the iFlow.</p>
                 Read more <a href="https://figaf.com/cpihelper5" target="_blank">here</a>.
             </div>
-            <div class="sixteen wide">
-                <a href="https://figaf.com/cpihelper5" target="_blank"><img class="ui floated image" src="${FIGAF_IMG}"></a>
-            </div>
+     
         </div>
     </div>
 
@@ -50,50 +54,27 @@ async function whatsNewCheck(showOnlyOnce = true) {
  
   <div class="ui list">
 
-
-
 <a class="item"><i class="right triangle icon"></i>
 <div class="content">
   <div class="header">Feature</div>
-  <div class="description">New plugin "Settings Pane Resizer". Thanks to Philippe Addor and BMT Business meets Technology AG</div>
+  <div class="description">Improved WHINT Interface Documentation Plugin</div>
 </div>
 </a>
 
 <a class="item"><i class="right triangle icon"></i>
 <div class="content">
   <div class="header">Feature</div>
-  <div class="description">Adding breadcrumb link to the parent package if missing. Thanks to Philippe Addor and BMT Business meets Technology AG</div>
+  <div class="description">Updated Plugin "Settings Pane Resizer". Thanks to Philippe Addor and BMT Business meets Technology AG</div>
 </div>
 </a>
+
+
 
   <a class="item"><i class="right triangle icon"></i>
   <div class="content">
     <div class="header">Feature</div>
-    <div class="description">Improved handling of message popup. Thanks to Omkar Patel</div>
+    <div class="description">Many bugfixes</div>
   </div>
-</a>
-
-<a class="item"><i class="right triangle icon"></i>
-<div class="content">
-  <div class="header">Feature</div>
-  <div class="description">Improved Firefox version.</div>
-</div>
-</a>
-
-<a class="item"><i class="right triangle icon"></i>
-<div class="content">
-  <div class="header">Bugfixes</div>
-  <div class="description"> Fix bug when using Chinese as browser default language.</div>
-</div>
-</a>
-
-
-<a class="item">
-<i class="right triangle icon"></i>
-<div class="content">
-  <div class="header">Bugfixes</div>
-  <div class="description">Many small bugfixes</div>
-</div>
 </a>
 </div>
 
