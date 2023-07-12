@@ -1,8 +1,8 @@
 var plugin = {
-    metadataVersion: "1.1.0",
+    metadataVersion: "1.0.0",
     id: "settingsPaneResizer",
     name: "Settings Pane Resizer",
-    version: "1.1.0",
+    version: "1.1.1",
     author: "Philippe Addor, BMT Consulting AG, Bottighofen, Switzerland",
     email: "philippe.addor@bmtg.ch",
     website: "https://bmtg.ch",
@@ -105,11 +105,11 @@ var plugin = {
                     function extendSettingsPane() {
                         // only press button if pane not yet expanded
                         var minButton = $('[id $="iflowSplitter-bar0-min-btn-img"]');
-                        var pauseButton = $("#pauseButton");                        
-                        console.log("Settings Pane expanded by CPI Helper Plugin")
+                        var pauseButton = $("#pauseButton");
+                        console.log("Check to expand")
                         if (minButton.length == 0 && !pauseButton.hasClass("cpiHelper_inlineInfo-active") ) {
                             //console.log("minButton not visible - expanding pane to " + "${newHeightInPct}" + "%");
-                            console.log("Settings pane expanded");
+                            console.log("Settings Pane expanded by CPI Helper Plugin")
                             window.sap.ui.getCore().byId( $('[id $="--iflowSplitter-bar0-restore-btn"]').eq(0).attr("id")).firePress();
                             var s = window.sap.ui.getCore().byId( $('[id^="__xmlview"][id$="-iflowSplitter"]').eq(0).attr("id"));
                             s.getContentAreas()[0].setLayoutData(new sap.ui.layout.SplitterLayoutData({ size: "${(100-newHeightInPct) + "%"}" }));
@@ -118,20 +118,21 @@ var plugin = {
                         }            
                     }
 
-                    // add trigger of resizer when page content changes (to also catch page updates via 'ajax' instead of just full page reloads)
-                    var body = document.getElementsByTagName("body")[0];
-					//var body = $('[id $="--iflowObjectPageLayout"]')[0]; // didn't always trigger
+                    // add trigger of resizer when page content changes (to also catch page updates via 'ajax' instead of just full page reloads)                   
                     var bodyObserver = new MutationObserver(function(mutations) {                                                                       
                         mutations.forEach(mutation => {
                             //console.log("checking: " + mutation.target.id)
-							//console.log(mutation)
+							console.log(mutation)
                             if (mutation.target.id.includes("iflowObjectPageLayout")) {
                                 extendSettingsPane();
                             }
                         });
                     });
                     var config = { childList: true, subtree: true };
-                    bodyObserver.observe(body, config);
+                    bodyObserver.observe(document.body, config);
+                    
+                    // execute function once without observer (this is triggered on first page load)
+                    extendSettingsPane();                    
                 `;
 
                 document.head.appendChild(scriptElement);  
