@@ -122,7 +122,7 @@ var plugin = {
                     var bodyObserver = new MutationObserver(function(mutations) {                                                                       
                         mutations.forEach(mutation => {
                             //console.log("checking: " + mutation.target.id)
-							console.log(mutation)
+							//console.log(mutation)
                             if (mutation.target.id.includes("iflowObjectPageLayout")) {
                                 extendSettingsPane();
                             }
