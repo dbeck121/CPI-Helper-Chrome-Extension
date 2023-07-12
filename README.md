@@ -44,6 +44,12 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+
+### 3.5.3
+
+- [Improvement] Added TPM Links to "Tenant URLs"
+- [Bugfix] Bugfix for Settings Pane Resizer Plugin
+
 ### 3.5.0
 
 - [Improvement] "WHINT Interface Documentation" Plugin updated

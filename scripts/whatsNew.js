@@ -57,14 +57,7 @@ In Figaf, you can now edit and run your Groovy scripts. The integrated approach 
 <a class="item"><i class="right triangle icon"></i>
 <div class="content">
   <div class="header">Feature</div>
-  <div class="description">Improved WHINT Interface Documentation Plugin</div>
-</div>
-</a>
-
-<a class="item"><i class="right triangle icon"></i>
-<div class="content">
-  <div class="header">Feature</div>
-  <div class="description">Updated Plugin "Settings Pane Resizer". Thanks to Philippe Addor and BMT Business meets Technology AG</div>
+  <div class="description">Added TPM Links to "Tenant URLs"</div>
 </div>
 </a>
 
