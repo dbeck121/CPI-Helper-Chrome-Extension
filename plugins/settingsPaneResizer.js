@@ -105,8 +105,7 @@ var plugin = {
                     function extendSettingsPane() {
                         // only press button if pane not yet expanded
                         var minButton = $('[id $="iflowSplitter-bar0-min-btn-img"]');
-                        var pauseButton = $("#pauseButton");
-                        console.log("Check to expand")
+                        var pauseButton = $("#pauseButton");                       
                         if (minButton.length == 0 && !pauseButton.hasClass("cpiHelper_inlineInfo-active") ) {
                             //console.log("minButton not visible - expanding pane to " + "${newHeightInPct}" + "%");
                             console.log("Settings Pane expanded by CPI Helper Plugin")
@@ -120,9 +119,8 @@ var plugin = {
 
                     // add trigger of resizer when page content changes (to also catch page updates via 'ajax' instead of just full page reloads)                   
                     var bodyObserver = new MutationObserver(function(mutations) {                                                                       
-                        mutations.forEach(mutation => {
-                            //console.log("checking: " + mutation.target.id)
-							console.log(mutation)
+                        mutations.forEach(mutation => {                            
+							//console.log(mutation)
                             if (mutation.target.id.includes("iflowObjectPageLayout")) {
                                 extendSettingsPane();
                             }
