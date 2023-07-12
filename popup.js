@@ -323,15 +323,10 @@ async function main() {
 
 main().catch(e => console.error(e))
 
-    //$(document).ready(function() {
-        // Activate tab on hover
-        $('.item').on('mouseenter', function() {
-            console.log("entered");
-            console.dir($(this));
-          $(this).tab('change tab', $(this).attr('id'));
-        });
-      
-        // Initialize tabs
-        $('.menu .item').tab();
-      
-//      });
+// Activate tab on hover
+$('.item').on('mouseenter', function() {            
+    $(this).tab('change tab', $(this).attr('id'));
+});
+
+// Initialize tabs
+$('.menu .item').tab();
