@@ -147,7 +147,6 @@ var plugin = {
 
                 function callback(mutationList, obs) {                
                     mutationList.every(mutation => {                        
-                        console.log("go");
                         doResize();                                        
                         return false; // exit loop after first mutation
                     });
@@ -157,12 +156,12 @@ var plugin = {
                 const contentDiv = document.querySelectorAll('[id $="--autoUIGenMainLayout"]')[0]; // section element with actual pane content                                      
                 if (contentDiv) {
                     observer.observe(contentDiv, config);
-                    console.log("observer set")
+                    //console.log("observer set")
                 }
                 else {
                     // settings pane wasn't loaded yet, retry on next refresh (of Messages box) by removing status HTML element again
                     document.head.removeChild(resizerobserver);
-                    console.log("observer not yet set")
+                    console.log("observer not yet set - retry")
                 }                            
             }            
 
