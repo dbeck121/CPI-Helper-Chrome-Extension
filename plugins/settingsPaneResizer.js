@@ -115,10 +115,6 @@ var plugin = {
                             s.getContentAreas()[1].setLayoutData(new sap.ui.layout.SplitterLayoutData({ size: "${newHeightInPct + "%"}" }));
                             //s.invalidate();             
                         }
-
-                        // remove resizer observer dummy tag (to recreate observer after ajax page change which would not remove this tag but the observer)
-                        const resizerobserver = document.getElementsByTagName("resizerobserver")[0];
-                        if (resizerobserver) { document.head.removeChild(resizerobserver);}
                     }
 
                     // add trigger of resizer when page content changes (to also catch page updates via 'ajax' instead of just full page reloads)                   
@@ -142,35 +138,26 @@ var plugin = {
             }
 
         
-            // add listener to content of settings pane to immediately trigger resize when changing tab. (Doesn't work 100%, so we need to call doResize() above on each plugin refresh too)
-            // use dummy html tag to save state of observer (to set it only once)
-            const resizerobserver = document.getElementsByTagName("resizerobserver")[0];
-            if (! resizerobserver) {
-                const resizerobserver = document.createElement('resizerobserver');
-                document.head.appendChild(resizerobserver);
+            // add listener to content of settings pane to immediately trigger resize when changing tab. (Doesn't work 100%, so we need to call doResize() above on each plugin refresh too (?))
+            addPaneObserver();
 
-                function callback(mutationList, obs) {                
-                    mutationList.every(mutation => {                        
-                        doResize(); 
-                        return false; // exit loop after first mutation
-                    });
-                }                      
+            /* Functions */
+            
+            function callback(mutationList, obs) {                  
+                obs.disconnect();          
+                mutationList.every(mutation => {                        
+                    doResize();
+                    console.log("go")                     
+                    return false; // exit callback after first mutation
+                });
+                addPaneObserver();    
+            }  
+            function addPaneObserver() {                    
                 const observer = new MutationObserver(callback);
                 const config = { childList: true, subtree: true, attributes: true, characterData: true };
                 const contentDiv = document.querySelectorAll('[id $="--autoUIGenMainLayout"]')[0]; // section element with actual pane content                                      
-                if (contentDiv) {
-                    observer.observe(contentDiv, config);
-                    //console.log("observer set")
-                }
-                else {
-                    // settings pane wasn't loaded yet, retry on next refresh (of Messages box) by removing status HTML element again
-                    document.head.removeChild(resizerobserver);
-                    console.log("observer not yet set - retry")
-                }                            
-            }            
-
-
-            //functions
+                observer.observe(contentDiv, config);
+            }
 
             function stylePauseButton(button, pause) {
                 if (pause) {                            
