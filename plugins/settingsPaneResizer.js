@@ -105,8 +105,7 @@ var plugin = {
                     function extendSettingsPane() {
                         // only press button if pane not yet expanded
                         var minButton = $('[id $="iflowSplitter-bar0-min-btn-img"]');
-                        var pauseButton = $("#pauseButton");
-                        console.log("Check to expand")
+                        var pauseButton = $("#pauseButton");                       
                         if (minButton.length == 0 && !pauseButton.hasClass("cpiHelper_inlineInfo-active") ) {
                             //console.log("minButton not visible - expanding pane to " + "${newHeightInPct}" + "%");
                             console.log("Settings Pane expanded by CPI Helper Plugin")
@@ -120,9 +119,8 @@ var plugin = {
 
                     // add trigger of resizer when page content changes (to also catch page updates via 'ajax' instead of just full page reloads)                   
                     var bodyObserver = new MutationObserver(function(mutations) {                                                                       
-                        mutations.forEach(mutation => {
-                            //console.log("checking: " + mutation.target.id)
-							console.log(mutation)
+                        mutations.forEach(mutation => {                            
+							//console.log(mutation)
                             if (mutation.target.id.includes("iflowObjectPageLayout")) {
                                 extendSettingsPane();
                             }
@@ -136,25 +134,38 @@ var plugin = {
                 `;
 
                 document.head.appendChild(scriptElement);  
-                
+        
             }
 
-             
-            // add listener to tabs of the settings pane to immediately trigger resize when changing tab. (Doesn't work 100%, so we need to call doResize() on each plugin refresh too)
-            const contentDiv = document.querySelectorAll('[id $="--autoUIGenMainLayout"]')[0]; // section element with actual pane content            
-   
-            function callback(mutationList, obs) {                
-                mutationList.every(mutation => {
-                    //obs.disconnect(); // seems to work lees reliable when disconnecting every time
-                    doResize();        
-                    return false; // exit loop after first trigger
-                });                
-            }
-            
-            const observer = new MutationObserver(callback);
-            const config = { childList: true, subtree: true, attributes: true, characterData: true };
-            observer.observe(contentDiv, config);
-            
+        
+            // add listener to content of settings pane to immediately trigger resize when changing tab. (Doesn't work 100%, so we need to call doResize() above on each plugin refresh too)
+            // use dummy html tag to save state of observer (to set it only once)
+            const resizerobserver = document.getElementsByTagName("resizerobserver")[0];
+            if (! resizerobserver) {
+                const resizerobserver = document.createElement('resizerobserver');
+                document.head.appendChild(resizerobserver);
+
+                function callback(mutationList, obs) {                
+                    mutationList.every(mutation => {                        
+                        console.log("go");
+                        doResize();                                        
+                        return false; // exit loop after first mutation
+                    });
+                }                      
+                const observer = new MutationObserver(callback);
+                const config = { childList: true, subtree: true, attributes: true, characterData: true };
+                const contentDiv = document.querySelectorAll('[id $="--autoUIGenMainLayout"]')[0]; // section element with actual pane content                                      
+                if (contentDiv) {
+                    observer.observe(contentDiv, config);
+                    console.log("observer set")
+                }
+                else {
+                    // settings pane wasn't loaded yet, retry on next refresh (of Messages box) by removing status HTML element again
+                    document.head.removeChild(resizerobserver);
+                    console.log("observer not yet set")
+                }                            
+            }            
+
 
             //functions
 
