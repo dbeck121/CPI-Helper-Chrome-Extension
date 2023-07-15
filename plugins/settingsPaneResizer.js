@@ -147,7 +147,7 @@ var plugin = {
                 obs.disconnect();          
                 mutationList.every(mutation => {                        
                     doResize();
-                    console.log("go")                     
+                    //console.log("go")                     
                     return false; // exit callback after first mutation
                 });
                 addPaneObserver();    
