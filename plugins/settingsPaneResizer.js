@@ -152,7 +152,6 @@ var plugin = {
                 function callback(mutationList, obs) {                
                     mutationList.every(mutation => {                        
                         doResize(); 
-                        console.log("go");                                       
                         return false; // exit loop after first mutation
                     });
                 }                      
