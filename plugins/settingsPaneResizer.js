@@ -114,7 +114,11 @@ var plugin = {
                             s.getContentAreas()[0].setLayoutData(new sap.ui.layout.SplitterLayoutData({ size: "${(100-newHeightInPct) + "%"}" }));
                             s.getContentAreas()[1].setLayoutData(new sap.ui.layout.SplitterLayoutData({ size: "${newHeightInPct + "%"}" }));
                             //s.invalidate();             
-                        }            
+                        }
+
+                        // remove resizer observer dummy tag (to recreate observer after ajax page change which would not remove this tag but the observer)
+                        const resizerobserver = document.getElementsByTagName("resizerobserver")[0];
+                        if (resizerobserver) { document.head.removeChild(resizerobserver);}
                     }
 
                     // add trigger of resizer when page content changes (to also catch page updates via 'ajax' instead of just full page reloads)                   
@@ -147,7 +151,8 @@ var plugin = {
 
                 function callback(mutationList, obs) {                
                     mutationList.every(mutation => {                        
-                        doResize();                                        
+                        doResize(); 
+                        console.log("go");                                       
                         return false; // exit loop after first mutation
                     });
                 }                      
