@@ -196,12 +196,10 @@ async function renderMessageSidebar() {
 				  statusColor = "#C70039";
 				  statusIcon = "";
 				}
-
-				if (resp[i].Status == "ESCALATED") {
+				if (resp[i].Status.match(/^(ESCALATED|RETRY|CANCELLED)$/)) {
 				  statusColor = "#ff8300";
 				  statusIcon = "";
 				}
-
 
 				//listItem.style["color"] = statusColor;
 
