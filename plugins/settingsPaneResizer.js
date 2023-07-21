@@ -156,7 +156,7 @@ var plugin = {
                 const observer = new MutationObserver(callback);
                 const config = { childList: true, subtree: true, attributes: true, characterData: true };
                 const contentDiv = document.querySelectorAll('[id $="--autoUIGenMainLayout"]')[0]; // section element with actual pane content                                      
-                observer.observe(contentDiv, config);
+                if (contentDiv) { observer.observe(contentDiv, config); }
             }
 
             function stylePauseButton(button, pause) {
