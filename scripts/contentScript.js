@@ -31,7 +31,8 @@ function openTrace(MessageGuid) {
   makeCall("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$format=json", false, "", (xhr) => {
     if (xhr.readyState == 4) {
       var resp = JSON.parse(xhr.responseText);
-      var runId = resp.d.results[0].Id;
+      if (resp.d.results.length > 1) { var runId = resp.d.results[1].Id; } 
+      else { var runId = resp.d.results[0].Id; }
 
       let url = '/' + cpiData.urlExtension + 'shell/monitoring/MessageProcessingRun/%7B"parentContext":%7B"MessageMonitor":%7B"artifactKey":"__ALL__MESSAGE_PROVIDER","artifactName":"All%20Artifacts"%7D%7D,"messageProcessingLog":"' + MessageGuid + '","RunId":"' + runId + '"%7D';
       window.open(url, '_blank');
@@ -120,181 +121,185 @@ async function renderMessageSidebar() {
 
       let thisMessageHash = "";
       if (resp && resp.length != 0) {
-
         //stores information for this run to be used with plugin engine
         var runInfoElement = {}
         thisMessageHash = resp[0].MessageGuid + resp[0].LogStart + resp[0].LogEnd + resp[0].Status;
 
-        if (thisMessageHash != cpiData.messageSidebar.lastMessageHashList[0]) {
+		try {
+			
+			if (thisMessageHash != cpiData.messageSidebar.lastMessageHashList[0]) {
 
-          let thisMessageHashList = [];
+			  let thisMessageHashList = [];
 
-          let messageList = document.getElementById('messageList');
-          messageList.innerHTML = "";
-          var lastDay;
+			  let messageList = document.getElementById('messageList');
+			  messageList.innerHTML = "";
+			  var lastDay;
 
-          for (var i = 0; i < resp.length; i++) {
-            thisMessageHashList.push(resp[i].MessageGuid + resp[i].LogStart + resp[i].LogEnd + resp[i].Status);
-            runInfoElement[thisMessageHash] = {}
-            runInfoElement[thisMessageHash].messageHash = resp[i].MessageGuid + resp[i].LogStart + resp[i].LogEnd + resp[i].Status;
-            runInfoElement[thisMessageHash].messageGuid = resp[i].MessageGuid;
-            runInfoElement[thisMessageHash].logStart = new Date(parseInt(resp[i].LogStart.match(/\d+/)[0]))
-            runInfoElement[thisMessageHash].logEnd = new Date(parseInt(resp[i].LogEnd.match(/\d+/)[0]))
-            runInfoElement[thisMessageHash].status = resp[i].Status;
-            runInfoElement[thisMessageHash].message = resp[i].LogLevel;
+			  for (var i = 0; i < resp.length; i++) {
+				//var logStart = resp[i].LogStart == null ? "-" : resp[i].LogStart;
+				thisMessageHashList.push(resp[i].MessageGuid + resp[i].LogStart + resp[i].LogEnd + resp[i].Status);
+				runInfoElement[thisMessageHash] = {}
+				runInfoElement[thisMessageHash].messageHash = resp[i].MessageGuid + resp[i].LogStart + resp[i].LogEnd + resp[i].Status;
+				runInfoElement[thisMessageHash].messageGuid = resp[i].MessageGuid;
+				runInfoElement[thisMessageHash].logStart = new Date(parseInt(resp[i].LogStart.match(/\d+/)[0]))
+				runInfoElement[thisMessageHash].logEnd = new Date(parseInt(resp[i].LogEnd.match(/\d+/)[0]))
+				runInfoElement[thisMessageHash].status = resp[i].Status;
+				runInfoElement[thisMessageHash].message = resp[i].LogLevel;
 
-            //write date if necessary
-            let date = new Date(parseInt(resp[i].LogEnd.match(/\d+/)[0]));
-
-
-            //add offset to utc time. The offset is not correct anymore but isostring can be used to show local time
-            date.setTime(date.getTime() - date.getTimezoneOffset() * 60 * 1000);
-            runInfoElement[thisMessageHash].timeZoneOffset = date.getTimezoneOffset()
-            date = date.toISOString();
+				//write date if necessary
+				let date = new Date(parseInt(resp[i].LogEnd.match(/\d+/)[0]));
 
 
-            if (date.substr(0, 10) != lastDay) {
-              messageList.appendChild(createRow([date.substr(0, 10)]));
-              lastDay = date.substr(0, 10);
-            }
-
-            //flash animation for new elements
-            let flash = "";
-            if (cpiData.messageSidebar.lastMessageHashList.length != 0 && !cpiData.messageSidebar.lastMessageHashList.includes(thisMessageHashList[i])) {
-              flash = " flash";
-            }
-            let loglevel = resp[i].LogLevel.toLowerCase();
-            // logLevel[0] = logLevel[0].toUpperCase();
-            runInfoElement[thisMessageHash].logLevel = loglevel;
+				//add offset to utc time. The offset is not correct anymore but isostring can be used to show local time
+				date.setTime(date.getTime() - date.getTimezoneOffset() * 60 * 1000);
+				runInfoElement[thisMessageHash].timeZoneOffset = date.getTimezoneOffset()
+				date = date.toISOString();
 
 
+				if (date.substr(0, 10) != lastDay) {
+				  messageList.appendChild(createRow([date.substr(0, 10)]));
+				  lastDay = date.substr(0, 10);
+				}
 
-            let traceButton = createElementFromHTML("<button title='jump to trace page' id='trace--" + i + "' class='" + resp[i].MessageGuid + flash + "'>" + loglevel.substr(0, 1).toUpperCase() + "</button>");
-
-            if (loglevel.toLowerCase() === "trace") {
-
-              var quickInlineTraceButton = createElementFromHTML("<button title='activate inline trace for debugging' class='" + resp[i].MessageGuid + flash + " cpiHelper_inlineInfo-button' style='cursor: pointer;'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
-            } else {
-              var quickInlineTraceButton = createElementFromHTML("<span />")
-            }
-
-            let infoButton = createElementFromHTML("<button title='show logs in new tab' id='info--" + i + "' class='" + (cpiData.urlExtension ? resp[i].AlternateWebLink.replace("443/shell", "443/" + cpiData.urlExtension + "shell") : resp[i].AlternateWebLink) + flash + "'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
-            let logButton = createElementFromHTML("<button title='show log viewer on this page' id='logs--" + i + "' class='" + resp[i].MessageGuid + flash + "'><span data-sap-ui-icon-content=\"\" class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
-
-            //let listItem = document.createElement("div");
-            //listItem.classList.add("cpiHelper_messageListItem")
-            let statusColor = "#008000";
-            let statusIcon = "";
-            if (resp[i].Status == "PROCESSING") {
-              statusColor = "#FFC300";
-              statusIcon = "";
-            }
-            if (resp[i].Status == "FAILED") {
-              statusColor = "#C70039";
-              statusIcon = "";
-            }
-
-            if (resp[i].Status == "ESCALATED") {
-              statusColor = "#ff8300";
-              statusIcon = "";
-            }
-
-
-            //listItem.style["color"] = statusColor;
-
-            let timeButton = createElementFromHTML("<button class='" + resp[i].MessageGuid + flash + " cpiHelper_inlineInfo-button' style='cursor: pointer;'>" + date.substr(11, 8) + "</button>");
-
-            activeInlineItem == quickInlineTraceButton.classList[0] && quickInlineTraceButton.classList.add("cpiHelper_inlineInfo-active");
-
-
-            let statusicon = createElementFromHTML("<button class='" + resp[i].MessageGuid + " cpiHelper_sidebar_iconbutton'><span data-sap-ui-icon-content='" + statusIcon + "' class='" + resp[i].MessageGuid + " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" + statusColor + ";'> </span></button>");
-
-            statusicon.onmouseover = (e) => {
-
-              errorPopupOpen(e.currentTarget.classList[0]);
-              errorPopupSetTimeout(null);
-            };
-            statusicon.onmouseout = (e) => {
-              errorPopupSetTimeout(2000);
-            };
-
-            quickInlineTraceButton.onmouseup = async (e) => {
-              var mytarget = e.currentTarget
-              if (activeInlineItem == e.currentTarget.classList[0]) {
-
-                hideInlineTrace();
-                showToast("Inline-Debugging Deactivated");
-
-
-              } else {
-                hideInlineTrace();
-                var inlineTrace = await showInlineTrace(e.currentTarget.classList[0]);
-                if (inlineTrace) {
-                  statistic("messagebar_btn_inlinetrace_click")
-                  showToast("Inline-Debugging Activated");
-                  mytarget.classList.add("cpiHelper_inlineInfo-active");
-                  activeInlineItem = mytarget.classList[0];
-                } else {
-                  activeInlineItem = null;
-                  showToast("Inline debugging not possible", "No data found.", "warning");
-                }
-              }
-            };
-
-            var pluginButtons = await createPluginButtonsInMessageSidebar(runInfoElement[thisMessageHash], i, flash);
-
-            messageList.appendChild(createRow([statusicon, timeButton, logButton, infoButton, traceButton, quickInlineTraceButton, ...pluginButtons]));
-
-            infoButton.addEventListener("click", (a) => {
-              statistic("messagebar_btn_info_click")
-              let url = a.currentTarget.classList[0]
-              if(url.match(/.*\.integrationsuite(-trial){0,1}\..*/)) {
-                  url = url.replace("/itspaces","")
-              }
-              openInfo(url);
-            });
-
-            logButton.addEventListener("click", async (a) => {
-
-              statistic("messagebar_btn_logs_click")
-              await showBigPopup(await createContentNodeForLogs(a.currentTarget.classList[0], false), "Logs");
-
-            });
-
-
-            traceButton.addEventListener("click", (a) => {
-
-              statistic("messagebar_btn_trace_click")
-              openTrace(a.currentTarget.classList[0]);
-
-            });
-
-
-            cpiData.messageSidebar.lastMessageHashList = thisMessageHashList;
-          }
-
-          /*       var moreButton = document.getElementById('showmore');
-       
-                 moreButton.onclick = (a) => {
-                   if (numberEntries == 10) {
-                     numberEntries = 20
-                     cpiData.messageSidebar.lastMessageHashList = []
-                     a.currentTarget.innerText = "show less"
-       
-                   } else {
-       
-                     cpiData.messageSidebar.lastMessageHashList = []
-                     numberEntries = 10;
-                     a.currentTarget.innerText = "show more"
-                   }
-                 }
-       
-                 */
+				//flash animation for new elements
+				let flash = "";
+				if (cpiData.messageSidebar.lastMessageHashList.length != 0 && !cpiData.messageSidebar.lastMessageHashList.includes(thisMessageHashList[i])) {
+				  flash = " flash";
+				}
+				let loglevel = resp[i].LogLevel.toLowerCase();
+				// logLevel[0] = logLevel[0].toUpperCase();
+				runInfoElement[thisMessageHash].logLevel = loglevel;
 
 
 
+				let traceButton = createElementFromHTML("<button title='jump to trace page' id='trace--" + i + "' class='" + resp[i].MessageGuid + flash + "'>" + loglevel.substr(0, 1).toUpperCase() + "</button>");
 
-        }
+				if (loglevel.toLowerCase() === "trace") {
+
+				  var quickInlineTraceButton = createElementFromHTML("<button title='activate inline trace for debugging' class='" + resp[i].MessageGuid + flash + " cpiHelper_inlineInfo-button' style='cursor: pointer;'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
+				} else {
+				  var quickInlineTraceButton = createElementFromHTML("<span />")
+				}
+
+				let infoButton = createElementFromHTML("<button title='show logs in new tab' id='info--" + i + "' class='" + (cpiData.urlExtension ? resp[i].AlternateWebLink.replace("443/shell", "443/" + cpiData.urlExtension + "shell") : resp[i].AlternateWebLink) + flash + "'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
+				let logButton = createElementFromHTML("<button title='show log viewer on this page' id='logs--" + i + "' class='" + resp[i].MessageGuid + flash + "'><span data-sap-ui-icon-content=\"\" class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
+
+				//let listItem = document.createElement("div");
+				//listItem.classList.add("cpiHelper_messageListItem")
+				let statusColor = "#008000";
+				let statusIcon = "";
+				if (resp[i].Status == "PROCESSING") {
+				  statusColor = "#FFC300";
+				  statusIcon = "";
+				}
+				if (resp[i].Status == "FAILED") {
+				  statusColor = "#C70039";
+				  statusIcon = "";
+				}
+				if (resp[i].Status.match(/^(ESCALATED|RETRY|CANCELLED)$/)) {
+				  statusColor = "#ff8300";
+				  statusIcon = "";
+				}
+
+				//listItem.style["color"] = statusColor;
+
+				let timeButton = createElementFromHTML("<button class='" + resp[i].MessageGuid + flash + " cpiHelper_inlineInfo-button' style='cursor: pointer;'>" + date.substr(11, 8) + "</button>");
+
+				activeInlineItem == quickInlineTraceButton.classList[0] && quickInlineTraceButton.classList.add("cpiHelper_inlineInfo-active");
+
+
+				let statusicon = createElementFromHTML("<button class='" + resp[i].MessageGuid + " cpiHelper_sidebar_iconbutton'><span data-sap-ui-icon-content='" + statusIcon + "' class='" + resp[i].MessageGuid + " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" + statusColor + ";'> </span></button>");
+
+				statusicon.onmouseover = (e) => {
+
+				  errorPopupOpen(e.currentTarget.classList[0]);
+				  errorPopupSetTimeout(null);
+				};
+				statusicon.onmouseout = (e) => {
+				  errorPopupSetTimeout(2000);
+				};
+
+				quickInlineTraceButton.onmouseup = async (e) => {
+				  var mytarget = e.currentTarget
+				  if (activeInlineItem == e.currentTarget.classList[0]) {
+
+					hideInlineTrace();
+					showToast("Inline-Debugging Deactivated");
+
+
+				  } else {
+					hideInlineTrace();
+					var inlineTrace = await showInlineTrace(e.currentTarget.classList[0]);
+					if (inlineTrace) {
+					  statistic("messagebar_btn_inlinetrace_click")
+					  showToast("Inline-Debugging Activated");
+					  mytarget.classList.add("cpiHelper_inlineInfo-active");
+					  activeInlineItem = mytarget.classList[0];
+					} else {
+					  activeInlineItem = null;
+					  showToast("Inline debugging not possible", "No data found.", "warning");
+					}
+				  }
+				};
+
+				var pluginButtons = await createPluginButtonsInMessageSidebar(runInfoElement[thisMessageHash], i, flash);
+
+				messageList.appendChild(createRow([statusicon, timeButton, logButton, infoButton, traceButton, quickInlineTraceButton, ...pluginButtons]));
+
+				infoButton.addEventListener("click", (a) => {
+				  statistic("messagebar_btn_info_click")
+				  let url = a.currentTarget.classList[0]
+				  if(url.match(/.*\.integrationsuite(-trial){0,1}\..*/)) {
+					  url = url.replace("/itspaces","")
+				  }
+				  openInfo(url);
+				});
+
+				logButton.addEventListener("click", async (a) => {
+
+				  statistic("messagebar_btn_logs_click")
+				  await showBigPopup(await createContentNodeForLogs(a.currentTarget.classList[0], false), "Logs");
+
+				});
+
+
+				traceButton.addEventListener("click", (a) => {
+
+				  statistic("messagebar_btn_trace_click")
+				  openTrace(a.currentTarget.classList[0]);
+
+				});
+
+
+				cpiData.messageSidebar.lastMessageHashList = thisMessageHashList;
+			  }
+
+			  /*       var moreButton = document.getElementById('showmore');
+		   
+					 moreButton.onclick = (a) => {
+					   if (numberEntries == 10) {
+						 numberEntries = 20
+						 cpiData.messageSidebar.lastMessageHashList = []
+						 a.currentTarget.innerText = "show less"
+		   
+					   } else {
+		   
+						 cpiData.messageSidebar.lastMessageHashList = []
+						 numberEntries = 10;
+						 a.currentTarget.innerText = "show more"
+					   }
+					 }
+		   
+					 */
+
+
+
+
+			}
+		}
+		catch (e) {
+			console.log("There was an error when processing the log entries. Process aborted. " + e)
+		}
       }
       await messageSidebarPluginContent();
       //new update in 3 seconds
@@ -1465,7 +1470,8 @@ function createErrorMessageElement(message) {
 async function getMessageProcessingLogRuns(MessageGuid, store = true) {
   return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store).then((responseText) => {
     var resp = JSON.parse(responseText);
-    return resp.d.results[0].Id;
+    if (resp.d.results.length > 1) { return resp.d.results[1].Id; } 
+      else { return resp.d.results[0].Id; }
   }).then((runId) => {
     return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json&$top=300", store);
   }).then((response) => {
