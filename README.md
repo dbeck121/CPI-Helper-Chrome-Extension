@@ -44,7 +44,14 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
-### 3.5.0
+
+### 3.6.0
+
+- [Feature] Added TPM/IA Links to "Tenant URLs"
+- [Improvement] "Lazy Mode" activated for Extension window (no need to click)
+- [Bugfix] Bugfix for Settings Pane Resizer Plugin
+
+### 3.5.3
 
 - [Improvement] "WHINT Interface Documentation" Plugin updated
 - [Improvement] "Settings Pane Resizer" Plugin updated

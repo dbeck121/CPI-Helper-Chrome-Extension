@@ -131,10 +131,11 @@ function addTenantUrls() {
                 <h3> Tenant URLs</h3 >
                     <ul>
                         <li><a href="${host + '/shell/monitoring/Messages/'}" target="_blank">Processed Messages</a></li>
-                        <li><a href="${host + '/shell/monitoring/Messages/%7B%22status%22%3A%22FAILED%22%2C%22time%22%3A%22PASTHOUR%22%2C%22type%22%3A%22INTEGRATION_FLOW%22%7D'}" target="_blank">Failed Messages</a></li>
+                        <li><a href="${host + '/shell/monitoring/Messages/%7B%22status%22%3A%22FAILED%22%2C%22time%22%3A%22PASTHOUR%22%2C%22type%22%3A%22INTEGRATION_FLOW%22%7D'}" target="_blank">Failed Messages</a></li>                        
                         <li><a href="${host + '/shell/monitoring/Artifacts/'}" target="_blank">Artifacts</a></li>
-                        <li><a href="${host + '/shell/design'}" target="_blank">Design</a></li>
-                        <li><a href="${host + '/shell/monitoring/Overview'}" target="_blank">Monitoring</a>
+                        <li><a href="${host + '/shell/design'}" target="_blank">Design</a></li>  
+                        <br>                      
+                        <li><a href="${host + '/shell/monitoring/Overview'}" target="_blank">Monitoring &gt;</a>
                             <ul><li><a href="${host + '/shell/monitoring/SecurityMaterials'}" target="_blank">Security Material</a></li></ul>
                             <ul><li><a href="${host + '/shell/monitoring/Keystore'}" target="_blank">Keystore</a></li></ul>
                             <ul><li><a href="${host + '/shell/monitoring/CertificateUserMappings'}" target="_blank">Certificate-to-User Mappings</a></li></ul>
@@ -149,6 +150,18 @@ function addTenantUrls() {
                             <ul><li><a href="${host + '/shell/monitoring/SystemLogs'}" target="_blank">System Logs</a></li></ul>
                             <ul><li><a href="${host + '/shell/monitoring/Locks'}" target="_blank">Message Locks</a></li></ul>
                             <ul><li><a href="${host + '/shell/monitoring/DesigntimeLocks'}" target="_blank">Designtime Artifact Locks</a></li></ul>
+                        </li>
+                        <li><a href="${host + '/shell/tpm/companyProfile'}" target="_blank">Integration Advisor &gt;</a>                            
+                            <ul><li><a href="${host + '/shell/migs'}" target="_blank">MIGs (Message Implementation Guidelines)</a></li></ul>
+                            <ul><li><a href="${host + '/shell/mags'}" target="_blank">MAGs (Mapping Guidelines)</a></li></ul>
+                            <ul><li><a href="${host + '/shell/customtypesystems'}" target="_blank">Custom Type Systems</a></li></ul>
+                        </li>
+                        <li><a href="${host + '/shell/tpm/companyProfile'}" target="_blank">Trading Partner Management &gt;</a>
+                            <ul><li><a href="${host + '/shell/b2bmonitor/landing'}" target="_blank">B2B Monitor</a></li></ul>
+                            <ul><li><a href="${host + '/shell/tpm/agreements'}" target="_blank">Agreements</a></li></ul>
+                            <ul><li><a href="${host + '/shell/tpm/tradingPartners'}" target="_blank">Trading Partners</a></li></ul>
+                            <ul><li><a href="${host + '/shell/tpm/agreementTemplates'}" target="_blank">Agreement Templates</a></li></ul>
+                            <ul><li><a href="${host + '/shell/tpm/pdContent'}" target="_blank">Partner Directory Data</a></li></ul>
                         </li>
                     </ul> `;
 
@@ -311,6 +324,10 @@ async function main() {
 
 main().catch(e => console.error(e))
 
-$('.menu .item')
-    .tab()
-    ;
+// Activate tab on hover
+$('.item').on('mouseenter', function() {            
+    $(this).tab('change tab', $(this).attr('id'));
+});
+
+// Initialize tabs
+$('.menu .item').tab();
