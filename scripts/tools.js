@@ -1,5 +1,6 @@
 function callChromeStoragePromise(key) {
   return new Promise(async function (resolve, reject) {
+    log.debug("callChromeStoragePromise: ", key)
     var input = key ? [key] : null;
     chrome.storage.sync.get(input, function (storage) {
       if (!key) {
@@ -12,6 +13,7 @@ function callChromeStoragePromise(key) {
 
 function syncChromeStoragePromise(keyName, value) {
   return new Promise(async function (resolve, reject) {
+    log.debug("syncChromeStoragePromise: ", keyName, value)
     myobj = {};
     myobj[keyName] = value;
     chrome.storage.sync.set(myobj, function () {
@@ -78,6 +80,7 @@ async function getCsrfToken(showInfo = false) {
 var callCache = new Map();
 function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo = true) {
   return new Promise(async function (resolve, reject) {
+    log.debug("makeCallPromise: ", method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo)
     var cache;
     if (useCache) {
       cache = callCache.get(method + url);
@@ -100,7 +103,10 @@ function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, c
       }
 
       if (includeXcsrf) {
-        xhr.setRequestHeader("X-CSRF-Token", await getCsrfToken(true));
+        var xcsrf = await getCsrfToken(true);
+        log.debug("includeXcsrf: ", xcsrf)
+
+        xhr.setRequestHeader("X-CSRF-Token", xcsrf);
       }
 
       xhr.onload = function () {
@@ -109,10 +115,17 @@ function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, c
             callCache.set(method + url, xhr.responseText);
           }
           showInfo ? workingIndicator(false) : {};
+
+          log.debug("makeCallPromise response status: ", xhr.status)
+       
           resolve(xhr.responseText);
         } else {
           showInfo ? workingIndicator(false) : {};
           showInfo ? showToast("CPI-Helper has run into a problem while loading data.", "", "error") : {};
+
+          log.log("makeCallPromise response status: ", xhr.status)
+
+          log.log("makeCallPromise response text: ", xhr.responseText)
 
           reject({
             status: this.status,
@@ -144,7 +157,7 @@ function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, c
 
 //function to make http calls
 async function makeCall(type, url, includeXcsrf, payload, callback, contentType, showInfo = true) {
-  //console.log("make call")
+  //log.log("make call")
   var xhr = new XMLHttpRequest();
   xhr.withCredentials = true;
   xhr.open(type, absolutePath(url), true);
@@ -419,7 +432,7 @@ async function statistic(event, value = null, value2 = null) {
     var img = document.createElement("img");
     img.src = `....?version=${chrome.runtime.getManifest().version}&event=${event}&session=${sessionId}&value=${value}&value2=${value2}&installtype=${installtype}&nonse=${Date.now()}`;
   } catch (e) {
-    console.log(e)
+    log.log(e)
   }
 
   */

@@ -21,8 +21,11 @@ cpiArtifactURIRegexp = [
   [/\/valuemappings\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Value Mapping"],
   [/\/scriptcollections\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Script Collection"],
   [/\/messagemappings\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Message Mapping"],
-  [/\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)$/, "Package"],
+  [/\/resources\/script\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Script"],
+  [/\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)\/?(\?.*)?$/, "Package"]
 ];
+
+cpiCollectionURIRegexp = /\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)/
 
 //opens a new window with the Trace for a MessageGuid
 function openTrace(MessageGuid) {
@@ -111,7 +114,7 @@ async function renderMessageSidebar() {
         resp = JSON.parse(xhr.responseText);
         resp = resp.d.results;
       } catch (e) {
-        console.log("There was a faulty message from CI-API. CPI Helper will ignore it: " + e)
+        log.log("There was a faulty message from CI-API. CPI Helper will ignore it: " + e)
       }
       //    document.getElementById('iflowName').innerText = cpiData.integrationFlowId;
 
@@ -298,7 +301,7 @@ async function renderMessageSidebar() {
 			}
 		}
 		catch (e) {
-			console.log("There was an error when processing the log entries. Process aborted. " + e)
+			log.log("There was an error when processing the log entries. Process aborted. " + e)
 		}
       }
       await messageSidebarPluginContent();
@@ -503,7 +506,7 @@ async function clickTrace(e) {
 
 
     } catch (error) {
-      console.log("error catching trace");
+      log.log("error catching trace");
 
     }
 
@@ -664,8 +667,8 @@ async function showInlineTrace(MessageGuid) {
         }
 
       } catch (e) {
-        console.log("no element found for " + run.StepId);
-        console.log(run);
+        log.log("no element found for " + run.StepId);
+        log.log(run);
       }
 
       return resolve(true);
@@ -698,13 +701,16 @@ function getChild(node, childNames, childClass = null) {
 function setLogLevel(logLevel, iflowId) {
 
 
-
   makeCall("POST", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentSetMplLogLevelCommand", true, '{"artifactSymbolicName":"' + iflowId + '","mplLogLevel":"' + logLevel.toUpperCase() + '","nodeType":"IFLMAP"}', (xhr) => {
     if (xhr.readyState == 4 && xhr.status == 200) {
       showToast("Trace is activated");
+      log.log(xhr.responseText);
+      log.log("trace activated");
     }
     else {
       showToast("Error activating Trace", "", "error");
+      log.log(xhr.responseText);
+      log.log("error activating trace");
     }
   }, 'application/json;charset=UTF-8');
 }
@@ -1231,9 +1237,9 @@ async function openIflowInfoPopup() {
 function copyText(input) {
   navigator.clipboard.writeText(input).then(function () {
     showToast("Copied to clipboard")
-    console.log('Async: Copying to clipboard was successful!');
+    log.log('Async: Copying to clipboard was successful!');
   }, function (err) {
-    console.error('Async: Could not copy text: ', err);
+    log.error('Async: Could not copy text: ', err);
   })
 }
 
@@ -1410,7 +1416,7 @@ async function errorPopupOpen(MessageGuid) {
       }
     )
   } catch (err) {
-    console.log(err + "no custom headers available")
+    log.log(err + "no custom headers available")
   }
 
 
@@ -1477,7 +1483,7 @@ async function getMessageProcessingLogRuns(MessageGuid, store = true) {
   }).then((response) => {
     return JSON.parse(response).d.results;
   }).catch((e) => {
-    console.log(e);
+    log.log(e);
     return null;
   });
 }
@@ -1501,9 +1507,10 @@ function errorPopupClose() {
 }
 
 //function to get the iFlow name from the URL
-function getIflowName() {
+function newArtifactDetected() {
   var url = window.location.href;
   var result;
+  var artifactType
 
   //try {
     let groups = "";
@@ -1512,40 +1519,86 @@ function getIflowName() {
       if (dataRegexp[0].test(url) === true) {
         groups = url.match(dataRegexp[0]).groups;
         result = groups.artifactId;
+        artifactType = dataRegexp[1];
       }
     }
 
     if (result != undefined) {
-      console.log("Found artifact: " + result);
-      cpiData.integrationFlowId = result;
+      log.log("Found "+artifactType+": " + result);
+      cpiData.integrationFlowId = result;  //set integration flow id for legacy reasons
+      cpiData.artifactId = result;
+      cpiData.artifactType = artifactType;
+
+      if(artifactType == "IFlow"){
+        cpiData.lastVisitedIflowId = result;
+      }
+
     }
     else {
       cpiData.integrationFlowId = null;
-      console.log("no integration flow found");
+      cpiData.artifactId = null;
+      cpiData.artifactType = null;
+  
+      log.log("no artifact found");
     }
   
   return result;
 }
 
+function getPackageId() {
+  var url = window.location.href;
+  var result;
+
+    //try {
+      let groups = "";
+
+  
+        if (cpiCollectionURIRegexp.test(url) === true) {
+          groups = url.match(cpiCollectionURIRegexp).groups;
+          result = groups.artifactId;
+        }
+      
+  
+      if (result != undefined) {
+        log.log("Found Package: " + result);
+        cpiData.currentPackageId = result;
+        cpiData.lastVisitedPackageId = result;
+      }
+      else {
+        cpiData.currentPackageId = null;
+        log.log("no package found");
+      }
+    
+    return result;
+  }
+
 //we have to check for url changes to deactivate sidebar and to inject buttons, when on iflow site.
 var oldURL = "";
-function checkURLchange() {
+async function checkURLchange() {
   var currentURL = window.location.href;
   var urlChanged = false;
   if (currentURL != oldURL) {
     urlChanged = true;
-    console.log("url changed! to " + currentURL);
+    log.log("url changed! to " + currentURL);
     oldURL = currentURL;
-    handleUrlChange();
+    await handleUrlChange();
   }
   oldURL = window.location.href;
   return urlChanged;
 }
 
 //this function is fired when the url changes
-function handleUrlChange() {
-  storeVisitedIflowsForPopup();
-  if (getIflowName()) {
+async function handleUrlChange() {
+
+  //check if we are on an iflow page
+  await storeVisitedIflowsForPopup();
+
+  getPackageId();
+
+
+  if (newArtifactDetected()) {
+
+    if(cpiData.artifactType == "IFlow"){
     //if iflow found, inject buttons   
     setDocumentTitle(hostData.title)
 
@@ -1562,6 +1615,65 @@ function handleUrlChange() {
       sidebar.deactivate();
     }
   }
+
+  var scriptCount = 0
+  if(cpiData.artifactType == "Script"){
+    //iterate plugins and create buttons
+    var buttonsForPlugins = await createPluginScriptButtons();
+    if(buttonsForPlugins.length > 0) {
+      //wait until id is available and then append buttons. Try again and wait if not available
+      var interval = setInterval(() => {
+        var pluginArea = document.querySelector('span[id$="--scriptPageContainerHeader-identifierLineContainer"]')
+        if(pluginArea && scriptCount > 10 || cpiData.artifactType != "Script") {
+          clearInterval(interval);
+          scriptCount = 0;
+          return
+        }
+        buttons = document.getElementsByClassName("cpiHelper_pluginButton_script");
+        if(pluginArea && buttons.length == 0) {
+          scriptCount++;
+          buttonsForPlugins.forEach((element) => {
+            pluginArea.appendChild(element);
+          });
+        } else {
+          scriptCount++;
+        }
+    
+  
+    }, 1000);
+  }
+  }
+
+  var scriptCollectionCount = 0
+  if(cpiData.artifactType == "Script Collection"){
+    var buttonsForPlugins = await createPluginScriptCollectionButtons();
+    if(buttonsForPlugins.length > 0) {
+      //wait until id is available and then append buttons. Try again and wait if not available
+      var interval = setInterval(() => {
+        var pluginArea = document.getElementById("__xmlview0--objectPageHeader-identifierLineContainer");
+    
+        if(pluginArea && scriptCollectionCount > 10 || cpiData.artifactType != "Script Collection") {
+          clearInterval(interval);
+          scriptCollectionCount = 0;
+          return
+        }
+        buttons = document.getElementsByClassName("cpiHelper_pluginButton_scriptCollection");
+        if(pluginArea && buttons.length == 0) {
+          scriptCollectionCount++;
+          buttonsForPlugins.forEach((element) => {
+            pluginArea.appendChild(element);
+          });
+        } else {
+          scriptCollectionCount++;
+        }
+    
+  
+    }, 1000);
+  }
+
+}
+  }
+
 }
 
 //function that handles the dragging 
@@ -1613,7 +1725,7 @@ function dragElement(elmnt) {
 }
 
 //Visited IFlows are stored to show in the popup that appears when pressing the button in browser bar
-function storeVisitedIflowsForPopup() {
+async function storeVisitedIflowsForPopup() {
   var url = window.location.href;
   var tenant = url.split("/")[2].split(".")[0];
   var name = 'visitedIflows_' + tenant;
@@ -1666,13 +1778,15 @@ checkURLchange();
 onInitStatistic();
 
 
-setInterval(function () {
+setInterval(async function () {
     if (document.querySelector('[id^="svgBackgroundPointerPanelLayer-"]') && document.getElementsByClassName("spcHeaderActionButton") ) {
       buildButtonBar();
       addBreadcrumbs();
     }
+
+    log.debug("check for button bar");
   
-  checkURLchange(window.location.href);
+  await checkURLchange(window.location.href);
 }, 3000);
 
 

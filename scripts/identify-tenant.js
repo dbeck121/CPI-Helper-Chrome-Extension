@@ -1,5 +1,5 @@
 {
-  console.log('Initializing tentant identification')
+  log.log('Initializing tentant identification')
   let host = window.location.host // global variable to hold host name
   let documentTitleIntervalId; // used by the interval to set document title
   let observerIntervalId; // used to attach a MutationObserver callback
@@ -94,7 +94,7 @@
       observer.observe(shellContent, { childList: true, subtree: true })
     } else {
       if (!observerIntervalId) {
-        console.log('Starting observer interval')
+        log.log('Starting observer interval')
         setInterval(attachObserver, 1000, [observer]);
       }
     }
@@ -133,14 +133,14 @@
     let intervalCount = 10; // Times to run the interval function
     let intervalDelay = 2000;
     // set title again aftet 2sec
-    console.log('Initiate title update sequence')
+    log.log('Initiate title update sequence')
     documentTitleIntervalId = setInterval(() => {
       intervalCount--;
       setDocumentTitle(title)
       setHeaderColor(color)
       setFavIcon(icon)
       if (intervalCount == 0) {
-        console.log('Ending update sequence')
+        log.log('Ending update sequence')
         clearInterval(documentTitleIntervalId);
       }
     }, intervalDelay)
@@ -151,14 +151,14 @@
 
     if (cpiData.integrationFlowId) {
       text = text.replaceAll("$iflow.name", cpiData.integrationFlowId)
-      //console.log(text)
+      //log.log(text)
     } else {
       text = text.replaceAll("$iflow.name", "")
     }
 
     if (document.title !== text) {
       document.title = text;
-      console.log('Updating document title')
+      log.log('Updating document title')
     }
   }
 
@@ -174,6 +174,7 @@
   }
 
   function setFavIcon(icon) {
+    if(chrome.runtime.id == undefined) return;
     update = false
     // icon will be 'red', 'green', etc
     let link = document.querySelector("link[rel*='icon']") || document.createElement('link');

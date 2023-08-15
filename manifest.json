@@ -34,6 +34,8 @@
         "https://*.platform.sapcloud.cn/itspaces/*"
       ],
       "js": [
+        "/lib/ulog/ulog-full.min.js",
+        "/scripts/logging.js",
         "/lib/prettify/prettify.js",
         "/lib/prettify/prettify-sql.js",
         "/lib/jszip/jszip.min.js",
@@ -50,6 +52,7 @@
         "/plugins/OpenAIServices.js",
         "/plugins/WHINT_IFD.js",
         "/plugins/settingsPaneResizer.js",
+        "/plugins/example.js",
         "/scripts/ui.js",
         "/scripts/tools.js",
         "/scripts/logs.js",

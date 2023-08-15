@@ -44,17 +44,18 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
-
 ### 3.6.0
 
-- [Feature] Added TPM/IA Links to "Tenant URLs"
+- [Feature] Added TPM/IA links to "Tenant URLs"
+- [Feature] Added debug mode
+- [Feature] Added option to add buttons in Skript editor for plugins
 - [Improvement] "Lazy Mode" activated for Extension window (no need to click)
-- [Bugfix] Bugfix for Settings Pane Resizer Plugin
+- [Bugfix] Bugfix for "Settings Pane Resizer" Plugin
 
 ### 3.5.3
 
-- [Improvement] "WHINT Interface Documentation" Plugin updated
-- [Improvement] "Settings Pane Resizer" Plugin updated
+- [Improvement] "WHINT Interface Documentation" plugin updated
+- [Improvement] "Settings Pane Resizer" plugin updated
 - [Bugfix] Many bugfixes
 
 ### 3.4.0

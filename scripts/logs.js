@@ -35,7 +35,7 @@ createLogsLeftSide = async (leftActive = false) => {
     var selectorIflowStatus = document.createElement('select');
     selectorIflowStatus.id = 'cpiHelper_logs_iflow_status';
     selectorIflowStatus.onchange = (element) => {
-        console.log(element.target.value)
+        log.log(element.target.value)
         selectorIflowStatusEntry = element.target.value;
     };
     selectorIflowStatus.innerHTML = `<option ${selectorIflowStatusEntry == "all" ? "selected" : ""} value="all">all</option><option ${toggleCustomOrLastEntries == "FAILED" ? "selected" : ""}>FAILED</option><option ${toggleCustomOrLastEntries == "COMPLETED" ? "selected" : ""}>COMPLETED</option>`;
@@ -46,7 +46,7 @@ createLogsLeftSide = async (leftActive = false) => {
     var selectorCustomTop = document.createElement('select');
     selectorCustomTop.id = 'cpiHelper_logs_date_type';
     selectorCustomTop.onchange = (element) => {
-        console.log(element.target.value)
+        log.log(element.target.value)
         toggleCustomOrLastEntries = element.target.value;
         customSelection = document.getElementById('cpiHelper_logs_custom_selection');
         if (customSelection && element.target.value == "custom") {
@@ -204,9 +204,9 @@ updateLogList = async () => {
 
         listPlace.appendChild(list);
 
-        console.log(response);
+        log.log(response);
     } catch (error) {
-        console.log(error);
+        log.log(error);
         showToast("Error while fetching logs", "Check input data.", "error");
     }
 
@@ -218,7 +218,7 @@ updateArtifactList = async () => {
     var list = document.getElementById('logs-left-side_cpiHelper_artifactList');
     if (list) {
         var response = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.KnownArtifactsListCommand", false)
-        console.log("response");
+        log.log("response");
         responseList = new XmlToJson().parse(response)["com.sap.it.op.tmn.commands.dashboard.webui.KnownArtifactsListResponse"]["knownArtifacts"];
         list.innerHTML = "";
         for (var i = 0; i < responseList.length; i++) {
@@ -318,7 +318,7 @@ createPersistLogsContent = async (messageId) => {
     }
 
     entriesList = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + messageId + "')/MessageStoreEntries?$format=json", false));
-    console.log(entriesList);
+    log.log(entriesList);
 
     var tabs = [];
     active = true;
@@ -421,7 +421,7 @@ createRunLogsContent = async (messageId) => {
 
 
     entriesList = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + messageId + "')/Attachments?$format=json", false));
-    console.log(entriesList);
+    log.log(entriesList);
 
     var tabs = [];
     active = true;

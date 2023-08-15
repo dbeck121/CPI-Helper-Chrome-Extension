@@ -1,5 +1,5 @@
 function workingIndicator(status) {
-  //  console.log(`CPI-Helper show indicator: $status`)
+  //  log.log(`CPI-Helper show indicator: $status`)
   //css for snackbar is already there. see initIflowPage()
 
   //create snackbar div element

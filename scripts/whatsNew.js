@@ -54,6 +54,20 @@ In Figaf, you can now edit and run your Groovy scripts. The integrated approach 
  
   <div class="ui list">
 
+  <a class="item"><i class="right triangle icon"></i>
+  <div class="content">
+    <div class="header">Feature</div>
+    <div class="description">Added debug mode</div>
+  </div>
+  </a>
+
+  <a class="item"><i class="right triangle icon"></i>
+<div class="content">
+  <div class="header">Feature</div>
+  <div class="description">Plugin-Engine: Added option for buttons in script editor"</div>
+</div>
+</a>
+
 <a class="item"><i class="right triangle icon"></i>
 <div class="content">
   <div class="header">Feature</div>
@@ -181,7 +195,7 @@ Follow us on <a href="https://www.linkedin.com/company/kangoolutions" target="_b
     var obj = {};
     obj["whatsNewV" + manifestVersion] = "show";
     chrome.storage.local.set(obj, function () {
-      console.log("whats new displayed and saved");
+      log.log("whats new displayed and saved");
     });
   }
 

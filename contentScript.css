@@ -463,3 +463,11 @@
   overflow-y: scroll;
   max-height: 100%;
 }
+
+.cpiHelper_pluginButton_scriptCollection {
+  float: right;
+}
+
+.cpiHelper_pluginButton_script {
+  float: right;
+}

@@ -44,7 +44,40 @@ var plugin = {
             div.appendChild(button)
             return div;
         }
-    }
+    },
+    scriptCollectionButton: {
+        "text": "Example Button",
+        "title": "Example Title",
+        "onClick": (pluginHelper, settings) => {
+            log.log("clicked");
+            log.log(pluginHelper);
+            log.log(settings);
+            log.log(pluginHelper.artifactId)
+            log.log(pluginHelper.artifactType)
+            log.log(pluginHelper.currentPackageId)
+            log.log(document.getElementById("__xmlview0--ceFileLabel-bdi").textContent)
+        },
+        condition: (pluginHelper, settings) => {
+            //condition can be null or a function that returns true or false
+            return true
+        }
+    },
+    scriptButton: {
+        "text": "E",
+        "title": "Example Title",
+        "onClick": (pluginHelper, settings) => {
+            log.log("clicked");
+            log.log(pluginHelper);
+            log.log(settings);
+            log.log(pluginHelper.artifactId)
+            log.log(pluginHelper.artifactType)
+            log.log(pluginHelper.currentPackageId)
+        },
+        condition: (pluginHelper, settings) => {
+            return true
+        }
+    },
+
 };
 
 pluginList.push(plugin);
