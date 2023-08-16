@@ -49,6 +49,7 @@ It is open source so feel free to check the source code.
 - [Feature] Added TPM/IA links to "Tenant URLs"
 - [Feature] Added debug mode
 - [Feature] Added option to add buttons in Skript editor for plugins
+- [Improvement] Better management and timing of api calls to reduce load to SAP server
 - [Improvement] "Lazy Mode" activated for Extension window (no need to click)
 - [Bugfix] Bugfix for "Settings Pane Resizer" Plugin
 - [Update] JSZip dependency to 3.10.x

@@ -79,7 +79,10 @@ async function getCsrfToken(showInfo = false) {
 }
 
 var callCache = new Map();
-function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo = true) {
+
+
+
+async function makeCallPromiseXHR(method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo = true) {
   return new Promise(async function (resolve, reject) {
     log.debug("makeCallPromise: ", method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo)
     var cache;
@@ -120,7 +123,7 @@ function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, c
           log.debug("makeCallPromise response status: ", xhr.status)
           log.debug("makeCallPromise response text: ", xhr.responseText.substring(0, 100))
        
-          resolve(xhr.responseText);
+          resolve(xhr);
         } else {
           showInfo ? workingIndicator(false) : {};
           showInfo ? showToast("CPI-Helper has run into a problem while loading data.", "", "error") : {};
@@ -129,16 +132,18 @@ function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, c
 
           log.log("makeCallPromise response text: ", xhr.responseText)
 
-          reject({
-            status: this.status,
-            statusText: xhr.statusText
-          });
+          reject(xhr);
         }
       };
+      xhr.timeout = 3000; // Set timeout to 3 seconds
       xhr.ontimeout = function () {
 
         showInfo ? showToast("CPI-Helper has run into a timeout", "Please refresh site and try again.", "error") : {};
         showInfo ? workingIndicator(false) : {};
+        reject({
+          status: 0,
+          statusText: "timeout"
+        });
       }
 
       xhr.onerror = function () {
@@ -154,6 +159,19 @@ function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, c
   }
   );
 
+}
+
+async function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo = true) {
+  var xhr = await makeCallPromiseXHR(method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo = true)
+  
+  if(xhr.status >= 200 && xhr.status < 300) {
+    return xhr.responseText
+  }
+  
+  return {
+    status: this.status,
+    statusText: xhr.statusText,
+  }
 }
 
 

@@ -75,7 +75,7 @@ async function renderMessageSidebar() {
   }
 
 
-  getIflowInfo((data) => {
+  await getIflowInfo((data) => {
     let deploymentText = document.getElementById('deploymentText');
     if (deploymentText) {
 
@@ -105,7 +105,8 @@ async function renderMessageSidebar() {
 
 
   //get the messagelogs for current iflow
-  makeCall("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogEnd desc", false, "", async (xhr) => {
+  var xhr = await makeCallPromiseXHR("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogEnd desc", false, null, null, false, "",false)
+  //makeCall("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogEnd desc", false, "", async (xhr) => {
 
     if (xhr.readyState == 4 && sidebar.active) {
 
@@ -304,13 +305,36 @@ async function renderMessageSidebar() {
 			log.log("There was an error when processing the log entries. Process aborted. " + e)
 		}
       }
-      await messageSidebarPluginContent();
-      //new update in 3 seconds
-      if (sidebar.active) {
-        var getLogsTimer = setTimeout(renderMessageSidebar, 3000);
-      }
+      await messageSidebarPluginContent(); 
     }
-  }, null, false);//
+}
+
+function calculateMessageSidebarTimerTime(lastTabHidden, lastDurationRefresh) {
+  var messageSidebarTimerTime = 1;
+
+  //if tab hidden, set timer to 15 seconds
+  if (lastTabHidden > 9) {
+    log.debug("Tab is hidden, set timer to 21 seconds");
+    return 7;
+  }
+
+  if (lastDurationRefresh > 2000) {
+    log.debug("Last rendering took more than 2000ms, set timer to 18 seconds")
+    messageSidebarTimerTime =  6;
+    return messageSidebarTimerTime;
+  }
+    if (lastDurationRefresh > 1000) {
+    log.debug("Last rendering took more than 1000ms, set timer to 9 seconds")
+    messageSidebarTimerTime = 2;
+    return messageSidebarTimerTime;
+  }
+  if (lastDurationRefresh > 500) {
+    log.debug("Last rendering took more than 500ms, set timer to 6 seconds")
+    messageSidebarTimerTime = 2;
+    return messageSidebarTimerTime;
+  }
+  log.debug("Set timer to " + messageSidebarTimerTime + " counts")
+  return messageSidebarTimerTime;
 }
 
 var inlineTraceRunning = false;
@@ -1777,7 +1801,11 @@ async function storeVisitedIflowsForPopup() {
 checkURLchange();
 onInitStatistic();
 
-
+var nextMessageSidebarRefreshCount = 0
+var lastTabHidden = 0; //counts how long tab is hidden
+var lastDurationRefresh = 0; //time for a refresh of the sidebar mostly because of network in ms
+var refreshActive = false
+//CPI Helper Heartbear
 setInterval(async function () {
     if (document.querySelector('[id^="svgBackgroundPointerPanelLayer-"]') && document.getElementsByClassName("spcHeaderActionButton") ) {
       buildButtonBar();
@@ -1787,6 +1815,39 @@ setInterval(async function () {
     log.debug("check for button bar");
   
   await checkURLchange(window.location.href);
+
+  //new update message sidebar
+  if(!refreshActive) {
+    nextMessageSidebarRefreshCount--;
+  }
+
+  if (!refreshActive && sidebar.active && ((nextMessageSidebarRefreshCount) <= 0 || lastTabHidden > 0 && document.hidden == false)) {
+
+    log.debug("refresh message sidebar");
+    //count time in ms of reload and rendering of sidebar in ms
+    var start = new Date();
+    refreshActive = true;
+    try {
+      await renderMessageSidebar();
+    } catch (err) {
+      log.error(err);
+    }
+    refreshActive = false;
+    var end = new Date();
+    lastDurationRefresh = end - start;
+    log.debug("refresh message sidebar took " + lastDurationRefresh + "ms");
+    nextMessageSidebarRefreshCount = calculateMessageSidebarTimerTime(lastTabHidden, lastDurationRefresh);
+  
+  }
+  if(document.hidden == true) {
+    lastTabHidden++;
+    log.debug("tab is hidden " , lastTabHidden);
+  } else {
+    lastTabHidden = 0;
+  }
+  if(sidebar.active == false) {
+    nextMessageSidebarRefreshCount = 0;
+  }
 }, 3000);
 
 

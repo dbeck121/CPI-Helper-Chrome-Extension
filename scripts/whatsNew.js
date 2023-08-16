@@ -95,6 +95,14 @@ In Figaf, you can now edit and run your Groovy scripts. The integrated approach 
   <div class="description">Updated dependencies</div>
 </div>
 </a>
+
+
+<a class="item"><i class="right triangle icon"></i>
+<div class="content">
+  <div class="header">Improvement</div>
+  <div class="description">Better management and timing of api calls to reduce load to SAP server</div>
+</div>
+</a>
 </div>
 
           
