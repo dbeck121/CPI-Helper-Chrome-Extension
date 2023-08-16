@@ -5,6 +5,7 @@ function callChromeStoragePromise(key) {
     chrome.storage.sync.get(input, function (storage) {
       if (!key) {
         resolve(storage);
+        log.debug("callChromeStoragePromise response: ", storage)
       }
       resolve(storage[key]);
     });
@@ -117,6 +118,7 @@ function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, c
           showInfo ? workingIndicator(false) : {};
 
           log.debug("makeCallPromise response status: ", xhr.status)
+          log.debug("makeCallPromise response text: ", xhr.responseText.substring(0, 100))
        
           resolve(xhr.responseText);
         } else {
@@ -157,7 +159,7 @@ function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, c
 
 //function to make http calls
 async function makeCall(type, url, includeXcsrf, payload, callback, contentType, showInfo = true) {
-  //log.log("make call")
+  log.debug("makeCall", type, url, includeXcsrf, payload, contentType, showInfo)
   var xhr = new XMLHttpRequest();
   xhr.withCredentials = true;
   xhr.open(type, absolutePath(url), true);
@@ -172,7 +174,7 @@ async function makeCall(type, url, includeXcsrf, payload, callback, contentType,
 
   xhr.timeout = 6500; // Set timeout to 6.5 seconds
   xhr.ontimeout = function () {
-
+    log.debug("makeCall timeout")
     showInfo ? showToast("CPI-Helper has run into a timeout", "Please refresh site and try again.", "error") : {};
     showInfo ? workingIndicator(false) : {};
 
@@ -183,6 +185,8 @@ async function makeCall(type, url, includeXcsrf, payload, callback, contentType,
     if (xhr.readyState == 4) {
       callback(xhr);
       showInfo ? workingIndicator(false) : {};
+      log.debug("makeCall response status: ", xhr.status)
+      log.debug("makeCall response text: ", xhr.responseText.substring(0, 100))
     }
   }
 
@@ -426,6 +430,8 @@ function stage() {
 }
 
 async function statistic(event, value = null, value2 = null) {
+
+  log.debug(event, value, value2)
 /*  try {
     var sessionId = await storageGetPromise("sessionId")
     var installtype = await storageGetPromise("installtype")

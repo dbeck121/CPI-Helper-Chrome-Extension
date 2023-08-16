@@ -6,6 +6,16 @@ logsarray = []
 ulog.use({
     outputs: {
       exporter: {
+        warn: function(){
+          var args = [].slice.call(arguments)
+
+          args.shift('Custom!!')
+
+          logsarray.push(args.join(" "))
+
+          console.warn.apply(console, args)
+        
+        },
         log: function(){
           var args = [].slice.call(arguments)
     
@@ -15,6 +25,27 @@ ulog.use({
           
   
           console.log.apply(console, args)
+
+        },
+        error: function(){
+          var args = [].slice.call(arguments)
+    
+          args.shift('Custom!!')
+         
+          logsarray.push(args.join(" "))
+          
+  
+          console.error.apply(console, args)
+        },
+        debug: function(){
+          var args = [].slice.call(arguments)
+    
+          args.shift('Custom!!')
+         
+          logsarray.push(args.join(" "))
+          
+  
+          console.debug.apply(console, args)
         }
       }
     }
@@ -32,7 +63,7 @@ ulog.use({
 
     // if url contains query parameter cpihelper_debug_download_duration=xxx, use custom timeout
     log.log("Checking for timeout in url parameter cpihelper_debug_download_duration that triggers log download")
-    if(window.location.href.indexOf('cpihelper_debug_timeout=') > -1) {
+    if(window.location.href.indexOf('cpihelper_debug_download_duration=') > -1) {
         timeout_string = window.location.href.split('cpihelper_debug_download_duration=')[1].split('&')[0]
         timeout = parseInt(timeout_string)
         // if timeout is not a number, set it to 60 seconds
@@ -42,13 +73,16 @@ ulog.use({
         } 
         log.log("timeout set to " + timeout + " milliseconds")
 
+        log.output = "exporter"
+
 
         setTimeout(function(){
 
         
+          log.log("url:", window.location.href)
           log.log("Downloading logs")
           var blob = new Blob(logsarray.map(entry => entry + "\r\n"), {type: "text/plain;charset=utf-8"});
-          var filename = "cpihelper_logs.txt"
+          var filename = "cpihelper_logs-"+new Date().toISOString()+".txt"
   
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement('a');

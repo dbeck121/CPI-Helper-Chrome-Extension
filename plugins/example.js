@@ -18,10 +18,10 @@ var plugin = {
         "title": "Example Title",
         "icon": "",
         "onClick": (pluginHelper, settings, runInfo) => {
-            console.log("clicked");
-            console.log(pluginHelper);
-            console.log(settings);
-            console.log(runInfo);
+            log.log("clicked");
+            log.log(pluginHelper);
+            log.log(settings);
+            log.log(runInfo);
         },
         "condition": (pluginHelper, settings, runInfo) => {
             //eg runInfo.logLevel === "trace"
@@ -31,9 +31,9 @@ var plugin = {
     messageSidebarContent: {
         "static": true,
         "onRender": (pluginHelper, settings) => {
-            console.log("render");
-            console.log(pluginHelper);
-            console.log(settings);
+            log.log("render");
+            log.log(pluginHelper);
+            log.log(settings);
             var div = document.createElement("div");
             div.innerText = "Example content ";
             var button = document.createElement("button")

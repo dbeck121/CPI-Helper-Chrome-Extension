@@ -86,7 +86,7 @@ var plugin = {
             
             // inject script to expand settings pane - only once at the first load of the page by checking if script element was already added
             if (! document.getElementById("settingsPaneResizerScript")) {
-                console.log(`Loading "Settings Pane Resizer" by Philippe Addor`);
+                log.log(`Loading "Settings Pane Resizer" by Philippe Addor`);
                 
 				// get configured height in pixel for initial resizing via UI5
 				var newHeightInPct;

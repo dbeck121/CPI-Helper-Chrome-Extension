@@ -1,4 +1,5 @@
 # Plugin Engine (early beta)
+
 The CPI-Helper has a basic plugin engine so that developers can create their own plugins. Plugins must be added to the git and shipped to Chrome Store to be available for everyone.
 The cpi helper hacks into the CPI (CI) but has only limited possibilities. There seems to be no way to access the javascript from the CPI itself. The plugin just adds its own javascript and uses some apis from cpi. This means it is probably not possible to develop a plugin that adds custom modules or changes the iflow itself.
 
@@ -12,6 +13,7 @@ In case of questions, please open an issue in github.
 4. If you want to ship it with CPI-Helper, make a pull-request with detailed description.
 
 ## Details
+
 ### Dos and Dont's
 
 1. no calls to external pages except for opening new tabs
@@ -24,6 +26,7 @@ In case of questions, please open an issue in github.
 ### Plugin Implemetation metadata v1.0.0
 
 #### metadata description
+
 ```
 
 //example.js
@@ -32,7 +35,7 @@ var plugin = {
 
     metadataVersion: "1.0.0",                   //specify metadata version here
     id: "exampleid1",                           //the id of the plugin. same as file name and no special characters
-    name: "example 1",                          //A readable name of the plugin 
+    name: "example 1",                          //A readable name of the plugin
     version: "0.0.1",                           //the code version of the plugin
     author: "Kangoolutions",                    //the name (first and last) or company of the author
     website: "https://kangoolutions.com",       //The website and where can we reach the author
@@ -45,7 +48,7 @@ var plugin = {
         "textField3": { "text": "general", "type": "text", scope: "browser" },      //a textfield that is stored for each browser
         "checkbox1": { "text": "xyz", "type": "checkbox", scope: "browser" },      //a checkbox that is stored for each browser
     },
-    
+
     messageSidebarButton: {                    //if you want to add a button to message sidebar, add a "messageSidebarButton" element
         "text": "E",                           //text for the button. please keep it short (will be truncated after 3 letters)
         "title": "Example Title",              //hover title
@@ -73,7 +76,38 @@ var plugin = {
             return div;                                     //html element to return.
         },
         "static": false             //set true to not reload plugin content with every message sidebar refresh
-    }
+    },
+    scriptCollectionButton: {                   //a button that can be used to interact with script collection
+        "text": "Example Button",
+        "title": "Example Title",
+        "onClick": (pluginHelper, settings) => {
+            log.log("clicked");
+            log.log(pluginHelper);
+            log.log(settings);
+            log.log(pluginHelper.artifactId)
+            log.log(pluginHelper.artifactType)
+            log.log(pluginHelper.currentPackageId)
+            log.log(document.getElementById("__xmlview0--ceFileLabel-bdi").textContent)
+        },
+        condition: (pluginHelper, settings) => {
+            //condition can be null or a function that returns true or false
+            return true
+        }
+    },
+    scriptButton: {                             //a button that can be used to interact with scripts
+        "text": "E",
+        "title": "Example Title",
+        "onClick": (pluginHelper, settings) => {
+            log.log("clicked");
+            log.log(pluginHelper);
+            log.log(settings);
+            log.log(pluginHelper.artifactId)
+            log.log(pluginHelper.artifactType)
+            log.log(pluginHelper.currentPackageId)
+        },
+        condition: (pluginHelper, settings) => {
+            return true
+        }
 };
 
 pluginList.push(plugin);

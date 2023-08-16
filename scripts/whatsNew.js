@@ -88,6 +88,13 @@ In Figaf, you can now edit and run your Groovy scripts. The integrated approach 
     <div class="description">Bugfix for Settings Pane Resizer (Plugin)</div>
   </div>
 </a>
+
+<a class="item"><i class="right triangle icon"></i>
+<div class="content">
+  <div class="header">Improvement</div>
+  <div class="description">Updated dependencies</div>
+</div>
+</a>
 </div>
 
           

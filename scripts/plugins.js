@@ -64,7 +64,7 @@ async function createPluginScriptCollectionButtons() {
         var settings = await getPluginSettings(plugin.id);
         if (settings[plugin.id + "---isActive"] === true) {
             if (plugin.scriptCollectionButton && !plugin.scriptCollectionButton.condition || plugin.scriptCollectionButton && plugin.scriptCollectionButton.condition(cpiData, settings)) {
-                var button = createElementFromHTML("<button title='" + plugin.scriptCollectionButton.title + "' id='cpiHelperPlugin--" + plugin.id + "' class='cpiHelper_pluginButton_scriptCollection ui button'>" + plugin?.scriptCollectionButton?.text + "</button>");
+                var button = createElementFromHTML("<button title='" + plugin.scriptCollectionButton.title + "' id='cpiHelperPlugin--" + plugin.id + "' class='cpiHelper_pluginButton_scriptCollection mini ui button'>" + plugin?.scriptCollectionButton?.text + "</button>");
 
                 button.onclick = async (btn) => {
                     let pluginID = btn.target.id.replace("cpiHelperPlugin--", "")
@@ -87,7 +87,7 @@ async function createPluginScriptButtons() {
         var settings = await getPluginSettings(plugin.id);
         if (settings[plugin.id + "---isActive"] === true) {
             if (plugin.scriptButton && !plugin.scriptButton.condition || plugin.scriptButton && plugin.scriptButton.condition(cpiData, settings)) {
-                var button = createElementFromHTML("<button title='" + plugin.scriptButton.title + "' id='cpiHelperPlugin--" + plugin.id + "' class='cpiHelper_pluginButton_script ui button'>" + plugin?.scriptButton?.text + "</button>");
+                var button = createElementFromHTML("<button title='" + plugin.scriptButton.title + "' id='cpiHelperPlugin--" + plugin.id + "' class='cpiHelper_pluginButton_script mini ui button'>" + plugin?.scriptButton?.text + "</button>");
 
                 button.onclick = async (btn) => {
                     let pluginID = btn.target.id.replace("cpiHelperPlugin--", "")
