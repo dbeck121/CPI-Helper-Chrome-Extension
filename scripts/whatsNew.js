@@ -37,9 +37,12 @@ async function whatsNewCheck(showOnlyOnce = true) {
     <div class="twelve wide column">
          
                 <div class="ui header">This release is sponsored by Figaf </div>
-                <p>Edit and run your Groovy script in Figaf.<br>
-In Figaf, you can now edit and run your Groovy scripts. The integrated approach will make it easier for you to develop. After running the script, you can reuse the test cases you created as input and perform a comparison. You can then save the change directly into the iFlow.</p>
-                Read more <a href="https://figaf.com/cpihelper5" target="_blank">here</a>.
+                <p>Webinar series: Automate your SAP Integration work.<br>
+                There are many ways you can improve how you are working with SAP Integration. Figaf is hosting a webinar series where we will cover some of the most interesting topics for integration developers. For example, DevOps for Cloud Integration or SAP PI/PO, Neo to Integration Suite migration, PI to Integration Suite migration and better workflow for your SAP Cloud Integration and where CPIhelper plays a part.
+                <br><br>
+                There are topics for all developers, join to get some ideas on how you can run your upcoming projects better.
+                </p>
+                Read more <a href="https://figaf.com/cpihelper7" target="_blank">here</a>.
             </div>
      
         </div>
