@@ -1,53 +1,221 @@
-async function whatsNewCheck() {
+async function whatsNewCheck(showOnlyOnce = true) {
 
-    var manifestVersion = chrome.runtime.getManifest().version;
+  var manifestVersion = chrome.runtime.getManifest().version;
 
-    check = await storageGetPromise("whatsNewV" + manifestVersion);
+  check = await storageGetPromise("whatsNewV" + manifestVersion);
 
-    if (!check) {
-        html = `<div id="cpiHelper_WhatsNew">Thank you for using the CPI Helper by Dominic Beckbauer. <p>You hace successfully updated to version ${manifestVersion}</p> 
-      <h3>News</h3>
-      <p>CPI-Helper has a very limited plugin engine now. Read more about whats new in <a href= "https://kangoolutions.com/2022/05/02/cpi-helper-2-1-x-some-improvements-and-early-version-of-plugin-interface/">this</a> blog article</p>
-      <p>The plugin is now backed by Kangoolutions. A SAP Integration Consulting Company. We try to bring you more features and functionalities this year. <br>Check our <a href="https://kangoolutions.com/blog" target="_blank">website</a> to learn more about us. We are open for new projects, feedback and new topics.</p>
-      <h3>We reached 5500 users!</h3>
-      <h3>Info!</h3>
-      We have a new <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">GitHub Page</a>.
-      <h3>Main Features</h3>
-      <ul>
-      <li>Message Sidebar with Logs and InlineTrace</li>
-      <li>Log Viewer</li>
-      <li>PowerTrace - Trace keeps running even after 15 minutes</li>
-       </ul>
-      <h3>Recent Innovations</h3>
-      <li>Version 2.1.0: A very basic plugin engine and some ui improvements. Visit our <a href= "https://kangoolutions.com/2022/05/02/cpi-helper-2-1-x-some-improvements-and-early-version-of-plugin-interface/">blog</a> for more information</li>
-      <li>Version 2.0.2: Killed some bugs and ui improvements</li>
-      <li>Version 2.0.0: <ul>
-      <li>You can now see XML in properties view of logs and InlineTrace</li>
-      <li>Option to open Message Sidebar on start of the Integration Flow Designer</li>
-      <li>Info tab in logs popup to see Custom Header Logs and more</li>
-      <li>Info tab in InlineTrace popup with some step information</li>
-      </ul>
-      <li>Version 1.8.1: Killed some bugs</li>
-      <li>Version 1.8.0: InlineTrace for Adapters in Beta Mode (Click the colored adapter text)</li>
-      <li>Version 1.7.3: Adjusted InlineTrace Colors</li>
-      <li>Version 1.7.2: Added properties to persist logs</li>
-      <li>Version 1.7.0: New colors, new logo and a log viewer in beta mode</li>
-      <li>Version 1.6.0: Some UI improvements, works in OData mode and some bugfixes</li>
-      </ul>
-       </ul>
-    <p>Unfortunately SAP does not work with us together and does not inform us when the APIs changes. So be gentle if sth. does not work. we do this in our free time and sometimes it takes a while to adapt to SAP changes.
-       <p>The CPI Helper is free and Open Source. If you want to contribute or you have found any bugs than have a look at our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">GitHub Page</a> and our <a href="https://kangoolutions.com" target="_blank">Homepage</a>. You can find the main developer Dominic Beckbauer on <a href="https://www.linkedin.com/in/dominic-beckbauer-515894188/">LinkedIn</a></p>
-    
-   
+  silentupdates = ["3.0.3"]
+
+  const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
+
+  if (!check && !silentupdates.includes(manifestVersion) || showOnlyOnce == false) {
+    html = `
+
+ 
+    <div class="ui icon positive message">
+       <i class="info icon"></i>
+       <div class="content">
+          <div class="header">
+             You updated successfully to version ${manifestVersion}
+          </div>
+          <p>Follow our <a href="https://www.linkedin.com/company/kangoolutions" target="_blank">LinkedIn page</a> for updates and news about CPI Helper.</p>
+       </div>
     </div>
-    `;
-        showBigPopup(html, "Your CPI Toolbox since 1963");
-        var obj = {};
-        obj["whatsNewV" + manifestVersion] = "show";
-        chrome.storage.local.set(obj, function () {
-            console.log("whats new displayed and saved");
-        });
-    }
+    <div class="ui segment">
+    <div class="ui top attached tabular menu" id="cpiHelper_whatsnew_tabs">
+       <a class="item active" data-tab="one">News</a>
+       <a class="item" data-tab="two">Features</a>
+       <a class="item" data-tab="three">About</a>
+    </div>
+    <div class="ui bottom attached tab segment" data-tab="one">
+    <div class="ui segment">
+        <div class="ui grid">
+        <div class="four wide column">
+              <a href="https://figaf.com/cpihelper-and-figaf" target="_blank"><img class="ui small left floated image" src="${FIGAF_IMG}"></a>
+ 
+          </div>
+    <div class="twelve wide column">
+         
+                <div class="ui header">This release is sponsored by Figaf </div>
+                <p>Webinar series: Automate your SAP Integration work.<br>
+                There are many ways you can improve how you are working with SAP Integration. Figaf is hosting a webinar series where we will cover some of the most interesting topics for integration developers. For example, DevOps for Cloud Integration or SAP PI/PO, Neo to Integration Suite migration, PI to Integration Suite migration and better workflow for your SAP Cloud Integration and where CPIhelper plays a part.
+                <br><br>
+                There are topics for all developers, join to get some ideas on how you can run your upcoming projects better.
+                </p>
+                Read more <a href="https://figaf.com/cpihelper7" target="_blank">here</a>.
+            </div>
+     
+        </div>
+    </div>
 
-    //persist so that the popup does not appear again
+  <h3 class="ui header">
+  <i class="bell icon"></i>
+  <div class="content">
+    What's New?
+  </div>
+</h3>
+ 
+  <div class="ui list">
+
+  <a class="item"><i class="right triangle icon"></i>
+  <div class="content">
+    <div class="header">Feature</div>
+    <div class="description">Added debug mode</div>
+  </div>
+  </a>
+
+  <a class="item"><i class="right triangle icon"></i>
+<div class="content">
+  <div class="header">Feature</div>
+  <div class="description">Plugin-Engine: Added option for buttons in script editor"</div>
+</div>
+</a>
+
+<a class="item"><i class="right triangle icon"></i>
+<div class="content">
+  <div class="header">Feature</div>
+  <div class="description">Added TPM/IA Links to "Tenant URLs"</div>
+</div>
+</a>
+
+<a class="item"><i class="right triangle icon"></i>
+<div class="content">
+  <div class="header">Improvement</div>
+  <div class="description">"Lazy Mode" activated for Extension window (no need to click)</div>
+</div>
+</a>
+
+  <a class="item"><i class="right triangle icon"></i>
+  <div class="content">
+    <div class="header">Bugfix</div>
+    <div class="description">Bugfix for Settings Pane Resizer (Plugin)</div>
+  </div>
+</a>
+
+<a class="item"><i class="right triangle icon"></i>
+<div class="content">
+  <div class="header">Improvement</div>
+  <div class="description">Updated dependencies</div>
+</div>
+</a>
+
+
+<a class="item"><i class="right triangle icon"></i>
+<div class="content">
+  <div class="header">Improvement</div>
+  <div class="description">Better management and timing of api calls to reduce load to SAP server</div>
+</div>
+</a>
+</div>
+
+          
+<h3 class="ui header">
+<a href="https://www.linkedin.com/company/kangoolutions" target="_blank"><i class="linkedin icon"></i></a>
+<div class="content">
+Follow us on <a href="https://www.linkedin.com/company/kangoolutions" target="_blank">LinkedIn</a>
+</div>
+</h3>
+
+<h3 class="ui header">
+<a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank"> <i class="github icon"></i></a>
+  <div class="content">
+  More details on <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">Github</a>
+  </div>
+</h3>
+
+
+</div>
+       <div class="ui bottom attached tab segment" data-tab="two">
+       <h3 class="ui header">
+       <i class="project diagram icon"></i>
+       <div class="content">
+         Main Features
+       </div>
+     </h3>
+
+     <div class="ui list">
+
+     <a class="item">
+       <i class="right triangle icon"></i>
+       <div class="content">
+         
+         <div class="description">Message Sidebar with Logs and InlineTrace</div>
+       </div>
+     </a>
+     <a class="item">
+     <i class="right triangle icon"></i>
+     <div class="content">
+      
+       <div class="description">Log Viewer</div>
+     </div>
+   </a>
+   <a class="item">
+   <i class="right triangle icon"></i>
+   <div class="content">
+     <div class="description">PowerTrace - Trace keeps running even after 10 minutes</div>
+   </div>
+   </a>
+   </div>
+
+          <p>To learn more about CPI Helper features and what's new on our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">Github
+          Page</a>.</p>
+          <p>Unfortunately, SAP does not work with us together and does not inform us when the APIs change. So be gentle if sth. does not work. We do this in our free time and sometimes it takes a while to adapt to SAP changes.</p>
+        </div>
+       <div class="ui bottom attached tab segment active" data-tab="three">
+ 
+          
+          <h3 class="ui header">
+          <a href="https://www.linkedin.com/company/kangoolutions" target="_blank"><i class="linkedin icon"></i></a>
+  <div class="content">
+ Follow us on <a href="https://www.linkedin.com/company/kangoolutions" target="_blank">LinkedIn</a></a>
+  </div>
+</h3>
+          
+          <h3 class="ui header">
+  <i class="user icon"></i>
+  <div class="content">
+   About us
+  </div>
+</h3>
+
+             <p>We are a small company of passionate SAP CI developers from Cologne, Germany. If you want to learn more about us, please visit our website <a href="https://kangoolutions.com" target="_blank">kangoolutions.com</a>. Or maybe you want to become part of the team? Then have a look <a href="https://ich-will-zur.kangoolutions.com/" target="_blank">here</a> (German only). Unfortunately, we can only consider applicants with german residence due to legal reasons.</p>
+
+             <h3 class="ui header">
+  <i class="comment icon"></i>
+  <div class="content">
+    Take Part
+  </div>
+</h3>
+              <p>The CPI Helper is free and Open Source. If you want to contribute (especially improve overall CPI Helper visual design. We really aren't frontend developers) or you have found any bugs then have a look at our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">GitHub Page</a> and our <a href="https://kangoolutions.com" target="_blank">Homepage</a>. You can find the main developer Dominic Beckbauer on <a href="https://www.linkedin.com/in/dominic-beckbauer-515894188/">LinkedIn</a></p>
+     
+              <h3 class="ui header">
+              <i class="glasses icon"></i>
+              <div class="content">
+                More Details
+              </div>
+            </h3>
+          <div>License: <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU GPL v3</a></div>
+          <div>Please also check our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">Github
+             Page</a>.
+          </div>
+          <div>Created by: Dominic Beckbauer and Kangoolutions.com</div>
+       </div>
+    </div>
+
+       
+
+    </div>
+    
+    `;
+    await showBigPopup(html, "Your SAP CI Toolbox since 1963", { "fullscreen": false, callback: () => { $('.menu .item').tab(); } });
+
+
+    var obj = {};
+    obj["whatsNewV" + manifestVersion] = "show";
+    chrome.storage.local.set(obj, function () {
+      log.log("whats new displayed and saved");
+    });
+  }
+
+  //persist so that the popup does not appear again
 }

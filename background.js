@@ -8,7 +8,7 @@ chrome.runtime.onInstalled.addListener(function () {
   chrome.declarativeContent.onPageChanged.removeRules(undefined, function () {
     chrome.declarativeContent.onPageChanged.addRules([{
       conditions: [new chrome.declarativeContent.PageStateMatcher({
-        pageUrl: { urlMatches: '.*?hana\.ondemand\.com\/itspaces\/.*?' },
+        pageUrl: { urlMatches: '.*?hana\.ondemand\.com\/(itspaces|shell)\/.*?' },
       })],
       actions: [new chrome.declarativeContent.ShowPageAction()]
     }]);
@@ -38,5 +38,14 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
     return { requestHeaders: details.requestHeaders };
 
   },
-  { urls: ["https://*.hana.ondemand.com/itspaces/api/1.0/workspace*/artifacts/*/iflows/*?lockinfo=true&webdav=LOCK", "https://*.hana.ondemand.com/itspaces/api/1.0/workspace*/odata/*?lockinfo=true&webdav=LOCK"] },
+  { urls: ["https://*.hana.ondemand.com/itspaces/api/1.0/workspace*/artifacts/*/iflows/*?lockinfo=true&webdav=LOCK", "https://*.hana.ondemand.com/itspaces/api/1.0/workspace*/odata/*?lockinfo=true&webdav=LOCK", "https://*.platform.sapcloud.cn/itspaces/api/1.0/workspace*/artifacts/*/iflows/*?lockinfo=true&webdav=LOCK", "https://*.platform.sapcloud.cn/itspaces/api/1.0/workspace*/odata/*?lockinfo=true&webdav=LOCK"] },
   ["requestHeaders"]);
+
+chrome.management.getSelf((item) => {
+    var obj = {};
+    obj["installtype"] = item.installType;
+
+  chrome.storage.local.set(obj, function () {
+      console.log("xcsrf token saved");
+    });
+})

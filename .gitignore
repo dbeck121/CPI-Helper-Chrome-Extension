@@ -13,4 +13,5 @@
 .TemporaryItems
 .Trashes
 .VolumeIcon.icns
-.com.apple.timemachine.donotpresent
+.vscode/launch.json
+.vscode/settings.json

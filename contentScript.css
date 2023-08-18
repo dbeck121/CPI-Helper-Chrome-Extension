@@ -6,58 +6,6 @@
   border-radius: 5px 5px 5px 5px;
 }
 
-/* start snackbar */
-
-#cpiHelper_snackbar {
-  visibility: hidden;
-  min-width: 250px;
-  margin-left: -125px;
-  background-color: #3d5672;
-  color: #fff;
-  text-align: center;
-  border-radius: 2px;
-  padding: 16px;
-  position: fixed;
-  z-index: 500;
-  left: 50%;
-  bottom: 30px;
-  font-size: 17px;
-  box-sizing: border-box;
-  border-radius: 5px;
-}
-
-#cpiHelper_snackbar.cpiHelper_snackbar_show {
-  visibility: visible;
-  -webkit-animation: cpiHelper_fadein 0.5s, cpiHelper_fadeout 0.5s 2.5s;
-  animation: cpiHelper_fadein 0.5s, cpiHelper_fadeout 0.5s 2.5s;
-}
-
-@keyframes cpiHelper_fadein {
-  from {
-    bottom: 0;
-    opacity: 0;
-  }
-
-  to {
-    bottom: 30px;
-    opacity: 1;
-  }
-}
-
-@keyframes cpiHelper_fadeout {
-  from {
-    bottom: 30px;
-    opacity: 1;
-  }
-
-  to {
-    bottom: 0;
-    opacity: 0;
-  }
-}
-
-/* end snackbar */
-
 /* start working indicator */
 
 #cpiHelper_workingIndicator {
@@ -188,7 +136,10 @@
   top: 120px;
   right: 50px;
   width: fit-content;
-  opacity: 0.9;
+  border: 0;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .3), 0 1px 3px 1px rgba(60, 64, 67, .15);
+  opacity: 1 !important;
 }
 
 #cpiHelper_contentheader {
@@ -199,6 +150,8 @@
   color: #fff;
   box-sizing: border-box;
   border-radius: 5px 5px 0px 0px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .cpiHelper .contentText {
@@ -332,8 +285,6 @@
   display: flex;
   flex-wrap: wrap;
   background: #efefef;
-  box-shadow: 0 48px 80px -32px rgba(0, 0, 0, 0.3);
-  padding: 15px;
 }
 
 .cpiHelper_tabs .cpiHelper_tabs_panel .cpiHelper_tabs {
@@ -499,7 +450,24 @@
   display: flex;
 }
 
+.cpiHelper_logs_selected_button {
+  background-color: lightblue !important;
+}
+
+.cpiHelper_logs_table_div {
+  overflow-y: scroll;
+  height: 400px;
+}
+
 #logs-left-side_cpiHelper {
   overflow-y: scroll;
   max-height: 100%;
+}
+
+.cpiHelper_pluginButton_scriptCollection {
+  float: right;
+}
+
+.cpiHelper_pluginButton_script {
+  float: right;
 }

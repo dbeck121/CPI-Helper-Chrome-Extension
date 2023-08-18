@@ -18,10 +18,10 @@ var plugin = {
         "title": "Example Title",
         "icon": "",
         "onClick": (pluginHelper, settings, runInfo) => {
-            console.log("clicked");
-            console.log(pluginHelper);
-            console.log(settings);
-            console.log(runInfo);
+            log.log("clicked");
+            log.log(pluginHelper);
+            log.log(settings);
+            log.log(runInfo);
         },
         "condition": (pluginHelper, settings, runInfo) => {
             //eg runInfo.logLevel === "trace"
@@ -29,15 +29,55 @@ var plugin = {
         }
     },
     messageSidebarContent: {
+        "static": true,
         "onRender": (pluginHelper, settings) => {
-            console.log("clicked");
-            console.log(pluginHelper);
-            console.log(settings);
+            log.log("render");
+            log.log(pluginHelper);
+            log.log(settings);
             var div = document.createElement("div");
-            div.innerText = "Example content";
+            div.innerText = "Example content ";
+            var button = document.createElement("button")
+            button.innerHTML = "click for popup"
+            var popupContent = document.createElement("h1")
+            popupContent.innerText = "Hello World!"
+            button.onclick = (x) => pluginHelper.functions.popup(popupContent, "Header")
+            div.appendChild(button)
             return div;
         }
-    }
+    },
+    scriptCollectionButton: {
+        "text": "Example Button",
+        "title": "Example Title",
+        "onClick": (pluginHelper, settings) => {
+            log.log("clicked");
+            log.log(pluginHelper);
+            log.log(settings);
+            log.log(pluginHelper.artifactId)
+            log.log(pluginHelper.artifactType)
+            log.log(pluginHelper.currentPackageId)
+            log.log(document.getElementById("__xmlview0--ceFileLabel-bdi").textContent)
+        },
+        condition: (pluginHelper, settings) => {
+            //condition can be null or a function that returns true or false
+            return true
+        }
+    },
+    scriptButton: {
+        "text": "E",
+        "title": "Example Title",
+        "onClick": (pluginHelper, settings) => {
+            log.log("clicked");
+            log.log(pluginHelper);
+            log.log(settings);
+            log.log(pluginHelper.artifactId)
+            log.log(pluginHelper.artifactType)
+            log.log(pluginHelper.currentPackageId)
+        },
+        condition: (pluginHelper, settings) => {
+            return true
+        }
+    },
+
 };
 
 pluginList.push(plugin);

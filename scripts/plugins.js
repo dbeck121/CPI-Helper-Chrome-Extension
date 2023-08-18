@@ -4,17 +4,23 @@
 
 //creates plugin content area in message sidebar
 
-async function messageSidebarPluginContent() {
+async function messageSidebarPluginContent(forceRender = false) {
     var pluginArea = document.getElementById('cpiHelper_messageSidebar_pluginArea');
-    pluginArea.innerHTML = "";
+    //pluginArea.innerHTML = "";
 
     for (element of pluginList) {
         var settings = await getPluginSettings(element.id);
 
         if (settings[element.id + "---isActive"] === true) {
-            if (element?.messageSidebarContent?.onRender) {
-                var div = document.createElement("fieldset");
-                div.id = "cpiHelper_messageSidebar_pluginArea_" + element.id;
+            if (element?.messageSidebarContent?.onRender && (!element?.messageSidebarContent?.static || forceRender == true)) {
+                var div = document.getElementById("cpiHelper_messageSidebar_pluginArea_" + element.id)
+                if (!div) {
+                    div = document.createElement("fieldset");
+                    div.id = "cpiHelper_messageSidebar_pluginArea_" + element.id;
+                }
+
+                div.innerHTML = ""
+
                 div.appendChild(createElementFromHTML("<legend>" + element.name + "</legend>"));
                 div.appendChild(element.messageSidebarContent.onRender(cpiData, settings));
                 pluginArea.appendChild(div);
@@ -35,10 +41,60 @@ async function createPluginButtonsInMessageSidebar(runInfoElement, i, flash) {
         var settings = await getPluginSettings(plugin.id);
         if (settings[plugin.id + "---isActive"] === true) {
             if (plugin.messageSidebarButton && !plugin.messageSidebarButton.condition || plugin.messageSidebarButton && plugin.messageSidebarButton.condition(cpiData, settings, runInfoElement)) {
-                var button = createElementFromHTML("<button title='" + plugin.messageSidebarButton.title + "' id='trace--" + i + "' class='" + runInfoElement.messageGuid + flash + "'>" + plugin?.messageSidebarButton?.text?.substring(0, 3) + "</button>");
+                var button = createElementFromHTML("<button title='" + plugin.messageSidebarButton.title + "' id='cpiHelperPlugin--" + plugin.id + "' class='" + runInfoElement.messageGuid + flash + "'>" + plugin?.messageSidebarButton?.text?.substring(0, 3) + "</button>");
 
-                button.onclick = () => {
-                    plugin.messageSidebarButton.onClick(cpiData, settings, runInfoElement);
+                button.onclick = async (btn) => {
+                    let pluginID = btn.target.id.replace("cpiHelperPlugin--", "")
+                    let pluginItem = pluginList.find((element) => element.id == pluginID)
+                    let pluginsettings = await getPluginSettings(pluginID);
+                    pluginItem.messageSidebarButton.onClick(cpiData, pluginsettings, runInfoElement);
+                    statistic("messagebar_btn_plugin_click", pluginID)
+                };
+
+                pluginButtons.push(button);
+            }
+        }
+    }
+    return pluginButtons;
+}
+
+async function createPluginScriptCollectionButtons() {
+    var pluginButtons = [];
+    for (var plugin of pluginList) {
+        var settings = await getPluginSettings(plugin.id);
+        if (settings[plugin.id + "---isActive"] === true) {
+            if (plugin.scriptCollectionButton && !plugin.scriptCollectionButton.condition || plugin.scriptCollectionButton && plugin.scriptCollectionButton.condition(cpiData, settings)) {
+                var button = createElementFromHTML("<button title='" + plugin.scriptCollectionButton.title + "' id='cpiHelperPlugin--" + plugin.id + "' class='cpiHelper_pluginButton_scriptCollection mini ui button'>" + plugin?.scriptCollectionButton?.text + "</button>");
+
+                button.onclick = async (btn) => {
+                    let pluginID = btn.target.id.replace("cpiHelperPlugin--", "")
+                    let pluginItem = pluginList.find((element) => element.id == pluginID)
+                    let pluginsettings = await getPluginSettings(pluginID);
+                    pluginItem.scriptCollectionButton.onClick(cpiData, pluginsettings);
+                    statistic("messagebar_btn_plugin_click", pluginID)
+                };
+
+                pluginButtons.push(button);
+            }
+        }
+    }
+    return pluginButtons;
+}
+
+async function createPluginScriptButtons() {
+    var pluginButtons = [];
+    for (var plugin of pluginList) {
+        var settings = await getPluginSettings(plugin.id);
+        if (settings[plugin.id + "---isActive"] === true) {
+            if (plugin.scriptButton && !plugin.scriptButton.condition || plugin.scriptButton && plugin.scriptButton.condition(cpiData, settings)) {
+                var button = createElementFromHTML("<button title='" + plugin.scriptButton.title + "' id='cpiHelperPlugin--" + plugin.id + "' class='cpiHelper_pluginButton_script mini ui button'>" + plugin?.scriptButton?.text + "</button>");
+
+                button.onclick = async (btn) => {
+                    let pluginID = btn.target.id.replace("cpiHelperPlugin--", "")
+                    let pluginItem = pluginList.find((element) => element.id == pluginID)
+                    let pluginsettings = await getPluginSettings(pluginID);
+                    pluginItem.scriptButton.onClick(cpiData, pluginsettings);
+                    statistic("messagebar_btn_plugin_click", pluginID)
                 };
 
                 pluginButtons.push(button);
@@ -64,15 +120,16 @@ async function createPluginPopupUI(plugin) {
 
     activeCheckbox.checked = await getStorageValue(plugin.id, "isActive")
     activeCheckbox.addEventListener('change', async function () {
-        console.log(activeCheckbox.checked);
+        log.log(activeCheckbox.checked);
         await syncChromeStoragePromise(getStoragePath(plugin.id, "isActive"), activeCheckbox.checked);
+        statistic("toggle_plugin_active", plugin.id, activeCheckbox.checked)
         showBigPopup(await createContentNodeForPlugins(), "Plugins")
 
     });
 
     var div = document.createElement('div');
     div.appendChild(activeCheckbox);
-    div.appendChild(createElementFromHTML(`<label for="cpiHelper_popup_plugins-${plugin.id}">activate</label>`));
+    div.appendChild(createElementFromHTML(`<label for="cpiHelper_popup_plugins-${plugin.id}"> activate</label>`));
     div.appendChild(createElementFromHTML(`<br>`));
     div.appendChild(createElementFromHTML(`<span>${plugin.description}</span>`));
     div.appendChild(createElementFromHTML(`<br>`));
@@ -88,16 +145,22 @@ async function createPluginPopupUI(plugin) {
                     checkbox.id = `cpiHelper_popup_plugins-${plugin.id}-${key}`;
                     checkbox.key = `${getStoragePath(plugin.id, key, plugin.settings[key].scope)}`
                     checkbox.type = 'checkbox';
+                    checkbox.checked = await getStorageValue(plugin.id, key, plugin.settings[key].scope);
 
                     checkbox.addEventListener('change', function () {
-                        console.log(checkbox.checked);
-                        chrome.storage.sync.set({ [this.key]: this.value }, function () {
-                            console.log(`${plugin.id}--${key}` + " is set to " + checkbox.checked);
+                        log.log(checkbox.checked);
+                        chrome.storage.sync.set({ [this.key]: this.checked }, function () {
+                            log.log(`${plugin.id}--${key}` + " is set to " + checkbox.checked);
                         });
                     });
 
+                    var checkBoxLabel = document.createElement('label');
+                    checkBoxLabel.htmlFor = checkbox.id;
+                    checkBoxLabel.innerText = ` ${plugin.settings[key].text}`;
+
                     var div = document.createElement('div');
                     div.appendChild(checkbox);
+                    div.appendChild(checkBoxLabel);
                     container.appendChild(div);
                 }
 
@@ -109,10 +172,9 @@ async function createPluginPopupUI(plugin) {
                     text.value = await getStorageValue(plugin.id, key, plugin.settings[key].scope);
 
                     text.addEventListener('input', function (a) {
-                        console.log(a);
-                        chrome.storage.sync.set({ [this.key]: this.value }, function () {
-                            console.log(`${this.key} ` + " is set to " + text.value);
-                        });
+                        //log.log(a);
+                        log.log(this.key + " is set to " + this.value);
+                        chrome.storage.sync.set({ [this.key]: this.value });
                     });
                     var div = document.createElement('div');
                     div.appendChild(text);

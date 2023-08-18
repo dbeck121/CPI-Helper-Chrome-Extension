@@ -1,9 +1,11 @@
 function callChromeStoragePromise(key) {
   return new Promise(async function (resolve, reject) {
+    log.debug("callChromeStoragePromise: ", key)
     var input = key ? [key] : null;
     chrome.storage.sync.get(input, function (storage) {
       if (!key) {
         resolve(storage);
+        log.debug("callChromeStoragePromise response: ", storage)
       }
       resolve(storage[key]);
     });
@@ -12,6 +14,7 @@ function callChromeStoragePromise(key) {
 
 function syncChromeStoragePromise(keyName, value) {
   return new Promise(async function (resolve, reject) {
+    log.debug("syncChromeStoragePromise: ", keyName, value)
     myobj = {};
     myobj[keyName] = value;
     chrome.storage.sync.set(myobj, function () {
@@ -20,11 +23,68 @@ function syncChromeStoragePromise(keyName, value) {
   });
 }
 
+async function getCsrfToken(showInfo = false) {
 
+  if (!cpiData.classicUrl) {
+    return new Promise(async function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      xhr.withCredentials = true;
+
+      xhr.open("GET", "/api/1.0/user");
+
+      xhr.setRequestHeader("X-CSRF-Token", "Fetch");
+
+
+      xhr.onload = function () {
+        if (this.status >= 200 && this.status < 300) {
+
+          showInfo ? workingIndicator(false) : {};
+          resolve(xhr.getResponseHeader("x-csrf-token"));
+        } else {
+          showInfo ? workingIndicator(false) : {};
+          showInfo ? showToast("CPI-Helper has run into a problem while catching X-CSRF-Token.", "", "error") : {};
+
+          reject({
+            status: this.status,
+            statusText: xhr.statusText
+          });
+        }
+      };
+      xhr.ontimeout = function () {
+
+        showInfo ? showToast("CPI-Helper has run into a timeout while refreshing X-CSRF-Token.", "Please refresh site and try again.", "error") : {};
+        showInfo ? workingIndicator(false) : {};
+      }
+
+      xhr.onerror = function () {
+        reject({
+          status: this.status,
+          statusText: xhr.statusText
+        });
+      };
+      showInfo ? workingIndicator(true) : {};
+      xhr.send();
+    }
+    );
+
+
+  } else {
+
+    var tenant = document.location.href.split("/")[2].split(".")[0];
+    var name = 'xcsrf_' + tenant;
+    xcsrf = await storageGetPromise(name)
+    return xcsrf
+
+  }
+}
 
 var callCache = new Map();
-function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo = true) {
+
+
+
+async function makeCallPromiseXHR(method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo = true) {
   return new Promise(async function (resolve, reject) {
+    log.debug("makeCallPromise: ", method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo)
     var cache;
     if (useCache) {
       cache = callCache.get(method + url);
@@ -36,7 +96,7 @@ function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, c
       var xhr = new XMLHttpRequest();
       xhr.withCredentials = true;
 
-      xhr.open(method, url);
+      xhr.open(method, absolutePath(url));
       if (accept) {
         //Example for accept: 'application/json' 
         xhr.setRequestHeader('Accept', accept);
@@ -47,9 +107,9 @@ function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, c
       }
 
       if (includeXcsrf) {
-        var tenant = document.location.href.split("/")[2].split(".")[0];
-        var name = 'xcsrf_' + tenant;
-        var xcsrf = await storageGetPromise(name)
+        var xcsrf = await getCsrfToken(true);
+        log.debug("includeXcsrf: ", xcsrf)
+
         xhr.setRequestHeader("X-CSRF-Token", xcsrf);
       }
 
@@ -59,21 +119,31 @@ function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, c
             callCache.set(method + url, xhr.responseText);
           }
           showInfo ? workingIndicator(false) : {};
-          resolve(xhr.responseText);
+
+          log.debug("makeCallPromise response status: ", xhr.status)
+          log.debug("makeCallPromise response text: ", xhr.responseText.substring(0, 100))
+       
+          resolve(xhr);
         } else {
           showInfo ? workingIndicator(false) : {};
-          showInfo ? showSnackbar("CPI-Helper has run into a problem while loading data.") : {};
+          showInfo ? showToast("CPI-Helper has run into a problem while loading data.", "", "error") : {};
 
-          reject({
-            status: this.status,
-            statusText: xhr.statusText
-          });
+          log.log("makeCallPromise response status: ", xhr.status)
+
+          log.log("makeCallPromise response text: ", xhr.responseText)
+
+          reject(xhr);
         }
       };
+      xhr.timeout = 3000; // Set timeout to 3 seconds
       xhr.ontimeout = function () {
 
-        showInfo ? showSnackbar("CPI-Helper has run into a timeout. Please refresh site and try again.") : {};
+        showInfo ? showToast("CPI-Helper has run into a timeout", "Please refresh site and try again.", "error") : {};
         showInfo ? workingIndicator(false) : {};
+        reject({
+          status: 0,
+          statusText: "timeout"
+        });
       }
 
       xhr.onerror = function () {
@@ -91,29 +161,39 @@ function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, c
 
 }
 
+async function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo = true) {
+  var xhr = await makeCallPromiseXHR(method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo = true)
+  
+  if(xhr.status >= 200 && xhr.status < 300) {
+    return xhr.responseText
+  }
+  
+  return {
+    status: this.status,
+    statusText: xhr.statusText,
+  }
+}
+
 
 //function to make http calls
 async function makeCall(type, url, includeXcsrf, payload, callback, contentType, showInfo = true) {
-  //console.log("make call")
+  log.debug("makeCall", type, url, includeXcsrf, payload, contentType, showInfo)
   var xhr = new XMLHttpRequest();
   xhr.withCredentials = true;
-  xhr.open(type, url, true);
+  xhr.open(type, absolutePath(url), true);
 
   if (contentType) {
     xhr.setRequestHeader('Content-type', contentType);
   }
 
   if (includeXcsrf) {
-    var tenant = document.location.href.split("/")[2].split(".")[0];
-    var name = 'xcsrf_' + tenant;
-    var xcsrf = await storageGetPromise(name)
-    xhr.setRequestHeader("X-CSRF-Token", xcsrf);
+    xhr.setRequestHeader("X-CSRF-Token", await getCsrfToken(true));
   }
 
-  xhr.timeout = 4000; // Set timeout to 4 seconds (4000 milliseconds)
+  xhr.timeout = 6500; // Set timeout to 6.5 seconds
   xhr.ontimeout = function () {
-
-    showInfo ? showSnackbar("CPI-Helper has run into a timeout. Please refresh site and try again.") : {};
+    log.debug("makeCall timeout")
+    showInfo ? showToast("CPI-Helper has run into a timeout", "Please refresh site and try again.", "error") : {};
     showInfo ? workingIndicator(false) : {};
 
   }
@@ -123,6 +203,8 @@ async function makeCall(type, url, includeXcsrf, payload, callback, contentType,
     if (xhr.readyState == 4) {
       callback(xhr);
       showInfo ? workingIndicator(false) : {};
+      log.debug("makeCall response status: ", xhr.status)
+      log.debug("makeCall response text: ", xhr.responseText.substring(0, 100))
     }
   }
 
@@ -130,7 +212,13 @@ async function makeCall(type, url, includeXcsrf, payload, callback, contentType,
   xhr.send(payload);
 }
 
-var formatTrace = function (input, id) {
+let absolutePath = function(href) {
+  var link = document.createElement("a");
+  link.href = href;
+  return (link.protocol+"//"+link.host+link.pathname+link.search+link.hash);
+}
+
+var formatTrace = function (input, id, traceId) {
 
   var encodeHTML = function (str) {
 
@@ -193,14 +281,25 @@ var formatTrace = function (input, id) {
     }
 
     PR.prettyPrint();
-    showSnackbar("Autodetect content: " + type ? type : "unknown");
+    showToast("Autodetect content: " + type ? type : "unknown");
     return PR.prettyPrintOne(stringToFormat, type, 1);
 
   }
 
 
 
+  if (traceId) {
+    var downloadButton = document.createElement("button");
+    downloadButton.innerText = "Download";
+    downloadButton.onclick = async (element) => {
+      var response = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.GetTraceArchiveCommand?traceIds=" + traceId, true);
+      var value = response.match(/<payload>(.*)<\/payload>/sg)[0];
+      value = value.substring(9, value.length - 10)
 
+      window.open("data:application/zip;base64," + value);
+      showToast("Download complete.");
+    };
+  }
 
   var copyButton = document.createElement("button");
   copyButton.innerText = "Copy";
@@ -221,7 +320,7 @@ var formatTrace = function (input, id) {
   };
 
   var beautifyButton = document.createElement("button");
-  beautifyButton.innerText = "Try to Beautify";
+  beautifyButton.innerText = "Beautify";
   beautifyButton.onclick = (event) => {
 
     //check who is active
@@ -231,11 +330,11 @@ var formatTrace = function (input, id) {
     if (unformatted.classList.contains("cpiHelper_traceText_active")) {
       unformatted.classList.remove("cpiHelper_traceText_active");
       formatted.classList.add("cpiHelper_traceText_active");
-      this.innerText = "Uglify";
+      beautifyButton.innerText = "Linearize";
     } else {
       formatted.classList.remove("cpiHelper_traceText_active");
       unformatted.classList.add("cpiHelper_traceText_active");
-      this.innerText = "Try to Beautify";
+      beautifyButton.innerText = "Beautify";
     }
 
     if (formatted.innerHTML == "") {
@@ -262,6 +361,10 @@ var formatTrace = function (input, id) {
 
   result.appendChild(beautifyButton);
   result.appendChild(copyButton);
+  if (traceId) {
+    result.appendChild(downloadButton);
+  }
+
   var textEncoder = new TextEncoder().encode(input)
   if (textEncoder.length) {
     var span = document.createElement("span");
@@ -330,4 +433,69 @@ function createElementFromHTML(htmlString) {
   var div = document.createElement('div');
   div.innerHTML = htmlString.trim();
   return div.firstChild;
+}
+
+function isDevMode() {
+  return !('update_url' in chrome.runtime.getManifest());
+}
+
+function stage() {
+  if (isDevMode()) {
+    return "dev"
+  }
+
+  return "prod"
+}
+
+async function statistic(event, value = null, value2 = null) {
+
+  log.debug(event, value, value2)
+/*  try {
+    var sessionId = await storageGetPromise("sessionId")
+    var installtype = await storageGetPromise("installtype")
+    var img = document.createElement("img");
+    img.src = `....?version=${chrome.runtime.getManifest().version}&event=${event}&session=${sessionId}&value=${value}&value2=${value2}&installtype=${installtype}&nonse=${Date.now()}`;
+  } catch (e) {
+    log.log(e)
+  }
+
+  */
+}
+
+async function onInitStatistic() {
+  var lastInitDay = await storageGetPromise("lastInitDay")
+  var lastInitMonth = await storageGetPromise("lastInitMonth")
+  var today = new Date().toISOString().substring(0, 10);
+  var tomonth = new Date().toISOString().substring(0, 7);
+  if (!lastInitDay || lastInitDay != today) {
+
+    var sessionId = (Math.random().toString(36) + '00000000000000000').slice(2, 15 + 2)
+    var obj = {};
+    obj["sessionId"] = sessionId
+    await storageSetPromise(obj);
+    statistic("init", "day", lastInitMonth != tomonth ? "month" : "")
+  }
+
+  var obj = {};
+  obj["lastInitDay"] = today
+  obj["lastInitMonth"] = tomonth
+  await storageSetPromise(obj);
+
+}
+
+
+async function storageGetPromise(name) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get([name], function (result) {
+      resolve(result[name]);
+    });
+  })
+}
+
+async function storageSetPromise(obj) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.set(obj, function (result) {
+      resolve("OK");
+    });
+  })
 }

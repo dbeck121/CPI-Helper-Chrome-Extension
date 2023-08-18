@@ -1,0 +1,85 @@
+{
+  "name": "SAP CPI Helper",
+  "short_name": "CPI Helper",
+  "version": "2.8.1",
+  "description": "Extends the SAP Cloud Platform Integration with some useful features to improve usability.",
+  "author": "Dominic Beckbauer",
+  "homepage_url": "https://github.com/dbeck121/CPI-Helper-Chrome-Extension",
+  "host_permissions": [
+    "https://*.hana.ondemand.com/itspaces",
+    "https://*.platform.sapcloud.cn/itspaces",
+    "https://*.hana.ondemand.com/shell"
+  ],
+  "permissions": [
+    "storage",
+    "webRequest"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.hana.ondemand.com/shell/design/*",
+        "https://*.hana.ondemand.com/itspaces/*",
+        "https://*.hana.ondemand.com/shell/*",
+        "https://*.platform.sapcloud.cn/itspaces/*"
+      ],
+      "js": [
+        "/lib/prettify/prettify.js",
+        "/lib/prettify/prettify-sql.js",
+        "/lib/jszip/jszip.min.js",
+        "/scripts/identify-tenant.js",
+        "/lib/xmlToJson/xmlToJson.js",
+        "/lib/jQuery/jquery.min.js",
+        "/lib/semanticui/semantic.min.js",
+        "/plugins/run.js",
+        "/plugins/undeploy.js",
+        "/plugins/cpitransporter.js",
+        "/plugins/figaf.js",
+        "/plugins/OpenAIServices.js",
+        "/plugins/settingsPaneResizer.js",
+        "/scripts/ui.js",
+        "/scripts/tools.js",
+        "/scripts/logs.js",
+        "/scripts/whatsNew.js",
+        "/scripts/plugins.js",
+        "/scripts/contentScript.js"
+      ],
+      "css": [
+        "/lib/prettify/prettify.css",
+        "/lib/threeDots/three-dots.min.css",
+        "/lib/semanticui/semantic.min.css",
+        "contentScript.css"
+      ]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/cpi_helper16_full.png",
+      "32": "images/cpi_helper32_full.png",
+      "48": "images/cpi_helper48_full.png",
+      "128": "images/cpi_helper128_full.png"
+    }
+  },
+  "icons": {
+    "16": "images/cpi_helper16_full.png",
+    "32": "images/cpi_helper32_full.png",
+    "48": "images/cpi_helper48_full.png",
+    "128": "images/cpi_helper128_full.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "images/favicons/*.png",
+        "lib/semanticui/*"
+      ],
+      "matches": [
+        "https://*.hana.ondemand.com/*",
+        "https://*.platform.sapcloud.cn/*"
+      ]
+    }
+  ],
+  "manifest_version": 3
+}
