@@ -44,6 +44,10 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.6.1
+
+- [Bugfix] Fix error in inline debug
+
 ### 3.6.0
 
 - [Feature] Added TPM/IA links to "Tenant URLs"
