@@ -1,3 +1,15 @@
+var getFigafHost = (settings) => {
+    var figafHost = settings["figaf---FigafURL"];
+    if (!figafHost.endsWith("/")) {
+        figafHost = figafHost + "/";
+    }
+    return figafHost;
+}
+
+var getFigafAgentSystemId = (pluginHelper, settings) => {
+    return settings[`figaf---${pluginHelper.tenant}---FigafAgentSystemId`];
+}
+
 var plugin = {
     metadataVersion: "1.0.0",
     id: "figaf",
@@ -16,9 +28,9 @@ var plugin = {
         "title": "Record in Figaf",
         "icon": "",
         "onClick": (pluginHelper, settings, runInfo) => {
-            var figafHost = settings["figaf---FigafURL"];
-            var figafAgentSystemId = settings[`figaf---${pluginHelper.tenant}---FigafAgentSystemId`];
-            var figafUrl = `${figafHost}/irt/#/cpi-helper-integration?operation=record-messages&tenantHost=${pluginHelper.tenant}&systemId=${figafAgentSystemId}&iflowName=${pluginHelper.integrationFlowId}&messageGuid=${runInfo.messageGuid}`;
+            var figafHost = getFigafHost(settings);
+            var figafAgentSystemId = getFigafAgentSystemId(pluginHelper, settings);
+            var figafUrl = `${figafHost}#/cpi-helper-integration?operation=record-messages&tenantHost=${pluginHelper.tenant}&systemId=${figafAgentSystemId}&objectType=${pluginHelper.artifactType}&packageTechnicalName=${pluginHelper.currentPackageId}&artifactTechnicalName=${pluginHelper.integrationFlowId}&messageGuid=${runInfo.messageGuid}`;
             window.open(figafUrl);
         },
         "condition": (pluginHelper, settings, runInfo) => {
@@ -32,18 +44,18 @@ var plugin = {
             var navigateButton = document.createElement("button");
             navigateButton.innerText = "Navigate";
             navigateButton.addEventListener("click", () => {
-                var figafHost = settings["figaf---FigafURL"];
-                var figafAgentSystemId = settings[`figaf---${pluginHelper.tenant}---FigafAgentSystemId`];
-                var figafUrl = `${figafHost}/irt/#/cpi-helper-integration?operation=navigate&tenantHost=${pluginHelper.tenant}&systemId=${figafAgentSystemId}&iflowName=${pluginHelper.integrationFlowId}`;
+                var figafHost = getFigafHost(settings);
+                var figafAgentSystemId = getFigafAgentSystemId(pluginHelper, settings);
+                var figafUrl = `${figafHost}#/cpi-helper-integration?operation=navigate&tenantHost=${pluginHelper.tenant}&systemId=${figafAgentSystemId}&objectType=${pluginHelper.artifactType}&packageTechnicalName=${pluginHelper.currentPackageId}&artifactTechnicalName=${pluginHelper.artifactId}`;
                 window.open(figafUrl);
             });
 
             var synchronizeButton = document.createElement("button");
             synchronizeButton.innerText = "Synchronize";
             synchronizeButton.addEventListener("click", () => {
-                var figafHost = settings["figaf---FigafURL"];
-                var figafAgentSystemId = settings[`figaf---${pluginHelper.tenant}---FigafAgentSystemId`];
-                var figafUrl = `${figafHost}/irt/#/cpi-helper-integration?operation=synchronize&tenantHost=${pluginHelper.tenant}&systemId=${figafAgentSystemId}&iflowName=${pluginHelper.integrationFlowId}`;
+                var figafHost = getFigafHost(settings);
+                var figafAgentSystemId = getFigafAgentSystemId(pluginHelper, settings);
+                var figafUrl = `${figafHost}#/cpi-helper-integration?operation=synchronize&tenantHost=${pluginHelper.tenant}&systemId=${figafAgentSystemId}&objectType=${pluginHelper.artifactType}&packageTechnicalName=${pluginHelper.currentPackageId}&artifactTechnicalName=${pluginHelper.artifactId}`;
                 window.open(figafUrl);
             });
 
@@ -51,6 +63,48 @@ var plugin = {
             div.appendChild(navigateButton);
             div.appendChild(synchronizeButton);
             return div;
+        }
+    },
+    scriptCollectionButton: {
+        "text": "Open in Figaf",
+        "title": "Open in Figaf",
+        "onClick": (pluginHelper, settings) => {
+            var objectType = "Script Collection";
+            var resourceNameElement = document.getElementById("__xmlview0--ceFileLabel-bdi");
+            var resourceObjectType = "";
+            var resourceName = "";
+            if (resourceNameElement) {
+                resourceName = resourceNameElement.textContent;
+                resourceObjectType = "Script";
+            }
+
+            var figafHost = getFigafHost(settings);
+            var figafAgentSystemId = getFigafAgentSystemId(pluginHelper, settings);
+            var figafUrl = `${figafHost}#/cpi-helper-integration?operation=navigate&tenantHost=${pluginHelper.tenant}&systemId=${figafAgentSystemId}&objectType=${objectType}&resourceObjectType=${resourceObjectType}&resourceName=${resourceName}&packageTechnicalName=${pluginHelper.currentPackageId}&artifactTechnicalName=${pluginHelper.artifactId}`;
+            window.open(figafUrl);
+        },
+        condition: (pluginHelper, settings) => {
+            //condition can be null or a function that returns true or false
+            return true
+        }
+    },
+    scriptButton: {
+        "text": "Open in Figaf",
+        "title": "Open in Figaf",
+        "onClick": (pluginHelper, settings) => {
+            var objectType = "IFlow";
+            var resourceObjectType = "Script";
+            var artifactTechnicalName = pluginHelper.lastVisitedIflowId;
+            var resourceName = pluginHelper.artifactId;
+
+            var figafHost = getFigafHost(settings);
+            var figafAgentSystemId = getFigafAgentSystemId(pluginHelper, settings);
+            var figafUrl = `${figafHost}#/cpi-helper-integration?operation=navigate&tenantHost=${pluginHelper.tenant}&systemId=${figafAgentSystemId}&objectType=${objectType}&resourceObjectType=${resourceObjectType}&resourceName=${resourceName}&packageTechnicalName=${pluginHelper.currentPackageId}&artifactTechnicalName=${artifactTechnicalName}`;
+            window.open(figafUrl);
+
+        },
+        condition: (pluginHelper, settings) => {
+            return true
         }
     }
 };
