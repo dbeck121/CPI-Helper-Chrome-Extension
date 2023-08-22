@@ -1757,7 +1757,7 @@ async function storeVisitedIflowsForPopup() {
   for (const dataRegexp of cpiArtifactURIRegexp) {
     if (dataRegexp[0].test(url) === true) {
       let groups = url.match(dataRegexp[0]);
-      if (groups.length === 2) {
+      if (groups.length >= 2) {
         let cpiArtifactId = groups.groups.artifactId;
         chrome.storage.sync.get([name], function (result) {
           var visitedIflows = result[name];
