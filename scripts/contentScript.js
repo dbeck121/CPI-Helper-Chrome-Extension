@@ -22,11 +22,12 @@ cpiArtifactURIRegexp = [
   [/\/scriptcollections\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Script Collection"],
   [/\/messagemappings\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Message Mapping"],
   [/\/resources\/script\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Script"],
+  [/\/resources\/mapping\/(?<artifactId>[0-9a-zA-Z_\-.]+\.xsl)/, "XSLT"],
   [/\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)\/?(\?.*)?$/, "Package"]
 ];
 
-cpiCollectionURIRegexp = /\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)/
-
+var cpiCollectionURIRegexp = /\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)/
+var cpiIflowUriRegexp = /\/integrationflows\/(?<artifactId>[0-9a-zA-Z_\-.]+)/
 //opens a new window with the Trace for a MessageGuid
 function openTrace(MessageGuid) {
 
@@ -253,7 +254,7 @@ async function renderMessageSidebar() {
 				infoButton.addEventListener("click", (a) => {
 				  statistic("messagebar_btn_info_click")
 				  let url = a.currentTarget.classList[0]
-				  if(url.match(/.*\.integrationsuite(-trial){0,1}\..*/)) {
+				  if(url.match(/^[^\/]*\.integrationsuite(-trial)?.*/)) {
 					  url = url.replace("/itspaces","")
 				  }
 				  openInfo(url);
@@ -1530,7 +1531,7 @@ function errorPopupClose() {
   }
 }
 
-//function to get the iFlow name from the URL
+//function to get the current artifact name from the URL
 function newArtifactDetected() {
   var url = window.location.href;
   var result;
@@ -1548,26 +1549,54 @@ function newArtifactDetected() {
     }
 
     if (result != undefined) {
-      log.log("Found "+artifactType+": " + result);
+      log.log("Highlighted Artifact: "+artifactType+": " + result);
       cpiData.integrationFlowId = result;  //set integration flow id for legacy reasons
-      cpiData.artifactId = result;
-      cpiData.artifactType = artifactType;
+      cpiData.currentArtifactId = result;
+      cpiData.currentArtifactType = artifactType;
 
       if(artifactType == "IFlow"){
-        cpiData.lastVisitedIflowId = result;
+        cpiData.currentIflowId = result;
       }
 
     }
     else {
       cpiData.integrationFlowId = null;
-      cpiData.artifactId = null;
-      cpiData.artifactType = null;
+      cpiData.currentIflowId = null;
+      cpiData.currentArtifactId = null;
+      cpiData.currentArtifactType = null;
   
       log.log("no artifact found");
     }
   
   return result;
 }
+
+function getIflowId() {
+  var url = window.location.href;
+  var result;
+
+    //try {
+      let groups = "";
+
+  
+        if (cpiIflowUriRegexp.test(url) === true) {
+          groups = url.match(cpiIflowUriRegexp).groups;
+          result = groups.artifactId;
+        }
+      
+  
+      if (result != undefined) {
+        log.log("Found IFlow: " + result);
+        cpiData.currentIflowId = result;
+        cpiData.lastVisitedIflowId = result;
+      }
+      else {
+        cpiData.currentIflowId = null;
+        log.log("no iflow found");
+      }
+    
+    return result;
+  }
 
 function getPackageId() {
   var url = window.location.href;
@@ -1614,20 +1643,21 @@ async function checkURLchange() {
 //this function is fired when the url changes
 async function handleUrlChange() {
 
-  //check if we are on an iflow page
+  //check current artifact
   await storeVisitedIflowsForPopup();
 
   getPackageId();
+  getIflowId();
 
 
   if (newArtifactDetected()) {
 
-    if(cpiData.artifactType == "IFlow"){
+    if(cpiData.currentArtifactType == "IFlow"){
     //if iflow found, inject buttons   
     setDocumentTitle(hostData.title)
 
     //check type of tenant
-    if (!document.location.host.match(/.*\.integrationsuite(-trial){0,1}\..*/)) {
+    if (!document.location.host.match(/^[^\/]*\.integrationsuite(-trial)?.*/)) {
       cpiData.classicUrl = true
       cpiData.urlExtension = "itspaces/"
     }
@@ -1641,19 +1671,19 @@ async function handleUrlChange() {
   }
 
   var scriptCount = 0
-  if(cpiData.artifactType == "Script"){
+  if(cpiData.currentArtifactType == "Script"){
     //iterate plugins and create buttons
-    var buttonsForPlugins = await createPluginScriptButtons();
+    var buttonsForPlugins = await createPluginButtons("scriptButton");
     if(buttonsForPlugins.length > 0) {
       //wait until id is available and then append buttons. Try again and wait if not available
       var interval = setInterval(() => {
         var pluginArea = document.querySelector('span[id$="--scriptPageContainerHeader-identifierLineContainer"]')
-        if(pluginArea && scriptCount > 10 || cpiData.artifactType != "Script") {
+        if(pluginArea && scriptCount > 10 || cpiData.currentArtifactType != "Script") {
           clearInterval(interval);
           scriptCount = 0;
           return
         }
-        buttons = document.getElementsByClassName("cpiHelper_pluginButton_script");
+        buttons = document.getElementsByClassName("cpiHelper_pluginButton_scriptButton");
         if(pluginArea && buttons.length == 0) {
           scriptCount++;
           buttonsForPlugins.forEach((element) => {
@@ -1669,19 +1699,18 @@ async function handleUrlChange() {
   }
 
   var scriptCollectionCount = 0
-  if(cpiData.artifactType == "Script Collection"){
-    var buttonsForPlugins = await createPluginScriptCollectionButtons();
+  if(cpiData.currentArtifactType == "Script Collection"){
+    var buttonsForPlugins = await createPluginButtons("scriptCollectionButton");
     if(buttonsForPlugins.length > 0) {
       //wait until id is available and then append buttons. Try again and wait if not available
       var interval = setInterval(() => {
-        var pluginArea = document.getElementById("__xmlview0--objectPageHeader-identifierLineContainer");
-    
-        if(pluginArea && scriptCollectionCount > 10 || cpiData.artifactType != "Script Collection") {
+        var pluginArea =  document.querySelector('span[id$="--objectPageHeader-identifierLineContainer"]')
+        if(pluginArea && scriptCollectionCount > 10 || cpiData.currentArtifactType != "Script Collection") {
           clearInterval(interval);
           scriptCollectionCount = 0;
           return
         }
-        buttons = document.getElementsByClassName("cpiHelper_pluginButton_scriptCollection");
+        buttons = document.getElementsByClassName("cpiHelper_pluginButton_scriptCollectionButton");
         if(pluginArea && buttons.length == 0) {
           scriptCollectionCount++;
           buttonsForPlugins.forEach((element) => {
@@ -1694,6 +1723,36 @@ async function handleUrlChange() {
   
     }, 1000);
   }
+
+}
+
+var xsltCount = 0
+if(cpiData.currentArtifactType == "XSLT"){
+  var buttonsForPlugins = await createPluginButtons("xsltButton");
+  if(buttonsForPlugins.length > 0) {
+    //wait until id is available and then append buttons. Try again and wait if not available
+    var interval = setInterval(() => {
+      var pluginArea =  document.querySelector('span[id$="--resourcePageContainerHeader-identifierLineContainer"]')
+     
+      if(pluginArea && xsltCount > 10 || cpiData.currentArtifactType != "XSLT") {
+        clearInterval(interval);
+        scriptCollectionCount = 0;
+        return
+      }
+      
+      buttons = document.getElementsByClassName("cpiHelper_pluginButton_xsltButton");
+      if(pluginArea && buttons.length == 0) {
+        xsltCount++;
+        buttonsForPlugins.forEach((element) => {
+          pluginArea.appendChild(element);
+        });
+      } else {
+        xsltCount++;
+      }
+  
+
+  }, 1000);
+}
 
 }
   }
