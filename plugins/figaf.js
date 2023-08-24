@@ -28,9 +28,10 @@ var plugin = {
         "title": "Record in Figaf",
         "icon": "",
         "onClick": (pluginHelper, settings, runInfo) => {
+            var currentIflowId = pluginHelper.currentIflowId ? pluginHelper.currentIflowId : pluginHelper.lastVisitedIflowId;
             var figafHost = getFigafHost(settings);
             var figafAgentSystemId = getFigafAgentSystemId(pluginHelper, settings);
-            var figafUrl = `${figafHost}#/cpi-helper-integration?operation=record-messages&tenantHost=${pluginHelper.tenant}&systemId=${figafAgentSystemId}&objectType=${pluginHelper.artifactType}&packageTechnicalName=${pluginHelper.currentPackageId}&artifactTechnicalName=${pluginHelper.integrationFlowId}&messageGuid=${runInfo.messageGuid}`;
+            var figafUrl = `${figafHost}#/cpi-helper-integration?operation=record-messages&tenantHost=${pluginHelper.tenant}&systemId=${figafAgentSystemId}&objectType=${pluginHelper.currentArtifactType}&packageTechnicalName=${pluginHelper.currentPackageId}&artifactTechnicalName=${currentIflowId}&messageGuid=${runInfo.messageGuid}`;
             window.open(figafUrl);
         },
         "condition": (pluginHelper, settings, runInfo) => {
@@ -46,7 +47,7 @@ var plugin = {
             navigateButton.addEventListener("click", () => {
                 var figafHost = getFigafHost(settings);
                 var figafAgentSystemId = getFigafAgentSystemId(pluginHelper, settings);
-                var figafUrl = `${figafHost}#/cpi-helper-integration?operation=navigate&tenantHost=${pluginHelper.tenant}&systemId=${figafAgentSystemId}&objectType=${pluginHelper.artifactType}&packageTechnicalName=${pluginHelper.currentPackageId}&artifactTechnicalName=${pluginHelper.artifactId}`;
+                var figafUrl = `${figafHost}#/cpi-helper-integration?operation=navigate&tenantHost=${pluginHelper.tenant}&systemId=${figafAgentSystemId}&objectType=${pluginHelper.currentArtifactType}&packageTechnicalName=${pluginHelper.currentPackageId}&artifactTechnicalName=${pluginHelper.currentArtifactId}`;
                 window.open(figafUrl);
             });
 
@@ -55,7 +56,7 @@ var plugin = {
             synchronizeButton.addEventListener("click", () => {
                 var figafHost = getFigafHost(settings);
                 var figafAgentSystemId = getFigafAgentSystemId(pluginHelper, settings);
-                var figafUrl = `${figafHost}#/cpi-helper-integration?operation=synchronize&tenantHost=${pluginHelper.tenant}&systemId=${figafAgentSystemId}&objectType=${pluginHelper.artifactType}&packageTechnicalName=${pluginHelper.currentPackageId}&artifactTechnicalName=${pluginHelper.artifactId}`;
+                var figafUrl = `${figafHost}#/cpi-helper-integration?operation=synchronize&tenantHost=${pluginHelper.tenant}&systemId=${figafAgentSystemId}&objectType=${pluginHelper.currentArtifactType}&packageTechnicalName=${pluginHelper.currentPackageId}&artifactTechnicalName=${pluginHelper.currentArtifactId}`;
                 window.open(figafUrl);
             });
 
@@ -70,7 +71,7 @@ var plugin = {
         "title": "Open in Figaf",
         "onClick": (pluginHelper, settings) => {
             var objectType = "Script Collection";
-            var resourceNameElement = document.getElementById("__xmlview0--ceFileLabel-bdi");
+            var resourceNameElement = document.querySelector('bdi[id$="--ceFileLabel-bdi"]');
             var resourceObjectType = "";
             var resourceName = "";
             if (resourceNameElement) {
@@ -80,7 +81,7 @@ var plugin = {
 
             var figafHost = getFigafHost(settings);
             var figafAgentSystemId = getFigafAgentSystemId(pluginHelper, settings);
-            var figafUrl = `${figafHost}#/cpi-helper-integration?operation=navigate&tenantHost=${pluginHelper.tenant}&systemId=${figafAgentSystemId}&objectType=${objectType}&resourceObjectType=${resourceObjectType}&resourceName=${resourceName}&packageTechnicalName=${pluginHelper.currentPackageId}&artifactTechnicalName=${pluginHelper.artifactId}`;
+            var figafUrl = `${figafHost}#/cpi-helper-integration?operation=navigate&tenantHost=${pluginHelper.tenant}&systemId=${figafAgentSystemId}&objectType=${objectType}&resourceObjectType=${resourceObjectType}&resourceName=${resourceName}&packageTechnicalName=${pluginHelper.currentPackageId}&artifactTechnicalName=${pluginHelper.currentArtifactId}`;
             window.open(figafUrl);
         },
         condition: (pluginHelper, settings) => {
@@ -94,14 +95,32 @@ var plugin = {
         "onClick": (pluginHelper, settings) => {
             var objectType = "IFlow";
             var resourceObjectType = "Script";
-            var artifactTechnicalName = pluginHelper.lastVisitedIflowId;
-            var resourceName = pluginHelper.artifactId;
+            var artifactTechnicalName = pluginHelper.currentIflowId ? pluginHelper.currentIflowId : pluginHelper.lastVisitedIflowId;
+            var resourceName = pluginHelper.currentArtifactId;
 
             var figafHost = getFigafHost(settings);
             var figafAgentSystemId = getFigafAgentSystemId(pluginHelper, settings);
             var figafUrl = `${figafHost}#/cpi-helper-integration?operation=navigate&tenantHost=${pluginHelper.tenant}&systemId=${figafAgentSystemId}&objectType=${objectType}&resourceObjectType=${resourceObjectType}&resourceName=${resourceName}&packageTechnicalName=${pluginHelper.currentPackageId}&artifactTechnicalName=${artifactTechnicalName}`;
             window.open(figafUrl);
 
+        },
+        condition: (pluginHelper, settings) => {
+            return true
+        }
+    },
+    xsltButton: {
+        "text": "Open in Figaf",
+        "title": "Open in Figaf",
+        "onClick": (pluginHelper, settings) => {
+            var objectType = "IFlow";
+            var resourceObjectType = "XSLT";
+            var artifactTechnicalName = pluginHelper.currentIflowId ? pluginHelper.currentIflowId : pluginHelper.lastVisitedIflowId;
+            var resourceName = pluginHelper.currentArtifactId;
+
+            var figafHost = getFigafHost(settings);
+            var figafAgentSystemId = getFigafAgentSystemId(pluginHelper, settings);
+            var figafUrl = `${figafHost}#/cpi-helper-integration?operation=navigate&tenantHost=${pluginHelper.tenant}&systemId=${figafAgentSystemId}&objectType=${objectType}&resourceObjectType=${resourceObjectType}&resourceName=${resourceName}&packageTechnicalName=${pluginHelper.currentPackageId}&artifactTechnicalName=${artifactTechnicalName}`;
+            window.open(figafUrl);
         },
         condition: (pluginHelper, settings) => {
             return true
