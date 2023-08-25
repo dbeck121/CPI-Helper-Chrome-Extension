@@ -29,12 +29,13 @@ cpiCollectionURIRegexp = /\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)/
 
 //opens a new window with the Trace for a MessageGuid
 function openTrace(MessageGuid) {
-
+  log.debug("MessageGuid");
   //we have to get the RunID first
   makeCall("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$format=json", false, "", (xhr) => {
     if (xhr.readyState == 4) {
       var resp = JSON.parse(xhr.responseText);
-      if (resp.d.results.length > 1) { var runId = resp.d.results[1].Id; } 
+      var status =  resp.d.results[0].OverallState;
+      if (resp.d.results.length > 1 && status != "COMPLETED") { var runId = resp.d.results[1].Id; } 
       else { var runId = resp.d.results[0].Id; }
 
       let url = '/' + cpiData.urlExtension + 'shell/monitoring/MessageProcessingRun/%7B"parentContext":%7B"MessageMonitor":%7B"artifactKey":"__ALL__MESSAGE_PROVIDER","artifactName":"All%20Artifacts"%7D%7D,"messageProcessingLog":"' + MessageGuid + '","RunId":"' + runId + '"%7D';
@@ -268,7 +269,6 @@ async function renderMessageSidebar() {
 
 
 				traceButton.addEventListener("click", (a) => {
-
 				  statistic("messagebar_btn_trace_click")
 				  openTrace(a.currentTarget.classList[0]);
 
@@ -314,7 +314,7 @@ function calculateMessageSidebarTimerTime(lastTabHidden, lastDurationRefresh) {
 
   //if tab hidden, set timer to 15 seconds
   if (lastTabHidden > 9) {
-    log.debug("Tab is hidden, set timer to 21 seconds");
+    log.log("Tab is hidden, set timer to 21 seconds");
     return 7;
   }
 
@@ -1500,7 +1500,8 @@ function createErrorMessageElement(message) {
 async function getMessageProcessingLogRuns(MessageGuid, store = true) {
   return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store).then((responseText) => {
     var resp = JSON.parse(responseText);
-    if (resp.d.results.length > 1) { return resp.d.results[1].Id; } 
+    var status =  resp.d.results[0].OverallState;
+    if (resp.d.results.length > 1 && status != "COMPLETED") { return resp.d.results[1].Id; } 
       else { return resp.d.results[0].Id; }
   }).then((runId) => {
     return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json&$top=300", store);
