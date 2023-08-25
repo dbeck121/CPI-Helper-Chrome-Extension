@@ -167,6 +167,7 @@ function addTenantUrls() {
                             <ul><li><a href="${host + '/shell/configure'}" target="_blank">Configure</a></li></ul>
                             <ul><li><a href="${host + '/shell/develop'}" target="_blank">Design</a></li></ul>
                             <ul><li><a href="${host + '/shell/testconsole'}" target="_blank">Test</a></li></ul>
+                            <ul><li><a href="${host + '/shell/analytics'}" target="_blank">Analyze</a></li></ul>                            
                         </li>
                     </ul> `;
 
