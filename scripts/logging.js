@@ -80,6 +80,7 @@ ulog.use({
 
         
           log.log("url:", window.location.href)
+          log.log("Version "+ chrome.runtime.getManifest().version)
           log.log("Downloading logs")
           var blob = new Blob(logsarray.map(entry => entry + "\r\n"), {type: "text/plain;charset=utf-8"});
           var filename = "cpihelper_logs-"+new Date().toISOString()+".txt"

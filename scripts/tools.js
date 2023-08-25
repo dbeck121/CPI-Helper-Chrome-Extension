@@ -29,7 +29,7 @@ async function getCsrfToken(showInfo = false) {
     return new Promise(async function (resolve, reject) {
       var xhr = new XMLHttpRequest();
       xhr.withCredentials = true;
-
+      log.log("getCsrfToken")
       xhr.open("GET", "/api/1.0/user");
 
       xhr.setRequestHeader("X-CSRF-Token", "Fetch");
@@ -39,9 +39,13 @@ async function getCsrfToken(showInfo = false) {
         if (this.status >= 200 && this.status < 300) {
 
           showInfo ? workingIndicator(false) : {};
+          log.debug("getCsrfToken response status: ", xhr.status)
+          log.debug("getCsrfToken response text: ", xhr.responseText.substring(0, 50))
           resolve(xhr.getResponseHeader("x-csrf-token"));
         } else {
           showInfo ? workingIndicator(false) : {};
+          log.debug("getCsrfToken response status: ", xhr.status)
+          log.debug("getCsrfToken response text: ", xhr.responseText.substring(0, 300))
           showInfo ? showToast("CPI-Helper has run into a problem while catching X-CSRF-Token.", "", "error") : {};
 
           reject({
@@ -51,7 +55,7 @@ async function getCsrfToken(showInfo = false) {
         }
       };
       xhr.ontimeout = function () {
-
+        log.log("getCsrfToken timeout")
         showInfo ? showToast("CPI-Helper has run into a timeout while refreshing X-CSRF-Token.", "Please refresh site and try again.", "error") : {};
         showInfo ? workingIndicator(false) : {};
       }
@@ -84,6 +88,8 @@ var callCache = new Map();
 
 async function makeCallPromiseXHR(method, url, accept, payload, includeXcsrf, contentType, showInfo = true) {
   return new Promise(async function (resolve, reject) {
+
+    log.log("makecallpromisexhr "+new Date().toISOString())
  
 
       var xhr = new XMLHttpRequest();
@@ -126,9 +132,11 @@ async function makeCallPromiseXHR(method, url, accept, payload, includeXcsrf, co
           reject(xhr);
         }
       };
-      xhr.timeout = 3000; // Set timeout to 3 seconds
-      xhr.ontimeout = function () {
-
+      xhr.timeout = 5000; // Set timeout to 5 seconds
+      xhr.ontimeout = function (e) {
+        log.log("make call promisexhr timeout")
+        log.log("timeout "+new Date().toISOString())
+        log.log(e.toString())
         showInfo ? showToast("CPI-Helper has run into a timeout", "Please refresh site and try again.", "error") : {};
         showInfo ? workingIndicator(false) : {};
         reject({
@@ -159,6 +167,7 @@ async function makeCallPromise(method, url, useCache, accept, payload, includeXc
     cache = callCache.get(method + url);
   }
   if (cache) {
+    log.debug("makeCallPromise cache hit")
     return cache;
   } 
   
@@ -193,10 +202,11 @@ async function makeCall(type, url, includeXcsrf, payload, callback, contentType,
     xhr.setRequestHeader("X-CSRF-Token", await getCsrfToken(true));
   }
 
-  xhr.timeout = 6500; // Set timeout to 6.5 seconds
-  xhr.ontimeout = function () {
+  xhr.timeout = 5000; // Set timeout to 5 seconds
+  xhr.ontimeout = function (e) {
     log.debug("makeCall timeout")
-    showInfo ? showToast("CPI-Helper has run into a timeout", "Please refresh site and try again.", "error") : {};
+    log.debug(e)
+    showInfo ? showToast("CPI-Helper has run into a timeout!", "Please refresh site and try again.", "error") : {};
     showInfo ? workingIndicator(false) : {};
 
   }

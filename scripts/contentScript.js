@@ -22,7 +22,7 @@ cpiArtifactURIRegexp = [
   [/\/scriptcollections\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Script Collection"],
   [/\/messagemappings\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Message Mapping"],
   [/\/resources\/script\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Script"],
-  [/\/resources\/mapping\/(?<artifactId>[0-9a-zA-Z_\-.]+\.xsl)/, "XSLT"],
+  [/\/resources\/mapping\/(?<artifactId>[0-9a-zA-Z_\-.]+\.xslt?)/, "XSLT"],
   [/\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)\/?(\?.*)?$/, "Package"]
 ];
 
@@ -1879,6 +1879,9 @@ setInterval(async function () {
   if(!refreshActive) {
     nextMessageSidebarRefreshCount--;
   }
+  if(refreshActive) {
+    log.log("refresh active. Will not refresh message sidebar")
+  }
 
   if (!refreshActive && sidebar.active && ((nextMessageSidebarRefreshCount) <= 0 || lastTabHidden > 0 && document.hidden == false)) {
 
@@ -1886,12 +1889,14 @@ setInterval(async function () {
     //count time in ms of reload and rendering of sidebar in ms
     var start = new Date();
     refreshActive = true;
+    log.debug("refresh message sidebar");
     try {
       await renderMessageSidebar();
     } catch (err) {
       log.error(err);
     }
     refreshActive = false;
+    log.debug("refresh message sidebar done");
     var end = new Date();
     lastDurationRefresh = end - start;
     log.debug("refresh message sidebar took " + lastDurationRefresh + "ms");
