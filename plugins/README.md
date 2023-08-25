@@ -81,13 +81,15 @@ var plugin = {
         "text": "Example Button",
         "title": "Example Title",
         "onClick": (pluginHelper, settings) => {
-            log.log("clicked");
+         log.log("clicked");
             log.log(pluginHelper);
             log.log(settings);
-            log.log(pluginHelper.artifactId)
-            log.log(pluginHelper.artifactType)
+            log.log(pluginHelper.currentArtifactId)
+            log.log(pluginHelper.currentArtifactType)
             log.log(pluginHelper.currentPackageId)
-            log.log(document.getElementById("__xmlview0--ceFileLabel-bdi").textContent)
+            // not good: log.log(document.getElementById("__xmlview0--ceFileLabel-bdi").textContent)
+            //better:
+            log.log(document.querySelector('bdi[id$="--ceFileLabel-bdi"]').textContent)
         },
         condition: (pluginHelper, settings) => {
             //condition can be null or a function that returns true or false
@@ -101,14 +103,33 @@ var plugin = {
             log.log("clicked");
             log.log(pluginHelper);
             log.log(settings);
-            log.log(pluginHelper.artifactId)
-            log.log(pluginHelper.artifactType)
+            log.log(pluginHelper.currentArtifactId)
+            log.log(pluginHelper.currentArtifactType)
+            log.log(pluginHelper.currentIflowId)
             log.log(pluginHelper.currentPackageId)
+            log.log(pluginHelper.lastVisitedIflowId)
         },
         condition: (pluginHelper, settings) => {
             return true
         }
-};
+    },
+    xsltButton: {                                //a button that can be used to interact with xslt
+        "text": "XSLT Button",
+        "title": "Example Title",
+        "onClick": (pluginHelper, settings) => {
+            log.log("clicked");
+            log.log(pluginHelper);
+            log.log(settings);
+            log.log(pluginHelper.currentArtifactId)
+            log.log(pluginHelper.currentArtifactType)
+            log.log(pluginHelper.currentIflowId)
+            log.log(pluginHelper.currentPackageId)
+            log.log(pluginHelper.lastVisitedIflowId)
+        },
+        condition: (pluginHelper, settings) => {
+            return true
+        }
+    },
 
 pluginList.push(plugin);
 ```

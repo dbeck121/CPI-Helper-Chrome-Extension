@@ -44,6 +44,10 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.6.1
+
+- [Bugfix] Fix error in inline debug
+
 ### 3.6.0
 
 - [Feature] Added TPM/IA links to "Tenant URLs"
@@ -422,7 +426,7 @@ Run a message with trace activated. You see the message in the message sidebar. 
 
 SAP deletes trace messages after a while. Trace messages normally do not live longer than 1 hour.
 
-### Trace Mode or other features are not working. Is there a debug mode.
+### Trace Mode or other features are not working. Is there a debug mode?
 
 In case of problems, you can contact me and send a debug log. You can activate the debug log while visiting an deployed IFlow, extend the url with ?cpihelper_debug=true&cpihelper_debug_download_duration=60000 and press enter to load again. Try to reproduce the error and after 60s, the debug log will download automatically. Send this to me via mail or linkedin.
 
