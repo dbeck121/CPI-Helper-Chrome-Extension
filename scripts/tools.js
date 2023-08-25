@@ -82,16 +82,9 @@ var callCache = new Map();
 
 
 
-async function makeCallPromiseXHR(method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo = true) {
+async function makeCallPromiseXHR(method, url, accept, payload, includeXcsrf, contentType, showInfo = true) {
   return new Promise(async function (resolve, reject) {
-    log.debug("makeCallPromise: ", method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo)
-    var cache;
-    if (useCache) {
-      cache = callCache.get(method + url);
-    }
-    if (cache) {
-      resolve(cache);
-    } else {
+ 
 
       var xhr = new XMLHttpRequest();
       xhr.withCredentials = true;
@@ -115,9 +108,7 @@ async function makeCallPromiseXHR(method, url, useCache, accept, payload, includ
 
       xhr.onload = function () {
         if (this.status >= 200 && this.status < 300) {
-          if (useCache) {
-            callCache.set(method + url, xhr.responseText);
-          }
+
           showInfo ? workingIndicator(false) : {};
 
           log.debug("makeCallPromise response status: ", xhr.status)
@@ -156,15 +147,27 @@ async function makeCallPromiseXHR(method, url, useCache, accept, payload, includ
       xhr.send(payload);
 
     }
-  }
+  
   );
 
 }
 
 async function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo = true) {
-  var xhr = await makeCallPromiseXHR(method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo = true)
+  log.debug("makeCallPromise: ", method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo)
+  var cache;
+  if (useCache) {
+    cache = callCache.get(method + url);
+  }
+  if (cache) {
+    return cache;
+  } 
+  
+  var xhr = await makeCallPromiseXHR(method, url, accept, payload, includeXcsrf, contentType, showInfo = true)
   
   if(xhr.status >= 200 && xhr.status < 300) {
+    if (useCache) {
+      callCache.set(method + url, xhr.responseText);
+    }
     return xhr.responseText
   }
   
