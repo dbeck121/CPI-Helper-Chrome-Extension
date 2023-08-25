@@ -163,7 +163,7 @@ function addTenantUrls() {
                             <ul><li><a href="${host + '/shell/tpm/agreementTemplates'}" target="_blank">Agreement Templates</a></li></ul>
                             <ul><li><a href="${host + '/shell/tpm/pdContent'}" target="_blank">Partner Directory Data</a></li></ul>
                         </li>
-                         <li><a href="${host + '/shell/tpm/companyProfile'}" target="_blank">API Management &gt;</a>
+                         <li><a href="${host + '/shell/settings'}" target="_blank">API Management &gt;</a>
                             <ul><li><a href="${host + '/shell/configure'}" target="_blank">Configure</a></li></ul>
                             <ul><li><a href="${host + '/shell/develop'}" target="_blank">Design</a></li></ul>
                             <ul><li><a href="${host + '/shell/testconsole'}" target="_blank">Test</a></li></ul>
