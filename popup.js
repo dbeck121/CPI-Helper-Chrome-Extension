@@ -150,7 +150,7 @@ function addTenantUrls() {
                             <ul><li><a href="${host + '/shell/monitoring/SystemLogs'}" target="_blank">System Logs</a></li></ul>
                             <ul><li><a href="${host + '/shell/monitoring/Locks'}" target="_blank">Message Locks</a></li></ul>
                             <ul><li><a href="${host + '/shell/monitoring/DesigntimeLocks'}" target="_blank">Designtime Artifact Locks</a></li></ul>
-                        </li>
+                        </li><br>
                         <li><a href="${host + '/shell/tpm/companyProfile'}" target="_blank">Integration Advisor &gt;</a>                            
                             <ul><li><a href="${host + '/shell/migs'}" target="_blank">MIGs (Message Implementation Guidelines)</a></li></ul>
                             <ul><li><a href="${host + '/shell/mags'}" target="_blank">MAGs (Mapping Guidelines)</a></li></ul>
@@ -162,6 +162,12 @@ function addTenantUrls() {
                             <ul><li><a href="${host + '/shell/tpm/tradingPartners'}" target="_blank">Trading Partners</a></li></ul>
                             <ul><li><a href="${host + '/shell/tpm/agreementTemplates'}" target="_blank">Agreement Templates</a></li></ul>
                             <ul><li><a href="${host + '/shell/tpm/pdContent'}" target="_blank">Partner Directory Data</a></li></ul>
+                        </li>
+                         <li><a href="${host + '/shell/settings'}" target="_blank">API Management &gt;</a>
+                            <ul><li><a href="${host + '/shell/configure'}" target="_blank">Configure</a></li></ul>
+                            <ul><li><a href="${host + '/shell/develop'}" target="_blank">Design</a></li></ul>
+                            <ul><li><a href="${host + '/shell/testconsole'}" target="_blank">Test</a></li></ul>
+                            <ul><li><a href="${host + '/shell/analytics'}" target="_blank">Analyze</a></li></ul>                            
                         </li>
                     </ul> `;
 
