@@ -89,7 +89,7 @@ var callCache = new Map();
 async function makeCallPromiseXHR(method, url, accept, payload, includeXcsrf, contentType, showInfo = true) {
   return new Promise(async function (resolve, reject) {
 
-    log.log("makecallpromisexhr "+new Date().toISOString())
+    log.debug("makecallpromisexhr "+new Date().toISOString())
  
 
       var xhr = new XMLHttpRequest();
@@ -132,7 +132,7 @@ async function makeCallPromiseXHR(method, url, accept, payload, includeXcsrf, co
           reject(xhr);
         }
       };
-      xhr.timeout = 10000; // Set timeout to 10 seconds
+      xhr.timeout = 60000; // Set timeout to 60 seconds
       xhr.ontimeout = function (e) {
         log.log("make call promisexhr timeout")
         log.log("timeout "+new Date().toISOString())
@@ -202,7 +202,7 @@ async function makeCall(type, url, includeXcsrf, payload, callback, contentType,
     xhr.setRequestHeader("X-CSRF-Token", await getCsrfToken(true));
   }
 
-  xhr.timeout = 10000; // Set timeout to 10 seconds
+  xhr.timeout = 60000; // Set timeout to 60 seconds
   xhr.ontimeout = function (e) {
     log.debug("makeCall timeout")
     log.debug(e)

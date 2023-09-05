@@ -307,6 +307,7 @@ async function storageGetPromise(name) {
 }
 
 async function statistic(event, value = null, value2 = null) {
+    return null;
     try {
         var sessionId = await storageGetPromise("sessionId")
         var installtype = await storageGetPromise("installtype")
