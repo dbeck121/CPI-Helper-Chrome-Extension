@@ -170,6 +170,17 @@
       if (document.querySelector('#cpiHelper_contentheader')) {
         document.querySelector('#cpiHelper_contentheader').style.backgroundColor = color
       }
+      
+      // Set the theme color meta tag
+      let themeColorElement = document.querySelector("meta[name='theme-color']");
+      if (themeColorElement) {
+        themeColorElement.content = color;
+      } else {
+        let newElement = document.createElement('meta');
+        newElement.name = 'theme-color';
+        newElement.content = color;
+        document.head.appendChild(newElement);
+      }
     }
   }
 
