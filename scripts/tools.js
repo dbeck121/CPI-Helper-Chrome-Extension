@@ -1,3 +1,9 @@
+/**
+ * Returns a promise that resolves with the value of the specified key in Chrome storage.
+ * If no key is specified, resolves with the entire storage object.
+ * @param {string} key - The key to retrieve from storage. Optional.
+ * @returns {Promise} A promise that resolves with the value of the specified key in storage.
+ */
 function callChromeStoragePromise(key) {
   return new Promise(async function (resolve, reject) {
     log.debug("callChromeStoragePromise: ", key)
@@ -23,69 +29,81 @@ function syncChromeStoragePromise(keyName, value) {
   });
 }
 
+/**
+ * Returns a promise that resolves with the CSRF token for the current user.
+ * If the user is not logged in, returns a rejected promise with an error object.
+ * @param {boolean} showInfo - Whether to show/hide the working indicator and toast messages. Optional.
+ * @returns {Promise} A promise that resolves with the CSRF token for the current user.
+ */
 async function getCsrfToken(showInfo = false) {
-
   if (!cpiData.classicUrl) {
     return new Promise(async function (resolve, reject) {
       var xhr = new XMLHttpRequest();
       xhr.withCredentials = true;
-      log.log("getCsrfToken")
+      log.log("getCsrfToken");
       xhr.open("GET", "/api/1.0/user");
-
       xhr.setRequestHeader("X-CSRF-Token", "Fetch");
-
 
       xhr.onload = function () {
         if (this.status >= 200 && this.status < 300) {
-
-          showInfo ? workingIndicator(false) : {};
-          log.debug("getCsrfToken response status: ", xhr.status)
-          log.debug("getCsrfToken response text: ", xhr.responseText.substring(0, 50))
+          showInfo ? workingIndicator(false) : null;
+          log.debug("getCsrfToken response status: ", xhr.status);
+          log.debug("getCsrfToken response text: ", xhr.responseText.slice(0, 50));
           resolve(xhr.getResponseHeader("x-csrf-token"));
         } else {
-          showInfo ? workingIndicator(false) : {};
-          log.debug("getCsrfToken response status: ", xhr.status)
-          log.debug("getCsrfToken response text: ", xhr.responseText.substring(0, 300))
-          showInfo ? showToast("CPI-Helper has run into a problem while catching X-CSRF-Token.", "", "error") : {};
-
+          showInfo ? workingIndicator(false) : null;
+          log.debug("getCsrfToken response status: ", xhr.status);
+          log.debug("getCsrfToken response text: ", xhr.responseText.slice(0, 300));
+          showInfo ? showToast("CPI-Helper has run into a problem while catching X-CSRF-Token.", "", "error") : null;
           reject({
-            status: this.status,
+            status: xhr.status,
             statusText: xhr.statusText
           });
         }
       };
+
       xhr.ontimeout = function () {
-        log.log("getCsrfToken timeout")
-        showInfo ? showToast("CPI-Helper has run into a timeout while refreshing X-CSRF-Token.", "Please refresh site and try again.", "error") : {};
-        showInfo ? workingIndicator(false) : {};
-      }
+        log.log("getCsrfToken timeout");
+        showInfo ? showToast("CPI-Helper has run into a timeout while refreshing X-CSRF-Token.", "Please refresh site and try again.", "error") : null;
+        showInfo ? workingIndicator(false) : null;
+        reject({
+          status: 0,
+          statusText: "Timeout"
+        });
+      };
 
       xhr.onerror = function () {
         reject({
-          status: this.status,
+          status: xhr.status,
           statusText: xhr.statusText
         });
       };
-      showInfo ? workingIndicator(true) : {};
+
+      showInfo ? workingIndicator(true) : null;
       xhr.send();
-    }
-    );
-
-
+    });
   } else {
-
     var tenant = document.location.href.split("/")[2].split(".")[0];
-    var name = 'xcsrf_' + tenant;
-    xcsrf = await storageGetPromise(name)
-    return xcsrf
-
+    var storageKey = 'csrfToken_' + tenant;
+    var csrfToken = await callChromeStoragePromise(storageKey);
+    return csrfToken;
   }
 }
 
 var callCache = new Map();
 
 
-
+/**
+ * Returns a promise that resolves with an XMLHttpRequest object for the specified URL.
+ * @param {string} method - The HTTP method to use for the request.
+ * @param {string} url - The URL to send the request to.
+ * @param {string} accept - The value of the Accept header to send with the request. Optional.
+ * @param {string} payload - The payload to send with the request. Optional.
+ * @param {boolean} includeXcsrf - Whether to include the X-CSRF-Token header in the request. Optional.
+ * @param {string} contentType - The value of the Content-Type header to send with the request. Optional.
+ * @param {boolean} showInfo - Whether to show/hide the working indicator, X-CSRF-Token indicator, and toast messages. Optional.
+ * @returns {Promise} A promise that resolves with an XMLHttpRequest object for the specified URL.
+ */
 async function makeCallPromiseXHR(method, url, accept, payload, includeXcsrf, contentType, showInfo = true) {
   return new Promise(async function (resolve, reject) {
 
@@ -181,7 +199,7 @@ async function makeCallPromise(method, url, useCache, accept, payload, includeXc
   }
   
   return {
-    status: this.status,
+    status: xhr.status,
     statusText: xhr.statusText,
   }
 }

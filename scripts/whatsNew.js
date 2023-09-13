@@ -59,43 +59,30 @@ async function whatsNewCheck(showOnlyOnce = true) {
 
   <a class="item"><i class="right triangle icon"></i>
   <div class="content">
-    <div class="header">Feature</div>
-    <div class="description">Added debug mode</div>
+    <div class="header">Plugin</div>
+    <div class="description">Improved Figaf Plugin with link to Figaf editor for Groovy, Javascript and XSLT</div>
   </div>
   </a>
 
-  <a class="item"><i class="right triangle icon"></i>
-<div class="content">
-  <div class="header">Feature</div>
-  <div class="description">Plugin-Engine: Added option for buttons in script editor"</div>
-</div>
-</a>
-
-<a class="item"><i class="right triangle icon"></i>
-<div class="content">
-  <div class="header">Feature</div>
-  <div class="description">Added TPM/IA Links to "Tenant URLs"</div>
-</div>
-</a>
-
-<a class="item"><i class="right triangle icon"></i>
-<div class="content">
-  <div class="header">Improvement</div>
-  <div class="description">"Lazy Mode" activated for Extension window (no need to click)</div>
-</div>
-</a>
 
   <a class="item"><i class="right triangle icon"></i>
   <div class="content">
-    <div class="header">Bugfix</div>
-    <div class="description">Bugfix for Settings Pane Resizer (Plugin)</div>
+    <div class="header">Feature</div>
+    <div class="description">Use of theme-color tag to improve color scheme.</div>
   </div>
 </a>
 
 <a class="item"><i class="right triangle icon"></i>
 <div class="content">
   <div class="header">Improvement</div>
-  <div class="description">Updated dependencies</div>
+  <div class="description">Fixed problems with timeouts</div>
+</div>
+</a>
+
+<a class="item"><i class="right triangle icon"></i>
+<div class="content">
+  <div class="header">Improvement</div>
+  <div class="description"></div>
 </div>
 </a>
 

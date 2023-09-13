@@ -44,6 +44,17 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.7.0
+
+- [Plugin] Improved Figaf Plugin with link to editor in scripts, and xslt
+- [Improvement] Use of theme-color tag to improve color scheme.
+- [Bugfix] Fix error with timeout
+- [Bugfix] Fix ui bug with buttons
+
+### 3.6.1
+
+- [Bugfix] Fix error in logs
+
 ### 3.6.1
 
 - [Bugfix] Fix error in inline debug
