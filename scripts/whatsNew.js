@@ -57,7 +57,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
   <a class="item"><i class="right triangle icon"></i>
   <div class="content">
     <div class="header">Plugin</div>
-    <div class="description">Improved Figaf Plugin with link to Figaf editor for Groovy, Javascript and XSLT</div>
+    <div class="description">Improved Figaf Plugin with link to Figaf editor for Groovy and XSLT</div>
   </div>
   </a>
 
