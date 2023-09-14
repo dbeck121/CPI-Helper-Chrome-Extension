@@ -6,7 +6,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
 
   silentupdates = ["3.0.3"]
 
-  const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
+  const FIGAF_IMG = chrome.runtime.getURL("images/figaf-editor.png");
 
   if (!check && !silentupdates.includes(manifestVersion) || showOnlyOnce == false) {
     html = `
@@ -30,19 +30,16 @@ async function whatsNewCheck(showOnlyOnce = true) {
     <div class="ui bottom attached tab segment" data-tab="one">
     <div class="ui segment">
         <div class="ui grid">
-        <div class="four wide column">
-              <a href="https://figaf.com/cpihelper-and-figaf" target="_blank"><img class="ui small left floated image" src="${FIGAF_IMG}"></a>
+        <div class="six wide column">
+              <a href="https://figaf.com/cpihelper-and-figaf" target="_blank"><img class="ui left floated image" src="${FIGAF_IMG}"></a>
  
           </div>
-    <div class="twelve wide column">
+    <div class="ten wide column">
          
                 <div class="ui header">This release is sponsored by Figaf </div>
-                <p>Webinar series: Automate your SAP Integration work.<br>
-                There are many ways you can improve how you are working with SAP Integration. Figaf is hosting a webinar series where we will cover some of the most interesting topics for integration developers. For example, DevOps for Cloud Integration or SAP PI/PO, Neo to Integration Suite migration, PI to Integration Suite migration and better workflow for your SAP Cloud Integration and where CPIhelper plays a part.
-                <br><br>
-                There are topics for all developers, join to get some ideas on how you can run your upcoming projects better.
+                <p>Figaf has improved the developer workflow with CPIHelper. It will allows you to go to Figaf from a Groovy or XSLT Editor. In Figaf you can also run the code with your existing test cases from the editor. Once you have checked the result, click upload, and the script is in your iFlow. 
                 </p>
-                Read more <a href="https://figaf.com/cpihelper7" target="_blank">here</a>.
+                Read more <a href="https://figaf.com/cpihelper8" target="_blank"><u>here</u></a>.
             </div>
      
         </div>
@@ -78,14 +75,6 @@ async function whatsNewCheck(showOnlyOnce = true) {
   <div class="description">Fixed problems with timeouts</div>
 </div>
 </a>
-
-<a class="item"><i class="right triangle icon"></i>
-<div class="content">
-  <div class="header">Improvement</div>
-  <div class="description"></div>
-</div>
-</a>
-
 
 <a class="item"><i class="right triangle icon"></i>
 <div class="content">
