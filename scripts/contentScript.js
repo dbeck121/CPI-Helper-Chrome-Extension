@@ -189,7 +189,7 @@ async function renderMessageSidebar() {
 				  var quickInlineTraceButton = createElementFromHTML("<span />")
 				}
 
-				let infoButton = createElementFromHTML("<button title='show logs in new tab' id='info--" + i + "' class='" + (cpiData.urlExtension && !resp[i].AlternateWebLink.match(cpiTypeRegexp)  ? resp[i].AlternateWebLink.replace("443/shell", "443/" + cpiData.urlExtension + "shell") : resp[i].AlternateWebLink) + flash + "'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
+				let infoButton = createElementFromHTML("<button title='show logs in new tab' id='info--" + i + "' class='" + (cpiData.urlExtension && !resp[i].AlternateWebLink.replace("https://","").match(cpiTypeRegexp)  ? resp[i].AlternateWebLink.replace("443/shell", "443/" + cpiData.urlExtension + "shell") : resp[i].AlternateWebLink) + flash + "'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
 				let logButton = createElementFromHTML("<button title='show log viewer on this page' id='logs--" + i + "' class='" + resp[i].MessageGuid + flash + "'><span data-sap-ui-icon-content=\"\" class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
 
 				//let listItem = document.createElement("div");
