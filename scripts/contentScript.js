@@ -26,6 +26,8 @@ cpiArtifactURIRegexp = [
   [/\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)\/?(\?.*)?$/, "Package"]
 ];
 
+var cpiTypeRegexp = /^[^\/]*\.integrationsuite(-trial)?.*/;
+
 var cpiCollectionURIRegexp = /\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)/
 var cpiIflowUriRegexp = /\/integrationflows\/(?<artifactId>[0-9a-zA-Z_\-.]+)/
 //opens a new window with the Trace for a MessageGuid
@@ -187,7 +189,7 @@ async function renderMessageSidebar() {
 				  var quickInlineTraceButton = createElementFromHTML("<span />")
 				}
 
-				let infoButton = createElementFromHTML("<button title='show logs in new tab' id='info--" + i + "' class='" + (cpiData.urlExtension ? resp[i].AlternateWebLink.replace("443/shell", "443/" + cpiData.urlExtension + "shell") : resp[i].AlternateWebLink) + flash + "'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
+				let infoButton = createElementFromHTML("<button title='show logs in new tab' id='info--" + i + "' class='" + (cpiData.urlExtension && !resp[i].AlternateWebLink.match(cpiTypeRegexp)  ? resp[i].AlternateWebLink.replace("443/shell", "443/" + cpiData.urlExtension + "shell") : resp[i].AlternateWebLink) + flash + "'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
 				let logButton = createElementFromHTML("<button title='show log viewer on this page' id='logs--" + i + "' class='" + resp[i].MessageGuid + flash + "'><span data-sap-ui-icon-content=\"\" class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
 
 				//let listItem = document.createElement("div");
@@ -255,7 +257,7 @@ async function renderMessageSidebar() {
 				infoButton.addEventListener("click", (a) => {
 				  statistic("messagebar_btn_info_click")
 				  let url = a.currentTarget.classList[0]
-				  if(url.match(/^[^\/]*\.integrationsuite(-trial)?.*/)) {
+				  if(url.match(cpiTypeRegexp)) {
 					  url = url.replace("/itspaces","")
 				  }
 				  openInfo(url);
@@ -1658,7 +1660,7 @@ async function handleUrlChange() {
     setDocumentTitle(hostData.title)
 
     //check type of tenant
-    if (!document.location.host.match(/^[^\/]*\.integrationsuite(-trial)?.*/)) {
+    if (!document.location.host.match(cpiTypeRegexp)) {
       cpiData.classicUrl = true
       cpiData.urlExtension = "itspaces/"
     }
