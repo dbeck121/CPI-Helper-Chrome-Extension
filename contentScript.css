@@ -45,10 +45,8 @@
   border: solid 1px #d2d2d2;
   border-radius: 4px;
   background: white;
-  padding-left: 0.2em;
-  padding-right: 0.2em;
-
-
+  padding-left: 0.3em;
+  padding-right: 0.3em;
 }
 
 .cpiHelper button.cpiHelper_inlineInfo-active {
