@@ -44,6 +44,10 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.7.1
+
+- [Bugfix] Problem with trace and x-csrf token
+
 ### 3.7.0
 
 - [Plugin] Improved Figaf Plugin with link to editor in scripts, and xslt
