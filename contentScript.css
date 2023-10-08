@@ -12,9 +12,7 @@
   visibility: hidden;
   min-width: 10px;
   margin-left: -125px;
-
   color: #fff;
-
   position: fixed;
   z-index: 500;
   right: 10%;
@@ -66,14 +64,16 @@
 
 .cpiHelper button.cpiHelper_sidebar_iconbutton {
   cursor: initial;
-  border: solid 0px;
+  border: solid 2px;
   background: transparent;
   outline: none;
 }
 
 #cpiHelper_sidebar_popup {
   position: fixed;
-  z-index: 460;
+  z-index: 390;
+  max-height: 20vh;
+  overflow: scroll;
   background: #fbfbfb;
   bottom: 50px;
   right: 100px;

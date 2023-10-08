@@ -216,16 +216,31 @@ async function renderMessageSidebar() {
 				activeInlineItem == quickInlineTraceButton.classList[0] && quickInlineTraceButton.classList.add("cpiHelper_inlineInfo-active");
 
 
-				let statusicon = createElementFromHTML("<button class='" + resp[i].MessageGuid + " cpiHelper_sidebar_iconbutton'><span data-sap-ui-icon-content='" + statusIcon + "' class='" + resp[i].MessageGuid + " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" + statusColor + ";'> </span></button>");
-
-				statusicon.onmouseover = (e) => {
-
-				  errorPopupOpen(e.currentTarget.classList[0]);
-				  errorPopupSetTimeout(null);
-				};
-				statusicon.onmouseout = (e) => {
-				  errorPopupSetTimeout(2000);
-				};
+				let statusicon = createElementFromHTML("<button class='" + resp[i].MessageGuid + " cpiHelper_inlineInfo-button'><span data-sap-ui-icon-content='" + statusIcon + "' class='" + resp[i].MessageGuid + " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" + statusColor + ";'> </span></button>");
+        statusicon.onclick = (e) => {
+          x = document.getElementById('cpiHelper_sidebar_popup')
+          if (!x) {
+            errorPopupOpen(e.currentTarget.classList[0]);
+            e.currentTarget.classList.add('cpiHelper_sidebar_iconbutton')
+          } else {
+            if (x.getAttribute('class') === 'show' && e.currentTarget.classList.contains('cpiHelper_sidebar_iconbutton')) {
+              errorPopupClose(); e.currentTarget.classList.remove('cpiHelper_sidebar_iconbutton')
+            }
+            else {
+              document.querySelectorAll('.cpiHelper_sidebar_iconbutton').forEach((i) => i.classList.remove('cpiHelper_sidebar_iconbutton'));
+              errorPopupOpen(e.currentTarget.classList[0]);
+              e.currentTarget.classList.add('cpiHelper_sidebar_iconbutton');
+            }
+          }
+        }
+        //earlier code
+				// statusicon.onmouseover = (e) => {
+				//   errorPopupOpen(e.currentTarget.classList[0]);
+				//   errorPopupSetTimeout(null);
+				// };
+				// statusicon.onmouseout = (e) => {
+				//   errorPopupSetTimeout(2000);
+				// };
 
 				quickInlineTraceButton.onmouseup = async (e) => {
 				  var mytarget = e.currentTarget
@@ -1393,12 +1408,8 @@ async function errorPopupOpen(MessageGuid) {
   if (!x) {
     x = document.createElement('div');
     x.id = "cpiHelper_sidebar_popup";
-    x.onmouseover = (e) => {
-      errorPopupSetTimeout(null);
-    };
-    x.onmouseout = (e) => {
-      errorPopupSetTimeout(3000);
-    };
+    //x.onmouseover = (e) => {errorPopupSetTimeout(null)};
+    //x.onmouseout = (e) => {errorPopupSetTimeout(3000)};
     document.body.appendChild(x);
   }
 
