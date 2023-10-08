@@ -62,6 +62,13 @@ async function whatsNewCheck(showOnlyOnce = true) {
   </div>
 </a>
 
+<a class="item"><i class="right triangle icon"></i>
+<div class="content">
+  <div class="header">Feature</div>
+  <div class="description">Improved "flying error dialog". No mouse over but you need to klick now. Thanks to Omkar Patel</div>
+</div>
+</a>
+
 
           
 <h3 class="ui header">

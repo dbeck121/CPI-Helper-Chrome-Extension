@@ -46,6 +46,7 @@ It is open source so feel free to check the source code.
 
 ### 3.8.0
 
+- [Improvement] Improved "flying error dialog". No mouse over but you need to klick now. Thanks to Omkar Patel
 - [Feature] Trace survives page reload
 
 ### 3.7.1
