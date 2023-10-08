@@ -72,14 +72,14 @@
 #cpiHelper_sidebar_popup {
   position: fixed;
   z-index: 390;
-  max-height: 20vh;
+  max-height: 50vh;
   overflow: scroll;
   background: #fbfbfb;
-  bottom: 50px;
-  right: 100px;
-  width: 700px;
+  bottom: 10%;
+  right: 2%;
+  width: 75%;
   min-height: 1rem;
-  padding: 13px;
+  padding: 1rem;
   border: solid 1px #e1e1e1;
 }
 
@@ -146,6 +146,7 @@
 #cpiHelper_contentheader {
   padding: 10px;
   cursor: move;
+  align-items: center;
   z-index: 10;
   background-color: #21436a;
   color: #fff;

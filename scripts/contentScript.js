@@ -1328,7 +1328,7 @@ var sidebar = {
     elem.innerHTML = `
     <div id="cpiHelper_contentheader">
       <span id='sidebar_modal_minimize' class='cpiHelper_closeButton_sidebar'>CPI Helper</span>
-      <span id='sidebar_modal_close' style='margin-left: 30px;' class='cpiHelper_closeButton_sidebar'>X</span>
+      <span id='sidebar_modal_close' data-sap-ui-icon-content="&#xe03e" class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>
     </div>
     <div id="outerFrame">
     <div id="updatedText" class="contentText"></div>
@@ -1422,6 +1422,14 @@ async function errorPopupOpen(MessageGuid) {
 
   y = document.createElement('div');
   y.innerText = "";
+  let popup = document.createElement("span");
+  popup.className = "cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL";
+  popup.style="font-family: SAP-icons; font-size: 1.5rem";
+  popup.onclick = () => {
+    document.querySelectorAll('#messageList > tr > td:nth-child(1) > button').forEach((e)=>e.classList.remove("cpiHelper_sidebar_iconbutton"));
+    document.getElementById('cpiHelper_sidebar_popup').classList.replace('show', 'hide_popup')}
+  popup.setAttribute('data-sap-ui-icon-content',"");
+  y.appendChild(popup) 
 
   try {
     var customHeaders = await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')?$format=json&$expand=CustomHeaderProperties", false)
