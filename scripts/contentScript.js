@@ -1926,7 +1926,9 @@ setInterval(async function () {
     if(time != NaN && time > 1000*60*10 && time <  1000*60*11) {
         log.log("refresh trace")
         setLogLevel("TRACE",cpiData.integrationFlowId)
-        await storageSetPromise(objName, now)
+        var objectToStore = {}
+        objectToStore[objName] = new Date().getTime().toString()
+        await storageSetPromise(objectToStore)
     }
   }
 
