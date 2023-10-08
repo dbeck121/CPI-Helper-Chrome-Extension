@@ -178,8 +178,6 @@ async function renderMessageSidebar() {
 				// logLevel[0] = logLevel[0].toUpperCase();
 				runInfoElement[thisMessageHash].logLevel = loglevel;
 
-
-
 				let traceButton = createElementFromHTML("<button title='jump to trace page' id='trace--" + i + "' class='" + resp[i].MessageGuid + flash + "'>" + loglevel.substr(0, 1).toUpperCase() + "</button>");
 
 				if (loglevel.toLowerCase() === "trace") {
@@ -211,13 +209,16 @@ async function renderMessageSidebar() {
 
 				//listItem.style["color"] = statusColor;
 
-				let timeButton = createElementFromHTML("<button class='" + resp[i].MessageGuid + flash + " cpiHelper_inlineInfo-button' style='cursor: pointer;'>" + date.substr(11, 8) + "</button>");
-
 				activeInlineItem == quickInlineTraceButton.classList[0] && quickInlineTraceButton.classList.add("cpiHelper_inlineInfo-active");
 
+				let statusicon = createElementFromHTML(
+          `<button class='${resp[i].MessageGuid} cpiHelper_inlineInfo-button'><span data-sap-ui-icon-content='${statusIcon}' class='${resp[i].MessageGuid}`
+          + " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" +
+          `${statusColor}'></span>`+
+          //timeButton here
+          `<span style='color:${statusColor};padding-inline-start:0.3em'>${date.substr(11, 8)}</span></button>`);
 
-				let statusicon = createElementFromHTML("<button class='" + resp[i].MessageGuid + " cpiHelper_inlineInfo-button'><span data-sap-ui-icon-content='" + statusIcon + "' class='" + resp[i].MessageGuid + " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" + statusColor + ";'> </span></button>");
-        statusicon.onclick = (e) => {
+          statusicon.onclick = (e) => {
           x = document.getElementById('cpiHelper_sidebar_popup')
           if (!x) {
             errorPopupOpen(e.currentTarget.classList[0]);
@@ -266,8 +267,9 @@ async function renderMessageSidebar() {
 				};
 
 				var pluginButtons = await createPluginButtonsInMessageSidebar(runInfoElement[thisMessageHash], i, flash);
-
-				messageList.appendChild(createRow([statusicon, timeButton, logButton, infoButton, traceButton, quickInlineTraceButton, ...pluginButtons]));
+        
+        //timebutton merged in statusicon.
+        messageList.appendChild(createRow([statusicon, logButton, infoButton, traceButton, quickInlineTraceButton, ...pluginButtons]));
 
 				infoButton.addEventListener("click", (a) => {
 				  statistic("messagebar_btn_info_click")
