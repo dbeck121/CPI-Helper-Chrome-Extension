@@ -54,35 +54,14 @@ async function whatsNewCheck(showOnlyOnce = true) {
  
   <div class="ui list">
 
-  <a class="item"><i class="right triangle icon"></i>
-  <div class="content">
-    <div class="header">Plugin</div>
-    <div class="description">Improved Figaf Plugin with link to Figaf editor for Groovy and XSLT</div>
-  </div>
-  </a>
-
 
   <a class="item"><i class="right triangle icon"></i>
   <div class="content">
     <div class="header">Feature</div>
-    <div class="description">Use of theme-color tag to improve color scheme.</div>
+    <div class="description">Powertrace survives page reload</div>
   </div>
 </a>
 
-<a class="item"><i class="right triangle icon"></i>
-<div class="content">
-  <div class="header">Improvement</div>
-  <div class="description">Fixed problems with timeouts</div>
-</div>
-</a>
-
-<a class="item"><i class="right triangle icon"></i>
-<div class="content">
-  <div class="header">Improvement</div>
-  <div class="description">Better management and timing of api calls to reduce load to SAP server</div>
-</div>
-</a>
-</div>
 
           
 <h3 class="ui header">

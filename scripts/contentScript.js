@@ -731,12 +731,10 @@ function setLogLevel(logLevel, iflowId) {
   makeCall("POST", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentSetMplLogLevelCommand", true, '{"artifactSymbolicName":"' + iflowId + '","mplLogLevel":"' + logLevel.toUpperCase() + '","nodeType":"IFLMAP"}', (xhr) => {
     if (xhr.readyState == 4 && xhr.status == 200) {
       showToast("Trace is activated");
-      log.log(xhr.responseText);
       log.log("trace activated");
     }
     else {
       showToast("Error activating Trace", "", "error");
-      log.log(xhr.responseText);
       log.log("error activating trace");
     }
   }, 'application/json;charset=UTF-8');
@@ -779,9 +777,8 @@ function addBreadcrumbs() {
   }
 
 //injected buttons are created here
-var powertraceflow = null
 var powertrace = null;
-function buildButtonBar() {
+async function buildButtonBar()  {
   try {
     var headerBar = document.getElementById('__xmlview0--iflowObjectPageHeader-identifierLine');
     headerBar.style.paddingBottom = "0px";
@@ -792,16 +789,28 @@ function buildButtonBar() {
   if (!document.getElementById("__buttonxx")) {
     whatsNewCheck();
 
-    //create Trace Button
-    var powertraceText = ""
-    if (powertrace != null && powertraceflow == cpiData.integrationFlowId) {
-      powertraceText = "cpiHelper_powertrace"
+    //check if powertrace is on and set button text
+    //get last run from store and check if it is less than 11 minutes ago
 
+    var powertraceText = ""
+
+    var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`
+    var timeAsStingOrNull = await storageGetPromise(objName)
+    if(timeAsStingOrNull != null && timeAsStingOrNull != undefined) {
+      var now = new Date().getTime()
+      var time = now-parseInt(timeAsStingOrNull)
+    if(time != NaN && time <  1000*60*11) {
+        log.log("reactivate powertrace")
+        powertraceText = "cpiHelper_powertrace"
     }
+  }
+
+
 
     var logsbutton = createElementFromHTML(`<button id="__button_log" data-sap-ui="__buttonxx" title="Logs" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; margin-left: 0px; float: right;"><span id="__buttonxx-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button134345-content"><bdi id="button134345-BDI-content" class="sapMBtnContent">Logs</bdi></span></span></button>`);
 
     var tracebutton = createElementFromHTML(`<button id="__buttonxx" data-sap-ui="__buttonxx" title="Enable traces" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; float: right;"><span id="__buttonxx-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button134345-content"><bdi id="button134345-BDI-content" class="${powertraceText}">Trace</bdi></span></span></button>`);
+
 
     //Create Toggle Message Bar Button
     var messagebutton = createElementFromHTML(' <button id="__buttonxy" data-sap-ui="__buttonxy" title="Messages" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; float: right;"><span id="__buttonxy-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button13-content"><bdi id="__button18778-BDI-content">Messages</bdi></span></span></button>');
@@ -828,21 +837,19 @@ function buildButtonBar() {
       btn.classList.toggle("cpiHelper_powertrace")
       if (btn.classList.contains("cpiHelper_powertrace")) {
         setLogLevel("TRACE", cpiData.integrationFlowId);
-        powertraceflow = cpiData.integrationFlowId;
         statistic("set_log_level", "TRACE")
-        powertrace = setInterval(function () {
-          btn = document.getElementById("button134345-BDI-content")
-          if (btn && btn.classList.contains("cpiHelper_powertrace") || cpiData.integrationFlowId == powertraceflow) {
-            setLogLevel("TRACE", cpiData.integrationFlowId);
-          } else {
-            powertraceflow = null;
-            clearInterval(powertrace)
+        
+        var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`
+        var objectToStore = {}
+        objectToStore[objName] = new Date().getTime().toString()
+        storageSetPromise(objectToStore, function () {
+          log.log("powertraceLastRefresh saved");
+        });
 
-            powertrace = null;
-          }
-        }, 60 * 1000 * 5)
       } else {
         showToast("Trace will not be retriggered anymore.");
+        var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`
+        storageSetPromise({ objName: null });
       }
 
     });
@@ -1867,7 +1874,9 @@ var nextMessageSidebarRefreshCount = 0
 var lastTabHidden = 0; //counts how long tab is hidden
 var lastDurationRefresh = 0; //time for a refresh of the sidebar mostly because of network in ms
 var refreshActive = false
-//CPI Helper Heartbear
+
+
+//CPI Helper Heartbeat
 setInterval(async function () {
     if (document.querySelector('[id^="svgBackgroundPointerPanelLayer-"]') && document.getElementsByClassName("spcHeaderActionButton") ) {
       buildButtonBar();
@@ -1906,6 +1915,21 @@ setInterval(async function () {
     nextMessageSidebarRefreshCount = calculateMessageSidebarTimerTime(lastTabHidden, lastDurationRefresh);
   
   }
+
+  //check if trace should be refreshed again
+  //check if value in storage exists and time is longer than 10 minutes but smaller than 11 minutes
+  var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`
+  var timeAsStingOrNull = await storageGetPromise(objName)
+  if(timeAsStingOrNull != null && timeAsStingOrNull != undefined) {
+    var now = new Date().getTime()
+    var time = now-parseInt(timeAsStingOrNull)
+    if(time != NaN && time > 1000*60*10 && time <  1000*60*11) {
+        log.log("refresh trace")
+        setLogLevel("TRACE",cpiData.integrationFlowId)
+        await storageSetPromise(objName, now)
+    }
+  }
+
   if(document.hidden == true) {
     lastTabHidden++;
     log.debug("tab is hidden " , lastTabHidden);

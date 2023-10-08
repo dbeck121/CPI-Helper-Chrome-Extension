@@ -44,6 +44,10 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.8.0
+
+- [Feature] Trace survives page reload
+
 ### 3.7.1
 
 - [Bugfix] Problem with trace and x-csrf token
