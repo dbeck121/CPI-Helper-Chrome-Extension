@@ -65,10 +65,11 @@
   outline: none;
 }
 
-.cpiHelper button.cpiHelper_sidebar_iconbutton {
-  cursor: initial;
-  border: solid 2px;
-  background: transparent;
+.cpiHelper button.cpiHelper_sidebar_iconbutton,
+button.cpiHelper_sidebar_iconbutton span {
+  cursor: pointer;
+  background-color: #21436a;
+  color:white !important;
   outline: none;
 }
 
