@@ -27,10 +27,9 @@
 /* end working indicator */
 
 .cpiHelper table#messageList {
-
   border: 0px;
   background: none;
-  width: initial;
+  width: max-content;
 }
 
 .cpiHelper table#messageList td {
@@ -38,12 +37,17 @@
   background: initial;
 }
 
+#messageList button {
+  width: 100%;
+}
+
 .cpiHelper button {
   cursor: pointer;
   border: solid 1px #d2d2d2;
   border-radius: 4px;
   background: white;
-  width: 100%;
+  padding-inline: 0.3em;
+  margin-inline:0.1em
 }
 
 .cpiHelper button.cpiHelper_inlineInfo-active {
@@ -99,14 +103,14 @@
   }
 
   to {
-    bottom: 50px;
+    bottom: 10%;
     opacity: 1;
   }
 }
 
 @keyframes cpiHelper_sidebar_popup_fadeout {
   from {
-    bottom: 50px;
+    bottom: 10%;
     opacity: 1;
   }
 
