@@ -101,7 +101,10 @@ function addTenantSettings() {
         <input type="text" name="tenantName" id="tenantName" class="input_fields"/>
         <div style="margin-bottom: 0.6em;">use $iflow.name to show current iflow name.</div>
     </div>
-   
+    <div>
+        <label for="setCount">Set number of message in sidebar:</label><br>
+        <input type="number" min="1" max="20" name="setCount" id="setCount" class="input_fields"/>
+    </div>
     <div>
         <label for="color">Select tenant color:</label><br>
         <input type="color" name="color"  class="input_fields" id="colorSelect"/>
@@ -251,6 +254,7 @@ function tenantIdentityChanges() {
         let tenantName = document.querySelector('#tenantName')
         let tenantColor = document.querySelector('#colorSelect')
         let tenantIcon = document.querySelector('#icon-select')
+        let tenantCount = document.querySelector('#setCount')
 
         let timeoutId;
         let tab = tabs[0];
@@ -262,6 +266,7 @@ function tenantIdentityChanges() {
                 tenantName.value = hostData.title = response.title;
                 tenantColor.value = hostData.color = response.color;
                 tenantIcon.value = hostData.icon = response.icon
+                tenantCount.value = hostData.count = response.count
             }
         });
 
@@ -273,7 +278,18 @@ function tenantIdentityChanges() {
                 chrome.tabs.sendMessage(tab.id, { save: hostData }, (response) => {
                     console.dir(response);
                 })
-            }, 1000);
+            },1000);
+        })
+
+        // Autosave on change after .25s
+        tenantCount.addEventListener('input', () => {
+            clearTimeout(timeoutId)
+            timeoutId = setTimeout(() => {
+                hostData.count = tenantCount.value
+                chrome.tabs.sendMessage(tab.id, { save: hostData }, (response) => {
+                    console.dir(response);
+                })
+            }, 250);
         })
 
         // Update color on change
