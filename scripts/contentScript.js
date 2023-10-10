@@ -56,7 +56,7 @@ function openInfo(url) {
 //refresh the logs in message window
 var getLogsTimer;
 var activeInlineItem;
-var numberEntries = 10
+var numberEntries = hostData.maxcount
 
 //fill the message sidebar
 async function renderMessageSidebar() {
@@ -143,7 +143,10 @@ async function renderMessageSidebar() {
 			  messageList.innerHTML = "";
 			  var lastDay;
 
-			  for (var i = 0; i < resp.length; i++) {
+        //display few : 
+        var count = parseInt( document.querySelector("head > meta[name='cpi-count']")!==null ? document.querySelector("head > meta[name='cpi-count']").content : resp.length)
+
+			  for (var i = 0; i < count ; i++) {
 				//var logStart = resp[i].LogStart == null ? "-" : resp[i].LogStart;
 				thisMessageHashList.push(resp[i].MessageGuid + resp[i].LogStart + resp[i].LogEnd + resp[i].Status);
 				runInfoElement[thisMessageHash] = {}
@@ -1325,7 +1328,7 @@ var sidebar = {
     //create sidebar div
     var elem = document.createElement('div');
     elem.innerHTML = `
-    <div id="cpiHelper_contentheader">
+    <div id="cpiHelper_contentheader" style="background-color:${hostData.color}" content="${hostData.count}" >
       <span id='sidebar_modal_minimize' class='cpiHelper_closeButton_sidebar'>CPI Helper</span>
       <span id='sidebar_modal_close' data-sap-ui-icon-content="&#xe03e" class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>
     </div>
