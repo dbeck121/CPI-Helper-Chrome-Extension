@@ -6,7 +6,9 @@
   var hostData = {
     title: 'Cloud Integration',
     color: '#354a5f',
-    icon: 'default'
+    icon: 'default',
+    maxcount:20, //max number fetch
+    count:10  // default visible
   }
 
   // Call the main functions
@@ -32,7 +34,7 @@
           hostData.title = storageChange.title
           hostData.color = storageChange.color
           hostData.icon = storageChange.icon
-
+          hostData.count = storageChange.count
           // Update the page
           setData(hostData);
         }
@@ -50,6 +52,7 @@
         hostData.title = message.save.title || hostData.title;
         hostData.color = message.save.color || hostData.color;
         hostData.icon = message.save.icon || hostData.icon;
+        hostData.count = message.save.count || hostData.count;
         let saveObject = {}
         saveObject[host] = hostData
         saveHostData(saveObject)
@@ -116,19 +119,21 @@
   function saveHostData(newData, callback) {
     hostData.title = newData.title || hostData.title,
       hostData.color = newData.color || hostData.color,
-      hostData.icon = newData.icon || hostData.icon
+      hostData.icon = newData.icon || hostData.icon,
+      hostData.count = newData.count || hostData.count
     let saveObj = {}
     saveObj[host] = hostData
     chrome.storage.sync.set(saveObj, callback)
   }
 
   // interval is used to overwrite SAPUI5 behaviour
-  function setData({ title, color, icon }) {
+  function setData({ title, color, icon ,count }) {
     clearInterval(documentTitleIntervalId)
     // Update element now
     setDocumentTitle(title);
     setHeaderColor(color)
     setFavIcon(icon)
+    setcount(count)
     // prepare interval function to keep elements updated
     let intervalCount = 10; // Times to run the interval function
     let intervalDelay = 2000;
@@ -139,6 +144,7 @@
       setDocumentTitle(title)
       setHeaderColor(color)
       setFavIcon(icon)
+      setcount(count)
       if (intervalCount == 0) {
         log.log('Ending update sequence')
         clearInterval(documentTitleIntervalId);
@@ -193,5 +199,25 @@
     link.rel = 'shortcut icon';
     link.href = chrome.extension.getURL(`/images/favicons/${icon}.png`);
     document.getElementsByTagName('head')[0].appendChild(link);
+  }
+
+  function setcount(count) {
+      var countElement = document.querySelector("meta[name='cpi-count']");
+      if(countElement && countElement.content!==count){
+        if (sidebar.active) {
+          sidebar.deactivate();
+          sidebar.init();
+        }
+        log.log('relaoded sidebar')
+      }
+      // Set the count meta tag
+      if (countElement) {
+        countElement.content = count;
+      } else {
+        let newElement = document.createElement('meta');
+        newElement.name = 'cpi-count';
+        newElement.content = count;
+        document.head.appendChild(newElement);
+      }
   }
 }

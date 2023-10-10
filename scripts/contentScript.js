@@ -56,7 +56,7 @@ function openInfo(url) {
 //refresh the logs in message window
 var getLogsTimer;
 var activeInlineItem;
-var numberEntries = 10
+var numberEntries = hostData.maxcount
 
 //fill the message sidebar
 async function renderMessageSidebar() {
@@ -143,7 +143,10 @@ async function renderMessageSidebar() {
 			  messageList.innerHTML = "";
 			  var lastDay;
 
-			  for (var i = 0; i < resp.length; i++) {
+        //display few : 
+        var count = parseInt( document.querySelector("head > meta[name='cpi-count']")!==null ? document.querySelector("head > meta[name='cpi-count']").content : resp.length)
+
+			  for (var i = 0; i < count ; i++) {
 				//var logStart = resp[i].LogStart == null ? "-" : resp[i].LogStart;
 				thisMessageHashList.push(resp[i].MessageGuid + resp[i].LogStart + resp[i].LogEnd + resp[i].Status);
 				runInfoElement[thisMessageHash] = {}
@@ -178,8 +181,6 @@ async function renderMessageSidebar() {
 				// logLevel[0] = logLevel[0].toUpperCase();
 				runInfoElement[thisMessageHash].logLevel = loglevel;
 
-
-
 				let traceButton = createElementFromHTML("<button title='jump to trace page' id='trace--" + i + "' class='" + resp[i].MessageGuid + flash + "'>" + loglevel.substr(0, 1).toUpperCase() + "</button>");
 
 				if (loglevel.toLowerCase() === "trace") {
@@ -211,13 +212,16 @@ async function renderMessageSidebar() {
 
 				//listItem.style["color"] = statusColor;
 
-				let timeButton = createElementFromHTML("<button class='" + resp[i].MessageGuid + flash + " cpiHelper_inlineInfo-button' style='cursor: pointer;'>" + date.substr(11, 8) + "</button>");
-
 				activeInlineItem == quickInlineTraceButton.classList[0] && quickInlineTraceButton.classList.add("cpiHelper_inlineInfo-active");
 
+				let statusicon = createElementFromHTML(
+          `<button title='Status Details' class='${resp[i].MessageGuid} cpiHelper_inlineInfo-button'><span data-sap-ui-icon-content='${statusIcon}' class='${resp[i].MessageGuid}`
+          + " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" +
+          `${statusColor}'></span>`+
+          //timeButton here
+          `<span style='color:${statusColor};padding-inline-start:0.3em'>${date.substr(11, 8)}</span></button>`);
 
-				let statusicon = createElementFromHTML("<button class='" + resp[i].MessageGuid + " cpiHelper_inlineInfo-button'><span data-sap-ui-icon-content='" + statusIcon + "' class='" + resp[i].MessageGuid + " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" + statusColor + ";'> </span></button>");
-        statusicon.onclick = (e) => {
+          statusicon.onclick = (e) => {
           x = document.getElementById('cpiHelper_sidebar_popup')
           if (!x) {
             errorPopupOpen(e.currentTarget.classList[0]);
@@ -266,8 +270,9 @@ async function renderMessageSidebar() {
 				};
 
 				var pluginButtons = await createPluginButtonsInMessageSidebar(runInfoElement[thisMessageHash], i, flash);
-
-				messageList.appendChild(createRow([statusicon, timeButton, logButton, infoButton, traceButton, quickInlineTraceButton, ...pluginButtons]));
+        
+        //timebutton merged in statusicon.
+        messageList.appendChild(createRow([statusicon, logButton, infoButton, traceButton, quickInlineTraceButton, ...pluginButtons]));
 
 				infoButton.addEventListener("click", (a) => {
 				  statistic("messagebar_btn_info_click")
@@ -313,9 +318,6 @@ async function renderMessageSidebar() {
 					 }
 		   
 					 */
-
-
-
 
 			}
 		}
@@ -1326,9 +1328,9 @@ var sidebar = {
     //create sidebar div
     var elem = document.createElement('div');
     elem.innerHTML = `
-    <div id="cpiHelper_contentheader">
+    <div id="cpiHelper_contentheader" style="background-color:${hostData.color}" content="${hostData.count}" >
       <span id='sidebar_modal_minimize' class='cpiHelper_closeButton_sidebar'>CPI Helper</span>
-      <span id='sidebar_modal_close' style='margin-left: 30px;' class='cpiHelper_closeButton_sidebar'>X</span>
+      <span id='sidebar_modal_close' data-sap-ui-icon-content="&#xe03e" class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>
     </div>
     <div id="outerFrame">
     <div id="updatedText" class="contentText"></div>
@@ -1422,6 +1424,14 @@ async function errorPopupOpen(MessageGuid) {
 
   y = document.createElement('div');
   y.innerText = "";
+  let popup = document.createElement("span");
+  popup.className = "cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL";
+  popup.style="font-family: SAP-icons; font-size: 1.5rem";
+  popup.onclick = () => {
+    document.querySelectorAll('#messageList > tr > td:nth-child(1) > button').forEach((e)=>e.classList.remove("cpiHelper_sidebar_iconbutton"));
+    document.getElementById('cpiHelper_sidebar_popup').classList.replace('show', 'hide_popup')}
+  popup.setAttribute('data-sap-ui-icon-content',"");
+  y.appendChild(popup) 
 
   try {
     var customHeaders = await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')?$format=json&$expand=CustomHeaderProperties", false)

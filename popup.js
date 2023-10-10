@@ -95,14 +95,16 @@ function getSideBarAlwaysVisible() {
 
 function addTenantSettings() {
     var tenantSettings = document.getElementById("tenantSettings");
-    tenantSettings.innerHTML = `
-                <h3>Tenant Settings</h3>
+    tenantSettings.innerHTML = `<h3>Tenant Settings</h3>
     <div>
-        <label for="tenanName">Set custom name for tab:</label><br>
+        <label for="tenantName">Set custom name for tab:</label><br>
         <input type="text" name="tenantName" id="tenantName" class="input_fields"/>
         <div style="margin-bottom: 0.6em;">use $iflow.name to show current iflow name.</div>
     </div>
-   
+    <div>
+        <label for="setCount">Set number of message in sidebar:</label><br>
+        <input type="number" min="1" max="20" name="setCount" id="setCount" class="input_fields"/>
+    </div>
     <div>
         <label for="color">Select tenant color:</label><br>
         <input type="color" name="color"  class="input_fields" id="colorSelect"/>
@@ -118,10 +120,7 @@ function addTenantSettings() {
             <option value="5">Yellow</option>
             <option value="6">Orange</option>
         </select>
-    </div>
-
-
-            `
+    </div>`
 }
 
 function addTenantUrls() {
@@ -163,7 +162,7 @@ function addTenantUrls() {
                             <ul><li><a href="${host + '/shell/tpm/agreementTemplates'}" target="_blank">Agreement Templates</a></li></ul>
                             <ul><li><a href="${host + '/shell/tpm/pdContent'}" target="_blank">Partner Directory Data</a></li></ul>
                         </li>
-                         <li><a href="${host + '/shell/settings'}" target="_blank">API Management &gt;</a>
+                        <li><a href="${host + '/shell/settings'}" target="_blank">API Management &gt;</a>
                             <ul><li><a href="${host + '/shell/configure'}" target="_blank">Configure</a></li></ul>
                             <ul><li><a href="${host + '/shell/develop'}" target="_blank">Design</a></li></ul>
                             <ul><li><a href="${host + '/shell/testconsole'}" target="_blank">Test</a></li></ul>
@@ -255,6 +254,7 @@ function tenantIdentityChanges() {
         let tenantName = document.querySelector('#tenantName')
         let tenantColor = document.querySelector('#colorSelect')
         let tenantIcon = document.querySelector('#icon-select')
+        let tenantCount = document.querySelector('#setCount')
 
         let timeoutId;
         let tab = tabs[0];
@@ -266,6 +266,7 @@ function tenantIdentityChanges() {
                 tenantName.value = hostData.title = response.title;
                 tenantColor.value = hostData.color = response.color;
                 tenantIcon.value = hostData.icon = response.icon
+                tenantCount.value = hostData.count = response.count
             }
         });
 
@@ -277,7 +278,18 @@ function tenantIdentityChanges() {
                 chrome.tabs.sendMessage(tab.id, { save: hostData }, (response) => {
                     console.dir(response);
                 })
-            }, 1000);
+            },1000);
+        })
+
+        // Autosave on change after .25s
+        tenantCount.addEventListener('input', () => {
+            clearTimeout(timeoutId)
+            timeoutId = setTimeout(() => {
+                hostData.count = tenantCount.value
+                chrome.tabs.sendMessage(tab.id, { save: hostData }, (response) => {
+                    console.dir(response);
+                })
+            }, 250);
         })
 
         // Update color on change

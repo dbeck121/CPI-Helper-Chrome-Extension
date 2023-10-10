@@ -27,10 +27,9 @@
 /* end working indicator */
 
 .cpiHelper table#messageList {
-
   border: 0px;
   background: none;
-  width: initial;
+  width: max-content;
 }
 
 .cpiHelper table#messageList td {
@@ -38,13 +37,17 @@
   background: initial;
 }
 
+#messageList button {
+  width: 100%;
+}
+
 .cpiHelper button {
   cursor: pointer;
   border: solid 1px #d2d2d2;
   border-radius: 4px;
   background: white;
-  padding-left: 0.3em;
-  padding-right: 0.3em;
+  padding-inline: 0.3em;
+  margin-inline:0.1em
 }
 
 .cpiHelper button.cpiHelper_inlineInfo-active {
@@ -62,24 +65,25 @@
   outline: none;
 }
 
-.cpiHelper button.cpiHelper_sidebar_iconbutton {
-  cursor: initial;
-  border: solid 2px;
-  background: transparent;
+.cpiHelper button.cpiHelper_sidebar_iconbutton,
+button.cpiHelper_sidebar_iconbutton span {
+  cursor: pointer;
+  background-color: #21436a;
+  color:white !important;
   outline: none;
 }
 
 #cpiHelper_sidebar_popup {
   position: fixed;
   z-index: 390;
-  max-height: 20vh;
+  max-height: 50vh;
   overflow: scroll;
   background: #fbfbfb;
-  bottom: 50px;
-  right: 100px;
-  width: 700px;
+  bottom: 10%;
+  right: 2%;
+  width: 75%;
   min-height: 1rem;
-  padding: 13px;
+  padding: 1rem;
   border: solid 1px #e1e1e1;
 }
 
@@ -100,14 +104,14 @@
   }
 
   to {
-    bottom: 50px;
+    bottom: 10%;
     opacity: 1;
   }
 }
 
 @keyframes cpiHelper_sidebar_popup_fadeout {
   from {
-    bottom: 50px;
+    bottom: 10%;
     opacity: 1;
   }
 
@@ -146,6 +150,7 @@
 #cpiHelper_contentheader {
   padding: 10px;
   cursor: move;
+  align-items: center;
   z-index: 10;
   background-color: #21436a;
   color: #fff;
