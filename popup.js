@@ -95,10 +95,9 @@ function getSideBarAlwaysVisible() {
 
 function addTenantSettings() {
     var tenantSettings = document.getElementById("tenantSettings");
-    tenantSettings.innerHTML = `
-                <h3>Tenant Settings</h3>
+    tenantSettings.innerHTML = `<h3>Tenant Settings</h3>
     <div>
-        <label for="tenanName">Set custom name for tab:</label><br>
+        <label for="tenantName">Set custom name for tab:</label><br>
         <input type="text" name="tenantName" id="tenantName" class="input_fields"/>
         <div style="margin-bottom: 0.6em;">use $iflow.name to show current iflow name.</div>
     </div>
@@ -118,10 +117,7 @@ function addTenantSettings() {
             <option value="5">Yellow</option>
             <option value="6">Orange</option>
         </select>
-    </div>
-
-
-            `
+    </div>`
 }
 
 function addTenantUrls() {
@@ -163,7 +159,7 @@ function addTenantUrls() {
                             <ul><li><a href="${host + '/shell/tpm/agreementTemplates'}" target="_blank">Agreement Templates</a></li></ul>
                             <ul><li><a href="${host + '/shell/tpm/pdContent'}" target="_blank">Partner Directory Data</a></li></ul>
                         </li>
-                         <li><a href="${host + '/shell/settings'}" target="_blank">API Management &gt;</a>
+                        <li><a href="${host + '/shell/settings'}" target="_blank">API Management &gt;</a>
                             <ul><li><a href="${host + '/shell/configure'}" target="_blank">Configure</a></li></ul>
                             <ul><li><a href="${host + '/shell/develop'}" target="_blank">Design</a></li></ul>
                             <ul><li><a href="${host + '/shell/testconsole'}" target="_blank">Test</a></li></ul>

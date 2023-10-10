@@ -257,12 +257,11 @@ let absolutePath = function(href) {
 var formatTrace = function (input, id, traceId) {
 
   var encodeHTML = function (str) {
-
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '&#010;').replace(/'/g, "&#039;");
   }
 
   var formatXml = function (sourceXml) {
-    var xmlDoc = new DOMParser().parseFromString(sourceXml, 'application/xml');
+    var xmlDoc = new DOMParser().parseFromString(`<cpi_Helper>${sourceXml}</cpi_Helper>`, 'application/xml');
     var xsltDoc = new DOMParser().parseFromString([
       // describes how we want to modify the XML - indent everything
       '<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">',
@@ -281,7 +280,7 @@ var formatTrace = function (input, id, traceId) {
     xsltProcessor.importStylesheet(xsltDoc);
     var resultDoc = xsltProcessor.transformToDocument(xmlDoc);
     var resultXml = new XMLSerializer().serializeToString(resultDoc);
-    return resultXml;
+    return resultXml.substring(12,resultXml.length-13).replaceAll('\n  ','\n');
   };
 
   var prettify = function (input) {
