@@ -18,10 +18,8 @@ function addLastVisitedIflows() {
             return;
         }
 
-
         var html = `
-        <h3>Last Visited on Tenant ${name.split("_")[1]}</h3>`;
-
+        <div class="ui horizontal divider header">Last Visited on Tenant ${name.split("_")[1]}</div>`;
         for (var i = visitedIflows.length - 1; i > -1; i--) {
             if (visitedIflows[i].type) {
                 if (elements[visitedIflows[i].type]) {
@@ -43,37 +41,24 @@ function addLastVisitedIflows() {
         artifactTypes.map((artifact) => {
             var subject = artifact
             if (elements[subject]) {
-
-                html += `<h4 class="ui header">${subject}</h4>
-                <div class="ui list">`
+                html += `<div class="ui menu"><a class="ui item"><strong>${subject}</strong></a><div class="ui wrapped wrapping buttons fluid">`
                 elements[subject].map((item) => {
-                    html += `<div class="item">
-                    <i class="right triangle icon"></i>
-                    <div class="content">
-                    <a href="${item.url}" target="_blank">${item.name}</a>
-                    </div>
-                    </div>`
+                    html += `<a class="ui button" href="${item.url}" target="_blank">${item.name}</a>`
                 })
-                html += `</div>`
+                html += `</div></div>`
             }
         })
 
         var subject = "noheader"
         if (elements[subject]) {
             html += `
-            <h4 class="ui header">CPI Helper old version items</h4>
-            <div class="ui list">`
+            <div class="ui horizontal divider header">CPI Helper old version items</div>
+            <div class="ui menu"><div class="ui wrapped wrapping buttons fluid">`
             elements[subject].map((item) => {
-                html += `<div class="item">
-                <i class="right triangle icon"></i>
-                <div class="content">
-                <a href="${item.url}" target="_blank">${item.name}</a>
-                </div>
-                </div>`
+                html += `<a class="ui button" href="${item.url}" target="_blank">${item.name}</a>`
             })
-            html += `</div>`
+            html += `</div></div>`
         }
-
 
         var lastVisitedIflows = document.getElementById("lastVisitedIflows");
         lastVisitedIflows.innerHTML = html;
@@ -94,24 +79,28 @@ function getSideBarAlwaysVisible() {
 }
 
 function addTenantSettings() {
+    //<div style="margin-bottom: 0.6em;">use $iflow.name to show current iflow name.</div>
     var tenantSettings = document.getElementById("tenantSettings");
-    tenantSettings.innerHTML = `<h3>Tenant Settings</h3>
-    <div>
-        <label for="tenantName">Set custom name for tab:</label><br>
-        <input type="text" name="tenantName" id="tenantName" class="input_fields"/>
-        <div style="margin-bottom: 0.6em;">use $iflow.name to show current iflow name.</div>
+    tenantSettings.innerHTML = `<h3 class="ui horizontal divider header">Tenant Settings</h3>
+    <div class="ui labeled input" data-position="bottom center" data-tooltip="Set custom tab name or click reset or same as iflow">
+        <div class="ui label"> Name for tab </div>
+        <input type="text" name="tenantName" id="tenantName"/>
     </div>
-    <div>
-        <label for="setCount">Set number of message in sidebar:</label><br>
-        <input type="number" min="1" max="20" name="setCount" id="setCount" class="input_fields"/>
+    <div class="ui buttons">
+        <button class="ui basic primary button">Current Iflow</button>
+        <button class="ui basic secondary button">Reset Name</button>    
     </div>
-    <div>
-        <label for="color">Select tenant color:</label><br>
-        <input type="color" name="color"  class="input_fields" id="colorSelect"/>
+    <div class="ui labeled input" data-position="bottom center" data-tooltip="Set number from 1 to 20 of message in sidebar">
+        <div class="ui label"> No. of Last execution </div>
+        <input type="number" min="1" max="20" name="setCount" id="setCount"/>
     </div>
-    <div>
-        <label for="icon-select">Choose an icon:</label><br>
-        <select name="pets" id="icon-select" class="input_fields">
+    <div class="ui labeled input">
+        <div class="ui label">Tenant color</div>
+        <input type="color" name="color" id="colorSelect"/>
+    </div>
+    <div class="ui labeled input">
+        <div class="ui label">Choose an icon</div>
+        <select name="icon" id="icon-select" class="ui selection dropdown">
             <option value="default">Default</option>
             <option value="1">Blue</option>
             <option value="2">Green</option>
@@ -120,56 +109,67 @@ function addTenantSettings() {
             <option value="5">Yellow</option>
             <option value="6">Orange</option>
         </select>
-    </div>`
+    </div>`;
+    document.querySelector('#tenantSettings > div > button:nth-child(1)').addEventListener('click',()=>clickinput('iflow'));
+    document.querySelector('#tenantSettings > div > button:nth-child(2)').addEventListener('click',()=>clickinput('reset'));
 }
 
 function addTenantUrls() {
 
     var tenantUrls = document.getElementById("tenantUrls");
-    tenantUrls.innerHTML = `
-                <h3> Tenant URLs</h3 >
-                    <ul>
-                        <li><a href="${host + '/shell/monitoring/Messages/'}" target="_blank">Processed Messages</a></li>
-                        <li><a href="${host + '/shell/monitoring/Messages/%7B%22status%22%3A%22FAILED%22%2C%22time%22%3A%22PASTHOUR%22%2C%22type%22%3A%22INTEGRATION_FLOW%22%7D'}" target="_blank">Failed Messages</a></li>                        
-                        <li><a href="${host + '/shell/monitoring/Artifacts/'}" target="_blank">Artifacts</a></li>
-                        <li><a href="${host + '/shell/design'}" target="_blank">Design</a></li>  
-                        <br>                      
-                        <li><a href="${host + '/shell/monitoring/Overview'}" target="_blank">Monitoring &gt;</a>
-                            <ul><li><a href="${host + '/shell/monitoring/SecurityMaterials'}" target="_blank">Security Material</a></li></ul>
-                            <ul><li><a href="${host + '/shell/monitoring/Keystore'}" target="_blank">Keystore</a></li></ul>
-                            <ul><li><a href="${host + '/shell/monitoring/CertificateUserMappings'}" target="_blank">Certificate-to-User Mappings</a></li></ul>
-                            <ul><li><a href="${host + '/shell/monitoring/AccessPolicies'}" target="_blank">Access Policies</a></li></ul>
-                            <ul><li><a href="${host + '/shell/monitoring/JdbcMaterial'}" target="_blank">JDBC Material</a></li></ul>
-                            <ul><li><a href="${host + '/shell/monitoring/Connectivity'}" target="_blank">Connectivity Tests</a></li></ul>
-                            <ul><li><a href="${host + '/shell/monitoring/DataStores'}" target="_blank">Data Stores</a></li></ul>
-                            <ul><li><a href="${host + '/shell/monitoring/Variables'}" target="_blank">Variables</a></li></ul>
-                            <ul><li><a href="${host + '/shell/monitoring/MessageQueues'}" target="_blank">Message Queues</a></li></ul>
-                            <ul><li><a href="${host + '/shell/monitoring/NumberRangeObject'}" target="_blank">Number Ranges</a></li></ul>
-                            <ul><li><a href="${host + '/shell/monitoring/AuditLog'}" target="_blank">Audit Log</a></li></ul>
-                            <ul><li><a href="${host + '/shell/monitoring/SystemLogs'}" target="_blank">System Logs</a></li></ul>
-                            <ul><li><a href="${host + '/shell/monitoring/Locks'}" target="_blank">Message Locks</a></li></ul>
-                            <ul><li><a href="${host + '/shell/monitoring/DesigntimeLocks'}" target="_blank">Designtime Artifact Locks</a></li></ul>
-                        </li><br>
-                        <li><a href="${host + '/shell/tpm/companyProfile'}" target="_blank">Integration Advisor &gt;</a>                            
-                            <ul><li><a href="${host + '/shell/migs'}" target="_blank">MIGs (Message Implementation Guidelines)</a></li></ul>
-                            <ul><li><a href="${host + '/shell/mags'}" target="_blank">MAGs (Mapping Guidelines)</a></li></ul>
-                            <ul><li><a href="${host + '/shell/customtypesystems'}" target="_blank">Custom Type Systems</a></li></ul>
-                        </li>
-                        <li><a href="${host + '/shell/tpm/companyProfile'}" target="_blank">Trading Partner Management &gt;</a>
-                            <ul><li><a href="${host + '/shell/b2bmonitor/landing'}" target="_blank">B2B Monitor</a></li></ul>
-                            <ul><li><a href="${host + '/shell/tpm/agreements'}" target="_blank">Agreements</a></li></ul>
-                            <ul><li><a href="${host + '/shell/tpm/tradingPartners'}" target="_blank">Trading Partners</a></li></ul>
-                            <ul><li><a href="${host + '/shell/tpm/agreementTemplates'}" target="_blank">Agreement Templates</a></li></ul>
-                            <ul><li><a href="${host + '/shell/tpm/pdContent'}" target="_blank">Partner Directory Data</a></li></ul>
-                        </li>
-                        <li><a href="${host + '/shell/settings'}" target="_blank">API Management &gt;</a>
-                            <ul><li><a href="${host + '/shell/configure'}" target="_blank">Configure</a></li></ul>
-                            <ul><li><a href="${host + '/shell/develop'}" target="_blank">Design</a></li></ul>
-                            <ul><li><a href="${host + '/shell/testconsole'}" target="_blank">Test</a></li></ul>
-                            <ul><li><a href="${host + '/shell/analytics'}" target="_blank">Analyze</a></li></ul>                            
-                        </li>
-                    </ul> `;
-
+    tenantUrls.innerHTML = `<div class="ui horizontal divider header">Tenant URLs</div>
+                <div class="ui spaced wrapping buttons fluid">
+                    <a class="ui positive button" target="_blank" href="${host + '/shell/monitoring/Messages/'}">Processed Messages</a>
+                    <a class="ui negative button" target="_blank" href="${host + '/shell/monitoring/Messages/%7B%22status%22%3A%22FAILED%22%2C%22time%22%3A%22PASTHOUR%22%2C%22type%22%3A%22INTEGRATION_FLOW%22%7D'}">Failed Messages</a>                        
+                    <a class="ui secondary button" target="_blank" href="${host + '/shell/monitoring/Artifacts/'}">Artifacts</a>
+                    <a class="ui primary button" target="_blank" href="${host + '/shell/design'}">Design</a>  
+                </div>
+                <div class='ui menu'>
+                    <a class="ui item" href="${host + '/shell/monitoring/Overview'}" target="_blank">
+                    <Strong>Monitoring</Strong></a>
+                    <div class="ui wrapped wrapping buttons">
+                        <a class="ui button" href="${host + '/shell/monitoring/SecurityMaterials'}" target="_blank">Security Material</a>
+                        <a class="ui button" href="${host + '/shell/monitoring/Keystore'}" target="_blank">Keystore</a>
+                        <a class="ui button" href="${host + '/shell/monitoring/CertificateUserMappings'}" target="_blank">Certificate-to-User Mappings</a>                        
+                        <a class="ui button" href="${host + '/shell/monitoring/AccessPolicies'}" target="_blank">Access Policies</a>
+                        <a class="ui button" href="${host + '/shell/monitoring/JdbcMaterial'}" target="_blank">JDBC Material</a>
+                        <a class="ui button" href="${host + '/shell/monitoring/Connectivity'}" target="_blank">Connectivity Tests</a>
+                        <a class="ui button" href="${host + '/shell/monitoring/DataStores'}" target="_blank">Data Stores</a>                        
+                        <a class="ui button" href="${host + '/shell/monitoring/Variables'}" target="_blank">Variables</a>
+                        <a class="ui button" href="${host + '/shell/monitoring/MessageQueues'}" target="_blank">Message Queues</a>
+                        <a class="ui button" href="${host + '/shell/monitoring/NumberRangeObject'}" target="_blank">Number Ranges</a>
+                        <a class="ui button" href="${host + '/shell/monitoring/AuditLog'}" target="_blank">Audit Log</a>                        
+                        <a class="ui button" href="${host + '/shell/monitoring/Locks'}" target="_blank">Message Locks</a>
+                        <a class="ui button" href="${host + '/shell/monitoring/DesigntimeLocks'}" target="_blank">Designtime Artifact Locks</a>
+                    </div>
+                </div>
+                <div class='ui menu'>
+                    <a class="ui item " href="${host + '/shell/settings'}" target="_blank"><strong>API Management</strong></a>
+                    <div class="ui wrapped wrapping buttons fluid">
+                        <a class="ui button" href="${host + '/shell/configure'}" target="_blank">Configure API</a>
+                        <a class="ui button" href="${host + '/shell/develop'}" target="_blank">Design API</a>
+                        <a class="ui button" href="${host + '/shell/testconsole'}" target="_blank">Test API</a>
+                        <a class="ui button" href="${host + '/shell/analytics'}" target="_blank">Analyze API</a> 
+                    </div>
+                </div>
+                <div class='ui menu'>
+                    <a class="ui item " href="${host + '/shell/tpm/companyProfile'}" target="_blank"><strong>Trading Partner Management</strong></a>
+                    <div class="ui wrapped wrapping buttons">
+                        <a class="ui button" href="${host + '/shell/b2bmonitor/landing'}" target="_blank">B2B Monitor</a>
+                        <a class="ui button" href="${host + '/shell/tpm/agreements'}" target="_blank">Agreements</a>
+                        <a class="ui button" href="${host + '/shell/tpm/tradingPartners'}" target="_blank">Trading Partners</a>
+                        <a class="ui button" href="${host + '/shell/tpm/agreementTemplates'}" target="_blank">Agreement Templates</a>
+                        <a class="ui button" href="${host + '/shell/tpm/pdContent'}" target="_blank">Partner Directory Data</a>
+                    </div>
+                </div>
+                <div class='ui menu'>
+                    <a class="ui item " href="${host + '/shell/tpm/companyProfile'}" target="_blank"><strong>Integration Advisor</strong></a>
+                    <div class="ui wrapped wrapping buttons">
+                        <a class="ui button" href="${host + '/shell/migs'}" target="_blank">MIGs (Message Implementation Guidelines)</a>
+                        <a class="ui button" href="${host + '/shell/mags'}" target="_blank">MAGs (Mapping Guidelines)</a>
+                        <a class="ui button" href="${host + '/shell/customtypesystems'}" target="_blank">Custom Type Systems</a>
+                    </div>
+                </div>`;
 }
 
 async function getHost() {
@@ -191,7 +191,6 @@ async function getHost() {
         };
 
         chrome.tabs.query(query, callback);
-
     });
 }
 
@@ -247,6 +246,12 @@ function checkUpdate() {
     cpihelper_version.innerHTML = html;
 }
 
+function clickinput(title){
+    const tenantName=document.querySelector('#tenantName');
+    tenantName.value=title!=='iflow'?'Cloud Integration':'$iflow.name';
+    tenantName.dispatchEvent(new Event("input"))
+}
+
 // Handle tenantname changes
 function tenantIdentityChanges() {
     let hostData = {}
@@ -255,7 +260,7 @@ function tenantIdentityChanges() {
         let tenantColor = document.querySelector('#colorSelect')
         let tenantIcon = document.querySelector('#icon-select')
         let tenantCount = document.querySelector('#setCount')
-
+        let popupcolor = document.querySelector('#cpiHelper_contentheader')
         let timeoutId;
         let tab = tabs[0];
 
@@ -267,6 +272,7 @@ function tenantIdentityChanges() {
                 tenantColor.value = hostData.color = response.color;
                 tenantIcon.value = hostData.icon = response.icon
                 tenantCount.value = hostData.count = response.count
+                popupcolor.style.backgroundColor = hostData.color = response.color;
             }
         });
 
@@ -278,10 +284,10 @@ function tenantIdentityChanges() {
                 chrome.tabs.sendMessage(tab.id, { save: hostData }, (response) => {
                     console.dir(response);
                 })
-            },1000);
+            }, 1000);
         })
 
-        // Autosave on change after .25s
+        // Autosave on change after 1s
         tenantCount.addEventListener('input', () => {
             clearTimeout(timeoutId)
             timeoutId = setTimeout(() => {
@@ -289,12 +295,14 @@ function tenantIdentityChanges() {
                 chrome.tabs.sendMessage(tab.id, { save: hostData }, (response) => {
                     console.dir(response);
                 })
-            }, 250);
+            }, 1000);
         })
 
         // Update color on change
         tenantColor.addEventListener('change', () => {
-            hostData.color = tenantColor.value
+            hostData.color = tenantColor.value;
+            // set popup.html header
+            popupcolor.style.backgroundColor=tenantColor.value;
             chrome.tabs.sendMessage(tab.id, { save: hostData }, (response) => {
                 console.dir(response);
             })
@@ -344,9 +352,10 @@ async function main() {
 main().catch(e => console.error(e))
 
 // Activate tab on hover
-$('.item').on('mouseenter', function() {            
+$('.top .item').on('mouseenter', function () {
     $(this).tab('change tab', $(this).attr('id'));
 });
 
 // Initialize tabs
-$('.menu .item').tab();
+$('.top .menu .item').tab();
+$('.ui.dropdown').dropdown('show');
