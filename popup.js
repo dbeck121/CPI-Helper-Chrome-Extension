@@ -167,13 +167,13 @@ function addTenantSettings() {
             </select>
         </div>
     </div>
+    <h3 class="ui horizontal divider header">CPI Helper Settings</h3>
     <div>
         <div class="ui left labeled button" tabindex="0">
             <div class="ui label">Open Message Sidebar on start?</div>
             <div id="openMessageSidebarOnStartup" class="ui blue basic button">Yes</div>
         </div>
     </div>
-    <h3 class="ui horizontal divider header">CPI Helper Settings</h3>
     <div>
         <div class="ui left labeled button" tabindex="0">
             <div class="ui label">Mode of Last visited section ( Cozy--default / Compact )</div>
