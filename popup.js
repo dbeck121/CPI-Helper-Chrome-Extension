@@ -176,9 +176,10 @@ function addTenantSettings() {
     </div>
     <div>
         <div class="ui left labeled button" tabindex="0">
-            <div class="ui label">Mode of Last visited section ( Cozy--default / Compact )</div>
+            <div class="ui label">Mode of Last visited </div>
             <div id="cpisetting" class="ui blue basic button">${localStorage.getItem('modecpisetting') === null ? 'Cozy' : localStorage.getItem('modecpisetting') === 'Compact' ? 'Compact' : 'Cozy'}</div>
         </div>
+        <p><b>Note:-</b><br />Cozy --default (limited length, more height, aligned)<br /> Compact --Recommanded (Unaligned, max width, less height )</p>
     </div>
     `;
     document.querySelector('#one > i').classList.add(localStorage.getItem('modecpisetting') === null ? 'expand' : localStorage.getItem('modecpisetting') === 'Compact' ? 'compress' : 'expand');
