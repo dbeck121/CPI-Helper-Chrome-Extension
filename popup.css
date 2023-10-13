@@ -2,26 +2,15 @@
     /* colors */
     --cpi-brand-color: #21436a;
     --cpi-background: #fff;
-    --cpi-dark-green: #080;
-    --cpi-dark-red: #800;
-    --cpi-teal: #007f7f;
+    --cpi-dark-green: #008000;
+    --cpi-green: #c7ffce;
+    --cpi-grey: #e3e3e3;
+    --cpi-blue: #c7c7ff;
+    --cpi-red: #ffc7c7;
+    --cpi-teal: #008080;
     --cpi-hover: #ff5722;
     /* Fonts */
     --cpi-font: 'Arial';
-
-}
-
-/* overwrite color classes */
-.dgreen {
-    background: var(--cpi-dark-green) !important;
-    color: var(--cpi-background) !important;
-    ;
-}
-
-.dred {
-    background-color: var(--cpi-dark-red) !important;
-    color: var(--cpi-background) !important;
-    ;
 }
 
 /* general css */
@@ -81,4 +70,50 @@ a[href].item:hover,
 /* color input box */
 input[type="color"] {
     height: auto !important;
+}
+
+a.ui.button {
+    justify-content: flex-start;
+    display: flex;
+    align-items: center;
+}
+
+#tenantUrls>.fluid>* {
+    justify-content: center;
+    border-width: 5px;
+}
+
+/* overwrite color classes --Note-- always at bottom section*/
+.l-green {
+    --_cpi-dclass: var(--cpi-green);
+}
+
+.l-black {
+    --_cpi-dclass: var(--cpi-grey);
+}
+
+.l-red {
+    --_cpi-dclass: var(--cpi-red);
+}
+
+.l-blue {
+    --_cpi-dclass: var(--cpi-blue);
+}
+
+.l-blue,
+.l-red,
+.l-black,
+.l-green {
+    color: #000 !important;
+    border: .25em solid var(--_cpi-dclass) !important;
+    background-color: var(--_cpi-dclass) !important
+}
+
+.l-blue:hover,
+.l-red:hover,
+.l-black:hover,
+.l-green:hover {
+    color: #000 !important;
+    border: .25em solid #000 !important;
+    background-color: var(--_cpi-dclass) !important
 }
