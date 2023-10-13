@@ -8,15 +8,23 @@
 	<script src="/lib/semanticui/semantic.min.js"></script>
 	<link rel="stylesheet" href="popup.css">
 </head>
-
 <body>
 	<div class="ui top m0 secondary pointing menu" id="cpiHelper_contentheader">
-		<a class="active item" id="one" data-tab="one">Last Visited</a>
-		<a class="item" id="two" data-tab="two">Links</a>
-		<a class="item" id="three" data-tab="three">Settings</a>
-		<a class="item" id="four" data-tab="four">Info</a>
-		<div class="right item">CPI Helper</div>
-		<div class="item cpihelper_version"></div>
+		<a class="active item" id="one" data-tab="one">
+			<p>Last Visited</p> 
+			<i class="alternate icon"></i>
+			<!-- data icon added in js -->
+		</a>
+		<a class="item" id="two" data-tab="two">
+			<p>Links</p><i class="linkify icon"></i>
+		</a>
+		<a class="item" id="three" data-tab="three">
+			<p>Settings</p><i class="cog icon"></i>
+		</a>
+		<a class="item" id="four" data-tab="four">
+			<p>Info</p><i class="info circle icon"></i>
+		</a>
+		<a class="right item cpihelper_version"></a>
 	</div>
 	<div class="ui bottom m0 attached active tab segment" id="lastVisitedIflows" data-tab="one">
 	</div>
@@ -52,12 +60,11 @@
 		<div id="tenantSettings"></div>
 	</div>
 	<div class="ui bottom m0 attached tab segment" data-tab="four">
-		<p class="ui horizontal divider header cpihelper_version"></p>
+		<p class="ui horizontal divider header">Current version: <i class="cpihelper_version"></i></p>
 		<p>License: <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU GPL v3</a>
 		</p>
 		<p>*we are not responsible for the content of external links</p>
 	</div>
 	<script src="popup.js"></script>
 </body>
-
 </html>

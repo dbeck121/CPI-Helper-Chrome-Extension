@@ -8,7 +8,6 @@
     --cpi-blue: #c7c7ff;
     --cpi-red: #ffc7c7;
     --cpi-color: #000;
-    --cpi-teal: #008080;
     --cpi-hover: #ff5722;
     /* Fonts */
     --cpi-font: 'Arial';
@@ -19,15 +18,6 @@ body {
     margin: 0px;
     width: 800px;
     font-family: var(--cpi-font), sans-serif;
-}
-
-/* unvisted link */
-a:link {
-    color: var(--cpi-dark-green);
-}
-
-a:visited {
-    color: var(--cpi-teal);
 }
 
 a {
@@ -53,6 +43,13 @@ a[href].item:hover,
     font-weight: bold;
 }
 
+/* section link left tab-1 */
+#lastVisitedIflows a {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
 /* margin class 0 */
 .m0 {
     margin: 0 !important;
@@ -60,6 +57,11 @@ a[href].item:hover,
 
 #tenantSettings>div {
     margin: .5rem;
+}
+
+a>p {
+    padding-inline-end: .5rem;
+    margin: 0;
 }
 
 /* max height for tab 2 */
