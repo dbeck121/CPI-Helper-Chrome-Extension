@@ -201,6 +201,9 @@
   }
 
   function setcount(count) {
+    if(!count) {
+      count = 10
+    }
       var countElement = document.querySelector("meta[name='cpi-count']");
       if(countElement && countElement.content!==count){
         if (sidebar.active) {
