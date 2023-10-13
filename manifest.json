@@ -64,7 +64,8 @@
         "/lib/prettify/prettify.css",
         "/lib/threeDots/three-dots.min.css",
         "/lib/semanticui/semantic.min.css",
-        "contentScript.css"
+        "contentScript.css",
+        "popup.css"
       ]
     }
   ],

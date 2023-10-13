@@ -904,7 +904,6 @@ async function buildButtonBar()  {
       chrome.storage.sync.get(["openMessageSidebarOnStartup"], function (result) {
         var openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
         if (openMessageSidebarOnStartupValue) {
-
           sidebar.init();
         }
       }

@@ -144,7 +144,6 @@
       setDocumentTitle(title)
       setHeaderColor(color)
       setFavIcon(icon)
-      setcount(count)
       if (intervalCount == 0) {
         log.log('Ending update sequence')
         clearInterval(documentTitleIntervalId);
