@@ -145,11 +145,12 @@ function addTenantUrls() {
                 <div class="ui wrapping buttons fluid">
                     <a class="dgreen ui button" target="_blank" href="${host + '/shell/monitoring/Messages/'}">Processed Messages</a>
                     <a class="ui button dred" target="_blank" href="${host + '/shell/monitoring/Messages/%7B%22status%22%3A%22FAILED%22%2C%22time%22%3A%22PASTHOUR%22%2C%22type%22%3A%22INTEGRATION_FLOW%22%7D'}">Failed Messages</a>                        
-                    <a class="ui secondary button" target="_blank" href="${host + '/shell/monitoring/Artifacts/'}">Artifacts</a>
+                    <a class="ui secondary button" target="_blank" href="${host + '/shell/monitoring/Artifacts/'}">
+                    Integration Content</a>
                     <a class="ui primary button" target="_blank" href="${host + '/shell/design'}">Design</a>  
                 </div>
                 <div class='ui menu'>
-                    <a class="ui item" href="${host + '/shell/monitoring/Overview'}" target="_blank">
+                    <a style="width: 10rem;justify-content: center;" class="ui item" href="${host + '/shell/monitoring/Overview'}" target="_blank">
                     <Strong>Monitoring</Strong></a>
                     <div class="ui wrapped wrapping buttons">
                         <a class="ui button" href="${host + '/shell/monitoring/SecurityMaterials'}" target="_blank">Security Material</a>
