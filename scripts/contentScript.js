@@ -902,9 +902,9 @@ async function buildButtonBar()  {
     
     if (sidebar.active == null || sidebar.active == false) {
       chrome.storage.sync.get(["openMessageSidebarOnStartup"], function (result) {
+        console.log('ress',result)
         var openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
         if (openMessageSidebarOnStartupValue) {
-
           sidebar.init();
         }
       }

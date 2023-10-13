@@ -71,9 +71,11 @@ function getSideBarAlwaysVisible() {
         var openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
 
         var openMessageSidebarOnStartup = document.getElementById("openMessageSidebarOnStartup");
-        openMessageSidebarOnStartup.checked = openMessageSidebarOnStartupValue;
+        openMessageSidebarOnStartup.innerText = openMessageSidebarOnStartupValue ? 'Yes' : 'No';
         openMessageSidebarOnStartup.onclick = function () {
-            chrome.storage.sync.set({ "openMessageSidebarOnStartup": openMessageSidebarOnStartup.checked });
+            let ctnx = openMessageSidebarOnStartup.innerText;
+            openMessageSidebarOnStartup.innerText = ctnx !== 'Yes' ? 'Yes' : 'No';
+            chrome.storage.sync.set({ "openMessageSidebarOnStartup": ctnx !== 'Yes' });
         }
     });
 }
@@ -81,46 +83,65 @@ function getSideBarAlwaysVisible() {
 function addTenantSettings() {
     //<div style="margin-bottom: 0.6em;">use $iflow.name to show current iflow name.</div>
     var tenantSettings = document.getElementById("tenantSettings");
-    tenantSettings.innerHTML = `<h3 class="ui horizontal divider header">Tenant Settings</h3>
-    <div class="ui labeled input" data-position="bottom center" data-tooltip="Set custom tab name or click reset or same as iflow">
-        <div class="ui label"> Name for tab </div>
-        <input type="text" name="tenantName" id="tenantName"/>
+    tenantSettings.innerHTML = `
+    <h3 class="ui horizontal divider header">Tenant Settings</h3>
+    <div>
+        <div class="ui labeled input" data-position="bottom center" data-tooltip="Set custom tab name or click reset or same as iflow">
+            <div class="ui label"> Name for tab </div>
+            <input type="text" name="tenantName" id="tenantName"/>
+        </div>
+        <div class="ui buttons">
+            <button class="ui blue basic button">Current Iflow</button>
+            <button class="ui blue basic button">Reset Name</button>    
+        </div>
     </div>
-    <div class="ui buttons">
-        <button class="ui basic primary button">Current Iflow</button>
-        <button class="ui basic secondary button">Reset Name</button>    
+    <div>
+        <div class="ui labeled input" data-position="bottom center" data-tooltip="Set number from 1 to 20 of message in sidebar">
+            <div class="ui label"> No. of Last execution </div>
+            <input type="number" min="1" max="20" name="setCount" id="setCount"/>
+        </div>
+    </div>    
+    <div>
+        <div class="ui labeled input">
+            <div class="ui label">Tenant color</div>
+            <input type="color" name="color" id="colorSelect"/>
+        </div>
+        <button class="ui blue basic button">Reset Color</button> 
+    </div>  
+    <div>
+        <div class="ui labeled input">
+            <div class="ui label">Choose an icon</div>
+            <select name="icon" id="icon-select" class="ui selection dropdown">
+                <option value="default">Default</option>
+                <option value="1">Blue</option>
+                <option value="2">Green</option>
+                <option value="3">Red</option>
+                <option value="4">Purple</option>
+                <option value="5">Yellow</option>
+                <option value="6">Orange</option>
+            </select>
+        </div>
     </div>
-    <div class="ui labeled input" data-position="bottom center" data-tooltip="Set number from 1 to 20 of message in sidebar">
-        <div class="ui label"> No. of Last execution </div>
-        <input type="number" min="1" max="20" name="setCount" id="setCount"/>
-    </div>
-    <div class="ui labeled input">
-        <div class="ui label">Tenant color</div>
-        <input type="color" name="color" id="colorSelect"/>
-    </div>
-    <div class="ui labeled input">
-        <div class="ui label">Choose an icon</div>
-        <select name="icon" id="icon-select" class="ui selection dropdown">
-            <option value="default">Default</option>
-            <option value="1">Blue</option>
-            <option value="2">Green</option>
-            <option value="3">Red</option>
-            <option value="4">Purple</option>
-            <option value="5">Yellow</option>
-            <option value="6">Orange</option>
-        </select>
-    </div>`;
-    document.querySelector('#tenantSettings > div > button:nth-child(1)').addEventListener('click',()=>clickinput('iflow'));
-    document.querySelector('#tenantSettings > div > button:nth-child(2)').addEventListener('click',()=>clickinput('reset'));
+    <div class="ui left labeled button" tabindex="0">
+		<div class="ui label">Open Message Sidebar on start?</div>
+		<div id="openMessageSidebarOnStartup" class="ui blue basic button">true</div>
+	</div>`;
+    document.querySelector('#tenantSettings > div > .buttons > button:nth-child(1)').addEventListener('click', () => clickinput('iflow'));
+    document.querySelector('#tenantSettings > div > .buttons > button:nth-child(2)').addEventListener('click', () => clickinput('reset'));
+    document.querySelector('#tenantSettings > div > button').addEventListener('click', () => {
+        const tenantColor = document.querySelector('#colorSelect');
+        tenantColor.value = '#21436a';
+        tenantColor.dispatchEvent(new Event("change"));
+    });
 }
 
 function addTenantUrls() {
 
     var tenantUrls = document.getElementById("tenantUrls");
     tenantUrls.innerHTML = `<div class="ui horizontal divider header">Tenant URLs</div>
-                <div class="ui spaced wrapping buttons fluid">
-                    <a class="ui positive button" target="_blank" href="${host + '/shell/monitoring/Messages/'}">Processed Messages</a>
-                    <a class="ui negative button" target="_blank" href="${host + '/shell/monitoring/Messages/%7B%22status%22%3A%22FAILED%22%2C%22time%22%3A%22PASTHOUR%22%2C%22type%22%3A%22INTEGRATION_FLOW%22%7D'}">Failed Messages</a>                        
+                <div class="ui wrapping buttons fluid">
+                    <a class="dgreen ui button" target="_blank" href="${host + '/shell/monitoring/Messages/'}">Processed Messages</a>
+                    <a class="ui button dred" target="_blank" href="${host + '/shell/monitoring/Messages/%7B%22status%22%3A%22FAILED%22%2C%22time%22%3A%22PASTHOUR%22%2C%22type%22%3A%22INTEGRATION_FLOW%22%7D'}">Failed Messages</a>                        
                     <a class="ui secondary button" target="_blank" href="${host + '/shell/monitoring/Artifacts/'}">Artifacts</a>
                     <a class="ui primary button" target="_blank" href="${host + '/shell/design'}">Design</a>  
                 </div>
@@ -241,14 +262,14 @@ function makeCallPromise(method, url, useCache, accept) {
 //has to be changed when plugin is in chrome store
 function checkUpdate() {
     var manifestVersion = chrome.runtime.getManifest().version;
-    var cpihelper_version = document.getElementById("cpihelper_version");
-    var html = "<span>Current version: " + manifestVersion + "</span>";
-    cpihelper_version.innerHTML = html;
+    var cpihelper_version = document.querySelectorAll(".cpihelper_version");
+    var html = "Current version: " + manifestVersion;
+    cpihelper_version.forEach(e => e.innerHTML = html);
 }
 
-function clickinput(title){
-    const tenantName=document.querySelector('#tenantName');
-    tenantName.value=title!=='iflow'?'Cloud Integration':'$iflow.name';
+function clickinput(title) {
+    const tenantName = document.querySelector('#tenantName');
+    tenantName.value = title !== 'iflow' ? 'Cloud Integration' : '$iflow.name';
     tenantName.dispatchEvent(new Event("input"))
 }
 
@@ -302,7 +323,7 @@ function tenantIdentityChanges() {
         tenantColor.addEventListener('change', () => {
             hostData.color = tenantColor.value;
             // set popup.html header
-            popupcolor.style.backgroundColor=tenantColor.value;
+            popupcolor.style.backgroundColor = tenantColor.value;
             chrome.tabs.sendMessage(tab.id, { save: hostData }, (response) => {
                 console.dir(response);
             })
