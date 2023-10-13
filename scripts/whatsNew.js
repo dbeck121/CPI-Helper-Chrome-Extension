@@ -69,6 +69,20 @@ async function whatsNewCheck(showOnlyOnce = true) {
 </div>
 </a>
 
+<a class="item"><i class="right triangle icon"></i>
+<div class="content">
+  <div class="header">Feature</div>
+  <div class="description">Many more ui improvements. Thanks to Omkar Patel</div>
+</div>
+</a>
+
+<a class="item"><i class="right triangle icon"></i>
+<div class="content">
+  <div class="header">Bugfix</div>
+  <div class="description">Many bugfixes</div>
+</div>
+</a>
+
 
           
 <h3 class="ui header">

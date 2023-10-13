@@ -47,7 +47,9 @@ It is open source so feel free to check the source code.
 ### 3.8.0
 
 - [Improvement] Improved "flying error dialog". No mouse over but you need to klick now. Thanks to Omkar Patel
+- [Improvement] Many more ui improvements. Thanks to Omkar Patel
 - [Feature] Trace survives page reload
+- [Bugfix] Many small fixes
 
 ### 3.7.1
 
