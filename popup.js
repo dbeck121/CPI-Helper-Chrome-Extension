@@ -150,26 +150,36 @@ function addTenantUrls() {
                 </div>
                 <div class="ui horizontal divider header">Tenant Links</div>
                 <div class='ui menu'>
-                    <a style="width: 10rem;justify-content: center;" class="ui item" href="${host + '/shell/monitoring/Overview'}" target="_blank">
+                    <a class="ui item" href="${host + '/shell/monitoring/Overview'}" target="_blank">
                     <Strong>Monitoring</Strong></a>
-                    <div class="ui wrapped wrapping buttons">
-                        <a class="ui button" href="${host + '/shell/monitoring/SecurityMaterials'}" target="_blank">Security Material</a>
-                        <a class="ui button" href="${host + '/shell/monitoring/Keystore'}" target="_blank">Keystore</a>
-                        <a class="ui button" href="${host + '/shell/monitoring/CertificateUserMappings'}" target="_blank">Certificate-to-User Mappings</a>                        
-                        <a class="ui button" href="${host + '/shell/monitoring/AccessPolicies'}" target="_blank">Access Policies</a>
-                        <a class="ui button" href="${host + '/shell/monitoring/JdbcMaterial'}" target="_blank">JDBC Material</a>
-                        <a class="ui button" href="${host + '/shell/monitoring/Connectivity'}" target="_blank">Connectivity Tests</a>
-                        <a class="ui button" href="${host + '/shell/monitoring/DataStores'}" target="_blank">Data Stores</a>                        
-                        <a class="ui button" href="${host + '/shell/monitoring/Variables'}" target="_blank">Variables</a>
-                        <a class="ui button" href="${host + '/shell/monitoring/MessageQueues'}" target="_blank">Message Queues</a>
-                        <a class="ui button" href="${host + '/shell/monitoring/NumberRangeObject'}" target="_blank">Number Ranges</a>
-                        <a class="ui button" href="${host + '/shell/monitoring/AuditLog'}" target="_blank">Audit Log</a>                        
-                        <a class="ui button" href="${host + '/shell/monitoring/Locks'}" target="_blank">Message Locks</a>
-                        <a class="ui button" href="${host + '/shell/monitoring/DesigntimeLocks'}" target="_blank">Designtime Artifact Locks</a>
+                    <div class="ui wrapped wrapping buttons fluid" style="display: flex;flex-direction: column;">
+                        <div class="three ui buttons">
+                            <a class="ui button" href="${host + '/shell/monitoring/SecurityMaterials'}" target="_blank">Security Material</a>
+                            <a class="ui button" href="${host + '/shell/monitoring/Keystore'}" target="_blank">Keystore</a>
+                            <a class="ui button" href="${host + '/shell/monitoring/CertificateUserMappings'}" target="_blank">Certificate-to-User Mappings</a>
+                        </div>
+                        <div class="three ui buttons">
+                            <a class="ui button" href="${host + '/shell/monitoring/AccessPolicies'}" target="_blank">Access Policies</a>
+                            <a class="ui button" href="${host + '/shell/monitoring/JdbcMaterial'}" target="_blank">JDBC Material</a>
+                            <a class="ui button" href="${host + '/shell/monitoring/Connectivity'}" target="_blank">Connectivity Tests</a>
+                        </div>
+                        <div class="ui fitted divider"></div>
+                        <div class="three ui buttons">
+                            <a class="ui button" href="${host + '/shell/monitoring/DataStores'}" target="_blank">Data Stores</a>
+                            <a class="ui button" href="${host + '/shell/monitoring/Variables'}" target="_blank">Variables</a>
+                            <a class="ui button" href="${host + '/shell/monitoring/MessageQueues'}" target="_blank">Message Queues</a>
+                        </div>
+                        <a class="fluid ui button" href="${host + '/shell/monitoring/NumberRangeObject'}" target="_blank">Number Ranges</a>
+                        <div class="ui fitted divider"></div>
+                        <div class="three ui buttons">
+                            <a class="ui button" href="${host + '/shell/monitoring/AuditLog'}" target="_blank">Audit Log</a>
+                            <a class="ui button" href="${host + '/shell/monitoring/Locks'}" target="_blank">Message Locks</a>
+                            <a class="ui button" href="${host + '/shell/monitoring/DesigntimeLocks'}" target="_blank">Designtime Artifact Locks</a>
+                        </div>
                     </div>
                 </div>
                 <div class='ui menu'>
-                    <a class="ui item " href="${host + '/shell/settings'}" target="_blank"><strong>API Management</strong></a>
+                    <a class="ui item" href="${host + '/shell/settings'}" target="_blank"><strong>API Management</strong></a>
                     <div class="ui wrapped wrapping buttons fluid">
                         <a class="ui button" href="${host + '/shell/configure'}" target="_blank">Configure API</a>
                         <a class="ui button" href="${host + '/shell/develop'}" target="_blank">Design API</a>

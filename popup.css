@@ -7,6 +7,7 @@
     --cpi-grey: #e3e3e3;
     --cpi-blue: #c7c7ff;
     --cpi-red: #ffc7c7;
+    --cpi-color: #000;
     --cpi-teal: #008080;
     --cpi-hover: #ff5722;
     /* Fonts */
@@ -72,17 +73,6 @@ input[type="color"] {
     height: auto !important;
 }
 
-a.ui.button {
-    justify-content: flex-start;
-    display: flex;
-    align-items: center;
-}
-
-#tenantUrls>.fluid>* {
-    justify-content: center;
-    border-width: 5px;
-}
-
 /* overwrite color classes --Note-- always at bottom section*/
 .l-green {
     --_cpi-dclass: var(--cpi-green);
@@ -104,7 +94,7 @@ a.ui.button {
 .l-red,
 .l-black,
 .l-green {
-    color: #000 !important;
+    color: var(--cpi-color) !important;
     border: .25em solid var(--_cpi-dclass) !important;
     background-color: var(--_cpi-dclass) !important
 }
@@ -113,7 +103,6 @@ a.ui.button {
 .l-red:hover,
 .l-black:hover,
 .l-green:hover {
-    color: #000 !important;
-    border: .25em solid #000 !important;
-    background-color: var(--_cpi-dclass) !important
+    color: var(--_cpi-dclass) !important;
+    border: .25em solid var(--_cpi-dclass) !important;
 }
