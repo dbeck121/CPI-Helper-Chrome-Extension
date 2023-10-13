@@ -86,7 +86,7 @@ function addTenantSettings() {
     tenantSettings.innerHTML = `
     <h3 class="ui horizontal divider header">Tenant Settings</h3>
     <div>
-        <div class="ui labeled input" data-position="bottom center" data-tooltip="Set custom tab name or click reset or same as iflow">
+        <div class="ui labeled input" data-position="right center" data-tooltip="Set custom tab name or click reset or same as iflow">
             <div class="ui label"> Name for tab </div>
             <input type="text" name="tenantName" id="tenantName"/>
         </div>
@@ -96,7 +96,7 @@ function addTenantSettings() {
         </div>
     </div>
     <div>
-        <div class="ui labeled input" data-position="bottom center" data-tooltip="Set number from 1 to 20 of message in sidebar">
+        <div class="ui labeled input" data-position="right center" data-tooltip="Set number from 1 to 20 of message in sidebar">
             <div class="ui label"> No. of Last execution </div>
             <input type="number" min="1" max="20" name="setCount" id="setCount"/>
         </div>
@@ -122,10 +122,13 @@ function addTenantSettings() {
             </select>
         </div>
     </div>
-    <div class="ui left labeled button" tabindex="0">
-		<div class="ui label">Open Message Sidebar on start?</div>
-		<div id="openMessageSidebarOnStartup" class="ui blue basic button">true</div>
-	</div>`;
+    <div>
+        <div class="ui left labeled button" tabindex="0">
+            <div class="ui label">Open Message Sidebar on start?</div>
+            <div id="openMessageSidebarOnStartup" class="ui blue basic button">true</div>
+        </div>
+    </div>
+    `;
     document.querySelector('#tenantSettings > div > .buttons > button:nth-child(1)').addEventListener('click', () => clickinput('iflow'));
     document.querySelector('#tenantSettings > div > .buttons > button:nth-child(2)').addEventListener('click', () => clickinput('reset'));
     document.querySelector('#tenantSettings > div > button').addEventListener('click', () => {

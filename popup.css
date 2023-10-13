@@ -1,12 +1,17 @@
 :root {
+    /* colors */
     --cpi-brand-color: #21436a;
     --cpi-background: #fff;
     --cpi-dark-green: #080;
     --cpi-dark-red: #800;
-    --cpi-teal:#007f7f;
+    --cpi-teal: #007f7f;
+    --cpi-hover: #ff5722;
+    /* Fonts */
     --cpi-font: 'Arial';
+
 }
 
+/* overwrite color classes */
 .dgreen {
     background: var(--cpi-dark-green) !important;
     color: var(--cpi-background) !important;
@@ -19,12 +24,14 @@
     ;
 }
 
+/* general css */
 body {
     margin: 0px;
     width: 800px;
     font-family: var(--cpi-font), sans-serif;
 }
 
+/* unvisted link */
 a:link {
     color: var(--cpi-dark-green);
 }
@@ -37,25 +44,18 @@ a {
     text-decoration: none;
 }
 
-input[type=checkbox]{
-    size:5dvb;
-}
-
-/* mouse over link */
+/* mouse hover*/
 a[href].item:hover,
 .button:hover {
-    color: #ff5722 !important;
+    color: var(--cpi-hover) !important;
     background-color: var(--cpi-brand-color) !important;
 }
 
+/* header */
 #cpiHelper_contentheader {
-    padding: 10px;
+    padding: .5rem;
     z-index: 10;
     background-color: var(--cpi-brand-color);
-}
-
-.m0 {
-    margin: 0 !important;
 }
 
 #cpiHelper_contentheader>* {
@@ -63,15 +63,22 @@ a[href].item:hover,
     font-weight: bold;
 }
 
-#tenantSettings>* {
-    margin: .3em;
+/* margin class 0 */
+.m0 {
+    margin: 0 !important;
 }
 
+#tenantSettings>div {
+    margin: .5rem;
+}
+
+/* max height for tab 2 */
 .tab[data-tab=two] {
-    height: 500px;
+    height: 600px;
     overflow-y: scroll;
 }
 
+/* color input box */
 input[type="color"] {
     height: auto !important;
 }
