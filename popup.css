@@ -59,6 +59,17 @@ a[href].item:hover,
     margin: .5rem;
 }
 
+#tenantSettings table {
+    margin: .2rem;
+    width: 100%;
+    text-align: left;
+}
+
+#tenantSettings tr:nth-child(2) td {
+    border-block: 3px solid var(--cpi-grey);
+}
+
+
 a>p {
     padding-inline-end: .5rem;
     margin: 0;

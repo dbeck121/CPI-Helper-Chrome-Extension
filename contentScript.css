@@ -30,6 +30,8 @@
   border: 0px;
   background: none;
   width: max-content;
+  border-collapse: collapse;
+  --cpi-width: 2px;
 }
 
 .cpiHelper table#messageList td {
@@ -39,6 +41,16 @@
 
 #messageList button {
   width: 100%;
+  border: solid var(--cpi-width) #fff;
+}
+
+#messageList>tr:nth-child(n+2):has(td:only-child) {
+  border-block-start: lightgrey var(--cpi-width) solid !important;
+  padding-block-start: .5em;
+}
+
+#messageList button:hover {
+  border: solid var(--cpi-width) #3c3c3c;
 }
 
 .cpiHelper button {
@@ -69,7 +81,7 @@
 button.cpiHelper_sidebar_iconbutton span {
   cursor: pointer;
   background-color: #21436a;
-  color:white !important;
+  color: white !important;
   outline: none;
 }
 
@@ -473,6 +485,7 @@ button.cpiHelper_sidebar_iconbutton span {
 .cpiHelper_pluginButton {
   float: right;
 }
+
 div#cpiHelper_messageSidebar_pluginArea {
   margin-top: 0.5em;
 }
@@ -488,6 +501,6 @@ div#cpiHelper_messageSidebar_pluginArea fieldset {
   min-inline-size: min-content;
   border-width: 2px;
   border-style: groove;
-  border-color: rgb(242 240 240);
+  border-color: #c0c0c0;  /* reverted because it's good to have separation `@ui fix` commit */
   border-image: initial;
 }

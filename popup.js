@@ -82,9 +82,9 @@ function addLastVisitedIflows() {
                     html += `<div class="ui menu"><a class="ui item"><strong>${subject}</strong></a><div class="ui wrapped wrapping buttons fluid">`
                     elements[subject].map((item, index) => {
                         if (index === elements[subject].length - 1 && index % 2 === 0) {
-                            html += `<div class="ui fluid buttons"><a href="${item.url}" class="ui button">${item.name}</a></div>`
+                            html += `<div class="ui fluid buttons"><a href="${item.url}" target="_blank" class="ui button">${item.name}</a></div>`
                         } else {
-                            html += index % 2 === 0 ? `<div class="ui two bottom buttons"><a href="${item.url}" class="ui button">${item.name}</a>` : `<a href="${item.url}" class="ui button">${item.name}</a></div>`;
+                            html += index % 2 === 0 ? `<div class="ui two bottom buttons"><a target="_blank" href="${item.url}" class="ui button">${item.name}</a>` : `<a target="_blank" href="${item.url}" class="ui button">${item.name}</a></div>`;
                         }
                     })
                     html += `</div></div>`
@@ -97,9 +97,9 @@ function addLastVisitedIflows() {
             <div class="ui menu"><div class="ui wrapped wrapping buttons fluid">`
                 elements[subject].map((item, index) => {
                     if (index === elements[subject].length - 1 && index % 2 === 0) {
-                        html += `<div class="ui fluid buttons"><a href="${item.url}" class="ui button">${item.name}</a></div>`
+                        html += `<div class="ui fluid buttons"><a target="_blank" href="${item.url}" class="ui button">${item.name}</a></div>`
                     } else {
-                        html += index % 2 === 0 ? `<div class="ui two bottom buttons"><a href="${item.url}" class="ui button">${item.name}</a>` : `<a href="${item.url}" class="ui button">${item.name}</a></div>`;
+                        html += index % 2 === 0 ? `<div class="ui two bottom buttons"><a target="_blank" href="${item.url}" class="ui button">${item.name}</a>` : `<a target="_blank" href="${item.url}" class="ui button">${item.name}</a></div>`;
                     }
                 })
                 html += `</div></div>`
@@ -126,6 +126,8 @@ function getSideBarAlwaysVisible() {
 }
 
 function addTenantSettings() {
+    const compactinit = localStorage.getItem('modecpisetting')
+    const tableinit = localStorage.getItem('tablenotetoggle')
     //<div style="margin-bottom: 0.6em;">use $iflow.name to show current iflow name.</div>
     var tenantSettings = document.getElementById("tenantSettings");
     tenantSettings.innerHTML = `
@@ -177,14 +179,28 @@ function addTenantSettings() {
     <div>
         <div class="ui left labeled button" tabindex="0">
             <div class="ui label">Mode of Last visited </div>
-            <div id="cpisetting" class="ui blue basic button">${localStorage.getItem('modecpisetting') === null ? 'Cozy' : localStorage.getItem('modecpisetting') === 'Compact' ? 'Compact' : 'Cozy'}</div>
+            <div id="cpisetting" class="ui blue basic button">${compactinit === null ? 'Cozy' : compactinit === 'Compact' ? 'Compact' : 'Cozy'}</div>
         </div>
-        <p><b>Note:-</b><br />Cozy --default (limited length, more height, aligned)<br /> Compact --Recommanded (Unaligned, max width, less height )</p>
+        <button class="ui toggle basic button" id="tablenote">${tableinit === null ? 'Expand' : tableinit !== 'active' ? 'Expand' : 'Compress'}</button>
+        <table class='segment ui' style="display: ${tableinit === null ? 'table' : tableinit === 'active' ? 'table' : 'none'}">
+            <tr><th>Mode</th>    <th>Action</th>     <th>Width</th> <th>Height</th> <th>Aligned</th> </tr>
+            <tr><td>Cozy</td>    <td>Default</td>    <td>Half </td> <td>More</td>   <td>Yes Fix-layout</td>     </tr>
+            <tr><td>Compact</td> <td>Recommanded</td><td>Full</td>  <td>Less</td>   <td>No* (Depends on Names) Auto-layout</td>      </tr>
+        </table>
     </div>
     `;
-    document.querySelector('#one > i').classList.add(localStorage.getItem('modecpisetting') === null ? 'expand' : localStorage.getItem('modecpisetting') === 'Compact' ? 'compress' : 'expand');
+    document.querySelector('#tablenote').classList.add(tableinit == '' ? 'active' : tableinit);
+    document.querySelector('#one > i').classList.add(compactinit === null ? 'expand' : compactinit === 'Compact' ? 'compress' : 'expand');
     document.querySelector('#tenantSettings > div > .buttons > button:nth-child(1)').addEventListener('click', () => clickinput('iflow'));
     document.querySelector('#tenantSettings > div > .buttons > button:nth-child(2)').addEventListener('click', () => clickinput('reset'));
+    document.querySelector('#tablenote').addEventListener('click', () => {
+        const tabbtn = document.querySelector('#tablenote');
+        const stats = !tabbtn.classList.contains('active');
+        localStorage.setItem('tablenotetoggle', stats ? 'active' : 'inactive');
+        tabbtn.classList.toggle('active');
+        tabbtn.innerText = `${stats ? 'Compress' : 'Expand'}`;
+        document.querySelector('#tenantSettings > div > table').style.display = stats ? 'table' : 'none';
+    });
     document.querySelector('#tenantSettings > div > button').addEventListener('click', () => {
         const tenantColor = document.querySelector('#colorSelect');
         tenantColor.value = '#21436a';
