@@ -188,19 +188,32 @@ function addTenantSettings() {
         <button class="ui toggle ${tableinit === null || tableinit === 'active' ? 'active' : ''} basic button" id="tablenote">
         ${tableinit === null || tableinit === 'active' ? 'Compress' : 'Expand'}</button>
     </div>
-    <div class='segment ui ${(tableinit === null || tableinit === 'active') ? '' : 'hidden'}'>
-        <div style="color:var(--cpi-dark-green);padding-block-end:.5rem">Tenant Settings</div>
-        <section>
-            <b>Name for Tab:</b> Set custom tab name or click reset or same as iflow. <br />i.e. CH_$iflow.name => 'CH_' prefix will be added.<div class="ui fitted divider"></div>
-            <b>No. of Last execution:</b> Set number from 1 to 20 of message in sidebar <div class="ui fitted divider"></div>  
-            <b>Tenant color:</b> set header color <div class="ui fitted divider"></div>
-            <b>Choose icon:</b> set icon at tab
-        </section><div style="color:var(--cpi-dark-green);padding-block-start:.5rem">CPI Helper Settings</div>
-        <table>
-            <tr><th>Mode</th>    <th>Action</th>     <th>Width</th> <th>Height</th> <th>Aligned</th></tr>
-            <tr><td>Cozy</td>    <td>Default</td>    <td>Half </td> <td>More</td>   <td>Yes Fix-layout</td></tr>
-            <tr><td>Compact</td> <td>Recommanded</td><td>Full</td>  <td>Less</td>   <td>No* (Depends on Names) Auto-layout</td></tr>
-        </table>
+    <div class='ui segment ${(tableinit === null || tableinit === 'active') ? '' : 'hidden'}'>
+        <div class="ui segment">
+            <div class="ui medium header" style="color:var(--cpi-dark-green)">General Settings</div >
+            <section>
+                <b class="ui big red text">I-flow page shotcuts</b><br />
+            Press Chrome/Edge <span class="ui red text">Alt</span> and Firefox <span class="ui red text">Alt</span> + <span class="ui red text">Shift</span> along with below key.
+            <br/>Logs<span class="ui red text">1</span> , Trace <span class="ui red text">2</span> , Messages <span class="ui red text">3</span> , Info <span class="ui red text">4</span> , Plugins <span class="ui red text">5</span>
+            </section> 
+        </div>
+        <div class="ui segment">
+        <div class="ui medium header" style="color:var(--cpi-dark-green)">Tenant Settings</div>
+            <section>
+                <b>Name for Tab:</b> Set custom tab name or click reset or same as iflow. <br />i.e. <span class="ui red text">CH_$iflow.name</span> => <span class="ui red text">CH_</span> prefix will be added.<div class="ui fitted divider"></div>
+                <b>No. of Last execution:</b> Set number from <span class="ui red text">1 to 20</span> of message in sidebar <div class="ui fitted divider"></div>  
+                <b>Tenant color:</b> set header color <div class="ui fitted divider"></div>
+                <b>Choose icon:</b> set icon at tab.
+            </section>
+        </div>
+        <div class="ui segment">
+            <div class="ui medium header" style="color:var(--cpi-dark-green)">CPI Helper Settings</div>
+            <table>
+                <tr><th>Mode</th>    <th>Action</th>     <th>Width</th> <th>Height</th> <th>Aligned</th></tr>
+                <tr><td>Cozy</td>    <td>Default</td>    <td>Half </td> <td>More</td>   <td>Yes Fix-layout</td></tr>
+                <tr><td>Compact</td> <td>Recommanded</td><td>Full</td>  <td>Less</td>   <td>No* (Depends on Names) Auto-layout</td></tr>
+            </table>
+        </div>
     </div>
     `;
     document.querySelector('#tablenote').classList.add(tableinit == '' ? 'active' : tableinit);

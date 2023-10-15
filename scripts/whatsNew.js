@@ -25,7 +25,6 @@ async function whatsNewCheck(showOnlyOnce = true) {
                 <a class="item" data-tab="two">Features</a>
                 <a class="item" data-tab="three">About</a>
               </div>
-            </div>
             <div class="ui bottom attached tab segment" data-tab="one">
               <div class="ui segment">
                 <div class="ui grid">
@@ -170,7 +169,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
                   Page</a>.
               </div>
               <div>Created by: Dominic Beckbauer and Kangoolutions.com</div>
-            </div>`;
+              </div></div>`;
     await showBigPopup(html, "Your SAP CI Toolbox since 1963", { "fullscreen": false, callback: () => { $('.menu .item').tab(); } });
 
     var obj = {};
