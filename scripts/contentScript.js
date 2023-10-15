@@ -1591,7 +1591,7 @@ function newArtifactDetected() {
 
   }
   else {
-    cpiData.integrationFlowId = null;
+    cpiData.integrationFlowId = document.location.href.replace(`https://${document.location.host}/`, "");
     cpiData.currentIflowId = null;
     cpiData.currentArtifactId = null;
     cpiData.currentArtifactType = null;

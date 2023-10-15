@@ -7,8 +7,8 @@
     title: 'Cloud Integration',
     color: '#354a5f',
     icon: 'default',
-    maxcount:20, //max number fetch
-    count:10  // default visible
+    maxcount: 20, //max number fetch
+    count: 10  // default visible
   }
 
   // Call the main functions
@@ -127,7 +127,7 @@
   }
 
   // interval is used to overwrite SAPUI5 behaviour
-  function setData({ title, color, icon ,count }) {
+  function setData({ title, color, icon, count }) {
     clearInterval(documentTitleIntervalId)
     // Update element now
     setDocumentTitle(title);
@@ -155,10 +155,9 @@
     let text = title
 
     if (cpiData.integrationFlowId) {
-      text = text.replaceAll("$iflow.name", cpiData.integrationFlowId)
-      //log.log(text)
+      text = text.replace(/\$iflow.name/g, cpiData.integrationFlowId)
     } else {
-      text = text.replaceAll("$iflow.name", "")
+      text = text.replace(/\$iflow.name/g, "Cloud Integration")
     }
 
     if (document.title !== text) {
@@ -175,7 +174,7 @@
       if (document.querySelector('#cpiHelper_contentheader')) {
         document.querySelector('#cpiHelper_contentheader').style.backgroundColor = color
       }
-      
+
       // Set the theme color meta tag
       let themeColorElement = document.querySelector("meta[name='theme-color']");
       if (themeColorElement) {
@@ -190,7 +189,7 @@
   }
 
   function setFavIcon(icon) {
-    if(chrome.runtime.id == undefined) return;
+    if (chrome.runtime.id == undefined) return;
     update = false
     // icon will be 'red', 'green', etc
     let link = document.querySelector("link[rel*='icon']") || document.createElement('link');
@@ -201,25 +200,25 @@
   }
 
   function setcount(count) {
-    if(!count) {
+    if (!count) {
       count = 10
     }
-      var countElement = document.querySelector("meta[name='cpi-count']");
-      if(countElement && countElement.content!==count){
-        if (sidebar.active) {
-          sidebar.deactivate();
-          sidebar.init();
-        }
-        log.log('relaoded sidebar')
+    var countElement = document.querySelector("meta[name='cpi-count']");
+    if (countElement && countElement.content !== count) {
+      if (sidebar.active) {
+        sidebar.deactivate();
+        sidebar.init();
       }
-      // Set the count meta tag
-      if (countElement) {
-        countElement.content = count;
-      } else {
-        let newElement = document.createElement('meta');
-        newElement.name = 'cpi-count';
-        newElement.content = count;
-        document.head.appendChild(newElement);
-      }
+      log.log('relaoded sidebar')
+    }
+    // Set the count meta tag
+    if (countElement) {
+      countElement.content = count;
+    } else {
+      let newElement = document.createElement('meta');
+      newElement.name = 'cpi-count';
+      newElement.content = count;
+      document.head.appendChild(newElement);
+    }
   }
 }

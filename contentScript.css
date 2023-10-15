@@ -49,7 +49,11 @@
 }
 
 #messageList>tr:nth-child(n+2)>td:only-child {
-  padding-block-start: 0.75em;
+  padding-block: 0.75em .25em;
+}
+
+#messageList>tr:nth-child(1)>td:only-child {
+  padding-block: 0 .25em;
 }
 
 #messageList button:hover {
@@ -84,7 +88,7 @@
 button.cpiHelper_sidebar_iconbutton span {
   cursor: pointer;
   background-color: #21436a;
-  color:white !important;
+  color: white !important;
   outline: none;
 }
 

@@ -133,17 +133,17 @@ function addTenantSettings() {
     tenantSettings.innerHTML = `
     <h3 class="ui horizontal divider header">Tenant Settings</h3>
     <div>
-        <div class="ui labeled input" data-position="right center" data-tooltip="Set custom tab name or click reset or same as iflow">
+        <div class="ui labeled input">
             <div class="ui label"> Name for tab </div>
             <input type="text" name="tenantName" id="tenantName"/>
         </div>
         <div class="ui buttons">
             <button class="ui blue basic button">Current Iflow</button>
             <button class="ui blue basic button">Reset Name</button>    
-        </div>
+        </div>  
     </div>
     <div>
-        <div class="ui labeled input" data-position="right center" data-tooltip="Set number from 1 to 20 of message in sidebar">
+        <div class="ui labeled input">
             <div class="ui label"> No. of Last execution </div>
             <input type="number" min="1" max="20" name="setCount" id="setCount"/>
         </div>
@@ -181,14 +181,26 @@ function addTenantSettings() {
             <div class="ui label">Mode of Last visited </div>
             <div id="cpisetting" class="ui blue basic button">${compactinit === null || compactinit !== 'Compact' ? 'Cozy' : 'Compact'}</div>
         </div>
+    </div>
+    <div>
+    <div class="ui left labeled button" tabindex="0">
+        <div class="ui label">Need more help/details? </div>
         <button class="ui toggle ${tableinit === null || tableinit === 'active' ? 'active' : ''} basic button" id="tablenote">
         ${tableinit === null || tableinit === 'active' ? 'Compress' : 'Expand'}</button>
-        <div class='segment ui ${(tableinit === null || tableinit === 'active') ? '' : 'hidden'}'>
+    </div>
+    <div class='segment ui ${(tableinit === null || tableinit === 'active') ? '' : 'hidden'}'>
+        <div style="color:var(--cpi-dark-green);padding-block-end:.5rem">Tenant Settings</div>
+        <section>
+            <b>Name for Tab:</b> Set custom tab name or click reset or same as iflow. <br />i.e. CH_$iflow.name => 'CH_' prefix will be added.<div class="ui fitted divider"></div>
+            <b>No. of Last execution:</b> Set number from 1 to 20 of message in sidebar <div class="ui fitted divider"></div>  
+            <b>Tenant color:</b> set header color <div class="ui fitted divider"></div>
+            <b>Choose icon:</b> set icon at tab
+        </section><div style="color:var(--cpi-dark-green);padding-block-start:.5rem">CPI Helper Settings</div>
         <table>
             <tr><th>Mode</th>    <th>Action</th>     <th>Width</th> <th>Height</th> <th>Aligned</th></tr>
             <tr><td>Cozy</td>    <td>Default</td>    <td>Half </td> <td>More</td>   <td>Yes Fix-layout</td></tr>
             <tr><td>Compact</td> <td>Recommanded</td><td>Full</td>  <td>Less</td>   <td>No* (Depends on Names) Auto-layout</td></tr>
-        </table></div>
+        </table>
     </div>
     `;
     document.querySelector('#tablenote').classList.add(tableinit == '' ? 'active' : tableinit);
