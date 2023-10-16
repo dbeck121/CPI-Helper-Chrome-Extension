@@ -822,8 +822,8 @@ async function buildButtonBar() {
       }
     }
 
-   var logsbutton = createElementFromHTML(`<button id="__button_log" accesskey="1" data-sap-ui="__buttonxx" title="Logs Kbd : 1" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; margin-left: 0px; float: right;"><span id="__buttonxx-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button134345-content"><bdi id="button134345-BDI-content" class="sapMBtnContent">Logs</bdi></span></span></button>`);
-   var tracebutton = createElementFromHTML(`<button id="__buttonxx" accesskey="2" data-sap-ui="__buttonxx" title="Enable traces Kbd : 2" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; float: right;"><span id="__buttonxx-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button134345-content"><bdi id="button134345-BDI-content" class="${powertraceText}">Trace</bdi></span></span></button>`);
+    var logsbutton = createElementFromHTML(`<button id="__button_log" accesskey="1" data-sap-ui="__buttonxx" title="Logs Kbd : 1" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; margin-left: 0px; float: right;"><span id="__buttonxx-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button134345-content"><bdi id="button134345-BDI-content" class="sapMBtnContent">Logs</bdi></span></span></button>`);
+    var tracebutton = createElementFromHTML(`<button id="__buttonxx" accesskey="2" data-sap-ui="__buttonxx" title="Enable traces Kbd : 2" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; float: right;"><span id="__buttonxx-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button134345-content"><bdi id="button134345-BDI-content" class="${powertraceText}">Trace</bdi></span></span></button>`);
     //Create Toggle Message Bar Button
     var messagebutton = createElementFromHTML(' <button id="__buttonxy" accesskey="3" data-sap-ui="__buttonxy" title="Messages Kbd : 3" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; float: right;"><span id="__buttonxy-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button13-content"><bdi id="__button18778-BDI-content">Messages</bdi></span></span></button>');
     var infobutton = createElementFromHTML(' <button id="__buttoninfo" accesskey="4" data-sap-ui="__buttoninfo" title="Info Kbd : 4" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; float: right;"><span id="__buttonxy-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button13-content"><bdi id="__button134343-BDI-content">Info</bdi></span></span></button>');
@@ -834,7 +834,11 @@ async function buildButtonBar() {
     if (area) {
       area.style.textAlign = "right";
       var breakLine = document.createElement('br');
-
+      document.querySelector("[id*='--searchStep-I']").accessKey = "s";
+      area = document.querySelector("[id*='--iflowObjectPageHeader-actions']");
+      area.addEventListener('click', () => {
+        document.querySelector("[id*='--searchStep-I']").accessKey = "s";
+      })
       area.appendChild(breakLine);
       area.appendChild(pluginbutton);
       area.appendChild(infobutton);
@@ -1589,7 +1593,7 @@ function newArtifactDetected() {
 
   }
   else {
-    cpiData.integrationFlowId = document.location.pathname;
+    cpiData.integrationFlowId = document.location.pathname.replace("/", "");
     cpiData.currentIflowId = null;
     cpiData.currentArtifactId = null;
     cpiData.currentArtifactType = null;

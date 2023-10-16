@@ -49,6 +49,9 @@ a[href].item:hover,
     justify-content: flex-start;
     align-items: center;
 }
+.ui.menu {
+    overflow: hidden !important;
+}
 
 /* margin class 0 */
 .m0 {

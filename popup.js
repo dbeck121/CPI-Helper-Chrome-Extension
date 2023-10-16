@@ -16,7 +16,7 @@ function addLastVisitedIflows() {
         if (!visitedIflows || visitedIflows.length == 0) {
             return;
         }
-        var compact = document.querySelector('#cpisetting').innerText === 'Compact';
+        var compact = document.querySelector('#cpisetting').innerText !== 'Set as Compact';
         var artifactTypes = ["Package", "IFlow", "Message Mapping", "Script Collection", "Value Mapping", "SOAP API", "REST API", "ODATA API"]
         var html = `<div class="ui horizontal divider header">Last Visited on Tenant ${name.split("_")[1]}</div>`;
         if (compact) {
@@ -80,13 +80,7 @@ function addLastVisitedIflows() {
                 var subject = artifact
                 if (elements[subject]) {
                     html += `<div class="ui menu"><a class="ui item"><strong>${subject}</strong></a><div class="ui wrapped wrapping buttons fluid">`
-                    elements[subject].map((item, index) => {
-                        if (index === elements[subject].length - 1 && index % 2 === 0) {
-                            html += `<div class="ui fluid buttons"><a href="${item.url}" target="_blank" class="ui button">${item.name}</a></div>`
-                        } else {
-                            html += index % 2 === 0 ? `<div class="ui two bottom buttons"><a target="_blank" href="${item.url}" class="ui button">${item.name}</a>` : `<a target="_blank" href="${item.url}" class="ui button">${item.name}</a></div>`;
-                        }
-                    })
+                    elements[subject].map((item, index) => { html += `<div class="ui fluid buttons"><a href="${item.url}" target="_blank" class="ui button">${item.name}</a></div>` })
                     html += `</div></div>`
                 }
             })
@@ -94,14 +88,8 @@ function addLastVisitedIflows() {
             var subject = "noheader"
             if (elements[subject]) {
                 html += `<div class="ui horizontal divider header">CPI Helper old version items</div>
-            <div class="ui menu"><div class="ui wrapped wrapping buttons fluid">`
-                elements[subject].map((item, index) => {
-                    if (index === elements[subject].length - 1 && index % 2 === 0) {
-                        html += `<div class="ui fluid buttons"><a target="_blank" href="${item.url}" class="ui button">${item.name}</a></div>`
-                    } else {
-                        html += index % 2 === 0 ? `<div class="ui two bottom buttons"><a target="_blank" href="${item.url}" class="ui button">${item.name}</a>` : `<a target="_blank" href="${item.url}" class="ui button">${item.name}</a></div>`;
-                    }
-                })
+                        <div class="ui menu"><div class="ui wrapped wrapping buttons fluid">`
+                elements[subject].map((item, index) => { html += `<div class="ui fluid buttons"><a target="_blank" href="${item.url}" class="ui button">${item.name}</a></div>` })
                 html += `</div></div>`
             }
         }
@@ -116,11 +104,12 @@ function getSideBarAlwaysVisible() {
         var openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
 
         var openMessageSidebarOnStartup = document.getElementById("openMessageSidebarOnStartup");
-        openMessageSidebarOnStartup.innerText = openMessageSidebarOnStartupValue ? 'Yes' : 'No';
+        openMessageSidebarOnStartup.innerText = `Set as ${openMessageSidebarOnStartupValue ? 'No' : 'Yes'}`;
         openMessageSidebarOnStartup.onclick = function () {
-            let ctnx = openMessageSidebarOnStartup.innerText;
-            openMessageSidebarOnStartup.innerText = ctnx !== 'Yes' ? 'Yes' : 'No';
-            chrome.storage.sync.set({ "openMessageSidebarOnStartup": ctnx !== 'Yes' });
+            let ctnx = openMessageSidebarOnStartup.innerText.split(" ")[2];
+            openMessageSidebarOnStartup.innerText = `Set as ${ctnx !== 'Yes' ? 'Yes' : 'No'}`;
+            console.log(ctnx === 'Yes')
+            chrome.storage.sync.set({ "openMessageSidebarOnStartup": ctnx === 'Yes' });
         }
     });
 }
@@ -173,13 +162,13 @@ function addTenantSettings() {
     <div>
         <div class="ui left labeled button" tabindex="0">
             <div class="ui label">Open Message Sidebar on start?</div>
-            <div id="openMessageSidebarOnStartup" class="ui blue basic button">Yes</div>
+            <div id="openMessageSidebarOnStartup" class="ui blue basic button">Set as Yes</div>
         </div>
     </div>
     <div>
         <div class="ui left labeled button" tabindex="0">
             <div class="ui label">Mode of Last visited </div>
-            <div id="cpisetting" class="ui blue basic button">${compactinit === null || compactinit !== 'Compact' ? 'Cozy' : 'Compact'}</div>
+            <div id="cpisetting" class="ui blue basic button">Set as ${compactinit === null || compactinit === 'Compact' ? 'Compact' : 'Cozy'}</div>
         </div>
     </div>
     <div>
@@ -188,38 +177,42 @@ function addTenantSettings() {
         <button class="ui toggle ${tableinit === null || tableinit === 'active' ? 'active' : ''} basic button" id="tablenote">
         ${tableinit === null || tableinit === 'active' ? 'Compress' : 'Expand'}</button>
     </div>
-    <div class='ui segment ${(tableinit === null || tableinit === 'active') ? '' : 'hidden'}'>
-        <div class="ui segment">
-            <div class="ui medium header" style="color:var(--cpi-dark-green)">General Settings</div >
-            <section>
-                <b class="ui big red text">I-flow page shotcuts</b><br />
-            Press Chrome/Edge <span class="ui red text">Alt</span> and Firefox <span class="ui red text">Alt</span> + <span class="ui red text">Shift</span> along with below key.
-            <br/>Logs<span class="ui red text">1</span> , Trace <span class="ui red text">2</span> , Messages <span class="ui red text">3</span> , Info <span class="ui red text">4</span> , Plugins <span class="ui red text">5</span>
-            </section> 
-        </div>
-        <div class="ui segment">
-        <div class="ui medium header" style="color:var(--cpi-dark-green)">Tenant Settings</div>
-            <section>
-                <b>Name for Tab:</b> Set custom tab name or click reset or same as iflow. <br />i.e. <span class="ui red text">CH_$iflow.name</span> => <span class="ui red text">CH_</span> prefix will be added.<div class="ui fitted divider"></div>
-                <b>No. of Last execution:</b> Set number from <span class="ui red text">1 to 20</span> of message in sidebar <div class="ui fitted divider"></div>  
-                <b>Tenant color:</b> set header color <div class="ui fitted divider"></div>
-                <b>Choose icon:</b> set icon at tab.
+    <div class='ui segment ${(tableinit === null || tableinit === ' active') ? '' : 'hidden'}'>
+			<div class="ui segment">
+				<div class="ui medium header" style="color:var(--cpi-dark-green)">General Settings</div>
+				<section>
+					<b class="ui big red text">I-flow page shotcuts</b>  Press Chrome/Edge <span class="ui red text">Alt</span> and Firefox <span
+						class="ui red text">Alt</span> + <span class="ui red text">Shift</span> along with below key.
+					<br />Logs<span class="ui red text">1</span> , Trace <span class="ui red text">2</span> , Messages
+					<span class="ui red text">3</span> , Info <span class="ui red text">4</span> , Plugins <span
+						class="ui red text">5</span>, Search Step <span class="ui red text">S</span>.
+				</section>
+			</div>
+			<div class="ui segment">
+				<div class="ui medium header" style="color:var(--cpi-dark-green)">Tenant Settings</div>
+				<section>
+                <p><b>Name for Tab:</b> Set custom tab name or click reset or same as iflow. <br />i.e. <span class="ui red text">CH_$iflow.name</span> => <span class="ui red text">CH_</span> prefix will be added.<div class="ui fitted divider"></div>
+                </p><p><b>No. of Last execution:</b> Set number from <span class="ui red text">1 to 20</span> of message in sidebar <div class="ui fitted divider"></div>  
+                </p><p><b>Tenant color:</b> set header color <div class="ui fitted divider"></div>
+                </p><p><b>Choose icon:</b> set icon at tab.</p>
             </section>
         </div>
         <div class="ui segment">
             <div class="ui medium header" style="color:var(--cpi-dark-green)">CPI Helper Settings</div>
+            <p><b>Open Message Sidebar on start?</b>: yes / No(default)<div class="ui fitted divider"></div></p>
             <table>
-                <tr><th>Mode</th>    <th>Action</th>     <th>Width</th> <th>Height</th> <th>Aligned</th></tr>
-                <tr><td>Cozy</td>    <td>Default</td>    <td>Half </td> <td>More</td>   <td>Yes Fix-layout</td></tr>
-                <tr><td>Compact</td> <td>Recommanded</td><td>Full</td>  <td>Less</td>   <td>No* (Depends on Names) Auto-layout</td></tr>
+                <tr><th>Mode</th> <th>Height</th> <th>layout</th></tr>
+                <tr><td>Cozy (default)</td> <td>More</td> <td>Fix-layout</td></tr>
+                <tr><td>Compact</td> <td>Less</td> <td>Auto-layout</td></tr>
             </table>
         </div>
     </div>
     `;
     document.querySelector('#tablenote').classList.add(tableinit == '' ? 'active' : tableinit);
-    document.querySelector('#one > i').classList.add(compactinit === null || compactinit !== 'Compact' ? 'expand' : 'compress');
-    document.querySelector('#tenantSettings > div > .buttons > button:nth-child(1)').addEventListener('click', () => clickinput('iflow'));
-    document.querySelector('#tenantSettings > div > .buttons > button:nth-child(2)').addEventListener('click', () => clickinput('reset'));
+    document.querySelector('#one > i').classList.add(compactinit === null || compactinit === 'Compact' ? 'expand' : 'compress');
+    document.querySelector('#tenantSettings > div > .buttons > button:nth-child(1)').addEventListener('click', () => inputReset('iflow'));
+    document.querySelector('#tenantSettings > div > .buttons > button:nth-child(2)').addEventListener('click', () => inputReset('reset'));
+    // Help section btn
     document.querySelector('#tablenote').addEventListener('click', () => {
         const tabbtn = document.querySelector('#tablenote');
         const stats = !tabbtn.classList.contains('active');
@@ -228,16 +221,18 @@ function addTenantSettings() {
         tabbtn.classList.toggle('active');
         document.querySelector('#tenantSettings>div>div:has(table)').classList.toggle("hidden")
     });
+    //reset color btn
     document.querySelector('#tenantSettings > div > button').addEventListener('click', () => {
         const tenantColor = document.querySelector('#colorSelect');
         tenantColor.value = '#21436a';
         tenantColor.dispatchEvent(new Event("change"));
     })
+    //cozy-compact mode btn
     document.querySelector('#cpisetting').addEventListener('click', () => {
         const cpisetting = document.querySelector('#cpisetting');
         const icon = document.querySelector('#one > i');
-        cpisetting.innerText = cpisetting.innerText === 'Compact' ? 'Cozy' : 'Compact';
-        localStorage.setItem('modecpisetting', cpisetting.innerText);
+        cpisetting.innerText = `Set as ${cpisetting.innerText === 'Set as Compact' ? 'Cozy' : 'Compact'}`;
+        localStorage.setItem('modecpisetting', cpisetting.innerText.split(' ')[2]);
         icon.classList.toggle('compress');
         icon.classList.toggle('expand');
         addLastVisitedIflows();
@@ -387,7 +382,7 @@ function checkUpdate() {
     cpihelper_version.forEach(e => e.innerHTML = html);
 }
 
-function clickinput(title) {
+function inputReset(title) {
     const tenantName = document.querySelector('#tenantName');
     tenantName.value = title !== 'iflow' ? 'Cloud Integration' : '$iflow.name';
     tenantName.dispatchEvent(new Event("input"))
