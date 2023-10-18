@@ -8,7 +8,7 @@ var plugin = {
     website: "https://kangoolutions.com",
     description: "Adds an button to the message sidebar to open a reference guide.",
     settings: {
-        "text1": { "text": "There are no additional settings.", "type": "label" }
+        
     },
 
     messageSidebarContent: {

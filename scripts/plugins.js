@@ -145,8 +145,10 @@ async function createPluginScriptButtons() {
 //creates Fields for Plugin Popup
 async function createPluginPopupUI(plugin) {
 
-    var container = document.createElement('fieldset');
-    container.appendChild(createElementFromHTML(`<legend>${plugin.name} ${plugin.version} ${plugin.id}</legend>`));
+    var container = document.createElement('div');
+    container.classList.add("ui");
+    container.classList.add("segment");
+    container.appendChild(createElementFromHTML(`<h4 class="ui header">${plugin.name} ${plugin.version} ${plugin.id}</h4>`));
 
     var activeCheckbox = document.createElement('input');
     activeCheckbox.id = `cpiHelper_popup_plugins-${plugin.id}`;
@@ -162,13 +164,17 @@ async function createPluginPopupUI(plugin) {
     });
 
     var div = document.createElement('div');
+    div.classList.add("ui");
+    div.classList.add("checkbox");
+    div.classList.add("toggle");
     div.appendChild(activeCheckbox);
     div.appendChild(createElementFromHTML(`<label for="cpiHelper_popup_plugins-${plugin.id}"> activate</label>`));
-    div.appendChild(createElementFromHTML(`<br>`));
-    div.appendChild(createElementFromHTML(`<span>${plugin.description}</span>`));
-    div.appendChild(createElementFromHTML(`<br>`));
+    //div.appendChild(createElementFromHTML(`<br>`));
+    div.appendChild(createElementFromHTML(`<div class="ui message">${plugin.description}</div>`));
+    //div.appendChild(createElementFromHTML(`<br>`));
 
     container.appendChild(div);
+
 
     if (await getStorageValue(plugin.id, "isActive", null)) {
         if (plugin.settings) {
@@ -193,12 +199,17 @@ async function createPluginPopupUI(plugin) {
                     checkBoxLabel.innerText = ` ${plugin.settings[key].text}`;
 
                     var div = document.createElement('div');
+                    div.classList.add("ui");
+                    div.classList.add("checkbox");
+                    div.classList.add("toggle");
                     div.appendChild(checkbox);
                     div.appendChild(checkBoxLabel);
+                    
                     container.appendChild(div);
                 }
 
                 if (plugin.settings[key].type == "text") {
+                    var outerDiv = document.createElement('div');
                     var text = document.createElement('input');
                     text.id = `cpiHelper_popup_plugins-${plugin.id}-${key}`;
                     text.key = `${getStoragePath(plugin.id, key, plugin.settings[key].scope)}`
@@ -211,17 +222,23 @@ async function createPluginPopupUI(plugin) {
                         chrome.storage.sync.set({ [this.key]: this.value });
                     });
                     var div = document.createElement('div');
+                    div.classList.add("ui");
+                    div.classList.add("right");
+                    div.classList.add("labeled"); 
+                    div.classList.add("input");
                     div.appendChild(text);
-                    div.appendChild(createElementFromHTML(`<label for="cpiHelper_popup_plugins-${plugin.id}-${key}"> ${plugin.settings[key].text}</label>`));
-
-                    container.appendChild(div);
+                    div.appendChild(createElementFromHTML(`<div class="ui basic label" for="cpiHelper_popup_plugins-${plugin.id}-${key}"> ${plugin.settings[key].text}</div>`));
+                    outerDiv.appendChild(div);
+                    container.appendChild(outerDiv);
                 }
                 if (plugin.settings[key].type == "label") {
-                    var label = document.createElement('label');
+                    var label = document.createElement('div');
                     label.id = `cpiHelper_popup_plugins - ${plugin.id} -${key} `;
                     label.innerText = plugin.settings[key].text;
 
                     var div = document.createElement('div');
+                    div.classList.add("ui");
+                    div.classList.add("label");
                     div.appendChild(label);
                     container.appendChild(div);
 

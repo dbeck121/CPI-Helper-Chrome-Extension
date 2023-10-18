@@ -9,7 +9,7 @@ var plugin = {
     description: "Adds an undeploy button to the message sidebar.",
 
     settings: {
-        "text1": { "text": "There are no additional settings.", "type": "label" }
+       
     },
 
     messageSidebarContent: {
