@@ -7,11 +7,18 @@
 async function messageSidebarPluginContent(forceRender = false) {
     var pluginArea = document.getElementById('cpiHelper_messageSidebar_pluginArea');
     //pluginArea.innerHTML = "";
-
+    var ctxbtnclose = document.querySelector('#cpiHelper_contentheader')
     for (element of pluginList) {
         var settings = await getPluginSettings(element.id);
 
         if (settings[element.id + "---isActive"] === true) {
+            if (ctxbtnclose.childElementCount==2) {
+                ctxbtnclose.insertBefore(createElementFromHTML("<span id='sidebar_Plugin' data-sap-ui-icon-content='' class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>"),ctxbtnclose.childNodes[2]);
+                document.querySelector('#sidebar_Plugin').addEventListener('click', () => {
+                    const plugin_element = document.querySelector('#outerPlugin');
+                    plugin_element.style.display = plugin_element.offsetHeight > 0 ? 'none' : 'block'
+                })
+            }
             if (element?.messageSidebarContent?.onRender && (!element?.messageSidebarContent?.static || forceRender == true)) {
                 var div = document.getElementById("cpiHelper_messageSidebar_pluginArea_" + element.id)
                 if (!div) {
@@ -65,7 +72,7 @@ async function createPluginButtons(type) {
         var settings = await getPluginSettings(plugin.id);
         if (settings[plugin.id + "---isActive"] === true) {
             if (plugin[type] && !plugin[type].condition || plugin[type] && plugin[type].condition(cpiData, settings)) {
-                var button = createElementFromHTML("<button title='" + plugin[type].title + "' id='cpiHelperPlugin--" + plugin.id + "' class='cpiHelper_pluginButton_"+type+" mini ui button cpiHelper_pluginButton'>" + plugin[type]?.text + "</button>");
+                var button = createElementFromHTML("<button title='" + plugin[type].title + "' id='cpiHelperPlugin--" + plugin.id + "' class='cpiHelper_pluginButton_" + type + " mini ui button cpiHelper_pluginButton'>" + plugin[type]?.text + "</button>");
 
                 button.onclick = async (btn) => {
                     let pluginID = btn.target.id.replace("cpiHelperPlugin--", "")

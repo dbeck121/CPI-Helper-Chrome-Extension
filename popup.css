@@ -8,7 +8,6 @@
     --cpi-blue: #c7c7ff;
     --cpi-red: #ffc7c7;
     --cpi-color: #000;
-    --cpi-teal: #008080;
     --cpi-hover: #ff5722;
     /* Fonts */
     --cpi-font: 'Arial';
@@ -19,15 +18,6 @@ body {
     margin: 0px;
     width: 800px;
     font-family: var(--cpi-font), sans-serif;
-}
-
-/* unvisted link */
-a:link {
-    color: var(--cpi-dark-green);
-}
-
-a:visited {
-    color: var(--cpi-teal);
 }
 
 a {
@@ -53,6 +43,16 @@ a[href].item:hover,
     font-weight: bold;
 }
 
+/* section link left tab-1 */
+#lastVisitedIflows a {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+.ui.menu {
+    overflow: hidden !important;
+}
+
 /* margin class 0 */
 .m0 {
     margin: 0 !important;
@@ -62,10 +62,33 @@ a[href].item:hover,
     margin: .5rem;
 }
 
+#tenantSettings table {
+    width: 100%;
+    text-align: left;
+    border-collapse: collapse;
+}
+
+#tenantSettings tr:nth-child(2):has(td) {
+    border-block: 2px solid var(--cpi-grey);
+}
+
+.hidden {
+    display: none
+}
+
+a>p {
+    padding-inline-end: .5rem;
+    margin: 0;
+}
+
 /* max height for tab 2 */
 .tab[data-tab=two] {
     height: 600px;
+}
+
+.tab {
     overflow-y: scroll;
+    max-height: 600px;
 }
 
 /* color input box */

@@ -10,56 +10,89 @@ function addLastVisitedIflows() {
     let name = 'visitedIflows_' + host.split("/")[2].split(".")[0];
     var elements = {}
 
-
     chrome.storage.sync.get([name], function (result) {
         var visitedIflows = result[name];
         console.log(visitedIflows)
         if (!visitedIflows || visitedIflows.length == 0) {
             return;
         }
+        var compact = document.querySelector('#cpisetting').innerText !== 'Set as Compact';
+        var artifactTypes = ["Package", "IFlow", "Message Mapping", "Script Collection", "Value Mapping", "SOAP API", "REST API", "ODATA API"]
+        var html = `<div class="ui horizontal divider header">Last Visited on Tenant ${name.split("_")[1]}</div>`;
+        if (compact) {
 
-        var html = `
-        <div class="ui horizontal divider header">Last Visited on Tenant ${name.split("_")[1]}</div>`;
-        for (var i = visitedIflows.length - 1; i > -1; i--) {
-            if (visitedIflows[i].type) {
-                if (elements[visitedIflows[i].type]) {
-                    elements[visitedIflows[i].type].push(visitedIflows[i])
+            for (var i = visitedIflows.length - 1; i > -1; i--) {
+                if (visitedIflows[i].type) {
+                    if (elements[visitedIflows[i].type]) {
+                        elements[visitedIflows[i].type].push(visitedIflows[i])
+                    } else {
+                        elements[visitedIflows[i].type] = [visitedIflows[i]]
+                    }
                 } else {
-                    elements[visitedIflows[i].type] = [visitedIflows[i]]
-                }
-            } else {
-                if (elements["noheader"]) {
-                    elements["noheader"].push(visitedIflows[i])
-                } else {
-                    elements["noheader"] = [visitedIflows[i]]
+                    if (elements["noheader"]) {
+                        elements["noheader"].push(visitedIflows[i])
+                    } else {
+                        elements["noheader"] = [visitedIflows[i]]
+                    }
                 }
             }
-        }
 
-        var artifactTypes = ["Package", "IFlow", "Message Mapping", "Script Collection", "Value Mapping", "SOAP API", "REST API", "ODATA API"]
+            artifactTypes.map((artifact) => {
+                var subject = artifact
+                if (elements[subject]) {
+                    html += `<div class="ui menu"><a class="ui item"><strong>${subject}</strong></a><div class="ui wrapped wrapping buttons fluid">`
+                    elements[subject].map((item) => {
+                        html += `<a class="ui button" href="${item.url}" target="_blank">${item.name}</a>`
+                    })
+                    html += `</div></div>`
+                }
+            })
 
-        artifactTypes.map((artifact) => {
-            var subject = artifact
+            var subject = "noheader"
             if (elements[subject]) {
-                html += `<div class="ui menu"><a class="ui item"><strong>${subject}</strong></a><div class="ui wrapped wrapping buttons fluid">`
+                html += `
+            <div class="ui horizontal divider header">CPI Helper old version items</div>
+            <div class="ui menu"><div class="ui wrapped wrapping buttons fluid">`
                 elements[subject].map((item) => {
                     html += `<a class="ui button" href="${item.url}" target="_blank">${item.name}</a>`
                 })
                 html += `</div></div>`
             }
-        })
+        } else {
 
-        var subject = "noheader"
-        if (elements[subject]) {
-            html += `
-            <div class="ui horizontal divider header">CPI Helper old version items</div>
-            <div class="ui menu"><div class="ui wrapped wrapping buttons fluid">`
-            elements[subject].map((item) => {
-                html += `<a class="ui button" href="${item.url}" target="_blank">${item.name}</a>`
+            for (var i = visitedIflows.length - 1; i > -1; i--) {
+                if (visitedIflows[i].type) {
+                    if (elements[visitedIflows[i].type]) {
+                        elements[visitedIflows[i].type].push(visitedIflows[i])
+                    } else {
+                        elements[visitedIflows[i].type] = [visitedIflows[i]]
+                    }
+                } else {
+                    if (elements["noheader"]) {
+                        elements["noheader"].push(visitedIflows[i])
+                    } else {
+                        elements["noheader"] = [visitedIflows[i]]
+                    }
+                }
+            }
+
+            artifactTypes.map((artifact) => {
+                var subject = artifact
+                if (elements[subject]) {
+                    html += `<div class="ui menu"><a class="ui item"><strong>${subject}</strong></a><div class="ui wrapped wrapping buttons fluid">`
+                    elements[subject].map((item, index) => { html += `<div class="ui fluid buttons"><a href="${item.url}" target="_blank" class="ui button">${item.name}</a></div>` })
+                    html += `</div></div>`
+                }
             })
-            html += `</div></div>`
-        }
 
+            var subject = "noheader"
+            if (elements[subject]) {
+                html += `<div class="ui horizontal divider header">CPI Helper old version items</div>
+                        <div class="ui menu"><div class="ui wrapped wrapping buttons fluid">`
+                elements[subject].map((item, index) => { html += `<div class="ui fluid buttons"><a target="_blank" href="${item.url}" class="ui button">${item.name}</a></div>` })
+                html += `</div></div>`
+            }
+        }
         var lastVisitedIflows = document.getElementById("lastVisitedIflows");
         lastVisitedIflows.innerHTML = html;
     });
@@ -71,32 +104,35 @@ function getSideBarAlwaysVisible() {
         var openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
 
         var openMessageSidebarOnStartup = document.getElementById("openMessageSidebarOnStartup");
-        openMessageSidebarOnStartup.innerText = openMessageSidebarOnStartupValue ? 'Yes' : 'No';
+        openMessageSidebarOnStartup.innerText = `Set as ${openMessageSidebarOnStartupValue ? 'No' : 'Yes'}`;
         openMessageSidebarOnStartup.onclick = function () {
-            let ctnx = openMessageSidebarOnStartup.innerText;
-            openMessageSidebarOnStartup.innerText = ctnx !== 'Yes' ? 'Yes' : 'No';
-            chrome.storage.sync.set({ "openMessageSidebarOnStartup": ctnx !== 'Yes' });
+            let ctnx = openMessageSidebarOnStartup.innerText.split(" ")[2];
+            openMessageSidebarOnStartup.innerText = `Set as ${ctnx !== 'Yes' ? 'Yes' : 'No'}`;
+            console.log(ctnx === 'Yes')
+            chrome.storage.sync.set({ "openMessageSidebarOnStartup": ctnx === 'Yes' });
         }
     });
 }
 
 function addTenantSettings() {
+    const compactinit = localStorage.getItem('modecpisetting')
+    const tableinit = localStorage.getItem('tablenotetoggle')
     //<div style="margin-bottom: 0.6em;">use $iflow.name to show current iflow name.</div>
     var tenantSettings = document.getElementById("tenantSettings");
     tenantSettings.innerHTML = `
     <h3 class="ui horizontal divider header">Tenant Settings</h3>
     <div>
-        <div class="ui labeled input" data-position="right center" data-tooltip="Set custom tab name or click reset or same as iflow">
+        <div class="ui labeled input">
             <div class="ui label"> Name for tab </div>
             <input type="text" name="tenantName" id="tenantName"/>
         </div>
         <div class="ui buttons">
             <button class="ui blue basic button">Current Iflow</button>
             <button class="ui blue basic button">Reset Name</button>    
-        </div>
+        </div>  
     </div>
     <div>
-        <div class="ui labeled input" data-position="right center" data-tooltip="Set number from 1 to 20 of message in sidebar">
+        <div class="ui labeled input">
             <div class="ui label"> No. of Last execution </div>
             <input type="number" min="1" max="20" name="setCount" id="setCount"/>
         </div>
@@ -122,19 +158,84 @@ function addTenantSettings() {
             </select>
         </div>
     </div>
+    <h3 class="ui horizontal divider header">CPI Helper Settings</h3>
     <div>
         <div class="ui left labeled button" tabindex="0">
             <div class="ui label">Open Message Sidebar on start?</div>
-            <div id="openMessageSidebarOnStartup" class="ui blue basic button">true</div>
+            <div id="openMessageSidebarOnStartup" class="ui blue basic button">Set as Yes</div>
+        </div>
+    </div>
+    <div>
+        <div class="ui left labeled button" tabindex="0">
+            <div class="ui label">Mode of Last visited </div>
+            <div id="cpisetting" class="ui blue basic button">Set as ${compactinit === null || compactinit === 'Compact' ? 'Compact' : 'Cozy'}</div>
+        </div>
+    </div>
+    <div>
+    <div class="ui left labeled button" tabindex="0">
+        <div class="ui label">Need more help/details? </div>
+        <button class="ui toggle ${tableinit === null || tableinit === 'active' ? 'active' : ''} basic button" id="tablenote">
+        ${tableinit === null || tableinit === 'active' ? 'Compress' : 'Expand'}</button>
+    </div>
+    <div class='ui segment ${(tableinit === null || tableinit === ' active') ? '' : 'hidden'}'>
+			<div class="ui segment">
+				<div class="ui medium header" style="color:var(--cpi-dark-green)">General Settings</div>
+				<section>
+					<b class="ui big red text">I-flow page shotcuts</b>  Press Chrome/Edge <span class="ui red text">Alt</span> and Firefox <span
+						class="ui red text">Alt</span> + <span class="ui red text">Shift</span> along with below key.
+					<br />Logs<span class="ui red text">1</span> , Trace <span class="ui red text">2</span> , Messages
+					<span class="ui red text">3</span> , Info <span class="ui red text">4</span> , Plugins <span
+						class="ui red text">5</span>, Search Step <span class="ui red text">S</span>.
+				</section>
+			</div>
+			<div class="ui segment">
+				<div class="ui medium header" style="color:var(--cpi-dark-green)">Tenant Settings</div>
+				<section>
+                <p><b>Name for Tab:</b> Set custom tab name or click reset or same as iflow. <br />i.e. <span class="ui red text">CH_$iflow.name</span> => <span class="ui red text">CH_</span> prefix will be added.<div class="ui fitted divider"></div>
+                </p><p><b>No. of Last execution:</b> Set number from <span class="ui red text">1 to 20</span> of message in sidebar <div class="ui fitted divider"></div>  
+                </p><p><b>Tenant color:</b> set header color <div class="ui fitted divider"></div>
+                </p><p><b>Choose icon:</b> set icon at tab.</p>
+            </section>
+        </div>
+        <div class="ui segment">
+            <div class="ui medium header" style="color:var(--cpi-dark-green)">CPI Helper Settings</div>
+            <p><b>Open Message Sidebar on start?</b>: yes / No(default)<div class="ui fitted divider"></div></p>
+            <table>
+                <tr><th>Mode</th> <th>Height</th> <th>layout</th></tr>
+                <tr><td>Cozy (default)</td> <td>More</td> <td>Fix-layout</td></tr>
+                <tr><td>Compact</td> <td>Less</td> <td>Auto-layout</td></tr>
+            </table>
         </div>
     </div>
     `;
-    document.querySelector('#tenantSettings > div > .buttons > button:nth-child(1)').addEventListener('click', () => clickinput('iflow'));
-    document.querySelector('#tenantSettings > div > .buttons > button:nth-child(2)').addEventListener('click', () => clickinput('reset'));
+    document.querySelector('#tablenote').classList.add(tableinit == '' ? 'active' : tableinit);
+    document.querySelector('#one > i').classList.add(compactinit === null || compactinit === 'Compact' ? 'expand' : 'compress');
+    document.querySelector('#tenantSettings > div > .buttons > button:nth-child(1)').addEventListener('click', () => inputReset('iflow'));
+    document.querySelector('#tenantSettings > div > .buttons > button:nth-child(2)').addEventListener('click', () => inputReset('reset'));
+    // Help section btn
+    document.querySelector('#tablenote').addEventListener('click', () => {
+        const tabbtn = document.querySelector('#tablenote');
+        const stats = !tabbtn.classList.contains('active');
+        localStorage.setItem('tablenotetoggle', stats ? 'active' : 'inactive');
+        tabbtn.innerText = `${stats ? 'Compress' : 'Expand'}`;
+        tabbtn.classList.toggle('active');
+        document.querySelector('#tenantSettings>div>div:has(table)').classList.toggle("hidden")
+    });
+    //reset color btn
     document.querySelector('#tenantSettings > div > button').addEventListener('click', () => {
         const tenantColor = document.querySelector('#colorSelect');
         tenantColor.value = '#21436a';
         tenantColor.dispatchEvent(new Event("change"));
+    })
+    //cozy-compact mode btn
+    document.querySelector('#cpisetting').addEventListener('click', () => {
+        const cpisetting = document.querySelector('#cpisetting');
+        const icon = document.querySelector('#one > i');
+        cpisetting.innerText = `Set as ${cpisetting.innerText === 'Set as Compact' ? 'Cozy' : 'Compact'}`;
+        localStorage.setItem('modecpisetting', cpisetting.innerText.split(' ')[2]);
+        icon.classList.toggle('compress');
+        icon.classList.toggle('expand');
+        addLastVisitedIflows();
     });
 }
 
@@ -277,11 +378,11 @@ function makeCallPromise(method, url, useCache, accept) {
 function checkUpdate() {
     var manifestVersion = chrome.runtime.getManifest().version;
     var cpihelper_version = document.querySelectorAll(".cpihelper_version");
-    var html = "Current version: " + manifestVersion;
+    var html = "CPI Helper : v " + manifestVersion;
     cpihelper_version.forEach(e => e.innerHTML = html);
 }
 
-function clickinput(title) {
+function inputReset(title) {
     const tenantName = document.querySelector('#tenantName');
     tenantName.value = title !== 'iflow' ? 'Cloud Integration' : '$iflow.name';
     tenantName.dispatchEvent(new Event("input"))
