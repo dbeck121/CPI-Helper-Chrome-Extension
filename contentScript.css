@@ -489,6 +489,7 @@ button.cpiHelper_sidebar_iconbutton span {
   max-height: 100%;
 }
 
+/* plugin */
 .cpiHelper_pluginButton {
   float: right;
 }
@@ -508,6 +509,42 @@ div#cpiHelper_messageSidebar_pluginArea fieldset {
   min-inline-size: min-content;
   border-width: 2px;
   border-style: groove;
-  border-color: #c0c0c0;  /* reverted because it's good to have separation `@ui fix` commit */
+  border-color: #c0c0c0;
   border-image: initial;
+}
+
+h3.header {
+  padding: 1em;
+  background-color: #21436a;
+  color: #fff;
+  margin: 0
+}
+
+.card {
+  width: calc(33% - 1em) !important;
+}
+
+@media screen and (max-width: 1024px) {
+  .card {
+    width: calc(100% - 1em) !important;
+  }
+}
+
+.card .extra.content:has(input)>label {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  padding: .5em
+}
+
+.card .extra.content:has(input:checked)>label {
+  background: #13af00 !important;
+  color: #fff;
+}
+
+.card .extra.content:has(input:checked)>label::after {
+  content: "d";
 }

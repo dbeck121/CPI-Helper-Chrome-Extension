@@ -181,11 +181,15 @@ function addTenantSettings() {
 			<div class="ui segment">
 				<div class="ui medium header" style="color:var(--cpi-dark-green)">General Settings</div>
 				<section>
-					<b class="ui big red text">I-flow page shotcuts</b>  Press Chrome/Edge <span class="ui red text">Alt</span> and Firefox <span
-						class="ui red text">Alt</span> + <span class="ui red text">Shift</span> along with below key.
-					<br />Logs<span class="ui red text">1</span> , Trace <span class="ui red text">2</span> , Messages
-					<span class="ui red text">3</span> , Info <span class="ui red text">4</span> , Plugins <span
-						class="ui red text">5</span>, Search Step <span class="ui red text">S</span>.
+					<b class="ui big red text">I-flow page shotcuts</b><br />
+                    Press Chrome/Edge <kbd class="ui label">Alt</kbd> and Firefox <kbd class="ui label">Alt</kbd> + <kbd class="ui label">Shift</kbd> along with below key.
+                    <div style="padding-block:.5em "></div>
+					<span class="ui basic label">Logs <kbd class="ui label">1</kbd></span> 
+					<span class="ui basic label">Trace <kbd class="ui label">2</kbd></span> 
+					<span class="ui basic label">Messages <kbd class="ui label">3</kbd></span> 
+					<span class="ui basic label">Info <kbd class="ui label">4</kbd></span> 
+					<span class="ui basic label">Plugins <kbd class="ui label">5</kbd></span> 
+					<span class="ui basic label">Search <kbd class="ui label">S</kbd></span> 
 				</section>
 			</div>
 			<div class="ui segment">
