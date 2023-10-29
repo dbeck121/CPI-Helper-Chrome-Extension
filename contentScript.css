@@ -537,14 +537,19 @@ h3.header {
   text-align: center;
   justify-content: center;
   align-items: center;
+  color: #000;
   padding: .5em
 }
 
+
 .card .extra.content:has(input:checked)>label {
-  background: #13af00 !important;
-  color: #fff;
+  background: hsl(113, 100%, 85%) !important;
 }
 
 .card .extra.content:has(input:checked)>label::after {
   content: "d";
+}
+
+.card .extra.content>label:hover {
+  color: hsl(212, 100%, 50%);
 }
