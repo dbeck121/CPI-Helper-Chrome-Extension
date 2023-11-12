@@ -16,7 +16,7 @@ function addLastVisitedIflows() {
         if (!visitedIflows || visitedIflows.length == 0) {
             return;
         }
-        var compact = document.querySelector('#cpisetting').innerText !== 'Set as Compact';
+        var compact = document.querySelector('#cpisetting>.active').getAttribute('data') !== "true";
         var artifactTypes = ["Package", "IFlow", "Message Mapping", "Script Collection", "Value Mapping", "SOAP API", "REST API", "ODATA API"]
         var html = `<div class="ui horizontal divider header">Last Visited on Tenant ${name.split("_")[1]}</div>`;
         if (compact) {
@@ -101,23 +101,19 @@ function addLastVisitedIflows() {
 function getSideBarAlwaysVisible() {
 
     chrome.storage.sync.get(["openMessageSidebarOnStartup"], function (result) {
-        var openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
-
-        var openMessageSidebarOnStartup = document.getElementById("openMessageSidebarOnStartup");
-        openMessageSidebarOnStartup.innerText = `Set as ${openMessageSidebarOnStartupValue ? 'No' : 'Yes'}`;
-        openMessageSidebarOnStartup.onclick = function () {
-            let ctnx = openMessageSidebarOnStartup.innerText.split(" ")[2];
-            openMessageSidebarOnStartup.innerText = `Set as ${ctnx !== 'Yes' ? 'Yes' : 'No'}`;
-            console.log(ctnx === 'Yes')
-            chrome.storage.sync.set({ "openMessageSidebarOnStartup": ctnx === 'Yes' });
-        }
+        document.querySelectorAll('#openMessageSidebarOnStartup>.button')[result["openMessageSidebarOnStartup"] ? 0 : 1].classList.add('active')
+        document.querySelector('#openMessageSidebarOnStartup').addEventListener('click', () => {
+            document.querySelectorAll('#openMessageSidebarOnStartup>.button').forEach(e => e.classList.toggle('active'))
+            let ctnx = document.querySelector('#openMessageSidebarOnStartup>.active').getAttribute('data') === 'true';
+            console.log(ctnx)
+            chrome.storage.sync.set({ "openMessageSidebarOnStartup": ctnx });
+        });
     });
 }
 
 function addTenantSettings() {
-    const compactinit = localStorage.getItem('modecpisetting')
-    const tableinit = localStorage.getItem('tablenotetoggle')
-    //<div style="margin-bottom: 0.6em;">use $iflow.name to show current iflow name.</div>
+    const compactinit = localStorage.getItem('modecpisetting')==='true'
+    const tableinit = localStorage.getItem('tablenotetoggle')==='true'
     var tenantSettings = document.getElementById("tenantSettings");
     tenantSettings.innerHTML = `
     <h3 class="ui horizontal divider header">Tenant Settings</h3>
@@ -160,24 +156,22 @@ function addTenantSettings() {
     </div>
     <h3 class="ui horizontal divider header">CPI Helper Settings</h3>
     <div>
-        <div class="ui left labeled button" tabindex="0">
+        <div  id="openMessageSidebarOnStartup" class="ui label buttons">
             <div class="ui label">Open Message Sidebar on start?</div>
-            <div id="openMessageSidebarOnStartup" class="ui blue basic button">Set as Yes</div>
+            <div data=true class="ui toggle basic button">Yes</div>
+            <div data=false class="ui toggle basic button">No</div>
         </div>
-    </div>
-    <div>
-        <div class="ui left labeled button" tabindex="0">
-            <div class="ui label">Mode of Last visited </div>
-            <div id="cpisetting" class="ui blue basic button">Set as ${compactinit === null || compactinit === 'Compact' ? 'Compact' : 'Cozy'}</div>
+        <div id="cpisetting" class="ui label buttons">
+            <div class="ui label">Mode of Last visited</div>
+            <div data=true class="ui toggle basic ${compactinit ? 'active' : ''} button">Cozy</div>
+            <div data=false class="ui toggle basic ${!compactinit ? 'active' : ''} button">Compact</div>
         </div>
-    </div>
-    <div>
-    <div class="ui left labeled button" tabindex="0">
-        <div class="ui label">Need more help/details? </div>
-        <button class="ui toggle ${tableinit === null || tableinit === 'active' ? 'active' : ''} basic button" id="tablenote">
-        ${tableinit === null || tableinit === 'active' ? 'Compress' : 'Expand'}</button>
-    </div>
-    <div class='ui segment ${(tableinit === null || tableinit === ' active') ? '' : 'hidden'}'>
+        <div id="tablenote" class="ui label buttons">
+            <div class="ui label">Need more help/details?</div>
+            <div data=true class="ui toggle basic ${tableinit ? 'active' : ''} button">Expand</div>
+            <div data=false class="ui toggle basic ${!(tableinit) ? 'active' : ''} button">Compress</div>
+        </div>
+        <div class='ui segment ${tableinit ? '' : 'hidden'}'>
 			<div class="ui segment">
 				<div class="ui medium header" style="color:var(--cpi-dark-green)">General Settings</div>
 				<section>
@@ -208,17 +202,13 @@ function addTenantSettings() {
         </div>
     </div>
     `;
-    document.querySelector('#tablenote').classList.add(tableinit == '' ? 'active' : tableinit);
-    document.querySelector('#one > i').classList.add(compactinit === null || compactinit === 'Compact' ? 'expand' : 'compress');
+    document.querySelector('#one > i').classList.add(compactinit ? 'expand' : 'compress');
     document.querySelector('#tenantSettings > div > .buttons > button:nth-child(1)').addEventListener('click', () => inputReset('iflow'));
     document.querySelector('#tenantSettings > div > .buttons > button:nth-child(2)').addEventListener('click', () => inputReset('reset'));
     // Help section btn
     document.querySelector('#tablenote').addEventListener('click', () => {
-        const tabbtn = document.querySelector('#tablenote');
-        const stats = !tabbtn.classList.contains('active');
-        localStorage.setItem('tablenotetoggle', stats ? 'active' : 'inactive');
-        tabbtn.innerText = `${stats ? 'Compress' : 'Expand'}`;
-        tabbtn.classList.toggle('active');
+        document.querySelectorAll('#tablenote>.button').forEach(e => e.classList.toggle('active'))
+        localStorage.setItem('tablenotetoggle', document.querySelector('#tablenote>.active').getAttribute('data') === "true");
         document.querySelector('#tenantSettings>div>div:has(table)').classList.toggle("hidden")
     });
     //reset color btn
@@ -229,10 +219,9 @@ function addTenantSettings() {
     })
     //cozy-compact mode btn
     document.querySelector('#cpisetting').addEventListener('click', () => {
-        const cpisetting = document.querySelector('#cpisetting');
+        localStorage.setItem('modecpisetting', document.querySelector('#cpisetting>.active').getAttribute('data') === "true");
+        document.querySelectorAll('#cpisetting>.button').forEach(e => e.classList.toggle('active'))
         const icon = document.querySelector('#one > i');
-        cpisetting.innerText = `Set as ${cpisetting.innerText === 'Set as Compact' ? 'Cozy' : 'Compact'}`;
-        localStorage.setItem('modecpisetting', cpisetting.innerText.split(' ')[2]);
         icon.classList.toggle('compress');
         icon.classList.toggle('expand');
         addLastVisitedIflows();

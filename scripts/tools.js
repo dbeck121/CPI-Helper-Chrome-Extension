@@ -261,7 +261,11 @@ var formatTrace = function (input, id, traceId) {
   }
 
   var formatXml = function (sourceXml) {
-    var xmlDoc = new DOMParser().parseFromString(`<cpi_Helper>${sourceXml}</cpi_Helper>`, 'application/xml');
+    filterflag = 0;
+    var xmlDoc = new DOMParser().parseFromString(`${sourceXml}`, 'application/xml');
+    if (xmlDoc.getElementsByTagName('parsererror').length > 0) {
+      var xmlDoc = new DOMParser().parseFromString(`<cpi_Helper>${sourceXml}</cpi_Helper>`, 'application/xml'); filterflag = 1;
+    }
     var xsltDoc = new DOMParser().parseFromString([
       // describes how we want to modify the XML - indent everything
       '<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">',
@@ -280,7 +284,8 @@ var formatTrace = function (input, id, traceId) {
     xsltProcessor.importStylesheet(xsltDoc);
     var resultDoc = xsltProcessor.transformToDocument(xmlDoc);
     var resultXml = new XMLSerializer().serializeToString(resultDoc);
-    return resultXml.substring(12,resultXml.length-13).replaceAll('\n  ','\n');
+    if (filterflag === 1) { resultXml = resultXml.substring(12, resultXml.length - 13).replaceAll('\n  ', '\n'); }
+    return resultXml
   };
 
   var prettify = function (input) {
