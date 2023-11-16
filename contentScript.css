@@ -499,7 +499,7 @@ div#cpiHelper_messageSidebar_pluginArea {
   height: auto !important;
 }
 
-h3.header {
+#cpiHelper_semanticui_modal h3.header {
   padding: 1em;
   background-color: #21436a;
   color: #fff;
