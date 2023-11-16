@@ -33,7 +33,6 @@ function showToast(title, message, type = "") {
     title,
     message,
     newestOnTop: true
-
   })
     ;
 }
@@ -55,26 +54,15 @@ async function showBigPopup(content, header, parameters = { fullscreen: true, ca
   var textElement = `
   <div>
     <i class="close icon"></i>
-    <div class="header">
-      CPI Helper ${header}
-    </div>
-    <div class="scrolling content">
-      
+    <div class="header">CPI Helper ${header}</div>
+    <div class="scrolling content">      
       <div class="description" id="cpiHelper_bigPopup_content_semanticui" style="min-height: 50vh; transition: all 100ms ease-in-out;">
         <div class="ui active inverted dimmer">
-        <div class="ui loader"></div>
-
+          <div class="ui loader"></div>
+        </div>
       </div>
     </div>
-
-    </div>
-    <div class="actions">
-      <div class="ui black deny button" onclick="$('#cpiHelper_semanticui_modal').modal('hide');">
-        Close
-      </div>
-  
-    </div>
-    </div>
+  </div>
     `;
 
 
@@ -87,7 +75,6 @@ async function showBigPopup(content, header, parameters = { fullscreen: true, ca
   x.id = "cpiHelper_semanticui_modal"
   document.body.appendChild(x);
 
-
   if (parameters.fullscreen) {
     x.classList.add("fullscreen");
   } else {
@@ -95,10 +82,6 @@ async function showBigPopup(content, header, parameters = { fullscreen: true, ca
   }
 
   $('#cpiHelper_semanticui_modal').modal('show');
-
-
-
-
 
 
   var infocontent = document.getElementById("cpiHelper_bigPopup_content_semanticui");

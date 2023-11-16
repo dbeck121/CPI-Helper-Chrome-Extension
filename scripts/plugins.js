@@ -14,9 +14,11 @@ async function messageSidebarPluginContent(forceRender = false) {
         if (settings[element.id + "---isActive"] === true) {
             if (ctxbtnclose.childElementCount == 2) {
                 ctxbtnclose.insertBefore(createElementFromHTML("<span id='sidebar_Plugin' data-sap-ui-icon-content='' class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>"), ctxbtnclose.childNodes[2]);
+                document.querySelector("#cpiHelper_messageSidebar_pluginArea span").addEventListener('click', () => {
+                    document.querySelector('#cpiHelper_messageSidebar_pluginArea').classList.remove('visible')
+                })
                 document.querySelector('#sidebar_Plugin').addEventListener('click', () => {
-                    const plugin_element = document.querySelector('#outerPlugin');
-                    plugin_element.style.display = plugin_element.offsetHeight > 0 ? 'none' : 'block'
+                    document.querySelector('#cpiHelper_messageSidebar_pluginArea').classList.toggle('visible')
                 })
             }
             if (element?.messageSidebarContent?.onRender && (!element?.messageSidebarContent?.static || forceRender == true)) {
@@ -24,11 +26,10 @@ async function messageSidebarPluginContent(forceRender = false) {
                 if (!div) {
                     div = document.createElement("fieldset");
                     div.id = "cpiHelper_messageSidebar_pluginArea_" + element.id;
+                    div.classList = "ui fluid segment";
                 }
-
                 div.innerHTML = ""
-
-                div.appendChild(createElementFromHTML("<legend>" + element.name + "</legend>"));
+                div.appendChild(createElementFromHTML("<div class='ui tiny header'>" + element.name + "</div>"));
                 div.appendChild(element.messageSidebarContent.onRender(cpiData, settings));
                 pluginArea.appendChild(div);
             }
@@ -148,7 +149,7 @@ async function createPluginPopupUI(plugin) {
     var container = document.createElement('div');
     container.classList.add("card");
     container.appendChild(createElementFromHTML(`<h3 class="header">${plugin.name}</h3>`));
-    container.appendChild(createElementFromHTML(`<div class="content"><span class="ui label">Version: ${plugin.version}</span><span class="ui label">Id: ${plugin.id}</span><div class="scrolling content description">${plugin.description}</div></div>`));
+    container.appendChild(createElementFromHTML(`<div class="content">${plugin.description}</div>`));
     if (await getStorageValue(plugin.id, "isActive", null)) {
         if (plugin.settings) {
 
@@ -171,7 +172,7 @@ async function createPluginPopupUI(plugin) {
                     checkBoxLabel.htmlFor = checkbox.id;
                     checkBoxLabel.innerText = ` ${plugin.settings[key].text}`;
                     var div = document.createElement('div');
-                    div.classList="ui checkbox toggle";
+                    div.classList = "ui checkbox toggle";
                     div.appendChild(checkbox);
                     div.appendChild(checkBoxLabel);
 
@@ -192,7 +193,7 @@ async function createPluginPopupUI(plugin) {
                         chrome.storage.sync.set({ [this.key]: this.value });
                     });
                     var div = document.createElement('div');
-                    div.classList="ui fluid input"
+                    div.classList = "ui fluid input"
                     div.appendChild(text);
                     div.appendChild(createElementFromHTML(`<div class="ui basic label" for="cpiHelper_popup_plugins-${plugin.id}-${key}"> ${plugin.settings[key].text}</div>`));
                     outerDiv.appendChild(div);
@@ -204,7 +205,7 @@ async function createPluginPopupUI(plugin) {
                     label.innerText = plugin.settings[key].text;
 
                     var div = document.createElement('div');
-                    div.classList="ui label"
+                    div.classList = "ui label"
                     div.appendChild(label);
                     container.appendChild(div);
 

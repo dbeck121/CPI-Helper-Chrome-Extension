@@ -495,22 +495,8 @@ button.cpiHelper_sidebar_iconbutton span {
 }
 
 div#cpiHelper_messageSidebar_pluginArea {
-  margin-top: 0.5em;
-}
-
-div#cpiHelper_messageSidebar_pluginArea fieldset {
-  display: block;
-  margin-inline-start: 2px;
-  margin-inline-end: 2px;
-  padding-block-start: 0.35em;
-  padding-inline-start: 0.75em;
-  padding-inline-end: 0.75em;
-  padding-block-end: 0.625em;
-  min-inline-size: min-content;
-  border-width: 2px;
-  border-style: groove;
-  border-color: #c0c0c0;
-  border-image: initial;
+  padding: 1em .5em;
+  height: auto !important;
 }
 
 h3.header {
@@ -541,6 +527,9 @@ h3.header {
   padding: .5em
 }
 
+.ui.fluid.input>input {
+  width: 5em !important
+}
 
 .card .extra.content:has(input:checked)>label {
   background: hsl(113, 100%, 85%) !important;
