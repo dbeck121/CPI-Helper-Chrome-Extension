@@ -1925,6 +1925,14 @@ setInterval(async function () {
 
   }
 
+  //get rid of camel update popup
+  const element = document.querySelector('.cpides-camelUpdateClass');
+  if (element) {
+    element.style.visibility = 'hidden';
+    log.log("checked for camel update popup and get rid of it");
+  }
+
+
   //check if trace should be refreshed again
   //check if value in storage exists and time is longer than 10 minutes but smaller than 11 minutes
   var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`

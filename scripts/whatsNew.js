@@ -28,11 +28,11 @@ async function whatsNewCheck(showOnlyOnce = true) {
             <div class="ui bottom attached tab segment" data-tab="one">
               <div class="ui segment">
                 <div class="ui grid">
-                  <div class="six wide column">
-                    <a href="https://figaf.com/cpihelper-and-figaf" target="_blank"><img class="ui left floated image"
+                  <div class="four wide column">
+                    <a href="https://figaf.com/cpihelper-and-figaf" target="_blank"><img class="ui small left floated image"
                         src="${FIGAF_IMG}"></a>
                   </div>
-                  <div class="ten wide column">
+                  <div class="twelve wide column">
                     <div class="ui header">This release is sponsored by Figaf </div>
                     <p>Figaf continues to get better at helping with your SAP PI to Integration Suite migration. We are now able to migrate B2B mappings from SAP PI/PO so you keep the invesment from your message mappings. 
  
