@@ -213,7 +213,7 @@ function addTenantSettings() {
     document.querySelector('#tablenote').addEventListener('click', () => {
         document.querySelectorAll('#tablenote>.button').forEach(e => e.classList.toggle('active'))
         localStorage.setItem('tablenotetoggle', document.querySelector('#tablenote>.active').getAttribute('data') === "true");
-        document.querySelector('#tenantSettings>div>div:has(table)').classList.toggle("hidden")
+        document.querySelector('#tenantSettings > div:nth-child(7) > div.ui.segment').classList.toggle("hidden")//#tenantSettings>div>div:has(table)
     });
     //reset color btn
     document.querySelector('#tenantSettings > div > button').addEventListener('click', () => {

@@ -148,7 +148,7 @@ async function createPluginPopupUI(plugin) {
 
     var container = document.createElement('div');
     container.classList.add("card");
-    container.appendChild(createElementFromHTML(`<h3 class="header">${plugin.name}</h3>`));
+    container.appendChild(createElementFromHTML(`<h4 class="header">${plugin.name}</h4>`));
     container.appendChild(createElementFromHTML(`<div class="content">${plugin.description}</div>`));
     if (await getStorageValue(plugin.id, "isActive", null)) {
         if (plugin.settings) {
@@ -165,6 +165,7 @@ async function createPluginPopupUI(plugin) {
                         log.log(checkbox.checked);
                         chrome.storage.sync.set({ [this.key]: this.checked }, function () {
                             log.log(`${plugin.id}--${key}` + " is set to " + checkbox.checked);
+
                         });
                     });
 
@@ -220,13 +221,15 @@ async function createPluginPopupUI(plugin) {
     activeCheckbox.style = "display:none"
     activeCheckbox.checked = await getStorageValue(plugin.id, "isActive")
     activeCheckbox.addEventListener('change', async function () {
+        containerbox = document.querySelector(`#cpiHelper_popup_plugins-${plugin.id}`).parentNode
         log.log(activeCheckbox.checked);
         await syncChromeStoragePromise(getStoragePath(plugin.id, "isActive"), activeCheckbox.checked);
+        activeCheckbox.checked ? containerbox.classList.add('checked') : containerbox.classList.remove('checked');
         statistic("toggle_plugin_active", plugin.id, activeCheckbox.checked)
         showBigPopup(await createContentNodeForPlugins(), "Plugins")
     });
     var div = document.createElement('div');
-    div.classList = "extra content ui toggle";
+    div.classList = `extra content ui toggle ${activeCheckbox.checked ? 'checked' : ""}`;
     div.style.padding = 0;
     div.appendChild(activeCheckbox);
     div.appendChild(createElementFromHTML(`<label for="cpiHelper_popup_plugins-${plugin.id}"> Activate</label>`));

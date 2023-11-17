@@ -499,8 +499,8 @@ div#cpiHelper_messageSidebar_pluginArea {
   height: auto !important;
 }
 
-#cpiHelper_semanticui_modal h3.header {
-  padding: 1em;
+#cpiHelper_semanticui_modal h4.header {
+  padding: .5em;
   background-color: #21436a;
   color: #fff;
   margin: 0
@@ -516,7 +516,8 @@ div#cpiHelper_messageSidebar_pluginArea {
   }
 }
 
-.card .extra.content:has(input)>label {
+/* .card .extra.content:has(input)>label, */
+.card .extra.content>label {
   display: flex;
   width: 100%;
   height: 100%;
@@ -531,11 +532,13 @@ div#cpiHelper_messageSidebar_pluginArea {
   width: 5em !important
 }
 
-.card .extra.content:has(input:checked)>label {
+/* .card .extra.content:has(input:checked)>label, */
+.card .extra.content.checked>label {
   background: hsl(113, 100%, 85%) !important;
 }
 
-.card .extra.content:has(input:checked)>label::after {
+/* .card .extra.content:has(input:checked)>label::after, */
+.card .extra.content.checked>label::after {
   content: "d";
 }
 
