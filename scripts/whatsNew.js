@@ -6,7 +6,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
 
   silentupdates = ["3.0.3"]
 
-  const FIGAF_IMG = chrome.runtime.getURL("images/figaf-editor.png");
+  const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
 
   if (!check && !silentupdates.includes(manifestVersion) || showOnlyOnce == false) {
     html = `<div class="ui icon positive message">
@@ -34,12 +34,12 @@ async function whatsNewCheck(showOnlyOnce = true) {
                   </div>
                   <div class="ten wide column">
                     <div class="ui header">This release is sponsored by Figaf </div>
-                    <p>Figaf has improved the developer workflow with CPIHelper. It will allows you to go to Figaf
-                      from a Groovy or XSLT Editor. In Figaf you can also run the code with your existing test
-                      cases from the editor. Once you have checked the result, click upload, and the script is in
-                      your iFlow.
+                    <p>Figaf continues to get better at helping with your SAP PI to Integration Suite migration. We are now able to migrate B2B mappings from SAP PI/PO so you keep the invesment from your message mappings. 
+ 
+                    </p><p>B2B migration will be possible from 2311 release. It will contain migration of message mappings even with function library. Testing with SAP PI Messages and integration with B2B Trading Partner Management. This will be first release with a number of limitations but we will improve with customer feedback.  
+                    
                     </p>
-                    Read more <a href="https://figaf.com/cpihelper8" target="_blank"><u>here</u></a>.
+                    Read more <a href="https://figaf.com/cpihelper9" target="_blank"><u>here</u></a>.
                   </div>
                 </div>
               </div>
@@ -69,6 +69,18 @@ async function whatsNewCheck(showOnlyOnce = true) {
                     <div class="description">Many more ui improvements. Thanks to Omkar Patel</div>
                   </div>
                 </a>
+                <a class="item"><i class="right triangle icon"></i>
+                <div class="content">
+                  <div class="header">Feature</div>
+                  <div class="description">Improved Plugin UI</div>
+                </div>
+              </a>
+              <a class="item"><i class="right triangle icon"></i>
+              <div class="content">
+                <div class="header">Improvement</div>
+                <div class="description">Log-tabs are now sorted</div>
+              </div>
+            </a>
                 <a class="item"><i class="right triangle icon"></i>
                   <div class="content">
                     <div class="header">Bugfix</div>

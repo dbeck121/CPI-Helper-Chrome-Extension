@@ -323,7 +323,7 @@ createPersistLogsContent = async (messageId) => {
     var tabs = [];
     active = true;
     var count = 0;
-    for (item of entriesList.d.results) {
+    for (item of entriesList.d.results.sort(function (a, b) { return a.MessageStoreId.toLowerCase() > b.MessageStoreId.toLowerCase() ? 1 : -1 })) {
         tabs.push({
             label: item.MessageStoreId,
             content: count == 0 ? await innerpersist({ item: item.Id, count: count }) : innerpersist,
@@ -425,7 +425,7 @@ createRunLogsContent = async (messageId) => {
 
     var tabs = [];
     active = true;
-    for (item of entriesList.d.results) {
+    for (item of entriesList.d.results.sort(function (a, b) { return a.Name.toLowerCase() > b.Name.toLowerCase() ? 1 : -1 })) {
         tabs.push({
             label: item.Name,
             content: async (input) => {

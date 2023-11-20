@@ -1336,9 +1336,11 @@ var sidebar = {
         <div id="deploymentText" class="contentText">State: </div>
         <div><table id="messageList" class="contentText"></table></div>
       </div>
-      <div id="outerPlugin">
-        <div id="cpiHelper_messageSidebar_pluginArea"></div>
-      </div>
+    </div>
+    <div id="cpiHelper_messageSidebar_pluginArea"class="ui sidebar vertical menu"> 
+      <div class="ui centered header">
+      <div class="content">Plugin Page</div>
+      <span data-sap-ui-icon-content="&#xe03e" class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>
     </div>
     `;
     elem.id = "cpiHelper_content";
@@ -1951,8 +1953,3 @@ setInterval(async function () {
     nextMessageSidebarRefreshCount = 0;
   }
 }, 3000);
-
-
-
-
-
