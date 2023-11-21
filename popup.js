@@ -109,6 +109,15 @@ function getSideBarAlwaysVisible() {
             chrome.storage.sync.set({ "openMessageSidebarOnStartup": ctnx });
         });
     });
+    chrome.storage.sync.get(["openSidebarOnStartup"], function (result) {
+        document.querySelectorAll('#openSidebarOnStartup>.button')[result["openSidebarOnStartup"] ? 0 : 1].classList.add('active')
+        document.querySelector('#openSidebarOnStartup').addEventListener('click', () => {
+            document.querySelectorAll('#openSidebarOnStartup>.button').forEach(e => e.classList.toggle('active'))
+            let ctnx = document.querySelector('#openSidebarOnStartup>.active').getAttribute('data') === 'true';
+            console.log("plugin", ctnx)
+            chrome.storage.sync.set({ "openSidebarOnStartup": ctnx });
+        });
+    });
 }
 
 function addTenantSettings() {
@@ -156,30 +165,45 @@ function addTenantSettings() {
     </div>
     <h3 class="ui horizontal divider header">CPI Helper Settings</h3>
     <div>
+        <div class="ui label buttons">
+            <div class="ui labeled input">
+                <div class="ui label"> Zoom Level (60-120) % </div>
+                <input min=60 max=120 type="number" id="setzoom" />
+            </div>
+        </div><br/>
         <div  id="openMessageSidebarOnStartup" class="ui label buttons">
             <div class="ui label">Open Message Sidebar on start?</div>
             <div data=true class="ui toggle basic button">Yes</div>
             <div data=false class="ui toggle basic button">No</div>
-        </div>
+        </div><br/>    
+        <div  id="openSidebarOnStartup" class="ui label buttons">
+            <div class="ui label">Plugin-page as Sidebar (Separate)?</div>
+            <div data=true class="ui toggle basic button">Yes</div>
+            <div data=false class="ui toggle basic button">No</div>
+        </div><br/> 
         <div id="cpisetting" class="ui label buttons">
             <div class="ui label">Mode of Last visited</div>
             <div data=true class="ui toggle basic ${compactinit ? 'active' : ''} button">Cozy</div>
             <div data=false class="ui toggle basic ${!compactinit ? 'active' : ''} button">Compact</div>
-        </div>
+        </div><br/> 
         <div id="tablenote" class="ui label buttons">
             <div class="ui label">Need more help/details?</div>
             <div data=true class="ui toggle basic ${tableinit ? 'active' : ''} button">Expand</div>
             <div data=false class="ui toggle basic ${!(tableinit) ? 'active' : ''} button">Compress</div>
-        </div>
+        </div> 
         <div class='ui segment ${tableinit ? '' : 'hidden'}'>
 			<div class="ui segment">
 				<div class="ui medium header" style="color:var(--cpi-dark-green)">General Settings</div>
 				<section>
-					<b class="ui big red text">I-flow page shotcuts</b>  Press Chrome/Edge <span class="ui red text">Alt</span> and Firefox <span
-						class="ui red text">Alt</span> + <span class="ui red text">Shift</span> along with below key.
-					<br />Logs<span class="ui red text">1</span> , Trace <span class="ui red text">2</span> , Messages
-					<span class="ui red text">3</span> , Info <span class="ui red text">4</span> , Plugins <span
-						class="ui red text">5</span>, Search Step <span class="ui red text">S</span>.
+					<b class="ui big red text">I-flow page shotcuts</b><br />
+                    Press Chrome/Edge <kbd class="ui label">Alt</kbd> and Firefox <kbd class="ui label">Alt</kbd> + <kbd class="ui label">Shift</kbd> along with below key.
+                    <div style="padding-block:.5em "></div>
+					<span class="ui basic label">Logs <kbd class="ui label">1</kbd></span> 
+					<span class="ui basic label">Trace <kbd class="ui label">2</kbd></span> 
+					<span class="ui basic label">Messages <kbd class="ui label">3</kbd></span> 
+					<span class="ui basic label">Info <kbd class="ui label">4</kbd></span> 
+					<span class="ui basic label">Plugins <kbd class="ui label">5</kbd></span> 
+					<span class="ui basic label">Search <kbd class="ui label">S</kbd></span> 
 				</section>
 			</div>
 			<div class="ui segment">
@@ -193,10 +217,12 @@ function addTenantSettings() {
         </div>
         <div class="ui segment">
             <div class="ui medium header" style="color:var(--cpi-dark-green)">CPI Helper Settings</div>
-            <p><b>Open Message Sidebar on start?</b>: yes / No(default)<div class="ui fitted divider"></div></p>
+            <p><b>Open Message Sidebar on start?</b>: yes /<span class="ui green text"> No(Default)</span><div class="ui fitted divider"></div></p>
+            <p><b>Plugin-page as Sidebar (Separate)?</b>: yes(Separate & Closed) /<span class="ui green text"> No(Default)(Joint & Open)</span><div class="ui fitted divider"></div></p>
+            <p><b>Set Zoom Level:</b> This value will change zoom level of current page only.<br /> Min: 60% | Max: 120% | <span class="ui green text">Default: 85%</span><div class="ui fitted divider"></div></p>
             <table>
                 <tr><th>Mode</th> <th>Height</th> <th>layout</th></tr>
-                <tr><td>Cozy (default)</td> <td>More</td> <td>Fix-layout</td></tr>
+                <tr><td><span class="ui green text">Cozy (Default)</span></td> <td>More</td> <td>Fix-layout</td></tr>
                 <tr><td>Compact</td> <td>Less</td> <td>Auto-layout</td></tr>
             </table>
         </div>
@@ -205,11 +231,23 @@ function addTenantSettings() {
     document.querySelector('#one > i').classList.add(compactinit ? 'expand' : 'compress');
     document.querySelector('#tenantSettings > div > .buttons > button:nth-child(1)').addEventListener('click', () => inputReset('iflow'));
     document.querySelector('#tenantSettings > div > .buttons > button:nth-child(2)').addEventListener('click', () => inputReset('reset'));
+    //Default zoom
+    document.body.style.zoom = localStorage.getItem('zoomlevel') ? `${localStorage.getItem('zoomlevel')}%` : '90%';
+    document.querySelector('#setzoom').value = localStorage.getItem('zoomlevel') ? localStorage.getItem('zoomlevel') : 90;
+    document.querySelector('#setzoom').addEventListener('change', () => {
+        const zoom = document.querySelector('#setzoom')
+        console.log('Set', parseInt(zoom.max) >= parseInt(zoom.value) && parseInt(zoom.value) >= parseInt(zoom.min))
+        if (parseInt(zoom.max) >= parseInt(zoom.value) && parseInt(zoom.value) >= parseInt(zoom.min)) {
+            localStorage.setItem('zoomlevel', parseInt(zoom.value));
+            document.body.style.zoom = `${parseInt(zoom.value)}%`
+            console.log('Set value at:> ', parseInt(zoom.value), "%")
+        }
+    })
     // Help section btn
     document.querySelector('#tablenote').addEventListener('click', () => {
         document.querySelectorAll('#tablenote>.button').forEach(e => e.classList.toggle('active'))
         localStorage.setItem('tablenotetoggle', document.querySelector('#tablenote>.active').getAttribute('data') === "true");
-        document.querySelector('#tenantSettings>div>div:has(table)').classList.toggle("hidden")
+        document.querySelector('#tenantSettings > div:nth-child(7) > div.ui.segment').classList.toggle("hidden")//#tenantSettings>div>div:has(table)
     });
     //reset color btn
     document.querySelector('#tenantSettings > div > button').addEventListener('click', () => {

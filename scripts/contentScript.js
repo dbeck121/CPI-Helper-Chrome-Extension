@@ -1273,7 +1273,7 @@ async function openIflowInfoPopup() {
     whatsNewButton.innerText = "Whats New?";
     whatsNewButton.addEventListener("click", (a) => {
       whatsNewCheck(false)
-      $('#cpiHelper_semanticui_modal').modal('hide');
+      $('#cpiHelper_semanticui_modal').modal('show');
     });
     x.appendChild(whatsNewButton);
 
@@ -1306,7 +1306,6 @@ var sidebar = {
 
   //indicator if active or not
   active: null,
-
   //function to deactivate the sidebar
   deactivate: function () {
     this.active = false;
@@ -1322,8 +1321,6 @@ var sidebar = {
     }
 
     this.active = true;
-
-    //create sidebar div
     var elem = document.createElement('div');
     elem.innerHTML = `
     <div id="cpiHelper_contentheader" style="background-color:${hostData.color}" content="${hostData.count}" >
@@ -1336,15 +1333,29 @@ var sidebar = {
         <div id="deploymentText" class="contentText">State: </div>
         <div><table id="messageList" class="contentText"></table></div>
       </div>
-      <div id="outerPlugin">
-        <div id="cpiHelper_messageSidebar_pluginArea"></div>
-      </div>
+    </div>
+    <div id="cpiHelper_messageSidebar_pluginArea" class="ui vertical menu cpiHelper_hidden"> 
+      <div class="ui centered header cpiHelper_hidden">
+      <div class="content">Plugin Page</div>
+      <span data-sap-ui-icon-content="&#xe03e" class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>
     </div>
     `;
     elem.id = "cpiHelper_content";
     elem.classList.add("cpiHelper");
+    elem.style = "width:max-content;min-width: 14rem";
     document.body.appendChild(elem);
+    elem.style = "width:max-content;min-width: 14rem";
 
+    //plugin area setup popup+join mode
+    chrome.storage.sync.get(["openSidebarOnStartup"], function (result) {
+      pluginarea = document.querySelector('#cpiHelper_messageSidebar_pluginArea')
+      if (result["openSidebarOnStartup"]) {
+        pluginarea.classList.add('sidebar');
+        document.querySelector("#cpiHelper_messageSidebar_pluginArea span").addEventListener('click', () => {
+          twoClasssToggleSwitch(pluginArea, 'visible', 'cpiHelper_hidden')
+      })
+      }
+    })
     //add minimize button on CPI helper title & color match with tenant color
     var span = document.getElementById("sidebar_modal_minimize");
     var content_header = document.getElementById("cpiHelper_contentheader");
@@ -1925,14 +1936,6 @@ setInterval(async function () {
 
   }
 
-  //get rid of camel update popup
-  const element = document.querySelector('.cpides-camelUpdateClass');
-  if (element) {
-    element.style.visibility = 'hidden';
-    log.log("checked for camel update popup and get rid of it");
-  }
-
-
   //check if trace should be refreshed again
   //check if value in storage exists and time is longer than 10 minutes but smaller than 11 minutes
   var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`
@@ -1959,8 +1962,3 @@ setInterval(async function () {
     nextMessageSidebarRefreshCount = 0;
   }
 }, 3000);
-
-
-
-
-
