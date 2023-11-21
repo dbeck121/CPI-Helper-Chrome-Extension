@@ -34,16 +34,17 @@ async function messageSidebarPluginContent(forceRender = false) {
 
 
     if (ctxbtnclose.childElementCount == 2) {
+        ctxbtnclose.insertBefore(createElementFromHTML("<span id='sidebar_Plugin' data-sap-ui-icon-content='' class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL cpiHelper_hidden' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>"), ctxbtnclose.childNodes[2]);
         if (activeness) {
-            ctxbtnclose.insertBefore(createElementFromHTML("<span id='sidebar_Plugin' data-sap-ui-icon-content='' class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>"), ctxbtnclose.childNodes[2]);
-            // twoClasssToggleSwitch(pluginArea, 'visible', 'cpiHelper_hidden')
+            document.querySelector('#sidebar_Plugin').classList.remove('cpiHelper_hidden');
             document.querySelector('#sidebar_Plugin').addEventListener('click', () => {
                 twoClasssToggleSwitch(pluginArea, 'visible', 'cpiHelper_hidden')
             });
         }
-        twoClasssToggleSwitch(pluginArea, 'visible', 'cpiHelper_hidden')
+        // twoClasssToggleSwitch(pluginArea, 'visible', 'cpiHelper_hidden')
         chrome.storage.sync.get(["openSidebarOnStartup"], function (result) {
             if (activeness) {
+                twoClasssToggleSwitch(pluginArea, 'visible', 'cpiHelper_hidden')
                 if (result["openSidebarOnStartup"]) {
                     twoClasssToggleSwitch(document.querySelector('#cpiHelper_messageSidebar_pluginArea>.header'), 'cpiHelper_hidden', 'visible');
                     twoClasssToggleSwitch(pluginArea, 'visible', 'cpiHelper_hidden')
