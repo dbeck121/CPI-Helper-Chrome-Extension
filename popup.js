@@ -121,8 +121,8 @@ function getSideBarAlwaysVisible() {
 }
 
 function addTenantSettings() {
-    const compactinit = localStorage.getItem('modecpisetting')==='true'
-    const tableinit = localStorage.getItem('tablenotetoggle')==='true'
+    const compactinit = localStorage.getItem('modecpisetting') !== 'true' //deafult cozy
+    const tableinit = localStorage.getItem('tablenotetoggle') !== 'true' //default expanded
     var tenantSettings = document.getElementById("tenantSettings");
     tenantSettings.innerHTML = `
     <h3 class="ui horizontal divider header">Tenant Settings</h3>
@@ -166,9 +166,11 @@ function addTenantSettings() {
     <h3 class="ui horizontal divider header">CPI Helper Settings</h3>
     <div>
         <div class="ui label buttons">
-            <div class="ui labeled input">
-                <div class="ui label"> Zoom Level (60-120) % </div>
-                <input min=60 max=120 type="number" id="setzoom" />
+            <div id="setzoom" class="ui right labeled input">
+                <div class="ui label"> Zoom Level </div>
+                <input min="60" max="120" type="number">
+                <div class="ui label">%</div>
+                <button class="ui blue basic button">Reset Zoom</button>
             </div>
         </div><br/>
         <div  id="openMessageSidebarOnStartup" class="ui label buttons">
@@ -232,15 +234,17 @@ function addTenantSettings() {
     document.querySelector('#tenantSettings > div > .buttons > button:nth-child(1)').addEventListener('click', () => inputReset('iflow'));
     document.querySelector('#tenantSettings > div > .buttons > button:nth-child(2)').addEventListener('click', () => inputReset('reset'));
     //Default zoom
-    document.body.style.zoom = localStorage.getItem('zoomlevel') ? `${localStorage.getItem('zoomlevel')}%` : '90%';
-    document.querySelector('#setzoom').value = localStorage.getItem('zoomlevel') ? localStorage.getItem('zoomlevel') : 90;
-    document.querySelector('#setzoom').addEventListener('change', () => {
-        const zoom = document.querySelector('#setzoom')
-        console.log('Set', parseInt(zoom.max) >= parseInt(zoom.value) && parseInt(zoom.value) >= parseInt(zoom.min))
+    document.body.style.zoom = localStorage.getItem('zoomlevel') ? `${localStorage.getItem('zoomlevel')}%` : 85 + '%';
+    document.querySelector('#setzoom input').value = localStorage.getItem('zoomlevel') ? localStorage.getItem('zoomlevel') : 85;
+    document.querySelector('#setzoom button').addEventListener('click', () => {
+        document.querySelector('#setzoom input').value = 85;
+        document.querySelector('#setzoom input').dispatchEvent(new Event('change'))
+    })
+    document.querySelector('#setzoom input').addEventListener('change', () => {
+        const zoom = document.querySelector('#setzoom input')
         if (parseInt(zoom.max) >= parseInt(zoom.value) && parseInt(zoom.value) >= parseInt(zoom.min)) {
             localStorage.setItem('zoomlevel', parseInt(zoom.value));
             document.body.style.zoom = `${parseInt(zoom.value)}%`
-            console.log('Set value at:> ', parseInt(zoom.value), "%")
         }
     })
     // Help section btn
@@ -284,7 +288,7 @@ function addTenantUrls() {
                         <div class="three ui buttons">
                             <a class="ui button" href="${host + '/shell/monitoring/SecurityMaterials'}" target="_blank">Security Material</a>
                             <a class="ui button" href="${host + '/shell/monitoring/Keystore'}" target="_blank">Keystore</a>
-                            <a class="ui button" href="${host + '/shell/monitoring/CertificateUserMappings'}" target="_blank">Certificate-to-User Mappings</a>
+                            <a class="ui button" href="${host + '/shell/monitoring/CertificateUserMappings'}" target="_blank">Certificate User Mappings</a>
                         </div>
                         <div class="three ui buttons">
                             <a class="ui button" href="${host + '/shell/monitoring/AccessPolicies'}" target="_blank">Access Policies</a>
