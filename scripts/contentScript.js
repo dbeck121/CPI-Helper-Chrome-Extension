@@ -14,6 +14,7 @@ cpiData.classicUrl = false;
 cpiData.functions = {};
 cpiData.functions["popup"] = showBigPopup;
 cpiArtifactURIRegexp = [
+  //Artifacts
   [/\/integrationflows\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "IFlow"],
   [/\/odataservices\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "ODATA API"],
   [/\/restapis\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "REST API"],
@@ -21,8 +22,12 @@ cpiArtifactURIRegexp = [
   [/\/valuemappings\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Value Mapping"],
   [/\/scriptcollections\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Script Collection"],
   [/\/messagemappings\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Message Mapping"],
+  //resources
+  [/\/resources\/mapping\/(?<artifactId>[0-9a-zA-Z_\-.]+\.mmap?)/, "M_Mapping"],
+  [/\/resources\/mapping\/(?<artifactId>[0-9a-zA-Z_\-.]+\.opmap?)/, "Operation Mapping"],
   [/\/resources\/script\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Script"],
   [/\/resources\/mapping\/(?<artifactId>[0-9a-zA-Z_\-.]+\.xslt?)/, "XSLT"],
+  //packages
   [/\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)\/?(\?.*)?$/, "Package"]
 ];
 
@@ -1353,7 +1358,7 @@ var sidebar = {
         pluginarea.classList.add('sidebar');
         document.querySelector("#cpiHelper_messageSidebar_pluginArea span").addEventListener('click', () => {
           twoClasssToggleSwitch(pluginArea, 'visible', 'cpiHelper_hidden')
-      })
+        })
       }
     })
     //add minimize button on CPI helper title & color match with tenant color
@@ -1689,6 +1694,11 @@ async function handleUrlChange() {
     var scriptCount = 0
     var scriptCollectionCount = 0
     setDocumentTitle(hostData.title)
+    Allowedlist = ["IFlow"]
+    //deactivate sidebar if not on iflow page to root
+    if (sidebar.active && !(Allowedlist.includes(cpiData.currentArtifactType))) {
+      sidebar.deactivate();
+    }
     if (cpiData.currentArtifactType == "IFlow") {
       //if iflow found, inject buttons   
       setDocumentTitle(hostData.title)
