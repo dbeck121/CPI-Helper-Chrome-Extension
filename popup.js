@@ -16,7 +16,7 @@ function addLastVisitedIflows() {
         if (!visitedIflows || visitedIflows.length == 0) {
             return;
         }
-        var compact = document.querySelector('#cpisetting>.active').getAttribute('data') !== "true";
+        var compact = document.querySelector('#cpi_compact_mode>.active').getAttribute('data') !== "true";
         var artifactTypes = ["Package", "IFlow", "Message Mapping", "Script Collection", "Value Mapping", "SOAP API", "REST API", "ODATA API"]
         var html = `<div class="ui horizontal divider header">Last Visited on Tenant ${name.split("_")[1]}</div>`;
         if (compact) {
@@ -121,8 +121,8 @@ function getSideBarAlwaysVisible() {
 }
 
 function addTenantSettings() {
-    const compactinit = localStorage.getItem('modecpisetting') !== 'true' //deafult cozy
-    const tableinit = localStorage.getItem('tablenotetoggle') !== 'true' //default expanded
+    const cpi_compact_mode = localStorage.getItem('modecpi_compact_mode') !== 'true' //deafult cozy
+    const cpi_help_mode = localStorage.getItem('cpi_help_mode') !== 'true' //default expanded
     var tenantSettings = document.getElementById("tenantSettings");
     tenantSettings.innerHTML = `
     <h3 class="ui horizontal divider header">Tenant Settings</h3>
@@ -183,17 +183,17 @@ function addTenantSettings() {
             <div data=true class="ui toggle basic button">Yes</div>
             <div data=false class="ui toggle basic button">No</div>
         </div><br/> 
-        <div id="cpisetting" class="ui label buttons">
-            <div class="ui label">Mode of Last visited</div>
-            <div data=true class="ui toggle basic ${compactinit ? 'active' : ''} button">Cozy</div>
-            <div data=false class="ui toggle basic ${!compactinit ? 'active' : ''} button">Compact</div>
+        <div id="cpi_compact_mode" class="ui label buttons">
+            <div class="ui label">Mode of Last visited</div> 
+            <div data=true class="ui toggle basic ${!cpi_compact_mode ? 'active' : ''} button">Compact</div>
+            <div data=false class="ui toggle basic ${cpi_compact_mode ? 'active' : ''} button">Cozy</div>
         </div><br/> 
-        <div id="tablenote" class="ui label buttons">
+        <div id="cpi_help_mode" class="ui label buttons">
             <div class="ui label">Need more help/details?</div>
-            <div data=true class="ui toggle basic ${tableinit ? 'active' : ''} button">Expand</div>
-            <div data=false class="ui toggle basic ${!(tableinit) ? 'active' : ''} button">Compress</div>
+            <div data=true class="ui toggle basic ${!(cpi_help_mode) ? 'active' : ''} button">Compress</div>
+            <div data=false class="ui toggle basic ${cpi_help_mode ? 'active' : ''} button">Expand</div>
         </div> 
-        <div class='ui segment ${tableinit ? '' : 'hidden'}'>
+        <div class='ui segment ${cpi_help_mode ? '' : 'hidden'}'>
 			<div class="ui segment">
 				<div class="ui medium header" style="color:var(--cpi-dark-green)">General Settings</div>
 				<section>
@@ -230,7 +230,7 @@ function addTenantSettings() {
         </div>
     </div>
     `;
-    document.querySelector('#one > i').classList.add(compactinit ? 'expand' : 'compress');
+    document.querySelector('#one > i').classList.add(cpi_compact_mode ? 'expand' : 'compress');
     document.querySelector('#tenantSettings > div > .buttons > button:nth-child(1)').addEventListener('click', () => inputReset('iflow'));
     document.querySelector('#tenantSettings > div > .buttons > button:nth-child(2)').addEventListener('click', () => inputReset('reset'));
     //Default zoom
@@ -248,9 +248,9 @@ function addTenantSettings() {
         }
     })
     // Help section btn
-    document.querySelector('#tablenote').addEventListener('click', () => {
-        document.querySelectorAll('#tablenote>.button').forEach(e => e.classList.toggle('active'))
-        localStorage.setItem('tablenotetoggle', document.querySelector('#tablenote>.active').getAttribute('data') === "true");
+    document.querySelector('#cpi_help_mode').addEventListener('click', () => {
+        document.querySelectorAll('#cpi_help_mode>.button').forEach(e => e.classList.toggle('active'))
+        localStorage.setItem('cpi_help_mode', document.querySelector('#cpi_help_mode>.active').getAttribute('data') === "true");
         document.querySelector('#tenantSettings > div:nth-child(7) > div.ui.segment').classList.toggle("hidden")//#tenantSettings>div>div:has(table)
     });
     //reset color btn
@@ -260,9 +260,9 @@ function addTenantSettings() {
         tenantColor.dispatchEvent(new Event("change"));
     })
     //cozy-compact mode btn
-    document.querySelector('#cpisetting').addEventListener('click', () => {
-        localStorage.setItem('modecpisetting', document.querySelector('#cpisetting>.active').getAttribute('data') === "true");
-        document.querySelectorAll('#cpisetting>.button').forEach(e => e.classList.toggle('active'))
+    document.querySelector('#cpi_compact_mode').addEventListener('click', () => {
+        document.querySelectorAll('#cpi_compact_mode>.button').forEach(e => e.classList.toggle('active'));
+        localStorage.setItem('modecpi_compact_mode', document.querySelector('#cpi_compact_mode>.active').getAttribute('data') === "true");
         const icon = document.querySelector('#one > i');
         icon.classList.toggle('compress');
         icon.classList.toggle('expand');
