@@ -210,8 +210,13 @@ async function renderMessageSidebar() {
               statusColor = "#C70039";
               statusIcon = "";
             }
-            if (resp[i].Status.match(/^(ESCALATED|RETRY|CANCELLED)$/)) {
+            if (resp[i].Status.match(/^(ESCALATED|RETRY)$/)) {
+
               statusColor = "#ff8300";
+              statusIcon = "";
+            }
+            if (resp[i].Status.match(/^(CANCELLED)$/)) {
+              statusColor = "#7f7f7f";
               statusIcon = "";
             }
 
@@ -1465,8 +1470,13 @@ async function errorPopupOpen(MessageGuid) {
 
     let status = document.createElement("div");
     status.className = "contentText";
-    status.innerText = "Status: " + customHeaders.CustomStatus
+    status.innerText = "Status: " + customHeaders.Status
     y.appendChild(status)
+    
+    let customstatus = document.createElement("div");
+    customstatus.className = "contentText";
+    customstatus.innerText = "Custom Status: " + customHeaders.CustomStatus
+    y.appendChild(customstatus)
 
 
     let text = document.createElement("div");
@@ -1550,7 +1560,8 @@ async function getMessageProcessingLogRuns(MessageGuid, store = true) {
   return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store).then((responseText) => {
     var resp = JSON.parse(responseText);
     var status = resp.d.results[0].OverallState;
-    if (resp.d.results.length > 1 && status != "COMPLETED") { return resp.d.results[1].Id; }
+    //take the correct run log (last or second last) for displaying the inline trace, depending on message status.
+    if (resp.d.results.length > 1 && (status != "COMPLETED" && status != "ESCALATED")) { return resp.d.results[1].Id; }
     else { return resp.d.results[0].Id; }
   }).then((runId) => {
     return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json&$top=300", store);
