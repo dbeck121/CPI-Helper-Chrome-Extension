@@ -1550,7 +1550,8 @@ async function getMessageProcessingLogRuns(MessageGuid, store = true) {
   return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store).then((responseText) => {
     var resp = JSON.parse(responseText);
     var status = resp.d.results[0].OverallState;
-    if (resp.d.results.length > 1 && status != "COMPLETED") { return resp.d.results[1].Id; }
+    //take the correct run log (last or second last) for displaying the inline trace, depending on message status.
+    if (resp.d.results.length > 1 && (status != "COMPLETED" && status != "ESCALATED")) { return resp.d.results[1].Id; }
     else { return resp.d.results[0].Id; }
   }).then((runId) => {
     return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json&$top=300", store);
