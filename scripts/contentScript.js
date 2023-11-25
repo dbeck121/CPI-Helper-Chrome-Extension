@@ -210,8 +210,13 @@ async function renderMessageSidebar() {
               statusColor = "#C70039";
               statusIcon = "";
             }
-            if (resp[i].Status.match(/^(ESCALATED|RETRY|CANCELLED)$/)) {
+            if (resp[i].Status.match(/^(ESCALATED|RETRY)$/)) {
+
               statusColor = "#ff8300";
+              statusIcon = "";
+            }
+            if (resp[i].Status.match(/^(CANCELLED)$/)) {
+              statusColor = "#7f7f7f";
               statusIcon = "";
             }
 
@@ -1465,8 +1470,13 @@ async function errorPopupOpen(MessageGuid) {
 
     let status = document.createElement("div");
     status.className = "contentText";
-    status.innerText = "Status: " + customHeaders.CustomStatus
+    status.innerText = "Status: " + customHeaders.Status
     y.appendChild(status)
+    
+    let customstatus = document.createElement("div");
+    customstatus.className = "contentText";
+    customstatus.innerText = "Custom Status: " + customHeaders.CustomStatus
+    y.appendChild(customstatus)
 
 
     let text = document.createElement("div");
