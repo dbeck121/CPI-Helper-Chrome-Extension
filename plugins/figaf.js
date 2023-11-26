@@ -20,8 +20,9 @@ var plugin = {
     website: "https://figaf.com",
     description: "Simplify your SAP Cloud Integration work with Figaf. Learn more at <a href=\"https://figaf.com\" target=\"_blank\">figaf.com</a>",
     settings: {
-        "FigafURL": { "text": "Figaf URL", "type": "text", scope: "browser" },
-        "FigafAgentSystemId": { "text": "Figaf Agent System Id (optional)", "type": "text", scope: "tenant" }
+        "FigafURL": { "text": "Figaf URL", "type": "textinput", scope: "browser" },
+        "FigafAgentSystemId": { "text": "Figaf Agent System Id (optional)", "type": "textinput", scope: "tenant" },
+        "icon": { "src": "/images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png", "type": "icon" }
     },
     messageSidebarButton: {
         "text": "F",

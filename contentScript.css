@@ -171,6 +171,7 @@ button.cpiHelper_sidebar_iconbutton span {
   padding: 10px;
   cursor: move;
   align-items: center;
+  font-weight: bold;
   z-index: 10;
   background-color: #21436a;
   color: #fff;
@@ -279,29 +280,15 @@ button.cpiHelper_sidebar_iconbutton span {
 
 /* The Close Button */
 
-.cpiHelper_closeButton {
-
-  font-weight: bold;
-}
-
-.cpiHelper_closeButton:hover,
-.cpiHelper_closeButton:focus {
+.cpiHelper_closeButton_sidebar:hover,
+.cpiHelper_closeButton_sidebar:focus {
   color: rgb(255, 78, 78);
   text-decoration: none;
   cursor: pointer;
 }
 
 .cpiHelper_closeButton_sidebar {
-
-  font-weight: bold;
   float: right;
-}
-
-.cpiHelper_closeButton_sidebar:hover,
-.cpiHelper_closeButton_sidebar:focus {
-  color: rgb(255, 78, 78);
-  text-decoration: none;
-  cursor: pointer;
 }
 
 /*tabs  */
@@ -501,11 +488,8 @@ div#cpiHelper_messageSidebar_pluginArea {
   height: auto !important;
 }
 
-#cpiHelper_popup_plugins h4.header {
-  padding: .5em;
-  background-color: #21436a;
-  color: #fff;
-  margin: 0
+#cpiHelper_popup_plugins .card>.extra.content:first-child {
+  background: #eee !important;
 }
 
 .card {
@@ -545,7 +529,8 @@ div#cpiHelper_messageSidebar_pluginArea {
 }
 
 .card .extra.content>label:hover {
-  color: hsl(212, 100%, 50%);
+  color: #21436a;
+  background: hsl(0, 100%, 85%)
 }
 
 fieldset {

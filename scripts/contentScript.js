@@ -1357,7 +1357,9 @@ var sidebar = {
       if (result["openSidebarOnStartup"]) {
         pluginarea.classList.add('sidebar');
         document.querySelector("#cpiHelper_messageSidebar_pluginArea span").addEventListener('click', () => {
-          twoClasssToggleSwitch(pluginArea, 'visible', 'cpiHelper_hidden')
+          twoClasssToggleSwitch(pluginarea, 'visible', 'cpiHelper_hidden')
+          twoClasssToggleSwitch(document.querySelector('#sidebar_Plugin'), 'plus', 'minus')
+
         })
       }
     })
@@ -1547,13 +1549,19 @@ function createErrorMessageElement(message) {
 
 //to check for errors and inline trace
 async function getMessageProcessingLogRuns(MessageGuid, store = true) {
+  var top_mode_count = await storageGetPromise("cpi_top_mode")
+  top_mode_count = (top_mode_count == null && top_mode_count == undefined) ? "&$top=300" : `&$top=${parseInt(top_mode_count)}`//Default
+  if (top_mode_count === '&$top=0') { top_mode_count = "" }
+  //Plugin over-write
+  var top_mode_count_flow = await storageGetPromise(`top_${cpiData.integrationFlowId}`)
+  top_mode_count = ((top_mode_count_flow == null && top_mode_count_flow == undefined) || top_mode_count_flow == 0) ? top_mode_count : `&$top=${parseInt(top_mode_count_flow)}`//Default
   return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store).then((responseText) => {
     var resp = JSON.parse(responseText);
     var status = resp.d.results[0].OverallState;
     if (resp.d.results.length > 1 && status != "COMPLETED") { return resp.d.results[1].Id; }
     else { return resp.d.results[0].Id; }
   }).then((runId) => {
-    return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json&$top=300", store);
+    return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json" + top_mode_count, store);
   }).then((response) => {
     return JSON.parse(response).d.results;
   }).catch((e) => {

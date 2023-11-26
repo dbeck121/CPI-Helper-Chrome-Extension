@@ -34,11 +34,12 @@ async function messageSidebarPluginContent(forceRender = false) {
 
 
     if (ctxbtnclose.childElementCount == 2) {
-        ctxbtnclose.insertBefore(createElementFromHTML("<span id='sidebar_Plugin' data-sap-ui-icon-content='' class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL cpiHelper_hidden' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>"), ctxbtnclose.childNodes[2]);
+        ctxbtnclose.insertBefore(createElementFromHTML(`<i id='sidebar_Plugin' class="cpiHelper_closeButton_sidebar calendar ${pluginArea.classList.contains('visible') ? 'plus' : 'minus'} icon"></i>`), ctxbtnclose.childNodes[2]);
         if (activeness) {
             document.querySelector('#sidebar_Plugin').classList.remove('cpiHelper_hidden');
             document.querySelector('#sidebar_Plugin').addEventListener('click', () => {
                 twoClasssToggleSwitch(pluginArea, 'visible', 'cpiHelper_hidden')
+                twoClasssToggleSwitch(document.querySelector('#sidebar_Plugin'), 'plus', 'minus')
             });
         }
         // twoClasssToggleSwitch(pluginArea, 'visible', 'cpiHelper_hidden')
@@ -48,6 +49,7 @@ async function messageSidebarPluginContent(forceRender = false) {
                 if (result["openSidebarOnStartup"]) {
                     twoClasssToggleSwitch(document.querySelector('#cpiHelper_messageSidebar_pluginArea>.header'), 'cpiHelper_hidden', 'visible');
                     twoClasssToggleSwitch(pluginArea, 'visible', 'cpiHelper_hidden')
+                    twoClasssToggleSwitch(document.querySelector('#sidebar_Plugin'), 'plus', 'minus')
                 }
             }
         })
@@ -165,7 +167,11 @@ async function createPluginPopupUI(plugin) {
 
     var container = document.createElement('div');
     container.classList.add("card");
-    container.appendChild(createElementFromHTML(`<h4 class="header">${plugin.name}</h4>`));
+    container.appendChild(createElementFromHTML(`<div class="extra content">
+        <img class="right floated mini ui image" src=${plugin.settings["icon"] ? chrome.runtime.getURL(plugin.settings["icon"].src) : ""}>
+        <div class="header">${plugin.name}</div>
+        <a href=${plugin.website} target="_blank" class="meta">${plugin.author}</a>
+    </div>`));
     container.appendChild(createElementFromHTML(`<div class="content">${plugin.description}</div>`));
     if (await getStorageValue(plugin.id, "isActive", null)) {
         if (plugin.settings) {
@@ -197,7 +203,7 @@ async function createPluginPopupUI(plugin) {
                     container.appendChild(div);
                 }
 
-                if (plugin.settings[key].type == "text") {
+                if (plugin.settings[key].type == "textinput") {
                     var outerDiv = document.createElement('div');
                     var text = document.createElement('input');
                     text.id = `cpiHelper_popup_plugins-${plugin.id}-${key}`;
@@ -227,6 +233,15 @@ async function createPluginPopupUI(plugin) {
                     div.appendChild(label);
                     container.appendChild(div);
 
+                }
+                if (plugin.settings[key].type == "text") {
+                    var text = document.createElement('div');
+                    text.id = `cpiHelper_popup_plugins - ${plugin.id} -${key} `;
+                    text.innerHTML = plugin.settings[key].text
+                    var div = document.createElement('div');
+                    div.classList = "ui segment"
+                    div.appendChild(text);
+                    container.appendChild(div);
                 }
 
             }

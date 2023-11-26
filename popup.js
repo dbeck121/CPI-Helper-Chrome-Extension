@@ -123,6 +123,7 @@ function getSideBarAlwaysVisible() {
 function addTenantSettings() {
     const cpi_compact_mode = localStorage.getItem('modecpi_compact_mode') !== 'true' //deafult cozy
     const cpi_help_mode = localStorage.getItem('cpi_help_mode') !== 'true' //default expanded
+    const cpi_zoom_level = localStorage.getItem('zoomlevel')
     var tenantSettings = document.getElementById("tenantSettings");
     tenantSettings.innerHTML = `
     <h3 class="ui horizontal divider header">Tenant Settings</h3>
@@ -165,6 +166,13 @@ function addTenantSettings() {
     </div>
     <h3 class="ui horizontal divider header">CPI Helper Settings</h3>
     <div>
+        <div class="ui label buttons">
+            <div id="cpi_top_mode" class="ui right labeled input">
+                <div class="ui label">Trace Global Count</div>
+                <input type="number"  min="0" name="cpi_top_mode">
+                <div class="ui label">Steps</div>
+            </div>
+        </div>
         <div class="ui label buttons">
             <div id="setzoom" class="ui right labeled input">
                 <div class="ui label"> Zoom Level </div>
@@ -222,6 +230,10 @@ function addTenantSettings() {
             <p><b>Open Message Sidebar on start?</b>: yes /<span class="ui green text"> No(Default)</span><div class="ui fitted divider"></div></p>
             <p><b>Plugin-page as Sidebar (Separate)?</b>: yes(Separate & Closed) /<span class="ui green text"> No(Default)(Joint & Open)</span><div class="ui fitted divider"></div></p>
             <p><b>Set Zoom Level:</b> This value will change zoom level of current page only.<br /> Min: 60% | Max: 120% | <span class="ui green text">Default: 85%</span><div class="ui fitted divider"></div></p>
+            <p>
+                <b>Trace Global Count: </b>Default : <span class="ui green text"> 300</span>. (Set 0 ~ All Steps) <br />
+                <span class="ui red text"> This might freeze browser. *Use with caution</span><div class="ui fitted divider"></div>
+            </p>
             <table>
                 <tr><th>Mode</th> <th>Height</th> <th>layout</th></tr>
                 <tr><td><span class="ui green text">Cozy (Default)</span></td> <td>More</td> <td>Fix-layout</td></tr>
@@ -234,8 +246,8 @@ function addTenantSettings() {
     document.querySelector('#tenantSettings > div > .buttons > button:nth-child(1)').addEventListener('click', () => inputReset('iflow'));
     document.querySelector('#tenantSettings > div > .buttons > button:nth-child(2)').addEventListener('click', () => inputReset('reset'));
     //Default zoom
-    document.body.style.zoom = localStorage.getItem('zoomlevel') ? `${localStorage.getItem('zoomlevel')}%` : 85 + '%';
-    document.querySelector('#setzoom input').value = localStorage.getItem('zoomlevel') ? localStorage.getItem('zoomlevel') : 85;
+    document.body.style.zoom = cpi_zoom_level ? `${cpi_zoom_level}%` : 85 + '%';
+    document.querySelector('#setzoom input').value = cpi_zoom_level ? cpi_zoom_level : 85;
     document.querySelector('#setzoom button').addEventListener('click', () => {
         document.querySelector('#setzoom input').value = 85;
         document.querySelector('#setzoom input').dispatchEvent(new Event('change'))
@@ -268,6 +280,10 @@ function addTenantSettings() {
         icon.classList.toggle('expand');
         addLastVisitedIflows();
     });
+    chrome.storage.local.get(['cpi_top_mode'], (result) => document.querySelector('#cpi_top_mode input').value = result.cpi_top_mode ? result.cpi_top_mode : 300);
+    document.querySelector('#cpi_top_mode input').addEventListener('change', () => {
+        chrome.storage.local.set({ 'cpi_top_mode': document.querySelector('#cpi_top_mode input').value })
+    })
 }
 
 function addTenantUrls() {
