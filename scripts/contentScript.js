@@ -1474,7 +1474,7 @@ async function errorPopupOpen(MessageGuid) {
     status.className = "contentText";
     status.innerText = "Status: " + customHeaders.Status
     y.appendChild(status)
-    
+
     let customstatus = document.createElement("div");
     customstatus.className = "contentText";
     customstatus.innerText = "Custom Status: " + customHeaders.CustomStatus
@@ -1563,8 +1563,10 @@ async function getMessageProcessingLogRuns(MessageGuid, store = true) {
   top_mode_count = (top_mode_count == null && top_mode_count == undefined) ? "&$top=300" : `&$top=${parseInt(top_mode_count)}`//Default
   if (top_mode_count === '&$top=0') { top_mode_count = "" }
   //Plugin over-write
-  var top_mode_count_flow = await storageGetPromise(`top_${cpiData.integrationFlowId}`)
-  top_mode_count = ((top_mode_count_flow == null && top_mode_count_flow == undefined) || top_mode_count_flow == 0) ? top_mode_count : `&$top=${parseInt(top_mode_count_flow)}`//Default
+  if (await getStorageValue('traceModifer', "isActive", null)) {
+    var top_mode_count_flow = await storageGetPromise(`top_${cpiData.integrationFlowId}`)
+    top_mode_count = ((top_mode_count_flow == null && top_mode_count_flow == undefined) || top_mode_count_flow == 0) ? top_mode_count : `&$top=${parseInt(top_mode_count_flow)}`
+  }
   return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store).then((responseText) => {
     var resp = JSON.parse(responseText);
     var status = resp.d.results[0].OverallState;
