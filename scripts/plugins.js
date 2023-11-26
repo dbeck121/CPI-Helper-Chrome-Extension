@@ -34,8 +34,8 @@ async function messageSidebarPluginContent(forceRender = false) {
 
 
     if (ctxbtnclose.childElementCount == 2) {
-        ctxbtnclose.insertBefore(createElementFromHTML(`<i id='sidebar_Plugin' class="cpiHelper_closeButton_sidebar calendar ${pluginArea.classList.contains('visible') ? 'plus' : 'minus'} icon"></i>`), ctxbtnclose.childNodes[2]);
-        if (activeness) {
+        if (activeness == true) {
+            ctxbtnclose.insertBefore(createElementFromHTML(`<i id='sidebar_Plugin' class="cpiHelper_closeButton_sidebar calendar ${pluginArea.classList.contains('visible') ? 'plus' : 'minus'} icon"></i>`), ctxbtnclose.childNodes[2]);
             document.querySelector('#sidebar_Plugin').classList.remove('cpiHelper_hidden');
             document.querySelector('#sidebar_Plugin').addEventListener('click', () => {
                 twoClasssToggleSwitch(pluginArea, 'visible', 'cpiHelper_hidden')
