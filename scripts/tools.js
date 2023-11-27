@@ -112,73 +112,73 @@ var callCache = new Map();
 async function makeCallPromiseXHR(method, url, accept, payload, includeXcsrf, contentType, showInfo = true) {
   return new Promise(async function (resolve, reject) {
 
-    log.debug("makecallpromisexhr "+new Date().toISOString())
- 
+    log.debug("makecallpromisexhr " + new Date().toISOString())
 
-      var xhr = new XMLHttpRequest();
-      xhr.withCredentials = true;
 
-      xhr.open(method, absolutePath(url));
-      if (accept) {
-        //Example for accept: 'application/json' 
-        xhr.setRequestHeader('Accept', accept);
-      }
+    var xhr = new XMLHttpRequest();
+    xhr.withCredentials = true;
 
-      if (contentType) {
-        xhr.setRequestHeader('Content-type', contentType);
-      }
-
-      if (includeXcsrf) {
-        var xcsrf = await getCsrfToken(true);
-        log.debug("includeXcsrf: ", xcsrf)
-
-        xhr.setRequestHeader("X-CSRF-Token", xcsrf);
-      }
-
-      xhr.onload = function () {
-        if (this.status >= 200 && this.status < 300) {
-
-          showInfo ? workingIndicator(false) : {};
-
-          log.debug("makeCallPromise response status: ", xhr.status)
-          log.debug("makeCallPromise response text: ", xhr.responseText.substring(0, 100))
-       
-          resolve(xhr);
-        } else {
-          showInfo ? workingIndicator(false) : {};
-          showInfo ? showToast("CPI-Helper has run into a problem while loading data.", "", "error") : {};
-
-          log.log("makeCallPromise response status: ", xhr.status)
-
-          log.log("makeCallPromise response text: ", xhr.responseText)
-
-          reject(xhr);
-        }
-      };
-      xhr.timeout = 60000; // Set timeout to 60 seconds
-      xhr.ontimeout = function (e) {
-        log.log("make call promisexhr timeout")
-        log.log("timeout "+new Date().toISOString())
-        log.log(e.toString())
-        showInfo ? showToast("CPI-Helper has run into a timeout", "Please refresh site and try again.", "error") : {};
-        showInfo ? workingIndicator(false) : {};
-        reject({
-          status: 0,
-          statusText: "timeout"
-        });
-      }
-
-      xhr.onerror = function () {
-        reject({
-          status: this.status,
-          statusText: xhr.statusText
-        });
-      };
-      showInfo ? workingIndicator(true) : {};
-      xhr.send(payload);
-
+    xhr.open(method, absolutePath(url));
+    if (accept) {
+      //Example for accept: 'application/json' 
+      xhr.setRequestHeader('Accept', accept);
     }
-  
+
+    if (contentType) {
+      xhr.setRequestHeader('Content-type', contentType);
+    }
+
+    if (includeXcsrf) {
+      var xcsrf = await getCsrfToken(true);
+      log.debug("includeXcsrf: ", xcsrf)
+
+      xhr.setRequestHeader("X-CSRF-Token", xcsrf);
+    }
+
+    xhr.onload = function () {
+      if (this.status >= 200 && this.status < 300) {
+
+        showInfo ? workingIndicator(false) : {};
+
+        log.debug("makeCallPromise response status: ", xhr.status)
+        log.debug("makeCallPromise response text: ", xhr.responseText.substring(0, 100))
+
+        resolve(xhr);
+      } else {
+        showInfo ? workingIndicator(false) : {};
+        showInfo ? showToast("CPI-Helper has run into a problem while loading data.", "", "error") : {};
+
+        log.log("makeCallPromise response status: ", xhr.status)
+
+        log.log("makeCallPromise response text: ", xhr.responseText)
+
+        reject(xhr);
+      }
+    };
+    xhr.timeout = 60000; // Set timeout to 60 seconds
+    xhr.ontimeout = function (e) {
+      log.log("make call promisexhr timeout")
+      log.log("timeout " + new Date().toISOString())
+      log.log(e.toString())
+      showInfo ? showToast("CPI-Helper has run into a timeout", "Please refresh site and try again.", "error") : {};
+      showInfo ? workingIndicator(false) : {};
+      reject({
+        status: 0,
+        statusText: "timeout"
+      });
+    }
+
+    xhr.onerror = function () {
+      reject({
+        status: this.status,
+        statusText: xhr.statusText
+      });
+    };
+    showInfo ? workingIndicator(true) : {};
+    xhr.send(payload);
+
+  }
+
   );
 
 }
@@ -192,17 +192,17 @@ async function makeCallPromise(method, url, useCache, accept, payload, includeXc
   if (cache) {
     log.debug("makeCallPromise cache hit")
     return cache;
-  } 
-  
+  }
+
   var xhr = await makeCallPromiseXHR(method, url, accept, payload, includeXcsrf, contentType, showInfo = true)
-  
-  if(xhr.status >= 200 && xhr.status < 300) {
+
+  if (xhr.status >= 200 && xhr.status < 300) {
     if (useCache) {
       callCache.set(method + url, xhr.responseText);
     }
     return xhr.responseText
   }
-  
+
   return {
     status: xhr.status,
     statusText: xhr.statusText,
@@ -248,10 +248,10 @@ async function makeCall(type, url, includeXcsrf, payload, callback, contentType,
   xhr.send(payload);
 }
 
-let absolutePath = function(href) {
+let absolutePath = function (href) {
   var link = document.createElement("a");
   link.href = href;
-  return (link.protocol+"//"+link.host+link.pathname+link.search+link.hash);
+  return (link.protocol + "//" + link.host + link.pathname + link.search + link.hash);
 }
 
 var formatTrace = function (input, id, traceId) {
@@ -475,6 +475,11 @@ function createElementFromHTML(htmlString) {
   return div.firstChild;
 }
 
+function twoClasssToggleSwitch(e, class1, class2) {
+  e.classList.toggle(class1)
+  e.classList.toggle(class2)
+}
+
 function isDevMode() {
   return !('update_url' in chrome.runtime.getManifest());
 }
@@ -490,16 +495,16 @@ function stage() {
 async function statistic(event, value = null, value2 = null) {
 
   log.debug(event, value, value2)
-/*  try {
-    var sessionId = await storageGetPromise("sessionId")
-    var installtype = await storageGetPromise("installtype")
-    var img = document.createElement("img");
-    img.src = `....?version=${chrome.runtime.getManifest().version}&event=${event}&session=${sessionId}&value=${value}&value2=${value2}&installtype=${installtype}&nonse=${Date.now()}`;
-  } catch (e) {
-    log.log(e)
-  }
-
-  */
+  /*  try {
+      var sessionId = await storageGetPromise("sessionId")
+      var installtype = await storageGetPromise("installtype")
+      var img = document.createElement("img");
+      img.src = `....?version=${chrome.runtime.getManifest().version}&event=${event}&session=${sessionId}&value=${value}&value2=${value2}&installtype=${installtype}&nonse=${Date.now()}`;
+    } catch (e) {
+      log.log(e)
+    }
+  
+    */
 }
 
 async function onInitStatistic() {

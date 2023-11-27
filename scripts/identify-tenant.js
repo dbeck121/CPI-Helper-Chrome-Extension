@@ -171,9 +171,8 @@
     if (header && header.style && header.style.backgroundColor !== color) {
       header.style.backgroundColor = color
       //sync header with popup header
-      if (document.querySelector('#cpiHelper_contentheader')) {
-        document.querySelector('#cpiHelper_contentheader').style.backgroundColor = color
-      }
+      const root = document.querySelector(':root');
+      root.style.setProperty('--cpi-custom-color', color);
 
       // Set the theme color meta tag
       let themeColorElement = document.querySelector("meta[name='theme-color']");

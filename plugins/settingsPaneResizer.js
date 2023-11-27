@@ -10,10 +10,10 @@ var plugin = {
                   (*) If you have configured the CPI Helper Extension to open on launch (recommended). <br>`,
     settings: {
             "text1": { "text": "Enter either settings for pane height in Pixel or percent (pixel takes precedence if both are defined; if both empty, use CPI default (50%))", "type": "label" },
-            "paneHeight": { "text": "Pixel", "type": "text", scope: "browser" },
-            "paneHeightPercent": { "text": "%", "type": "text", scope: "browser" },
+            "paneHeight": { "text": "Pixel", "type": "textinput", scope: "browser" },
+            "paneHeightPercent": { "text": "%", "type": "textinput", scope: "browser" },
 			"dynamicResizing": { "text": "Automatic Dynamic Resizing (if pane content is lower than above configured values)", "type": "checkbox", scope: "browser" },
-            "delay": { "text": "Dynamic Resizing Delay in ms (0 = no delay, empty = default 500) (refresh page to take effect)", "type": "text", scope: "browser" }
+            "delay": { "text": "Dynamic Resizing Delay in ms (0 = no delay, empty = default 500) (refresh page to take effect)", "type": "textinput", scope: "browser" }
         },        
     messageSidebarContent: {
         "static": false,

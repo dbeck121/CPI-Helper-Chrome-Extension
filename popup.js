@@ -16,7 +16,7 @@ function addLastVisitedIflows() {
         if (!visitedIflows || visitedIflows.length == 0) {
             return;
         }
-        var compact = document.querySelector('#cpisetting>.active').getAttribute('data') !== "true";
+        var compact = document.querySelector('#cpi_compact_mode>.active').getAttribute('data') !== "true";
         var artifactTypes = ["Package", "IFlow", "Message Mapping", "Script Collection", "Value Mapping", "SOAP API", "REST API", "ODATA API"]
         var html = `<div class="ui horizontal divider header">Last Visited on Tenant ${name.split("_")[1]}</div>`;
         if (compact) {
@@ -121,8 +121,9 @@ function getSideBarAlwaysVisible() {
 }
 
 function addTenantSettings() {
-    const compactinit = localStorage.getItem('modecpisetting') !== 'true' //deafult cozy
-    const tableinit = localStorage.getItem('tablenotetoggle') !== 'true' //default expanded
+    const cpi_compact_mode = localStorage.getItem('modecpi_compact_mode') !== 'true' //deafult cozy
+    const cpi_help_mode = localStorage.getItem('cpi_help_mode') !== 'true' //default expanded
+    const cpi_zoom_level = localStorage.getItem('zoomlevel')
     var tenantSettings = document.getElementById("tenantSettings");
     tenantSettings.innerHTML = `
     <h3 class="ui horizontal divider header">Tenant Settings</h3>
@@ -166,6 +167,13 @@ function addTenantSettings() {
     <h3 class="ui horizontal divider header">CPI Helper Settings</h3>
     <div>
         <div class="ui label buttons">
+            <div id="cpi_top_mode" class="ui right labeled input">
+                <div class="ui label">Trace Global Count</div>
+                <input type="number"  min="0" name="cpi_top_mode">
+                <div class="ui label">Steps</div>
+            </div>
+        </div>
+        <div class="ui label buttons">
             <div id="setzoom" class="ui right labeled input">
                 <div class="ui label"> Zoom Level </div>
                 <input min="60" max="120" type="number">
@@ -183,17 +191,17 @@ function addTenantSettings() {
             <div data=true class="ui toggle basic button">Yes</div>
             <div data=false class="ui toggle basic button">No</div>
         </div><br/> 
-        <div id="cpisetting" class="ui label buttons">
-            <div class="ui label">Mode of Last visited</div>
-            <div data=true class="ui toggle basic ${compactinit ? 'active' : ''} button">Cozy</div>
-            <div data=false class="ui toggle basic ${!compactinit ? 'active' : ''} button">Compact</div>
+        <div id="cpi_compact_mode" class="ui label buttons">
+            <div class="ui label">Mode of Last visited</div> 
+            <div data=true class="ui toggle basic ${!cpi_compact_mode ? 'active' : ''} button">Compact</div>
+            <div data=false class="ui toggle basic ${cpi_compact_mode ? 'active' : ''} button">Cozy</div>
         </div><br/> 
-        <div id="tablenote" class="ui label buttons">
+        <div id="cpi_help_mode" class="ui label buttons">
             <div class="ui label">Need more help/details?</div>
-            <div data=true class="ui toggle basic ${tableinit ? 'active' : ''} button">Expand</div>
-            <div data=false class="ui toggle basic ${!(tableinit) ? 'active' : ''} button">Compress</div>
+            <div data=true class="ui toggle basic ${!(cpi_help_mode) ? 'active' : ''} button">Compress</div>
+            <div data=false class="ui toggle basic ${cpi_help_mode ? 'active' : ''} button">Expand</div>
         </div> 
-        <div class='ui segment ${tableinit ? '' : 'hidden'}'>
+        <div class='ui segment ${cpi_help_mode ? '' : 'hidden'}'>
 			<div class="ui segment">
 				<div class="ui medium header" style="color:var(--cpi-dark-green)">General Settings</div>
 				<section>
@@ -213,7 +221,9 @@ function addTenantSettings() {
 				<section>
                 <p><b>Name for Tab:</b> Set custom tab name or click reset or same as iflow. <br />i.e. <span class="ui red text">CH_$iflow.name</span> => <span class="ui red text">CH_</span> prefix will be added.<div class="ui fitted divider"></div>
                 </p><p><b>No. of Last execution:</b> Set number from <span class="ui red text">1 to 20</span> of message in sidebar <div class="ui fitted divider"></div>  
-                </p><p><b>Tenant color:</b> set header color <div class="ui fitted divider"></div>
+                </p><p><b>Tenant color:</b> set header color <br />
+                    (we recommend that you select a darker color. If color is too light, it will automatically adjust it to a darker shade.) <br />
+                    This is to ensure that the text is readable and clear.<div class="ui fitted divider"></div>
                 </p><p><b>Choose icon:</b> set icon at tab.</p>
             </section>
         </div>
@@ -222,6 +232,10 @@ function addTenantSettings() {
             <p><b>Open Message Sidebar on start?</b>: yes /<span class="ui green text"> No(Default)</span><div class="ui fitted divider"></div></p>
             <p><b>Plugin-page as Sidebar (Separate)?</b>: yes(Separate & Closed) /<span class="ui green text"> No(Default)(Joint & Open)</span><div class="ui fitted divider"></div></p>
             <p><b>Set Zoom Level:</b> This value will change zoom level of current page only.<br /> Min: 60% | Max: 120% | <span class="ui green text">Default: 85%</span><div class="ui fitted divider"></div></p>
+            <p>
+                <b>Trace Global Count: </b>Default : <span class="ui green text"> 300</span>. (Set 0 ~ All Steps) <br />
+                <span class="ui red text"> This might freeze browser. *Use with caution</span><div class="ui fitted divider"></div>
+            </p>
             <table>
                 <tr><th>Mode</th> <th>Height</th> <th>layout</th></tr>
                 <tr><td><span class="ui green text">Cozy (Default)</span></td> <td>More</td> <td>Fix-layout</td></tr>
@@ -230,12 +244,12 @@ function addTenantSettings() {
         </div>
     </div>
     `;
-    document.querySelector('#one > i').classList.add(compactinit ? 'expand' : 'compress');
+    document.querySelector('#one > i').classList.add(cpi_compact_mode ? 'expand' : 'compress');
     document.querySelector('#tenantSettings > div > .buttons > button:nth-child(1)').addEventListener('click', () => inputReset('iflow'));
     document.querySelector('#tenantSettings > div > .buttons > button:nth-child(2)').addEventListener('click', () => inputReset('reset'));
     //Default zoom
-    document.body.style.zoom = localStorage.getItem('zoomlevel') ? `${localStorage.getItem('zoomlevel')}%` : 85 + '%';
-    document.querySelector('#setzoom input').value = localStorage.getItem('zoomlevel') ? localStorage.getItem('zoomlevel') : 85;
+    document.body.style.zoom = cpi_zoom_level ? `${cpi_zoom_level}%` : 85 + '%';
+    document.querySelector('#setzoom input').value = cpi_zoom_level ? cpi_zoom_level : 85;
     document.querySelector('#setzoom button').addEventListener('click', () => {
         document.querySelector('#setzoom input').value = 85;
         document.querySelector('#setzoom input').dispatchEvent(new Event('change'))
@@ -248,9 +262,9 @@ function addTenantSettings() {
         }
     })
     // Help section btn
-    document.querySelector('#tablenote').addEventListener('click', () => {
-        document.querySelectorAll('#tablenote>.button').forEach(e => e.classList.toggle('active'))
-        localStorage.setItem('tablenotetoggle', document.querySelector('#tablenote>.active').getAttribute('data') === "true");
+    document.querySelector('#cpi_help_mode').addEventListener('click', () => {
+        document.querySelectorAll('#cpi_help_mode>.button').forEach(e => e.classList.toggle('active'))
+        localStorage.setItem('cpi_help_mode', document.querySelector('#cpi_help_mode>.active').getAttribute('data') === "true");
         document.querySelector('#tenantSettings > div:nth-child(7) > div.ui.segment').classList.toggle("hidden")//#tenantSettings>div>div:has(table)
     });
     //reset color btn
@@ -260,14 +274,18 @@ function addTenantSettings() {
         tenantColor.dispatchEvent(new Event("change"));
     })
     //cozy-compact mode btn
-    document.querySelector('#cpisetting').addEventListener('click', () => {
-        localStorage.setItem('modecpisetting', document.querySelector('#cpisetting>.active').getAttribute('data') === "true");
-        document.querySelectorAll('#cpisetting>.button').forEach(e => e.classList.toggle('active'))
+    document.querySelector('#cpi_compact_mode').addEventListener('click', () => {
+        document.querySelectorAll('#cpi_compact_mode>.button').forEach(e => e.classList.toggle('active'));
+        localStorage.setItem('modecpi_compact_mode', document.querySelector('#cpi_compact_mode>.active').getAttribute('data') === "true");
         const icon = document.querySelector('#one > i');
         icon.classList.toggle('compress');
         icon.classList.toggle('expand');
         addLastVisitedIflows();
     });
+    chrome.storage.local.get(['cpi_top_mode'], (result) => document.querySelector('#cpi_top_mode input').value = result.cpi_top_mode ? result.cpi_top_mode : 300);
+    document.querySelector('#cpi_top_mode input').addEventListener('change', () => {
+        chrome.storage.local.set({ 'cpi_top_mode': document.querySelector('#cpi_top_mode input').value })
+    })
 }
 
 function addTenantUrls() {
@@ -467,7 +485,10 @@ function tenantIdentityChanges() {
 
         // Update color on change
         tenantColor.addEventListener('change', () => {
-            hostData.color = tenantColor.value;
+            // custom filter skip
+            tenantColor.value = adjustColorLimiter(tenantColor.value, 50)
+            hostData.color = tenantColor.value
+            console.log(tenantColor.value)
             // set popup.html header
             popupcolor.style.backgroundColor = tenantColor.value;
             chrome.tabs.sendMessage(tab.id, { save: hostData }, (response) => {
@@ -483,6 +504,20 @@ function tenantIdentityChanges() {
             })
         })
     })
+}
+
+function adjustColorLimiter(color, perct, lightness = true) {
+    // color = #hex input only
+    var R = parseInt(color.substring(1, 3), 16);
+    var G = parseInt(color.substring(3, 5), 16);
+    var B = parseInt(color.substring(5, 7), 16);
+    if (R + G + B >= 765 * perct / 100) {
+        perct = lightness ? perct - 100 : perct
+        return '#' + color.replace(/^#/, '').replace(/../g, color => ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + perct)).toString(16)).substr(-2));
+    }
+    else {
+        return color
+    }
 }
 
 async function storageGetPromise(name) {
