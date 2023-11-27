@@ -1,3 +1,8 @@
+/*root filter*/
+:root {
+  --cpi-custom-color: #21436a;
+}
+
 /* whats new */
 
 #cpiHelper_WhatsNew {
@@ -173,7 +178,7 @@ button.cpiHelper_sidebar_iconbutton span {
   align-items: center;
   font-weight: bold;
   z-index: 10;
-  background-color: #21436a;
+  background-color: var(--cpi-custom-color);
   color: #fff;
   box-sizing: border-box;
   border-radius: 5px 5px 0px 0px;
@@ -535,4 +540,9 @@ div#cpiHelper_messageSidebar_pluginArea {
 
 fieldset {
   margin-block: 0 !important;
+}
+
+.ui.modal.active>.header {
+  background: var(--cpi-custom-color);
+  color: #fff;
 }

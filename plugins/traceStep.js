@@ -19,11 +19,22 @@ var plugin = {
             const inputSteps = div.querySelector(`#top_${pluginHelper.currentArtifactId}`)
             chrome.storage.local.get([`top_${pluginHelper.currentArtifactId}`], (result) => {
                 data = result[`top_${pluginHelper.currentArtifactId}`];
-                inputSteps.value = (data !== null && data !== undefined) ? parseInt(data) : 0
+                inputSteps.value = ((data !== null && data !== undefined) || data != "") ? parseInt(data) : 0
             })
             inputSteps.addEventListener('change', () => {
-                chrome.storage.local.set(JSON.parse(`{ "top_${pluginHelper.currentArtifactId}":"${inputSteps.value}"}`))
+                data = inputSteps.value
+                if ((data === null && data === undefined) || data === "") {
+                    chrome.storage.local.remove([`top_${pluginHelper.currentArtifactId}`], function () {
+                        var error = chrome.runtime.lastError;
+                        if (error) {
+                            console.error(error);
+                        }
+                    })
+                } else {
+                    chrome.storage.local.set(JSON.parse(`{ "top_${pluginHelper.currentArtifactId}":"${data}"}`))
+                }
             })
+            
             return div;
         }
     },

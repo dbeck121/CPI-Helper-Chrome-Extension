@@ -221,7 +221,9 @@ function addTenantSettings() {
 				<section>
                 <p><b>Name for Tab:</b> Set custom tab name or click reset or same as iflow. <br />i.e. <span class="ui red text">CH_$iflow.name</span> => <span class="ui red text">CH_</span> prefix will be added.<div class="ui fitted divider"></div>
                 </p><p><b>No. of Last execution:</b> Set number from <span class="ui red text">1 to 20</span> of message in sidebar <div class="ui fitted divider"></div>  
-                </p><p><b>Tenant color:</b> set header color <div class="ui fitted divider"></div>
+                </p><p><b>Tenant color:</b> set header color <br />
+                    (we recommend that you select a darker color. If color is too light, it will automatically adjust it to a darker shade.) <br />
+                    This is to ensure that the text is readable and clear.<div class="ui fitted divider"></div>
                 </p><p><b>Choose icon:</b> set icon at tab.</p>
             </section>
         </div>
@@ -483,7 +485,10 @@ function tenantIdentityChanges() {
 
         // Update color on change
         tenantColor.addEventListener('change', () => {
-            hostData.color = tenantColor.value;
+            // custom filter skip
+            tenantColor.value = adjustColorLimiter(tenantColor.value, 50)
+            hostData.color = tenantColor.value
+            console.log(tenantColor.value)
             // set popup.html header
             popupcolor.style.backgroundColor = tenantColor.value;
             chrome.tabs.sendMessage(tab.id, { save: hostData }, (response) => {
@@ -499,6 +504,20 @@ function tenantIdentityChanges() {
             })
         })
     })
+}
+
+function adjustColorLimiter(color, perct, lightness = true) {
+    // color = #hex input only
+    var R = parseInt(color.substring(1, 3), 16);
+    var G = parseInt(color.substring(3, 5), 16);
+    var B = parseInt(color.substring(5, 7), 16);
+    if (R + G + B >= 765 * perct / 100) {
+        perct = lightness ? perct - 100 : perct
+        return '#' + color.replace(/^#/, '').replace(/../g, color => ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + perct)).toString(16)).substr(-2));
+    }
+    else {
+        return color
+    }
 }
 
 async function storageGetPromise(name) {

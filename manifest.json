@@ -36,6 +36,8 @@
       "js": [
         "/lib/ulog/ulog-full.min.js",
         "/scripts/logging.js",
+        "/scripts/logs.js",
+        "/scripts/tools.js",
         "/lib/prettify/prettify.js",
         "/lib/prettify/prettify-sql.js",
         "/lib/jszip/jszip.min.js",
@@ -55,8 +57,6 @@
         "/plugins/traceStep.js",
         "/plugins/example.js",
         "/scripts/ui.js",
-        "/scripts/tools.js",
-        "/scripts/logs.js",
         "/scripts/whatsNew.js",
         "/scripts/plugins.js",
         "/scripts/contentScript.js"

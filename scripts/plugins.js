@@ -3,10 +3,6 @@
 // ----------------------
 
 //creates plugin content area in message sidebar
-function twoClasssToggleSwitch(e, class1, class2) {
-    e.classList.toggle(class1)
-    e.classList.toggle(class2)
-}
 
 async function messageSidebarPluginContent(forceRender = false) {
 

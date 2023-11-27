@@ -1567,6 +1567,7 @@ async function getMessageProcessingLogRuns(MessageGuid, store = true) {
     var top_mode_count_flow = await storageGetPromise(`top_${cpiData.integrationFlowId}`)
     top_mode_count = ((top_mode_count_flow == null && top_mode_count_flow == undefined) || top_mode_count_flow == 0) ? top_mode_count : `&$top=${parseInt(top_mode_count_flow)}`
   }
+  console.log(top_mode_count)
   return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store).then((responseText) => {
     var resp = JSON.parse(responseText);
     var status = resp.d.results[0].OverallState;
