@@ -758,16 +758,16 @@ function setLogLevel(logLevel, iflowId) {
   makeCall("POST", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentSetMplLogLevelCommand", true, '{"artifactSymbolicName":"' + iflowId + '","mplLogLevel":"' + logLevel.toUpperCase() + '","nodeType":"IFLMAP"}', (xhr) => {
     if (xhr.readyState == 4 && xhr.status == 200) {
       showToast("Trace is activated");
-      log.log("trace activated");
+      log.log("Trace activated");
     }
     else {
       showToast("Error activating Trace", "", "error");
-      log.log("error activating trace");
+      log.log("Error activating trace");
     }
   }, 'application/json;charset=UTF-8');
 }
 
-//makes a http call to set the log level to trace
+//undeploy IFlow via API call
 function undeploy(tenant = null, artifactId = null) {
   tenant ??= cpiData.tenantId;
   artifactId ??= cpiData.artifactId;
@@ -809,28 +809,13 @@ async function buildButtonBar() {
   try {
     var headerBar = document.getElementById('__xmlview0--iflowObjectPageHeader-identifierLine');
     headerBar.style.paddingBottom = "0px";
-  } catch (e) {
+  } catch (e) {  }
 
-  }
-
+	// get status of powertrace button 
+  var powertraceText = await refreshPowerTrace();
+  
   if (!document.getElementById("__buttonxx")) {
     whatsNewCheck();
-
-    //check if powertrace is on and set button text
-    //get last run from store and check if it is less than 11 minutes ago
-
-    var powertraceText = ""
-
-    var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`
-    var timeAsStingOrNull = await storageGetPromise(objName)
-    if (timeAsStingOrNull != null && timeAsStingOrNull != undefined) {
-      var now = new Date().getTime()
-      var time = now - parseInt(timeAsStingOrNull)
-      if (time != NaN && time < 1000 * 60 * 11) {
-        log.log("reactivate powertrace")
-        powertraceText = "cpiHelper_powertrace"
-      }
-    }
 
     var logsbutton = createElementFromHTML(`<button id="__button_log" accesskey="1" data-sap-ui="__buttonxx" title="Logs Kbd : 1" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; margin-left: 0px; float: right;"><span id="__buttonxx-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button134345-content"><bdi id="button134345-BDI-content" class="sapMBtnContent">Logs</bdi></span></span></button>`);
     var tracebutton = createElementFromHTML(`<button id="__buttonxx" accesskey="2" data-sap-ui="__buttonxx" title="Enable traces Kbd : 2" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; float: right;"><span id="__buttonxx-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button134345-content"><bdi id="button134345-BDI-content" class="${powertraceText}">Trace</bdi></span></span></button>`);
@@ -920,6 +905,8 @@ async function buildButtonBar() {
     }
   }
 
+	// reapply status of powertrace button (needed after returning from script/message mapping
+    await refreshPowerTrace();
 
 }
 
@@ -1692,6 +1679,8 @@ async function checkURLchange() {
 
 //this function is fired when the url changes
 async function handleUrlChange() {
+    //check if powertrace button was on / set correct button status
+  await refreshPowerTrace();
 
   //check current artifact
   await storeVisitedIflowsForPopup();
@@ -1907,6 +1896,31 @@ async function storeVisitedIflowsForPopup() {
   }
 }
 
+async function refreshPowerTrace() {
+    //get last run from store and check if it is less than 11 minutes ago, then reapply trace button status
+
+    var powertraceText = ""
+
+    var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`
+    var timeAsStringOrNull = await storageGetPromise(objName)
+
+    if (timeAsStringOrNull != null && timeAsStringOrNull != undefined) {
+      var now = new Date().getTime()
+      var time = now - parseInt(timeAsStringOrNull)
+      if (time != NaN && time < 1000 * 60 * 11) {
+        log.debug("update powertrace button status")
+        powertraceText = "cpiHelper_powertrace"
+
+        // if button list already exists (e.g. after url change), reapply class to button
+        var btn = document.getElementById("button134345-BDI-content")  
+        if (btn != undefined && !btn.classList.contains("cpiHelper_powertrace")) {
+	        btn.classList.toggle("cpiHelper_powertrace")
+	      }
+      }
+    }
+    return powertraceText;
+  }
+
 //start
 checkURLchange();
 onInitStatistic();
@@ -1958,14 +1972,14 @@ setInterval(async function () {
   }
 
   //check if trace should be refreshed again
-  //check if value in storage exists and time is longer than 10 minutes but smaller than 11 minutes
+  //check if value in storage exists and time is longer than 9 (overlap) and less than 20 minutes (upper limit in order to not auto-reactivate the trace after a longer break)
   var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`
-  var timeAsStingOrNull = await storageGetPromise(objName)
-  if (timeAsStingOrNull != null && timeAsStingOrNull != undefined) {
+  var timeAsStringOrNull = await storageGetPromise(objName)
+  if (timeAsStringOrNull != null && timeAsStringOrNull != undefined) {
     var now = new Date().getTime()
-    var time = now - parseInt(timeAsStingOrNull)
-    if (time != NaN && time > 1000 * 60 * 10 && time < 1000 * 60 * 11) {
-      log.log("refresh trace")
+    var time = now - parseInt(timeAsStringOrNull)
+    if (time != NaN && time > 1000 * 60 * 9 && time < 1000 * 60 * 20) {
+      log.log("set trace via API call")
       setLogLevel("TRACE", cpiData.integrationFlowId)
       var objectToStore = {}
       objectToStore[objName] = new Date().getTime().toString()
