@@ -170,8 +170,9 @@ async function createPluginPopupUI(plugin) {
     </div>`));
     container.appendChild(createElementFromHTML(`<div class="content">${plugin.description}</div>`));
     if (await getStorageValue(plugin.id, "isActive", null)) {
-        if (plugin.settings) {
-
+        if (JSON.stringify(plugin.settings) !== '{}') {
+            var subcontainer = document.createElement('div');
+            subcontainer.classList = "ui segment"
             for (var key of Object.keys(plugin.settings)) {
                 if (plugin.settings[key].type == "checkbox") {
                     var checkbox = document.createElement('input');
@@ -195,8 +196,7 @@ async function createPluginPopupUI(plugin) {
                     div.classList = "ui checkbox toggle";
                     div.appendChild(checkbox);
                     div.appendChild(checkBoxLabel);
-
-                    container.appendChild(div);
+                    subcontainer.appendChild(div);
                 }
 
                 if (plugin.settings[key].type == "textinput") {
@@ -217,7 +217,7 @@ async function createPluginPopupUI(plugin) {
                     div.appendChild(text);
                     div.appendChild(createElementFromHTML(`<div class="ui basic label" for="cpiHelper_popup_plugins-${plugin.id}-${key}"> ${plugin.settings[key].text}</div>`));
                     outerDiv.appendChild(div);
-                    container.appendChild(outerDiv);
+                    subcontainer.appendChild(outerDiv);
                 }
                 if (plugin.settings[key].type == "label") {
                     var label = document.createElement('div');
@@ -227,7 +227,7 @@ async function createPluginPopupUI(plugin) {
                     var div = document.createElement('div');
                     div.classList = "ui label"
                     div.appendChild(label);
-                    container.appendChild(div);
+                    subcontainer.appendChild(div);
 
                 }
                 if (plugin.settings[key].type == "text") {
@@ -235,12 +235,20 @@ async function createPluginPopupUI(plugin) {
                     text.id = `cpiHelper_popup_plugins - ${plugin.id} -${key} `;
                     text.innerHTML = plugin.settings[key].text
                     var div = document.createElement('div');
-                    div.classList = "ui segment"
+                    div.classList= plugin.settings[key].class
                     div.appendChild(text);
-                    container.appendChild(div);
+                    subcontainer.appendChild(div);
                 }
-
+                if (plugin.settings[key].type == "button") {
+                    var btn = document.createElement('button');
+                    btn.classList = plugin.settings[key].class
+                    btn.id = `cpiHelper_popup_plugins - ${plugin.id} -${key} `;
+                    btn.innerHTML = plugin.settings[key].title
+                    btn.onclick = plugin.settings[key].fun
+                    subcontainer.appendChild(btn);
+                }
             }
+            container.appendChild(subcontainer);
         }
     }
     var activeCheckbox = document.createElement('input');
