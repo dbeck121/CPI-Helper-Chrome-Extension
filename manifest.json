@@ -54,7 +54,7 @@
         "/plugins/OpenAIServices.js",
         "/plugins/WHINT_IFD.js",
         "/plugins/settingsPaneResizer.js",
-        "/plugins/traceStep.js",
+        "/plugins/traceModifer.js",
         "/plugins/example.js",
         "/scripts/ui.js",
         "/scripts/whatsNew.js",

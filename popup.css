@@ -2,6 +2,7 @@
     /* colors */
     --cpi-brand-color: #21436a;
     --cpi-background: #fff;
+    --cpi-custom-color: #21436a;
     --cpi-dark-green: #008000;
     --cpi-green: #c7ffce;
     --cpi-grey: #e3e3e3;
@@ -38,7 +39,7 @@ a[href].item:hover,
 #cpiHelper_contentheader {
     padding: .5rem;
     z-index: 10;
-    background-color: var(--cpi-brand-color);
+    background-color: var(--cpi-custom-color);
 }
 
 #cpiHelper_contentheader>* {
@@ -59,14 +60,15 @@ a[href].item:hover,
 
 .ui.label {
     font-size: 1rem;
-  }
+}
+
 /* margin class 0 */
 .m0 {
     margin: 0 !important;
 }
 
-#tenantSettings>div {
-    margin: .5rem;
+#tenantSettings>div>div:not([class]) {
+    margin-block: .5rem;
 }
 
 #tenantSettings table {
@@ -135,4 +137,8 @@ input[type="color"] {
 .l-green:hover {
     color: var(--_cpi-dclass) !important;
     border: .25em solid var(--_cpi-dclass) !important;
+}
+
+.preset>button.ui.button {
+    margin-block: 0 !important;
 }

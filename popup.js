@@ -16,7 +16,7 @@ function addLastVisitedIflows() {
         if (!visitedIflows || visitedIflows.length == 0) {
             return;
         }
-        var compact = document.querySelector('#cpi_compact_mode>.active').getAttribute('data') !== "true";
+        var compact = document.querySelector('#cpi_compact_mode>.active').getAttribute('data') === "true";
         var artifactTypes = ["Package", "IFlow", "Message Mapping", "Script Collection", "Value Mapping", "SOAP API", "REST API", "ODATA API"]
         var html = `<div class="ui horizontal divider header">Last Visited on Tenant ${name.split("_")[1]}</div>`;
         if (compact) {
@@ -128,40 +128,55 @@ function addTenantSettings() {
     tenantSettings.innerHTML = `
     <h3 class="ui horizontal divider header">Tenant Settings</h3>
     <div>
-        <div class="ui labeled input">
-            <div class="ui label"> Name for tab </div>
-            <input type="text" name="tenantName" id="tenantName"/>
+        <div>
+            <div class="ui labeled input">
+                <div class="ui label"> Name for tab </div>
+                <input type="text" name="tenantName" id="tenantName"/>
+            </div>
+            <div class="ui buttons">
+                <button class="ui blue basic button">Current Iflow</button>
+                <button class="ui blue basic button">Reset Name</button>    
+            </div>  
         </div>
-        <div class="ui buttons">
-            <button class="ui blue basic button">Current Iflow</button>
-            <button class="ui blue basic button">Reset Name</button>    
-        </div>  
-    </div>
-    <div>
-        <div class="ui labeled input">
-            <div class="ui label"> No. of Last execution </div>
-            <input type="number" min="1" max="20" name="setCount" id="setCount"/>
+        <div>
+            <div class="ui labeled input">
+                <div class="ui label"> No. of Last execution </div>
+                <input type="number" min="1" max="20" name="setCount" id="setCount"/>
+            </div>
+        </div>     
+        <div>
+            <div class="ui labeled input">
+                <div class="ui label">Choose an icon</div>
+                <select name="icon" id="icon-select" class="ui selection dropdown">
+                    <option value="default">Default</option>
+                    <option value="1">Blue</option>
+                    <option value="2">Green</option>
+                    <option value="3">Red</option>
+                    <option value="4">Purple</option>
+                    <option value="5">Yellow</option>
+                    <option value="6">Orange</option>
+                </select>
+            </div>
         </div>
-    </div>    
-    <div>
+        <div>
+            <div class="ui labeled input">
+                <div class="ui label">Theme Color</div>
+                <input type="color" name="color" id="colorSelect"/>
+            </div>
+            <button class="ui blue basic button">Reset Color</button> 
+        </div> 
         <div class="ui labeled input">
-            <div class="ui label">Tenant color</div>
-            <input type="color" name="color" id="colorSelect"/>
-        </div>
-        <button class="ui blue basic button">Reset Color</button> 
-    </div>  
-    <div>
-        <div class="ui labeled input">
-            <div class="ui label">Choose an icon</div>
-            <select name="icon" id="icon-select" class="ui selection dropdown">
-                <option value="default">Default</option>
-                <option value="1">Blue</option>
-                <option value="2">Green</option>
-                <option value="3">Red</option>
-                <option value="4">Purple</option>
-                <option value="5">Yellow</option>
-                <option value="6">Orange</option>
-            </select>
+            <div class="ui label">Preset Themes</div>
+            <div style="margin-inline-start:1rem" class="ui wrapped wrapping spaced buttons preset">
+                <button data-variation="blue" data-tooltip="Blue" class="ui blue button"></button>
+                <button data-variation="green" data-tooltip="Green" class="ui green button"></button>
+                <button data-variation="red" data-tooltip="Red" class="ui red button"></button>
+                <button data-variation="purple" data-tooltip="Purple" class="ui purple button"></button>
+                <button data-variation="orange" data-tooltip="Orange" class="ui orange button"></button>
+                <button data-variation="yellow" data-tooltip="Yellow" class="ui yellow button"></button>
+                <button data-variation="grey" data-tooltip="Grey" class="ui grey button"></button>
+                <button data-variation="black" data-tooltip="Black" class="ui black button"></button>
+            </div>
         </div>
     </div>
     <h3 class="ui horizontal divider header">CPI Helper Settings</h3>
@@ -219,12 +234,13 @@ function addTenantSettings() {
 			<div class="ui segment">
 				<div class="ui medium header" style="color:var(--cpi-dark-green)">Tenant Settings</div>
 				<section>
-                <p><b>Name for Tab:</b> Set custom tab name or click reset or same as iflow. <br />i.e. <span class="ui red text">CH_$iflow.name</span> => <span class="ui red text">CH_</span> prefix will be added.<div class="ui fitted divider"></div>
-                </p><p><b>No. of Last execution:</b> Set number from <span class="ui red text">1 to 20</span> of message in sidebar <div class="ui fitted divider"></div>  
-                </p><p><b>Tenant color:</b> set header color <br />
-                    (we recommend that you select a darker color. If color is too light, it will automatically adjust it to a darker shade.) <br />
-                    This is to ensure that the text is readable and clear.<div class="ui fitted divider"></div>
-                </p><p><b>Choose icon:</b> set icon at tab.</p>
+                <p><b>Name for Tab:</b> Set custom tab name or click reset or same as iflow. <br />i.e. <span class="ui red text">CH_$iflow.name</span> => <span class="ui red text">CH_</span> prefix will be added.<div class="ui fitted divider"></div></p>
+                <p><b>No. of Last execution:</b> Set number from <span class="ui red text">1 to 20</span> of message in sidebar <div class="ui fitted divider"></div></p>
+                <p><b>Theme Color:</b> set header color <br />
+                    (we recommend that you select a darker color. If color is too light, it will automatically adjust it to a darker shade.) <br />This is to ensure that the text is readable and clear.
+                <div class="ui fitted divider"></div></p>
+                <p><b>Choose icon:</b> set icon at tab.</p><div class="ui fitted divider"></div></p>
+                <p><b>Preset Themes</b> Set predefined theme for host  </p>
             </section>
         </div>
         <div class="ui segment">
@@ -244,9 +260,15 @@ function addTenantSettings() {
         </div>
     </div>
     `;
+    document.querySelectorAll('.preset .button').forEach(e => e.addEventListener('click', () => {
+        const preset = { "blue": "#2185d0", "green": "#21ba45", "purple": "#a333c8", "red": "#db2828", "yellow": "#fbbd08", "orange": "#f2711c", "grey": "#767676", "black": "#1b1c1d" }
+        const tenantColor = document.querySelector('#colorSelect');
+        tenantColor.value = preset[e.getAttribute('data-variation')]
+        tenantColor.dispatchEvent(new Event("change"));
+    }))
     document.querySelector('#one > i').classList.add(cpi_compact_mode ? 'expand' : 'compress');
-    document.querySelector('#tenantSettings > div > .buttons > button:nth-child(1)').addEventListener('click', () => inputReset('iflow'));
-    document.querySelector('#tenantSettings > div > .buttons > button:nth-child(2)').addEventListener('click', () => inputReset('reset'));
+    document.querySelector('#tenantSettings > div >div > .buttons > button:nth-child(1)').addEventListener('click', () => inputReset('iflow'));
+    document.querySelector('#tenantSettings > div >div > .buttons > button:nth-child(2)').addEventListener('click', () => inputReset('reset'));
     //Default zoom
     document.body.style.zoom = cpi_zoom_level ? `${cpi_zoom_level}%` : 85 + '%';
     document.querySelector('#setzoom input').value = cpi_zoom_level ? cpi_zoom_level : 85;
@@ -265,10 +287,10 @@ function addTenantSettings() {
     document.querySelector('#cpi_help_mode').addEventListener('click', () => {
         document.querySelectorAll('#cpi_help_mode>.button').forEach(e => e.classList.toggle('active'))
         localStorage.setItem('cpi_help_mode', document.querySelector('#cpi_help_mode>.active').getAttribute('data') === "true");
-        document.querySelector('#tenantSettings > div:nth-child(7) > div.ui.segment').classList.toggle("hidden")//#tenantSettings>div>div:has(table)
+        document.querySelector('#tenantSettings > div:nth-child(4) > div.ui.segment').classList.toggle("hidden")//#tenantSettings>div>div:has(table)
     });
     //reset color btn
-    document.querySelector('#tenantSettings > div > button').addEventListener('click', () => {
+    document.querySelector('#tenantSettings > div >div > button').addEventListener('click', () => {
         const tenantColor = document.querySelector('#colorSelect');
         tenantColor.value = '#21436a';
         tenantColor.dispatchEvent(new Event("change"));
@@ -445,7 +467,7 @@ function tenantIdentityChanges() {
         let tenantColor = document.querySelector('#colorSelect')
         let tenantIcon = document.querySelector('#icon-select')
         let tenantCount = document.querySelector('#setCount')
-        let popupcolor = document.querySelector('#cpiHelper_contentheader')
+        let popupcolor = document.querySelector(':root')
         let timeoutId;
         let tab = tabs[0];
 
@@ -457,7 +479,7 @@ function tenantIdentityChanges() {
                 tenantColor.value = hostData.color = response.color;
                 tenantIcon.value = hostData.icon = response.icon
                 tenantCount.value = hostData.count = response.count
-                popupcolor.style.backgroundColor = hostData.color = response.color;
+                popupcolor.style.setProperty('--cpi-custom-color', hostData.color = response.color);
             }
         });
 
@@ -486,11 +508,11 @@ function tenantIdentityChanges() {
         // Update color on change
         tenantColor.addEventListener('change', () => {
             // custom filter skip
-            tenantColor.value = adjustColorLimiter(tenantColor.value, 50)
+            tenantColor.value = adjustColorLimiter(tenantColor.value, 80, 10)
             hostData.color = tenantColor.value
             console.log(tenantColor.value)
             // set popup.html header
-            popupcolor.style.backgroundColor = tenantColor.value;
+            popupcolor.style.setProperty('--cpi-custom-color', tenantColor.value);
             chrome.tabs.sendMessage(tab.id, { save: hostData }, (response) => {
                 console.dir(response);
             })
@@ -506,20 +528,73 @@ function tenantIdentityChanges() {
     })
 }
 
-function adjustColorLimiter(color, perct, lightness = true) {
+function adjustColorLimiter(ihex, perct, dim, lightness = true) {
     // color = #hex input only
-    var R = parseInt(color.substring(1, 3), 16);
-    var G = parseInt(color.substring(3, 5), 16);
-    var B = parseInt(color.substring(5, 7), 16);
-    if (R + G + B >= 765 * perct / 100) {
-        perct = lightness ? perct - 100 : perct
-        return '#' + color.replace(/^#/, '').replace(/../g, color => ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + perct)).toString(16)).substr(-2));
-    }
-    else {
-        return color
-    }
+    let h, s, l, ohex;
+    var list = hexToHsl(ihex, true).split(" ")
+    h = parseInt(list[0]);
+    s = parseInt(list[1]);
+    l = parseInt(list[2]);
+    if (lightness) { dim *= -1 }
+    if (l >= perct) { l += dim }
+    ohex = hslToHex(h, s, l)
+    return ohex
 }
-
+function hslToHex(h, s, l) {
+    h /= 360;
+    s /= 100;
+    l /= 100;
+    let r, g, b;
+    if (s === 0) {
+        r = g = b = l;
+    } else {
+        const hue2rgb = (p, q, t) => {
+            if (t < 0) t += 1;
+            if (t > 1) t -= 1;
+            if (t < 1 / 6) return p + (q - p) * 6 * t;
+            if (t < 1 / 2) return q;
+            if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+            return p;
+        };
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1 / 3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1 / 3);
+    }
+    const toHex = x => {
+        const hex = Math.round(x * 255).toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+    };
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+function hexToHsl(hex, values = false) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    var r = parseInt(result[1], 16);
+    var g = parseInt(result[2], 16);
+    var b = parseInt(result[3], 16);
+    var cssString = '';
+    r /= 255, g /= 255, b /= 255;
+    var max = Math.max(r, g, b), min = Math.min(r, g, b);
+    var h, s, l = (max + min) / 2;
+    if (max == min) {
+        h = s = 0; // achromatic
+    } else {
+        var d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+    }
+    h = Math.round(h * 360);
+    s = Math.round(s * 100);
+    l = Math.round(l * 100);
+    cssString = values ? `${h} ${s} ${l}` : `hsl(${h}deg ${s}% ${l}%)`
+    return cssString
+}
 async function storageGetPromise(name) {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get([name], function (result) {
