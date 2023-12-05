@@ -22,7 +22,7 @@ var plugin = {
     settings: {
         "FigafURL": { "text": "Figaf URL", "type": "textinput", scope: "browser" },
         "FigafAgentSystemId": { "text": "Figaf Agent System Id (optional)", "type": "textinput", scope: "tenant" },
-        "icon": { "src": "/images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png", "type": "icon" }
+        "icon": { "src": "images/plugin_logos/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png", "type": "icon" }
     },
     messageSidebarButton: {
         "text": "F",
