@@ -12,7 +12,7 @@ var plugin = {
         "textField1": { "text": "Tenant URL", "type": "textinput", scope: "tenant" },
         "textField2": { "text": "Iflow xy", "type": "textinput", scope: "iflow" },
         "textField3": { "text": "general", "type": "textinput", scope: "browser" },
-        "icon": { "type": "icon", "src": "/images/pluginlogos/example.png" }
+        "icon": { "type": "icon", "src": "/images/plugin_logos/example.png" }
     },
     messageSidebarButton: {
         "text": "E",
