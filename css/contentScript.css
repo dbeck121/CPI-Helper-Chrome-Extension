@@ -61,17 +61,23 @@
   padding-block: 0 .25em;
 }
 
-#messageList button:hover {
+#messageList button:hover,
+.cpiHelper button:hover {
   border: solid var(--cpi-width) #3c3c3c;
 }
 
 .cpiHelper button {
+  --cpi-width:1px;
   cursor: pointer;
-  border: solid 1px #d2d2d2;
+  border: solid var(--cpi-width) #d2d2d2;
   border-radius: 4px;
   background: white;
   padding-inline: 0.3em;
   margin-inline: 0.1em
+}
+
+.cpiHelper table button{
+  border: solid var(--cpi-width) #fff;
 }
 
 .cpiHelper button.cpiHelper_inlineInfo-active {
@@ -301,8 +307,7 @@ button.cpiHelper_sidebar_iconbutton span {
 .cpiHelper_tabs {
   box-sizing: border-box;
   display: flex;
-  flex-wrap: wrap;
-  background: #efefef;
+  flex-wrap: wrap
 }
 
 .cpiHelper_tabs .cpiHelper_tabs_panel .cpiHelper_tabs {
@@ -318,7 +323,6 @@ button.cpiHelper_sidebar_iconbutton span {
 .cpiHelper_tabs_label_branch {
   width: 1.5em;
   padding: 7px 7px;
-  background: #e5e5e5;
   cursor: pointer;
   font-weight: bold;
   color: #7f7f7f;
@@ -328,9 +332,7 @@ button.cpiHelper_sidebar_iconbutton span {
 
 .cpiHelper_tabs_label {
   padding: 5px 5px;
-  border-radius: 5px 5px 0px 0px;
   margin-right: 5px;
-  background: #e5e5e5;
   cursor: pointer;
   font-weight: bold;
   color: #7f7f7f;
@@ -338,12 +340,8 @@ button.cpiHelper_sidebar_iconbutton span {
   text-align: center;
 }
 
-.cpiHelper_tabs_label:hover {
-  background: #d8d8d8;
-}
-
 .cpiHelper_tabs_label:active {
-  background: #ccc;
+  color: #000
 }
 
 .cpiHelper_tabs_input:focus+.cpiHelper_tabs_label {
@@ -351,15 +349,21 @@ button.cpiHelper_sidebar_iconbutton span {
 }
 
 .cpiHelper_tabs_input:checked+.cpiHelper_tabs_label {
-  background: #fff;
   color: #000;
+  border-block-end: 2px solid black
+}
+
+.cpiHelper_tabs_label:hover,
+.cpiHelper_tabs_input:checked+.cpiHelper_tabs_label:hover {
+  color: #ff5722;
+  background: #21436a;
+  border-radius: 0.2857rem
 }
 
 .cpiHelper_tabs_panel {
   padding: 4px;
   display: none;
   width: 100%;
-
   background: #fff;
 }
 
@@ -373,43 +377,9 @@ button.cpiHelper_sidebar_iconbutton span {
   display: block;
 }
 
-.cpiHelper table {
-  background: #eaebec;
-  table-layout: fixed;
-  border: #ccc 0px solid;
-  width: 100%;
-  table-layout: auto;
-}
-
-.cpiHelper table th {
-  text-align: left;
-  padding: 2px;
-  border-top: 0px solid #ccc;
-  border-bottom: 0px solid #ccc;
-  background: #f1f1f1;
-}
-
-.cpiHelper table tr {
-  padding-left: 5px;
-}
-
-.cpiHelper table td:first-child {
-  text-align: left;
-  padding-left: 5px;
-  border-left: 0;
-}
-
-.cpiHelper table td {
-  padding: 4px;
-  border-top: 0px solid #ffffff;
-  border-bottom: 0px solid #e0e0e0;
-  border-left: 0px solid #e0e0e0;
-  background: #f1f1f1;
-}
-
-.cpiHelper table tr.even td {
-  background: #e8e8e8;
-
+.cpi_padding_blockend {
+  padding-block: .2rem;
+  margin-block-end: .5rem;
 }
 
 .cpiHelper_traceText {

@@ -24,6 +24,7 @@ createLogsLeftSide = async (leftActive = false) => {
 
     var artifactList = document.createElement('select');
     artifactList.style.width = "100%";
+    artifactList.className="cpi_padding_blockend"
     artifactList.onload = updateArtifactList;
     artifactList.id = 'logs-left-side_cpiHelper_artifactList';
 
@@ -34,6 +35,7 @@ createLogsLeftSide = async (leftActive = false) => {
 
     var selectorIflowStatus = document.createElement('select');
     selectorIflowStatus.id = 'cpiHelper_logs_iflow_status';
+    selectorIflowStatus.classList = "cpi_padding_blockend";
     selectorIflowStatus.onchange = (element) => {
         log.log(element.target.value)
         selectorIflowStatusEntry = element.target.value;
@@ -175,16 +177,12 @@ updateLogList = async () => {
                 statusColor = "#C70039";
                 statusIcon = "";
             }
-
-            let statusicon = createElementFromHTML("<td  style='padding:0px;'><span data-sap-ui-icon-content='" + statusIcon + "' class='" + response[i].MessageGuid + " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" + statusColor + ";'> </span></td>");
-
-
-
+            statusicon = "<span data-sap-ui-icon-content='" + statusIcon + "' class='" + response[i].MessageGuid + " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" + statusColor + ";'> </span>"
             //end statusicon
             let buttonWrap = document.createElement('td');
             buttonWrap.style.padding = "0px";
             let button = document.createElement('button');
-            button.innerText = date.substr(11, 8);
+            button.innerHTML = `${statusicon} ${date.substr(11, 8)}`;
             button.onclick = (event) => {
                 if (document.getElementsByClassName("cpiHelper_logs_selected_button").length > 0) {
                     document.getElementsByClassName("cpiHelper_logs_selected_button")[0].classList.remove("cpiHelper_logs_selected_button");
@@ -193,11 +191,8 @@ updateLogList = async () => {
                 updateRightSide(response[i].MessageGuid)
             }
             buttonWrap.appendChild(button);
-
             let div = document.createElement('tr');
-            div.appendChild(statusicon);
             div.appendChild(buttonWrap);
-
 
             list.appendChild(div);
         }
@@ -209,9 +204,6 @@ updateLogList = async () => {
         log.log(error);
         showToast("Error while fetching logs", "Check input data.", "error");
     }
-
-
-
 }
 
 updateArtifactList = async () => {
@@ -232,9 +224,8 @@ updateArtifactList = async () => {
         }
 
     }
-
-
 }
+
 createLogsRightSide = async (runId, leftActive = false) => {
 
     var objects = null;
@@ -275,7 +266,6 @@ createLogsRightSide = async (runId, leftActive = false) => {
     }
     right.appendChild(logs);
     return right;
-
 }
 
 updateRightSide = async (runId) => {
@@ -288,8 +278,6 @@ updateRightSide = async (runId) => {
         page.appendChild(resp);
     }
 }
-
-
 
 createPersistLogsContent = async (messageId) => {
 
@@ -374,7 +362,6 @@ createLogsInfo = async (messageId) => {
     valueList.push({ Name: "IntegrationFlowName", Value: input.IntegrationFlowName });
     valueList.push({ Name: "Status", Value: input.Status });
     valueList.push({ Name: "LogLevel", Value: input.LogLevel });
-    valueList.push({ Name: "", Value: "", Type: "" });
     valueList.push({ Name: "Custom Headers", Value: "", Type: "header" });
     var customHeaderList = input.CustomHeaderProperties.results
 
@@ -383,17 +370,13 @@ createLogsInfo = async (messageId) => {
         valueList = valueList.concat(customHeaderList);
     }
 
-
-
-    valueList.push({ Name: "", Value: "", Type: "" });
+    // valueList.push({ Name: "", Value: "", Type: "" });//backup
     valueList.push({ Name: "Artifact Details", Value: "", Type: "header" });
     valueList.push({ Name: "Id", Value: input.IntegrationArtifact?.Id });
     valueList.push({ Name: "Name", Value: input.IntegrationArtifact?.Name });
     valueList.push({ Name: "Type", Value: input.IntegrationArtifact?.Type });
     valueList.push({ Name: "PackageId", Value: input?.IntegrationArtifact?.PackageId });
-
     valueList.push({ Name: "PackageName", Value: input?.IntegrationArtifact?.PackageName });
-    valueList.push({ Name: "", Value: "", Type: "" });
     valueList.push({ Name: "Other Useful Information", Value: "", Type: "header" });
     valueList.push({ Name: "CustomStatus", Value: input.CustomStatus });
     valueList.push({ Name: "TransactionId", Value: input.TransactionId });
@@ -402,17 +385,12 @@ createLogsInfo = async (messageId) => {
     valueList.push({ Name: "OriginComponentName", Value: input.OriginComponentName });
 
 
-    result = '<div id="cpiHelper_logsInfo"><table><tr><th>Name</th><th>Value</th></tr>'
-    var even = "";
+    result = `<div id="cpiHelper_logsInfo"><table class="ui basic striped selectable celled table">  <thead><tr class="inverted green"><th>Name</th><th>Value</th></tr></thead>
+    <tbody>`
     valueList.forEach(item => {
-        result += `<tr ${item.Type == 'header' ? 'style=\"font-weight: bold;\" ' : ''}  class=\"" + even + "\"><td>${item.Name}</td><td style=\"word-break: break-all;\">${htmlEscape(item.Value)}</td></tr>`
-        if (even == "even") {
-            even = "";
-        } else {
-            even = "even";
-        }
+        result += `<tr class="${item.Type == 'header' ? 'inverted green' : ''}"><td>${item.Name}</td><td style="word-break: break-all;">${htmlEscape(item.Value)}</td></tr>`
     });
-    result += "</table>";
+    result += "</tbody></table>";
     return result;
 
 }

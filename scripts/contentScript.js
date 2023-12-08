@@ -379,17 +379,13 @@ async function clickTrace(e) {
 
   var formatLogContent = function (inputList) {
     inputList = inputList.sort(function (a, b) { return a.Name.toLowerCase() > b.Name.toLowerCase() ? 1 : -1 });
-    result = "<table><tr><th>Name</th><th>Value</th></tr>"
-    var even = "";
+    result = `<table class='ui basic striped selectable celled table'>
+    <thead><tr class="inverted green"><th>Name</th><th>Value</th></tr></thead>
+    <tbody>`
     inputList.forEach(item => {
-      result += "<tr class=\"" + even + "\"><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + item.Value + "</td></tr>"
-      if (even == "even") {
-        even = "";
-      } else {
-        even = "even";
-      }
+      result += "<tr><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + item.Value + "</td></tr>"
     });
-    result += "</table>";
+    result += "</tbody></table>";
     return result;
   }
 
@@ -422,17 +418,12 @@ async function clickTrace(e) {
     valueList.push({ Name: "ChildCount", Value: inputList.ChildCount });
 
 
-    result = "<table><tr><th>Name</th><th>Value</th></tr>"
-    var even = "";
+    result = `<table class='ui basic striped selectable celled table'><thead><tr class="inverted green"><th>Name</th><th>Value</th></tr></thead>
+    <tbody>`
     valueList.forEach(item => {
-      result += "<tr class=\"" + even + "\"><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + item.Value + "</td></tr>"
-      if (even == "even") {
-        even = "";
-      } else {
-        even = "even";
-      }
+      result += "<tr><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + item.Value + "</td></tr>"
     });
-    result += "</table>";
+    result += "</tbody></table>";
     return result;
   }
 
