@@ -448,8 +448,8 @@ var formatHeadersAndPropertiesToTable = function (inputList) {
     return '<div class="cpiHelper_infoPopUp_content">No elements found. If this should be part of the trace of an adapter step, try other tabs with same step Id on top of this popup.</div>';
   }
 
-  result = `<table class='ui basic striped selectable celled table'>
-  <thead><tr class="inverted green"><th>Name</th><th>Value</th></tr></thead>
+  result = `<table class='ui basic striped selectable compact table'>
+  <thead><tr class="black"><th>Name</th><th>Value</th></tr></thead>
   <tbody>`
   inputList.forEach(item => {
     result += "<tr><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + htmlEscape(item.Value) + "</td></tr>"

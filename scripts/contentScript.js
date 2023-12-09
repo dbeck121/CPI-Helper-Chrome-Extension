@@ -379,8 +379,8 @@ async function clickTrace(e) {
 
   var formatLogContent = function (inputList) {
     inputList = inputList.sort(function (a, b) { return a.Name.toLowerCase() > b.Name.toLowerCase() ? 1 : -1 });
-    result = `<table class='ui basic striped selectable celled table'>
-    <thead><tr class="inverted green"><th>Name</th><th>Value</th></tr></thead>
+    result = `<table class='ui basic striped selectable compact table'>
+    <thead><tr class="black"><th>Name</th><th>Value</th></tr></thead>
     <tbody>`
     inputList.forEach(item => {
       result += "<tr><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + item.Value + "</td></tr>"
@@ -418,7 +418,7 @@ async function clickTrace(e) {
     valueList.push({ Name: "ChildCount", Value: inputList.ChildCount });
 
 
-    result = `<table class='ui basic striped selectable celled table'><thead><tr class="inverted green"><th>Name</th><th>Value</th></tr></thead>
+    result = `<table class='ui basic striped selectable compact table'><thead><tr class="black"><th>Name</th><th>Value</th></tr></thead>
     <tbody>`
     valueList.forEach(item => {
       result += "<tr><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + item.Value + "</td></tr>"
