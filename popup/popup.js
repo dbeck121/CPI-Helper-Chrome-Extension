@@ -363,9 +363,10 @@ function addTenantUrls() {
                     <a class="ui item " href="${host + '/shell/tpm/companyProfile'}" target="_blank"><strong>Trading Partner Management</strong></a>
                     <div class="ui wrapped wrapping buttons">
                         <a class="ui button" href="${host + '/shell/b2bmonitor/landing'}" target="_blank">B2B Monitor</a>
-                        <a class="ui button" href="${host + '/shell/tpm/agreements'}" target="_blank">Agreements</a>
-                        <a class="ui button" href="${host + '/shell/tpm/tradingPartners'}" target="_blank">Trading Partners</a>
+                        <a class="ui button" href="${host + '/shell/tpm/companyProfile'}" target="_blank">Company Profile</a>
                         <a class="ui button" href="${host + '/shell/tpm/agreementTemplates'}" target="_blank">Agreement Templates</a>
+                        <a class="ui button" href="${host + '/shell/tpm/agreements'}" target="_blank">Agreements</a>                                                
+                        <a class="ui button" href="${host + '/shell/tpm/tradingPartners'}" target="_blank">Trading Partners</a>                                                
                         <a class="ui button" href="${host + '/shell/tpm/pdContent'}" target="_blank">Partner Directory Data</a>
                     </div>
                 </div>
