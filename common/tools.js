@@ -259,7 +259,9 @@ var formatTrace = function (input, id, traceId) {
   var encodeHTML = function (str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '&#010;').replace(/'/g, "&#039;");
   }
-
+  var decodeHTML = function (str) {
+    return String(str).replace('&amp;', "&").replace('&lt;', "<").replace('&gt;', ">").replace('&quot;', "\"").replace('&#010;', "\n").replace("&#039;", '\'');
+  }
   var formatXml = function (sourceXml) {
     filterflag = 0;
     var xmlDoc = new DOMParser().parseFromString(`${sourceXml}`, 'application/xml');
@@ -446,17 +448,13 @@ var formatHeadersAndPropertiesToTable = function (inputList) {
     return '<div class="cpiHelper_infoPopUp_content">No elements found. If this should be part of the trace of an adapter step, try other tabs with same step Id on top of this popup.</div>';
   }
 
-  result = "<table><tr><th>Name</th><th>Value</th></tr>"
-  var even = "";
+  result = `<table class='ui basic striped selectable compact table'>
+  <thead><tr class="black"><th>Name</th><th>Value</th></tr></thead>
+  <tbody>`
   inputList.forEach(item => {
-    result += "<tr class=\"" + even + "\"><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + htmlEscape(item.Value) + "</td></tr>"
-    if (even == "even") {
-      even = "";
-    } else {
-      even = "even";
-    }
+    result += "<tr><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + htmlEscape(item.Value) + "</td></tr>"
   });
-  result += "</table>";
+  result += "</tbody></table>";
   return result;
 }
 
