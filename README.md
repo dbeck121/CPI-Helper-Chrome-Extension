@@ -44,6 +44,13 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.9.0
+
+- [Improvement] Hundreds of ui improvements. Thanks to Omkar Patel for the great contribution
+- [Improvement] Many under the hood improvements
+- [Improvement] Updated Fomantic UI to 2.9.3
+- [Bugfix] Many small fixes
+
 ### 3.8.0
 
 - [Improvement] Improved "flying error dialog". No mouse over but you need to klick now. Thanks to Omkar Patel

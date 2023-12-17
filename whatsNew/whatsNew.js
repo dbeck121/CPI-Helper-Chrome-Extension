@@ -34,15 +34,24 @@ async function whatsNewCheck(showOnlyOnce = true) {
                   </div>
                   <div class="twelve wide column">
                     <div class="ui header">This release is sponsored by Figaf </div>
-                    <p>Figaf continues to get better at helping with your SAP PI to Integration Suite migration. We are now able to migrate B2B mappings from SAP PI/PO so you keep the invesment from your message mappings. 
- 
-                    </p><p>B2B migration will be possible from 2311 release. It will contain migration of message mappings even with function library. Testing with SAP PI Messages and integration with B2B Trading Partner Management. This will be first release with a number of limitations but we will improve with customer feedback.  
-                    
-                    </p>
-                    Read more <a href="https://figaf.com/cpihelper9" target="_blank"><u>here</u></a>.
+                    <p>
+                    As we end the year, you are planning what to do with your SAP integration in 2024. Please consider Figaf it will make your life easier.
+               </p>
+                    If you want to see some of the areas where we can see, check our advent calendar <a href="https://figaf.com/cpihelper10" target="_blank"><u>here</u></a>.
                   </div>
                 </div>
               </div>
+              <h3 class="ui header">
+              <i class="bell icon"></i>
+              <div class="content">
+                Christmas Release 2023
+              </div>
+              </h3>
+              <p>
+             This release is fully packed with new UI features and improvements. CPI Helper is free and open source so maybe you want to help us contribute new features and bugfixes? Our community is growing and a special thanks goes to Daniel Graversen and his great Figaf Tools, that help me to spend more time developing the CPI Helper. For all who celebrate Christmas, we wish you a merry Christmas and a happy new year.<br />BR<br /><a
+             href="https://www.linkedin.com/in/dominic-beckbauer-515894188/">Dominic Beckbauer</a>
+              </p>
+            </h3>
               <h3 class="ui header">
                 <i class="bell icon"></i>
                 <div class="content">
@@ -50,35 +59,23 @@ async function whatsNewCheck(showOnlyOnce = true) {
                 </div>
               </h3>
               <div class="ui list">
+               
                 <a class="item"><i class="right triangle icon"></i>
                   <div class="content">
                     <div class="header">Feature</div>
-                    <div class="description">Powertrace survives page reload</div>
-                  </div>
-                </a>
-                <a class="item"><i class="right triangle icon"></i>
-                  <div class="content">
-                    <div class="header">Feature</div>
-                    <div class="description">Improved "flying error dialog". No mouse over but you need to klick
-                      now. Thanks to Omkar Patel</div>
-                  </div>
-                </a>
-                <a class="item"><i class="right triangle icon"></i>
-                  <div class="content">
-                    <div class="header">Feature</div>
-                    <div class="description">Many more ui improvements. Thanks to Omkar Patel</div>
+                    <div class="description">Hundreds of ui improvements. Thanks to Omkar Patel</div>
                   </div>
                 </a>
                 <a class="item"><i class="right triangle icon"></i>
                 <div class="content">
                   <div class="header">Feature</div>
-                  <div class="description">Improved Plugin UI</div>
+                  <div class="description">Many under the hood improvements</div>
                 </div>
               </a>
               <a class="item"><i class="right triangle icon"></i>
               <div class="content">
                 <div class="header">Improvement</div>
-                <div class="description">Log-tabs are now sorted</div>
+                <div class="description">Updated Fomantic UI to 2.9.3</div>
               </div>
             </a>
                 <a class="item"><i class="right triangle icon"></i>
@@ -257,6 +254,10 @@ async function recrutingPopup(force = false) {
     popup.appendChild(createRemindButtopn("Erinnere mich morgen", 1))
     popup.appendChild(createRemindButtopn("Erinnere mich in einem Monat", 30))
     popup.appendChild(createRemindButtopn("Erinnere mich in einem halben Jahr", 190))
+
+    //create br
+    var br = document.createElement("br");
+    popup.appendChild(br);
 
     popup.appendChild(createRemindButtopn("Erinnere mich nicht mehr", 9999))
 
