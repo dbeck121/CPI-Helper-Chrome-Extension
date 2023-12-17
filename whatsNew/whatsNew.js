@@ -48,8 +48,9 @@ async function whatsNewCheck(showOnlyOnce = true) {
               </div>
               </h3>
               <p>
-             This release is fully packed with new UI features and improvements. CPI Helper is free and open source so maybe you want to help us contribute new features and bugfixes? Our community is growing and a special thanks goes to Daniel Graversen and his great Figaf Tools, that help me to spend more time developing the CPI Helper. For all who celebrate Christmas, we wish you a merry Christmas and a happy new year.<br />BR<br /><a
-             href="https://www.linkedin.com/in/dominic-beckbauer-515894188/">Dominic Beckbauer</a>
+              This release is filled with new UI features and improvements. CPI Helper is free and open source, so perhaps you would like to assist us in contributing new features and bug fixes. Our community is expanding, and we would like to give a special thanks to Daniel Graversen and his amazing Figaf Tools, which have helped me dedicate more time to developing the CPI Helper. For those celebrating Christmas, we wish you a merry Christmas and a happy new year.<br />
+              Best regards,<br />
+              <a href="https://www.linkedin.com/in/dominic-beckbauer-515894188/">Dominic Beckbauer</a>
               </p>
             </h3>
               <h3 class="ui header">
