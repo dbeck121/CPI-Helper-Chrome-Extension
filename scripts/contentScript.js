@@ -1263,9 +1263,26 @@ async function openIflowInfoPopup() {
     whatsNewButton.addEventListener("click", (a) => {
       whatsNewCheck(false)
       $('#cpiHelper_semanticui_modal').modal('show');
+      statistic("info_popup_whatsnew_click")
     });
     x.appendChild(whatsNewButton);
 
+    //add a new "become part of the team" button
+    var recrutingButton = document.createElement('button');
+    recrutingButton.classList.add("ui")
+    recrutingButton.classList.add("button")
+
+    var lang = navigator.language || navigator.userLanguage;
+  
+    if (lang == "de-DE") {
+      recrutingButton.innerText = "Werde Berater bei Kangoolutions";
+      recrutingButton.addEventListener("click", (a) => {
+        recrutingPopup(true)
+        $('#cpiHelper_semanticui_modal').modal('show');
+        statistic("info_popup_recruting_click")
+      });
+      x.appendChild(recrutingButton);
+    }
     return x
   }
 

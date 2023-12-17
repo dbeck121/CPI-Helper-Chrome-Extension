@@ -490,6 +490,7 @@ function stage() {
   return "prod"
 }
 
+//we send anonymous data to check which functions are used and which are not used to improve the extension. No personal data or data like tenant name, artifact content and names etc. is transfered and stored.
 async function statistic(event, value = null, value2 = null) {
 
   log.debug(event, value, value2)
@@ -497,7 +498,7 @@ async function statistic(event, value = null, value2 = null) {
       var sessionId = await storageGetPromise("sessionId")
       var installtype = await storageGetPromise("installtype")
       var img = document.createElement("img");
-      img.src = `....?version=${chrome.runtime.getManifest().version}&event=${event}&session=${sessionId}&value=${value}&value2=${value2}&installtype=${installtype}&nonse=${Date.now()}`;
+      img.src = `https://mmjs2inijoe3rpwsdmqbgtyvdu0ldvfj.lambda-url.eu-central-1.on.aws?version=${chrome.runtime.getManifest().version}&event=${event}&session=${sessionId}&value=${value}&value2=${value2}&installtype=${installtype}&nonse=${Date.now()}`;
     } catch (e) {
       log.log(e)
     }

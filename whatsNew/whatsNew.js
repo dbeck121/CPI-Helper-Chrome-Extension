@@ -211,7 +211,7 @@ async function recrutingPopup(force = false) {
     await storageSetPromise(obj)
   }
 
-  if(randomGroup > 10) {
+  if(!force && randomGroup > 10) {
     return
   }
 
@@ -233,26 +233,32 @@ async function recrutingPopup(force = false) {
 
     var popup = createElementFromHTML(html);
 
-    var buttonTomorrow = document.createElement("button");
-    buttonTomorrow.className = "ui button";
-    buttonTomorrow.innerText = "Morgen wieder anzeigen";
-    buttonTomorrow.onclick = async function () {
-      statistic("recrutingPopup","remind", "tomorrow")
-      
-      //get unix timestamp for tomorrow
-      var tomorrow = +new Date() + 60000 //24*60*60*1000;
-      
+    var createRemindButtopn = function (text, days) {
+      var button = document.createElement("button");
+      button.className = "ui button";
+      button.innerText = text;
+      button.onclick = async function () {
+        statistic("recrutingPopup","remind", days)
+        
+        //get unix timestamp for tomorrow
+        var tomorrow = +new Date() + days*24*60*60*1000;
 
-      var obj = {};
-      obj["recrutingPopupTimestamp"] = tomorrow;
-      chrome.storage.local.set(obj, function () {
-        log.log("recruting popup timestamp set to tomorrow");
-      });
+        var obj = {};
+        obj["recrutingPopupTimestamp"] = tomorrow;
+        chrome.storage.local.set(obj, function () {
+          log.log("recruting popup timestamp set to today + " + days + " days");
+        });
 
-      $('#cpiHelper_semanticui_modal').modal('hide');
+        $('#cpiHelper_semanticui_modal').modal('hide');
+      }
+      return button
     }
 
-    popup.appendChild(buttonTomorrow)
+    popup.appendChild(createRemindButtopn("Erinnere mich morgen", 1))
+    popup.appendChild(createRemindButtopn("Erinnere mich in einem Monat", 30))
+    popup.appendChild(createRemindButtopn("Erinnere mich in einem halben Jahr", 190))
+
+    popup.appendChild(createRemindButtopn("Erinnere mich nicht mehr", 9999))
 
     await showBigPopup(popup, "Wir suchen Verstärkung!", { "fullscreen": false });
    
