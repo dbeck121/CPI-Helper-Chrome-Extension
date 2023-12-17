@@ -189,7 +189,75 @@ async function whatsNewCheck(showOnlyOnce = true) {
     chrome.storage.local.set(obj, function () {
       log.log("whats new displayed and saved");
     });
+
+    return true
   }
+  return false
 
   //persist so that the popup does not appear again
+}
+
+async function recrutingPopup(force = false) {
+  //shows a popup if browser language is German and if timestamp is not set or today is after timestamp in chrome storage
+
+  //show only for a fraction of user for testing
+
+  var randomGroup = parseInt(await storageGetPromise("recrutingPopupRandomGroup"));
+
+  if(!randomGroup) {
+    randomGroup = Math.floor(Math.random() * 100);
+    var obj =  {}
+    obj["recrutingPopupRandomGroup"] = randomGroup
+    await storageSetPromise(obj)
+  }
+
+  if(randomGroup > 10) {
+    return
+  }
+
+  var lang = navigator.language || navigator.userLanguage;
+  var timestamp = parseInt(await storageGetPromise("recrutingPopupTimestamp"));
+  var today = +new Date();
+
+  if (lang == "de-DE" && (force || !timestamp || timestamp < today)) {
+    var html = `<div><div class="ui icon positive message">
+                  <i class="info icon"></i>
+                  <div class="content">
+                    <div class="header">
+                      Wir suchen Verstärkung!
+                    </div>
+                    <p>Wir sind ein kleines Team aus leidenschaftlichen SAP CI Entwicklern aus Köln. Wenn du mehr über uns erfahren willst, besuche unsere Website <a href="https://kangoolutions.com" target="_blank">kangoolutions.com</a>. Oder vielleicht willst du Teil des Teams werden? Dann schau dir <a href="https://ich-will-zur.kangoolutions.com/" target="_blank">hier</a> unsere Stellenangebote an.</p>
+                  </div>
+                </div>
+                </div>`;
+
+    var popup = createElementFromHTML(html);
+
+    var buttonTomorrow = document.createElement("button");
+    buttonTomorrow.className = "ui button";
+    buttonTomorrow.innerText = "Morgen wieder anzeigen";
+    buttonTomorrow.onclick = async function () {
+      statistic("recrutingPopup","remind", "tomorrow")
+      
+      //get unix timestamp for tomorrow
+      var tomorrow = +new Date() + 60000 //24*60*60*1000;
+      
+
+      var obj = {};
+      obj["recrutingPopupTimestamp"] = tomorrow;
+      chrome.storage.local.set(obj, function () {
+        log.log("recruting popup timestamp set to tomorrow");
+      });
+
+      $('#cpiHelper_semanticui_modal').modal('hide');
+    }
+
+    popup.appendChild(buttonTomorrow)
+
+    await showBigPopup(popup, "Wir suchen Verstärkung!", { "fullscreen": false });
+   
+  }
+
+
+
 }

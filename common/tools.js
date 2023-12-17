@@ -493,7 +493,7 @@ function stage() {
 async function statistic(event, value = null, value2 = null) {
 
   log.debug(event, value, value2)
-  /*  try {
+  try {
       var sessionId = await storageGetPromise("sessionId")
       var installtype = await storageGetPromise("installtype")
       var img = document.createElement("img");
@@ -501,8 +501,6 @@ async function statistic(event, value = null, value2 = null) {
     } catch (e) {
       log.log(e)
     }
-  
-    */
 }
 
 async function onInitStatistic() {
