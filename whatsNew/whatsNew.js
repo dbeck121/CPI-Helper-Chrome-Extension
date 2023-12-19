@@ -60,13 +60,45 @@ async function whatsNewCheck(showOnlyOnce = true) {
                 </div>
               </h3>
               <div class="ui list">
-               
-                <a class="item"><i class="right triangle icon"></i>
+        <a class="ui red center right ribbon label">FireFox limited support</a>
+<a class="item"><i class="right triangle icon"></i>
                   <div class="content">
                     <div class="header">Feature</div>
                     <div class="description">Hundreds of ui improvements. Thanks to Omkar Patel</div>
                   </div>
                 </a>
+        <a class="item">
+            <i class="right triangle icon"></i>
+            <div class="content">
+                <div class="header">Feature</div>
+                <div class="description">
+                    <span class="ui text">New Plugin - Trace step uppper limit [Over write Global host variable with iflow]<a href="https://incpi.github.io/cpihelper-plugin/">Read more...</a></span>
+                </div>
+            </div>
+        </a>
+        <a class="item">
+            <i class="right triangle icon"></i>
+            <div class="content">
+                <div class="header">Feature</div>
+                <div class="description">
+                    <span class="ui text">New Configs - Themes | Zoom Level | Trace step limit (Global Host)</span>
+                </div>
+            </div>
+        </a>
+        <a class="item">
+            <i class="right triangle icon"></i>
+            <div class="content">
+                <div class="header">Feature</div>
+                <div class="description">Plugin - Popup Mode [Separate / Joint] | Engine enhanced with new fatures | Plugin Page UI Changed </div>
+            </div>
+        </a>
+        <a class="item">
+            <i class="right triangle icon"></i>
+            <div class="content">
+                <div class="header">Feature</div>
+                <div class="description">Improved Plugin UI</div>
+            </div>
+        </a>
                 <a class="item"><i class="right triangle icon"></i>
                 <div class="content">
                   <div class="header">Feature</div>
