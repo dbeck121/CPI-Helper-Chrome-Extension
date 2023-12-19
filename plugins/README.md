@@ -43,10 +43,11 @@ var plugin = {
     description: "Example plugin",              //a short description what the plugin does
     settings: {                                 //defines the settings and appearance in plugin popup
         "text1": { "text": "This is a plugin", "type": "label" },                   //a label with additional info
-        "textField1": { "text": "Tenant URL", "type": "text", scope: "tenant" },    //a textfield that is stored for each tenant
-        "textField2": { "text": "Iflow xy", "type": "text", scope: "iflow" },       //a textfield that is stored for each iflow
-        "textField3": { "text": "general", "type": "text", scope: "browser" },      //a textfield that is stored for each browser
+        "textField1": { "text": "Tenant URL", "type": "textinput", scope: "tenant" },    //a textfield that is stored for each tenant
+        "textField2": { "text": "Iflow xy", "type": "textinput", scope: "iflow" },       //a textfield that is stored for each iflow
+        "textField3": { "text": "general", "type": "textinput", scope: "browser" },      //a textfield that is stored for each browser
         "checkbox1": { "text": "xyz", "type": "checkbox", scope: "browser" },      //a checkbox that is stored for each browser
+        "icon": { "type" : "icon" , "src" : "/images/plugin_logos/[your Image Source].png" } // image for plugin page
     },
 
     messageSidebarButton: {                    //if you want to add a button to message sidebar, add a "messageSidebarButton" element

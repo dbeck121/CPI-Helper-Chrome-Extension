@@ -7,11 +7,7 @@ var plugin = {
     email: "cpihelper@kangoolutions.com",
     website: "https://kangoolutions.com",
     description: "Adds an undeploy button to the message sidebar.",
-
-    settings: {
-       
-    },
-
+    settings: {},
     messageSidebarContent: {
         "onRender": (pluginHelper, settings) => {
             var button = document.createElement("button");

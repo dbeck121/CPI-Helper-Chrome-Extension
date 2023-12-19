@@ -14,6 +14,7 @@ cpiData.classicUrl = false;
 cpiData.functions = {};
 cpiData.functions["popup"] = showBigPopup;
 cpiArtifactURIRegexp = [
+  //Artifacts
   [/\/integrationflows\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "IFlow"],
   [/\/odataservices\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "ODATA API"],
   [/\/restapis\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "REST API"],
@@ -21,8 +22,12 @@ cpiArtifactURIRegexp = [
   [/\/valuemappings\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Value Mapping"],
   [/\/scriptcollections\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Script Collection"],
   [/\/messagemappings\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Message Mapping"],
+  //resources
+  [/\/resources\/mapping\/(?<artifactId>[0-9a-zA-Z_\-.]+\.mmap?)/, "M_Mapping"],
+  [/\/resources\/mapping\/(?<artifactId>[0-9a-zA-Z_\-.]+\.opmap?)/, "Operation Mapping"],
   [/\/resources\/script\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Script"],
   [/\/resources\/mapping\/(?<artifactId>[0-9a-zA-Z_\-.]+\.xslt?)/, "XSLT"],
+  //packages
   [/\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)\/?(\?.*)?$/, "Package"]
 ];
 
@@ -205,8 +210,13 @@ async function renderMessageSidebar() {
               statusColor = "#C70039";
               statusIcon = "";
             }
-            if (resp[i].Status.match(/^(ESCALATED|RETRY|CANCELLED)$/)) {
+            if (resp[i].Status.match(/^(ESCALATED|RETRY)$/)) {
+
               statusColor = "#ff8300";
+              statusIcon = "";
+            }
+            if (resp[i].Status.match(/^(CANCELLED)$/)) {
+              statusColor = "#7f7f7f";
               statusIcon = "";
             }
 
@@ -369,17 +379,13 @@ async function clickTrace(e) {
 
   var formatLogContent = function (inputList) {
     inputList = inputList.sort(function (a, b) { return a.Name.toLowerCase() > b.Name.toLowerCase() ? 1 : -1 });
-    result = "<table><tr><th>Name</th><th>Value</th></tr>"
-    var even = "";
+    result = `<table class='ui basic striped selectable compact table'>
+    <thead><tr class="black"><th>Name</th><th>Value</th></tr></thead>
+    <tbody>`
     inputList.forEach(item => {
-      result += "<tr class=\"" + even + "\"><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + item.Value + "</td></tr>"
-      if (even == "even") {
-        even = "";
-      } else {
-        even = "even";
-      }
+      result += "<tr><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + item.Value + "</td></tr>"
     });
-    result += "</table>";
+    result += "</tbody></table>";
     return result;
   }
 
@@ -412,17 +418,12 @@ async function clickTrace(e) {
     valueList.push({ Name: "ChildCount", Value: inputList.ChildCount });
 
 
-    result = "<table><tr><th>Name</th><th>Value</th></tr>"
-    var even = "";
+    result = `<table class='ui basic striped selectable compact table'><thead><tr class="black"><th>Name</th><th>Value</th></tr></thead>
+    <tbody>`
     valueList.forEach(item => {
-      result += "<tr class=\"" + even + "\"><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + item.Value + "</td></tr>"
-      if (even == "even") {
-        even = "";
-      } else {
-        even = "even";
-      }
+      result += "<tr><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + item.Value + "</td></tr>"
     });
-    result += "</table>";
+    result += "</tbody></table>";
     return result;
   }
 
@@ -748,16 +749,16 @@ function setLogLevel(logLevel, iflowId) {
   makeCall("POST", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentSetMplLogLevelCommand", true, '{"artifactSymbolicName":"' + iflowId + '","mplLogLevel":"' + logLevel.toUpperCase() + '","nodeType":"IFLMAP"}', (xhr) => {
     if (xhr.readyState == 4 && xhr.status == 200) {
       showToast("Trace is activated");
-      log.log("trace activated");
+      log.log("Trace activated");
     }
     else {
       showToast("Error activating Trace", "", "error");
-      log.log("error activating trace");
+      log.log("Error activating trace");
     }
   }, 'application/json;charset=UTF-8');
 }
 
-//makes a http call to set the log level to trace
+//undeploy IFlow via API call
 function undeploy(tenant = null, artifactId = null) {
   tenant ??= cpiData.tenantId;
   artifactId ??= cpiData.artifactId;
@@ -799,28 +800,17 @@ async function buildButtonBar() {
   try {
     var headerBar = document.getElementById('__xmlview0--iflowObjectPageHeader-identifierLine');
     headerBar.style.paddingBottom = "0px";
-  } catch (e) {
+  } catch (e) {  }
 
-  }
-
+	// get status of powertrace button 
+  var powertraceText = await refreshPowerTrace();
+  
   if (!document.getElementById("__buttonxx")) {
     whatsNewCheck();
-
-    //check if powertrace is on and set button text
-    //get last run from store and check if it is less than 11 minutes ago
-
-    var powertraceText = ""
-
-    var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`
-    var timeAsStingOrNull = await storageGetPromise(objName)
-    if (timeAsStingOrNull != null && timeAsStingOrNull != undefined) {
-      var now = new Date().getTime()
-      var time = now - parseInt(timeAsStingOrNull)
-      if (time != NaN && time < 1000 * 60 * 11) {
-        log.log("reactivate powertrace")
-        powertraceText = "cpiHelper_powertrace"
-      }
-    }
+    //timer for recruiting popup in 100 seconds
+    setTimeout(() => {
+      recrutingPopup();
+    }, 100000);
 
     var logsbutton = createElementFromHTML(`<button id="__button_log" accesskey="1" data-sap-ui="__buttonxx" title="Logs Kbd : 1" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; margin-left: 0px; float: right;"><span id="__buttonxx-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button134345-content"><bdi id="button134345-BDI-content" class="sapMBtnContent">Logs</bdi></span></span></button>`);
     var tracebutton = createElementFromHTML(`<button id="__buttonxx" accesskey="2" data-sap-ui="__buttonxx" title="Enable traces Kbd : 2" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; float: right;"><span id="__buttonxx-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button134345-content"><bdi id="button134345-BDI-content" class="${powertraceText}">Trace</bdi></span></span></button>`);
@@ -910,6 +900,8 @@ async function buildButtonBar() {
     }
   }
 
+	// reapply status of powertrace button (needed after returning from script/message mapping
+    await refreshPowerTrace();
 
 }
 
@@ -1273,10 +1265,27 @@ async function openIflowInfoPopup() {
     whatsNewButton.innerText = "Whats New?";
     whatsNewButton.addEventListener("click", (a) => {
       whatsNewCheck(false)
-      $('#cpiHelper_semanticui_modal').modal('hide');
+      $('#cpiHelper_semanticui_modal').modal('show');
+      statistic("info_popup_whatsnew_click")
     });
     x.appendChild(whatsNewButton);
 
+    //add a new "become part of the team" button
+    var recrutingButton = document.createElement('button');
+    recrutingButton.classList.add("ui")
+    recrutingButton.classList.add("button")
+
+    var lang = navigator.language || navigator.userLanguage;
+  
+    if (lang == "de-DE") {
+      recrutingButton.innerText = "Werde Berater bei Kangoolutions";
+      recrutingButton.addEventListener("click", (a) => {
+        recrutingPopup(true)
+        $('#cpiHelper_semanticui_modal').modal('show');
+        statistic("info_popup_recruting_click")
+      });
+      x.appendChild(recrutingButton);
+    }
     return x
   }
 
@@ -1306,7 +1315,6 @@ var sidebar = {
 
   //indicator if active or not
   active: null,
-
   //function to deactivate the sidebar
   deactivate: function () {
     this.active = false;
@@ -1322,8 +1330,6 @@ var sidebar = {
     }
 
     this.active = true;
-
-    //create sidebar div
     var elem = document.createElement('div');
     elem.innerHTML = `
     <div id="cpiHelper_contentheader" style="background-color:${hostData.color}" content="${hostData.count}" >
@@ -1336,15 +1342,31 @@ var sidebar = {
         <div id="deploymentText" class="contentText">State: </div>
         <div><table id="messageList" class="contentText"></table></div>
       </div>
-      <div id="outerPlugin">
-        <div id="cpiHelper_messageSidebar_pluginArea"></div>
-      </div>
+    </div>
+    <div id="cpiHelper_messageSidebar_pluginArea" class="ui vertical menu cpiHelper_hidden"> 
+      <div class="ui centered header cpiHelper_hidden">
+      <div class="content">Plugin Page</div>
+      <span data-sap-ui-icon-content="&#xe03e" class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>
     </div>
     `;
     elem.id = "cpiHelper_content";
     elem.classList.add("cpiHelper");
+    elem.style = "width:max-content;min-width: 14rem";
     document.body.appendChild(elem);
+    elem.style = "width:max-content;min-width: 14rem";
 
+    //plugin area setup popup+join mode
+    chrome.storage.sync.get(["openSidebarOnStartup"], function (result) {
+      pluginarea = document.querySelector('#cpiHelper_messageSidebar_pluginArea')
+      if (result["openSidebarOnStartup"]) {
+        pluginarea.classList.add('sidebar');
+        document.querySelector("#cpiHelper_messageSidebar_pluginArea span").addEventListener('click', () => {
+          twoClasssToggleSwitch(pluginarea, 'visible', 'cpiHelper_hidden')
+          twoClasssToggleSwitch(document.querySelector('#sidebar_Plugin'), 'plus', 'minus')
+
+        })
+      }
+    })
     //add minimize button on CPI helper title & color match with tenant color
     var span = document.getElementById("sidebar_modal_minimize");
     var content_header = document.getElementById("cpiHelper_contentheader");
@@ -1449,8 +1471,13 @@ async function errorPopupOpen(MessageGuid) {
 
     let status = document.createElement("div");
     status.className = "contentText";
-    status.innerText = "Status: " + customHeaders.CustomStatus
+    status.innerText = "Status: " + customHeaders.Status
     y.appendChild(status)
+
+    let customstatus = document.createElement("div");
+    customstatus.className = "contentText";
+    customstatus.innerText = "Custom Status: " + customHeaders.CustomStatus
+    y.appendChild(customstatus)
 
 
     let text = document.createElement("div");
@@ -1531,13 +1558,23 @@ function createErrorMessageElement(message) {
 
 //to check for errors and inline trace
 async function getMessageProcessingLogRuns(MessageGuid, store = true) {
+  var top_mode_count = await storageGetPromise("cpi_top_mode")
+  top_mode_count = (top_mode_count == null && top_mode_count == undefined) ? "&$top=300" : `&$top=${parseInt(top_mode_count)}`//Default
+  if (top_mode_count === '&$top=0') { top_mode_count = "" }
+  //Plugin over-write
+  if (await getStorageValue('traceModifer', "isActive", null)) {
+    var top_mode_count_flow = await storageGetPromise(`traceModifer_${cpiData.integrationFlowId}`)
+    top_mode_count = ((top_mode_count_flow == null && top_mode_count_flow == undefined) || top_mode_count_flow == 0) ? top_mode_count : `&$top=${parseInt(top_mode_count_flow)}`
+  }
+  console.log(top_mode_count)
   return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store).then((responseText) => {
     var resp = JSON.parse(responseText);
     var status = resp.d.results[0].OverallState;
-    if (resp.d.results.length > 1 && status != "COMPLETED") { return resp.d.results[1].Id; }
+    //take the correct run log (last or second last) for displaying the inline trace, depending on message status.
+    if (resp.d.results.length > 1 && (status != "COMPLETED" && status != "ESCALATED")) { return resp.d.results[1].Id; }
     else { return resp.d.results[0].Id; }
   }).then((runId) => {
-    return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json&$top=300", store);
+    return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json" + top_mode_count, store);
   }).then((response) => {
     return JSON.parse(response).d.results;
   }).catch((e) => {
@@ -1665,6 +1702,8 @@ async function checkURLchange() {
 
 //this function is fired when the url changes
 async function handleUrlChange() {
+    //check if powertrace button was on / set correct button status
+  await refreshPowerTrace();
 
   //check current artifact
   await storeVisitedIflowsForPopup();
@@ -1678,6 +1717,11 @@ async function handleUrlChange() {
     var scriptCount = 0
     var scriptCollectionCount = 0
     setDocumentTitle(hostData.title)
+    Allowedlist = ["IFlow"]
+    //deactivate sidebar if not on iflow page to root
+    if (sidebar.active && !(Allowedlist.includes(cpiData.currentArtifactType))) {
+      sidebar.deactivate();
+    }
     if (cpiData.currentArtifactType == "IFlow") {
       //if iflow found, inject buttons   
       setDocumentTitle(hostData.title)
@@ -1875,6 +1919,31 @@ async function storeVisitedIflowsForPopup() {
   }
 }
 
+async function refreshPowerTrace() {
+    //get last run from store and check if it is less than 11 minutes ago, then reapply trace button status
+
+    var powertraceText = ""
+
+    var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`
+    var timeAsStringOrNull = await storageGetPromise(objName)
+
+    if (timeAsStringOrNull != null && timeAsStringOrNull != undefined) {
+      var now = new Date().getTime()
+      var time = now - parseInt(timeAsStringOrNull)
+      if (time != NaN && time < 1000 * 60 * 11) {
+        log.debug("update powertrace button status")
+        powertraceText = "cpiHelper_powertrace"
+
+        // if button list already exists (e.g. after url change), reapply class to button
+        var btn = document.getElementById("button134345-BDI-content")  
+        if (btn != undefined && !btn.classList.contains("cpiHelper_powertrace")) {
+	        btn.classList.toggle("cpiHelper_powertrace")
+	      }
+      }
+    }
+    return powertraceText;
+  }
+
 //start
 checkURLchange();
 onInitStatistic();
@@ -1926,14 +1995,14 @@ setInterval(async function () {
   }
 
   //check if trace should be refreshed again
-  //check if value in storage exists and time is longer than 10 minutes but smaller than 11 minutes
+  //check if value in storage exists and time is longer than 9 (overlap) and less than 20 minutes (upper limit in order to not auto-reactivate the trace after a longer break)
   var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`
-  var timeAsStingOrNull = await storageGetPromise(objName)
-  if (timeAsStingOrNull != null && timeAsStingOrNull != undefined) {
+  var timeAsStringOrNull = await storageGetPromise(objName)
+  if (timeAsStringOrNull != null && timeAsStringOrNull != undefined) {
     var now = new Date().getTime()
-    var time = now - parseInt(timeAsStingOrNull)
-    if (time != NaN && time > 1000 * 60 * 10 && time < 1000 * 60 * 11) {
-      log.log("refresh trace")
+    var time = now - parseInt(timeAsStringOrNull)
+    if (time != NaN && time > 1000 * 60 * 9 && time < 1000 * 60 * 20) {
+      log.log("set trace via API call")
       setLogLevel("TRACE", cpiData.integrationFlowId)
       var objectToStore = {}
       objectToStore[objName] = new Date().getTime().toString()
@@ -1951,8 +2020,3 @@ setInterval(async function () {
     nextMessageSidebarRefreshCount = 0;
   }
 }, 3000);
-
-
-
-
-

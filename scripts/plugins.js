@@ -5,34 +5,50 @@
 //creates plugin content area in message sidebar
 
 async function messageSidebarPluginContent(forceRender = false) {
-    var pluginArea = document.getElementById('cpiHelper_messageSidebar_pluginArea');
-    //pluginArea.innerHTML = "";
-    var ctxbtnclose = document.querySelector('#cpiHelper_contentheader')
+
+    let activeness = false;
     for (element of pluginList) {
         var settings = await getPluginSettings(element.id);
-
         if (settings[element.id + "---isActive"] === true) {
-            if (ctxbtnclose.childElementCount==2) {
-                ctxbtnclose.insertBefore(createElementFromHTML("<span id='sidebar_Plugin' data-sap-ui-icon-content='' class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>"),ctxbtnclose.childNodes[2]);
-                document.querySelector('#sidebar_Plugin').addEventListener('click', () => {
-                    const plugin_element = document.querySelector('#outerPlugin');
-                    plugin_element.style.display = plugin_element.offsetHeight > 0 ? 'none' : 'block'
-                })
-            }
+            activeness = true;
             if (element?.messageSidebarContent?.onRender && (!element?.messageSidebarContent?.static || forceRender == true)) {
                 var div = document.getElementById("cpiHelper_messageSidebar_pluginArea_" + element.id)
                 if (!div) {
                     div = document.createElement("fieldset");
                     div.id = "cpiHelper_messageSidebar_pluginArea_" + element.id;
+                    div.classList = "ui fluid segment";
                 }
-
                 div.innerHTML = ""
-
-                div.appendChild(createElementFromHTML("<legend>" + element.name + "</legend>"));
+                div.appendChild(createElementFromHTML("<div class='ui tiny header'>" + element.name + "</div>"));
                 div.appendChild(element.messageSidebarContent.onRender(cpiData, settings));
-                pluginArea.appendChild(div);
+                document.querySelector('#cpiHelper_messageSidebar_pluginArea').appendChild(div);
             }
         }
+    }
+    const ctxbtnclose = document.querySelector('#cpiHelper_contentheader')
+    const pluginArea = document.querySelector('#cpiHelper_messageSidebar_pluginArea');
+
+
+    if (ctxbtnclose.childElementCount == 2) {
+        if (activeness == true) {
+            ctxbtnclose.insertBefore(createElementFromHTML(`<i id='sidebar_Plugin' class="cpiHelper_closeButton_sidebar calendar ${pluginArea.classList.contains('visible') ? 'plus' : 'minus'} icon"></i>`), ctxbtnclose.childNodes[2]);
+            document.querySelector('#sidebar_Plugin').classList.remove('cpiHelper_hidden');
+            document.querySelector('#sidebar_Plugin').addEventListener('click', () => {
+                twoClasssToggleSwitch(pluginArea, 'visible', 'cpiHelper_hidden')
+                twoClasssToggleSwitch(document.querySelector('#sidebar_Plugin'), 'plus', 'minus')
+            });
+        }
+        // twoClasssToggleSwitch(pluginArea, 'visible', 'cpiHelper_hidden')
+        chrome.storage.sync.get(["openSidebarOnStartup"], function (result) {
+            if (activeness) {
+                twoClasssToggleSwitch(pluginArea, 'visible', 'cpiHelper_hidden')
+                if (result["openSidebarOnStartup"]) {
+                    twoClasssToggleSwitch(document.querySelector('#cpiHelper_messageSidebar_pluginArea>.header'), 'cpiHelper_hidden', 'visible');
+                    twoClasssToggleSwitch(pluginArea, 'visible', 'cpiHelper_hidden')
+                    twoClasssToggleSwitch(document.querySelector('#sidebar_Plugin'), 'plus', 'minus')
+                }
+            }
+        })
     }
 }
 
@@ -97,7 +113,7 @@ async function createPluginScriptCollectionButtons() {
         if (settings[plugin.id + "---isActive"] === true) {
             if (plugin.scriptCollectionButton && !plugin.scriptCollectionButton.condition || plugin.scriptCollectionButton && plugin.scriptCollectionButton.condition(cpiData, settings)) {
                 var button = createElementFromHTML("<button title='" + plugin.scriptCollectionButton.title + "' id='cpiHelperPlugin--" + plugin.id + "' class='cpiHelper_pluginButton_scriptCollection mini ui button'>" + plugin?.scriptCollectionButton?.text + "</button>");
-
+ 
                 button.onclick = async (btn) => {
                     let pluginID = btn.target.id.replace("cpiHelperPlugin--", "")
                     let pluginItem = pluginList.find((element) => element.id == pluginID)
@@ -105,14 +121,14 @@ async function createPluginScriptCollectionButtons() {
                     pluginItem.scriptCollectionButton.onClick(cpiData, pluginsettings);
                     statistic("messagebar_btn_plugin_click", pluginID)
                 };
-
+ 
                 pluginButtons.push(button);
             }
         }
     }
     return pluginButtons;
 }
-
+ 
 async function createPluginScriptButtons() {
     var pluginButtons = [];
     for (var plugin of pluginList) {
@@ -120,7 +136,7 @@ async function createPluginScriptButtons() {
         if (settings[plugin.id + "---isActive"] === true) {
             if (plugin.scriptButton && !plugin.scriptButton.condition || plugin.scriptButton && plugin.scriptButton.condition(cpiData, settings)) {
                 var button = createElementFromHTML("<button title='" + plugin.scriptButton.title + "' id='cpiHelperPlugin--" + plugin.id + "' class='cpiHelper_pluginButton_script mini ui button'>" + plugin?.scriptButton?.text + "</button>");
-
+ 
                 button.onclick = async (btn) => {
                     let pluginID = btn.target.id.replace("cpiHelperPlugin--", "")
                     let pluginItem = pluginList.find((element) => element.id == pluginID)
@@ -128,14 +144,14 @@ async function createPluginScriptButtons() {
                     pluginItem.scriptButton.onClick(cpiData, pluginsettings);
                     statistic("messagebar_btn_plugin_click", pluginID)
                 };
-
+ 
                 pluginButtons.push(button);
             }
         }
     }
     return pluginButtons;
 }
-
+ 
 */
 
 // ----------------------
@@ -146,39 +162,17 @@ async function createPluginScriptButtons() {
 async function createPluginPopupUI(plugin) {
 
     var container = document.createElement('div');
-    container.classList.add("ui");
-    container.classList.add("segment");
-    container.appendChild(createElementFromHTML(`<h4 class="ui header">${plugin.name} ${plugin.version} ${plugin.id}</h4>`));
-
-    var activeCheckbox = document.createElement('input');
-    activeCheckbox.id = `cpiHelper_popup_plugins-${plugin.id}`;
-    activeCheckbox.type = 'checkbox';
-
-    activeCheckbox.checked = await getStorageValue(plugin.id, "isActive")
-    activeCheckbox.addEventListener('change', async function () {
-        log.log(activeCheckbox.checked);
-        await syncChromeStoragePromise(getStoragePath(plugin.id, "isActive"), activeCheckbox.checked);
-        statistic("toggle_plugin_active", plugin.id, activeCheckbox.checked)
-        showBigPopup(await createContentNodeForPlugins(), "Plugins")
-
-    });
-
-    var div = document.createElement('div');
-    div.classList.add("ui");
-    div.classList.add("checkbox");
-    div.classList.add("toggle");
-    div.appendChild(activeCheckbox);
-    div.appendChild(createElementFromHTML(`<label for="cpiHelper_popup_plugins-${plugin.id}"> activate</label>`));
-    //div.appendChild(createElementFromHTML(`<br>`));
-    div.appendChild(createElementFromHTML(`<div class="ui message">${plugin.description}</div>`));
-    //div.appendChild(createElementFromHTML(`<br>`));
-
-    container.appendChild(div);
-
-
+    container.classList.add("card");
+    container.appendChild(createElementFromHTML(`<div class="extra content">
+        <img class="right floated mini ui image" src=${plugin.settings["icon"] ? chrome.runtime.getURL(plugin.settings["icon"].src) : ""}>
+        <div class="header">${plugin.name}</div>
+        <a href=${plugin.website} target="_blank" class="meta">${plugin.author}</a>
+    </div>`));
+    container.appendChild(createElementFromHTML(`<div class="content">${plugin.description}</div>`));
     if (await getStorageValue(plugin.id, "isActive", null)) {
-        if (plugin.settings) {
-
+        if (JSON.stringify(plugin.settings) !== '{}') {
+            var subcontainer = document.createElement('div');
+            subcontainer.classList = "ui segment"
             for (var key of Object.keys(plugin.settings)) {
                 if (plugin.settings[key].type == "checkbox") {
                     var checkbox = document.createElement('input');
@@ -191,24 +185,21 @@ async function createPluginPopupUI(plugin) {
                         log.log(checkbox.checked);
                         chrome.storage.sync.set({ [this.key]: this.checked }, function () {
                             log.log(`${plugin.id}--${key}` + " is set to " + checkbox.checked);
+
                         });
                     });
 
                     var checkBoxLabel = document.createElement('label');
                     checkBoxLabel.htmlFor = checkbox.id;
                     checkBoxLabel.innerText = ` ${plugin.settings[key].text}`;
-
                     var div = document.createElement('div');
-                    div.classList.add("ui");
-                    div.classList.add("checkbox");
-                    div.classList.add("toggle");
+                    div.classList = "ui checkbox toggle";
                     div.appendChild(checkbox);
                     div.appendChild(checkBoxLabel);
-                    
-                    container.appendChild(div);
+                    subcontainer.appendChild(div);
                 }
 
-                if (plugin.settings[key].type == "text") {
+                if (plugin.settings[key].type == "textinput") {
                     var outerDiv = document.createElement('div');
                     var text = document.createElement('input');
                     text.id = `cpiHelper_popup_plugins-${plugin.id}-${key}`;
@@ -222,14 +213,11 @@ async function createPluginPopupUI(plugin) {
                         chrome.storage.sync.set({ [this.key]: this.value });
                     });
                     var div = document.createElement('div');
-                    div.classList.add("ui");
-                    div.classList.add("right");
-                    div.classList.add("labeled"); 
-                    div.classList.add("input");
+                    div.classList = "ui fluid input"
                     div.appendChild(text);
                     div.appendChild(createElementFromHTML(`<div class="ui basic label" for="cpiHelper_popup_plugins-${plugin.id}-${key}"> ${plugin.settings[key].text}</div>`));
                     outerDiv.appendChild(div);
-                    container.appendChild(outerDiv);
+                    subcontainer.appendChild(outerDiv);
                 }
                 if (plugin.settings[key].type == "label") {
                     var label = document.createElement('div');
@@ -237,19 +225,52 @@ async function createPluginPopupUI(plugin) {
                     label.innerText = plugin.settings[key].text;
 
                     var div = document.createElement('div');
-                    div.classList.add("ui");
-                    div.classList.add("label");
+                    div.classList = "ui label"
                     div.appendChild(label);
-                    container.appendChild(div);
+                    subcontainer.appendChild(div);
 
                 }
-
+                if (plugin.settings[key].type == "text") {
+                    var text = document.createElement('div');
+                    text.id = `cpiHelper_popup_plugins - ${plugin.id} -${key} `;
+                    text.innerHTML = plugin.settings[key].text
+                    var div = document.createElement('div');
+                    div.classList= plugin.settings[key].class
+                    div.appendChild(text);
+                    subcontainer.appendChild(div);
+                }
+                if (plugin.settings[key].type == "button") {
+                    var btn = document.createElement('button');
+                    btn.classList = plugin.settings[key].class
+                    btn.id = `cpiHelper_popup_plugins - ${plugin.id} -${key} `;
+                    btn.innerHTML = plugin.settings[key].title
+                    btn.onclick = plugin.settings[key].fun
+                    subcontainer.appendChild(btn);
+                }
             }
+            container.appendChild(subcontainer);
         }
     }
+    var activeCheckbox = document.createElement('input');
+    activeCheckbox.id = `cpiHelper_popup_plugins-${plugin.id}`;
+    activeCheckbox.type = 'checkbox';
+    activeCheckbox.style = "display:none"
+    activeCheckbox.checked = await getStorageValue(plugin.id, "isActive")
+    activeCheckbox.addEventListener('change', async function () {
+        containerbox = document.querySelector(`#cpiHelper_popup_plugins-${plugin.id}`).parentNode
+        log.log(activeCheckbox.checked);
+        await syncChromeStoragePromise(getStoragePath(plugin.id, "isActive"), activeCheckbox.checked);
+        activeCheckbox.checked ? containerbox.classList.add('checked') : containerbox.classList.remove('checked');
+        statistic("toggle_plugin_active", plugin.id, activeCheckbox.checked)
+        showBigPopup(await createContentNodeForPlugins(), "Plugins")
+    });
+    var div = document.createElement('div');
+    div.classList = `extra content ui toggle ${activeCheckbox.checked ? 'checked' : ""}`;
+    div.style.padding = 0;
+    div.appendChild(activeCheckbox);
+    div.appendChild(createElementFromHTML(`<label for="cpiHelper_popup_plugins-${plugin.id}"> Activate</label>`));
+    container.appendChild(div);
     return container;
-
-
 }
 
 //creates the content for the plugin popup
@@ -257,7 +278,7 @@ async function createContentNodeForPlugins() {
 
     var pluginUIList = document.createElement("div")
     pluginUIList.id = "cpiHelper_popup_plugins";
-
+    pluginUIList.classList = 'ui cards'
     for (var element of pluginList) {
         pluginUIList.appendChild(await createPluginPopupUI(element));
     }

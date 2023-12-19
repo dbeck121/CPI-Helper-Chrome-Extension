@@ -44,10 +44,29 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.9.0
+
+- [Improvement] Hundreds of ui improvements. Thanks to [Omkar Patel](https://github.com/incpi) for the great contribution 
+- UI 3.8.1 fix 
+- New Plugin: "Trace Modifier"
+  - Trace step uppper limit [Over write Global host variable with iflow variable] [read more](https://incpi.github.io/cpihelper-plugin/)
+- New Configs: (* FireFox: Limited UI support)
+  - Preset Themes
+   - Zoom Level
+    - Trace step uppper limit [Global Host]
+    - [feature] auto light color adjuster(if you pick too bright color)
+- For Plugin:
+    - Popup Mode [Separate / Joint]
+    - Engine enhanced with new fatures
+    - Plugin Page UI Changed
+- [Improvement] Many under the hood improvements
+- [Improvement] Updated Fomantic UI to 2.9.3
+- [Bugfix] Many small fixes
+
 ### 3.8.0
 
-- [Improvement] Improved "flying error dialog". No mouse over but you need to klick now. Thanks to Omkar Patel
-- [Improvement] Many more ui improvements. Thanks to Omkar Patel
+- [Improvement] Improved "flying error dialog". No mouse over but you need to klick now. Thanks to [Omkar Patel](https://github.com/incpi)
+- [Improvement] Many more ui improvements. Thanks to [Omkar Patel](https://github.com/incpi)
 - [Feature] Trace survives page reload
 - [Improvement] Logs now sorted
 - [Bugfix] Many small fixes
@@ -75,7 +94,7 @@ It is open source so feel free to check the source code.
 
 - [Feature] Added TPM/IA links to "Tenant URLs"
 - [Feature] Added debug mode
-- [Feature] Added option to add buttons in Skript editor for plugins
+- [Feature] Added option to add buttons in Script editor for plugins
 - [Improvement] Better management and timing of api calls to reduce load to SAP server
 - [Improvement] "Lazy Mode" activated for Extension window (no need to click)
 - [Bugfix] Bugfix for "Settings Pane Resizer" Plugin
@@ -89,20 +108,20 @@ It is open source so feel free to check the source code.
 
 ### 3.4.0
 
-- [Feature] New plugin "Settings Pane Resizer" and many bugfixes. Thanks to Philippe Addor and BMT Business meets Technology AG
-- [Bugfix] Improved handling of message popup. Thanks to Omkar Patel
+- [Feature] New plugin "Settings Pane Resizer" and many bugfixes. Thanks to [Philippe Addor](https://github.com/fippu82) and BMT Business meets Technology AG
+- [Bugfix] Improved handling of message popup. Thanks to [Omkar Patel](https://github.com/incpi)
 
 ### 3.3.2
 
 - [Bugfix] Fix bug when using Chinese as browser default language
 
-### 3.3,0
+### 3.3.0
 
 - [Feature] Improved Firefox version
 - [Feature] UI improvements in message popup
 - [Bugfix] Some bugfixes
 
-### 3.2,0
+### 3.2.0
 
 - [Feature] Porting to Firefox. Thanks to [Andrea Pagliarani](https://github.com/archetypon)
 - [Feature] Improved plugin: "Simple Notepad (Beta)" now with optional encryption. Thanks to [Nick Yang](https://github.com/SAPNickYang)

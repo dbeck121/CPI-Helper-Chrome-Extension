@@ -5,13 +5,14 @@ var plugin = {
     version: "0.0.1",
     author: "Kangoolutions",
     email: "cpihelper@kangoolutions.com",
-    website: "https://yourwebsite.com",
+    website: "https://github.com/dbeck121/CPI-Helper-Chrome-Extension",//"https://yourwebsite.com"
     description: "Only for plugin developers",
     settings: {
         "text1": { "text": "This is a plugin", "type": "label" },
-        "textField1": { "text": "Tenant URL", "type": "text", scope: "tenant" },
-        "textField2": { "text": "Iflow xy", "type": "text", scope: "iflow" },
-        "textField3": { "text": "general", "type": "text", scope: "browser" },
+        "textField1": { "text": "Tenant URL", "type": "textinput", scope: "tenant" },
+        "textField2": { "text": "Iflow xy", "type": "textinput", scope: "iflow" },
+        "textField3": { "text": "general", "type": "textinput", scope: "browser" },
+        "icon": { "type": "icon", "src": "/images/plugin_logos/example.png" }
     },
     messageSidebarButton: {
         "text": "E",

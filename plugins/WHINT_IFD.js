@@ -8,8 +8,8 @@ var plugin = {
     website: "https://whitepaper-id.com",
     description: "Navigate directly to your Technical Interface Documentation in Microsoft SharePoint. See <a href='https://www.integration-excellence.com/whint-solutions/ifd-sap-cpi/' target='_blank'>integration-excellence.com</a> for more details.",
     settings: {
-        spBaseUrl: { text: "SharePoint URL (<i>e.g. https://company.sharepoint.com/sites/my-site/shared documents/documentation</i>)", type: "text", scope: "tenant" },
-        spSep: { text: "Package-/IntegrationFlow ID Separator (<i>default: /</i>)", type: "text", scope: "tenant" }
+        spBaseUrl: { text: "SharePoint URL (<i>e.g. https://company.sharepoint.com/sites/my-site/shared documents/documentation</i>)", type: "textinput", scope: "tenant" },
+        spSep: { text: "Package-/IntegrationFlow ID Separator (<i>default: /</i>)", type: "textinput", scope: "tenant" }
     },
     messageSidebarContent: {
         static: true,

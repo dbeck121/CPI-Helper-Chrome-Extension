@@ -6,7 +6,7 @@
   },
   "name": "SAP CPI Helper",
   "short_name": "CPI Helper",
-  "version": "3.8.0",
+  "version": "3.9.0",
   "description": "Extends the SAP Cloud Platform Integration with some useful features to improve usability.",
   "author": "Dominic Beckbauer",
   "homepage_url": "https://github.com/dbeck121/CPI-Helper-Chrome-Extension",
@@ -20,8 +20,8 @@
   ],
   "background": {
     "scripts": [
-      "background.js",
-      "hot-reload.js"
+      "background/background.js",
+      "background/hot-reload.js"
     ],
     "persistent": true
   },
@@ -35,7 +35,8 @@
       ],
       "js": [
         "/lib/ulog/ulog-full.min.js",
-        "/scripts/logging.js",
+        "/common/logging.js",
+        "/common/tools.js",
         "/lib/prettify/prettify.js",
         "/lib/prettify/prettify-sql.js",
         "/lib/jszip/jszip.min.js",
@@ -52,11 +53,11 @@
         "/plugins/OpenAIServices.js",
         "/plugins/WHINT_IFD.js",
         "/plugins/settingsPaneResizer.js",
+        "/plugins/traceModifer.js",
         "/plugins/example.js",
         "/scripts/ui.js",
-        "/scripts/tools.js",
         "/scripts/logs.js",
-        "/scripts/whatsNew.js",
+        "/whatsNew/whatsNew.js",
         "/scripts/plugins.js",
         "/scripts/contentScript.js"
       ],
@@ -64,12 +65,12 @@
         "/lib/prettify/prettify.css",
         "/lib/threeDots/three-dots.min.css",
         "/lib/semanticui/semantic.min.css",
-        "contentScript.css"
+        "/css/contentScript.css"
       ]
     }
   ],
   "page_action": {
-    "default_popup": "popup.html",
+    "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "images/cpi_helper16_full.png",
       "32": "images/cpi_helper32_full.png",
