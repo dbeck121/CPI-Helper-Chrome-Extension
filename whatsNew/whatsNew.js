@@ -72,7 +72,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
             <div class="content">
                 <div class="header">Feature</div>
                 <div class="description">
-                    <span class="ui text">New Plugin - Trace step uppper limit [Over write Global host variable with iflow]<a href="https://incpi.github.io/cpihelper-plugin/">Read more...</a></span>
+                    <span class="ui text">New Plugin - Trace step uppper limit [Overwrite Global host variable with iflow]</span>
                 </div>
             </div>
         </a>
@@ -241,50 +241,59 @@ async function recrutingPopup(force = false) {
     await storageSetPromise(obj)
   }
 
-  if(!force && randomGroup > 10) {
-    return
-  }
-
   var lang = navigator.language || navigator.userLanguage;
   var timestamp = parseInt(await storageGetPromise("recrutingPopupTimestamp"));
   var today = +new Date();
 
-  if (lang == "de-DE" && (force || !timestamp || timestamp < today)) {
-    var html = `<div><div class="ui icon violet message">
-                  <i class="info icon"></i>
-                  <div class="content">
-                    <div class="header">
-                     Werde ein weiterer Held im Kampf für die Datenintegration!
-                    </div>
-                    <p>Design können wir wirklich nicht und eine Werbeagentur fehlt uns noch… aber wir können Integration Suite, Softwareentwicklung und Architekturberatung 
-                    </p>
-                  </div>
+
+  if (lang == "de-DE" && (force || (!timestamp && randomGroup <= 30) || timestamp < today)) {
+    statistic("recrutingPopup","show")
+    var html = `
+    <div>
+      <div class="ui icon violet message">
+        <i class="info icon"></i>
+        <div class="content">
+        <div class="header">
+          Werde ein weiterer Held im Kampf für die Datenintegration!
+        </div>
+         <p>Design können wir wirklich nicht und eine Werbeagentur fehlt uns noch… aber wir können Integration Suite, Softwareentwicklung und Architekturberatung 
+         </p>
+        </div>
+       </div>
+       <div class="ui segment">
+
+                <h3 class="ui header">
+                <i class="comments icon"></i>
+                <div class="content">
+                  Berater:in für SAP Integration gesucht
                 </div>
+              </h3>
                 <p>
-                Kannst du dir vorstellen unsere Kunden als Berater in den o.g. Themen zu unterstützen? Das erwartet dich:<p>
+                Kannst du dir vorstellen unsere Kunden als Berater:in in den o.g. Themen zu unterstützen? Das erwartet dich:<p>
                 <div class="ui bulleted list">
   <div class="item">Fordernde und knifflige Aufgabenstellungen</div>
   <div class="item">Arbeiten aus dem Home Office oder ab und zu mal beim Kunden vor Ort</div>
   <div class="item">Minimale Hierarchien </div>
-  <div class="item">Eigenverantwortung und Freiraum, statt Formularen und starren Prozessen  </div>
-  <div class="item">Eine junge Firma, mit jungen Menschen und feinen Events  </div>
-  <div class="item">Mitgestaltungsmöglichkeit beim Aufbau unserer Firma  </div>
+  <div class="item">Eigenverantwortung und Freiraum, statt Formularen und starren Prozessen</div>
+  <div class="item">Eine junge Firma, mit jungen Menschen und feinen Events</div>
+  <div class="item">Mitgestaltungsmöglichkeit beim Aufbau unserer Firma</div>
   
     </div>
 
     <p>Wir haben viel Humor und das vllt coolste Team der Welt. Lass uns doch mal plaudern:<p>
-
+        </div>
                 </div>`;
 
     var popup = createElementFromHTML(html);
 
-    var createRemindButtopn = function (text, days) {
+    var createRemindButtopn = function (text, days, color = "teal") {
       var button = document.createElement("button");
-      button.className = "ui teal button";
+      button.className = "ui "+color+" right labled icon button";
       var icon = document.createElement("i");
       icon.className = "right bell icon";
+      button.textContent = text;
       button.appendChild(icon);
-      button.innerText = text;
+
       button.onclick = async function () {
         statistic("recrutingPopup","remind", days)
         
@@ -302,16 +311,13 @@ async function recrutingPopup(force = false) {
       return button
     }
 
-               //create br
-               var br = document.createElement("br");
-               popup.appendChild(br);    
-
     var nextStepButtion = document.createElement("button");
-    nextStepButtion.className = "ui teal button";
+    nextStepButtion.className = "ui teal right labled icon button";
     var icon = document.createElement("i");
     icon.className = "right arrow icon";
+
+    nextStepButtion.textContent = "Jau... ich will mehr wissen";
     nextStepButtion.appendChild(icon);
-    nextStepButtion.innerText = "Jau... ich will mehr wissen";
     nextStepButtion.onclick = async function () {
       statistic("recrutingPopup","nextStep")
       window.open("https://ich-will-zur.kangoolutions.com/", "_blank");
@@ -349,7 +355,7 @@ async function recrutingPopup(force = false) {
     var br = document.createElement("br");
     popup.appendChild(br);
 
-    popup.appendChild(createRemindButtopn("Erinnere mich nicht mehr", 9999))
+    popup.appendChild(createRemindButtopn("Erinnere mich nicht mehr", 9999, "violet"))
 
     await showBigPopup(popup, "Wir suchen Verstärkung!", { "fullscreen": false });
    
