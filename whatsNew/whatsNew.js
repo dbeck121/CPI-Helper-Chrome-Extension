@@ -246,7 +246,7 @@ async function recrutingPopup(force = false) {
   var today = +new Date();
 
 
-  if (lang == "de-DE" && (force || (!timestamp && randomGroup <= 30) || timestamp < today)) {
+  if (lang == "de-DE" && (force || (!timestamp && randomGroup <= 30) || (timestamp && timestamp < today))) {
     statistic("recrutingPopup","show")
     var html = `
     <div>
