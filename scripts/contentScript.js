@@ -796,6 +796,7 @@ function addBreadcrumbs() {
 
 //injected buttons are created here
 var powertrace = null;
+var recrutingTimerSet = false;
 async function buildButtonBar() {
   try {
     var headerBar = document.getElementById('__xmlview0--iflowObjectPageHeader-identifierLine');
@@ -808,9 +809,13 @@ async function buildButtonBar() {
   if (!document.getElementById("__buttonxx")) {
     whatsNewCheck();
     //timer for recruiting popup in 100 seconds
-    setTimeout(() => {
-      recrutingPopup();
-    }, 600000);
+    if(recrutingTimerSet == false) {
+      setTimeout(() => {
+        recrutingPopup();
+      }, 600000);
+      recrutingTimerSet = true;
+    }
+
 
     var logsbutton = createElementFromHTML(`<button id="__button_log" accesskey="1" data-sap-ui="__buttonxx" title="Logs Kbd : 1" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; margin-left: 0px; float: right;"><span id="__buttonxx-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button134345-content"><bdi id="button134345-BDI-content" class="sapMBtnContent">Logs</bdi></span></span></button>`);
     var tracebutton = createElementFromHTML(`<button id="__buttonxx" accesskey="2" data-sap-ui="__buttonxx" title="Enable traces Kbd : 2" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; float: right;"><span id="__buttonxx-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button134345-content"><bdi id="button134345-BDI-content" class="${powertraceText}">Trace</bdi></span></span></button>`);

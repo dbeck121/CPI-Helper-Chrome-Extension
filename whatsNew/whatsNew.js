@@ -245,6 +245,15 @@ async function recrutingPopup(force = false) {
   var timestamp = parseInt(await storageGetPromise("recrutingPopupTimestamp"));
   var today = +new Date();
 
+  if(!timestamp) {
+    var oneweek = +new Date() + 30*24*60*60*1000;
+
+    var obj = {};
+    obj["recrutingPopupTimestamp"] = oneweek;
+    chrome.storage.local.set(obj, function () {
+      log.log("recruting popup timestamp set to today + " + 7 + " days");
+    });
+  }
 
   if (lang == "de-DE" && (force || (!timestamp && randomGroup <= 30) || (timestamp && timestamp < today))) {
     statistic("recrutingPopup","show")
