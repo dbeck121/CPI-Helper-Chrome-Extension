@@ -528,10 +528,6 @@ body {
   height: 100%;
 }
 
-html {
-  font-size: 14px;
-}
-
 body {
   margin: 0;
   padding: 0;
@@ -539,7 +535,6 @@ body {
   min-width: 320px;
   background: #fff;
   font-family: "Lato", system-ui, -apple-system, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  font-size: 14px;
   line-height: 1.4285em;
   color: rgba(0, 0, 0, 0.87);
 }
