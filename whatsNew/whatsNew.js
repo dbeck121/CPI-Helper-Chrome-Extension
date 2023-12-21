@@ -274,11 +274,11 @@ async function recrutingPopup(force = false) {
                 <h3 class="ui header">
                 <i class="comments icon"></i>
                 <div class="content">
-                  Berater:in für SAP Integration gesucht
+                  Berater*in für SAP Integration gesucht
                 </div>
               </h3>
                 <p>
-                Kannst du dir vorstellen unsere Kunden als Berater:in in den o.g. Themen zu unterstützen? Das erwartet dich:<p>
+                Kannst du dir vorstellen unsere Kunden als SAP Integrationsspezialist*in in den o.g. Themen zu unterstützen? Das erwartet dich:<p>
                 <div class="ui bulleted list">
   <div class="item">Fordernde und knifflige Aufgabenstellungen</div>
   <div class="item">Arbeiten aus dem Home Office oder ab und zu mal beim Kunden vor Ort</div>
