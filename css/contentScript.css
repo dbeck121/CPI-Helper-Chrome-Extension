@@ -67,7 +67,7 @@
 }
 
 .cpiHelper button {
-  --cpi-width:1px;
+  --cpi-width: 1px;
   cursor: pointer;
   border: solid var(--cpi-width) #d2d2d2;
   border-radius: 4px;
@@ -76,7 +76,7 @@
   margin-inline: 0.1em
 }
 
-.cpiHelper table button{
+.cpiHelper table button {
   border: solid var(--cpi-width) #fff;
 }
 
@@ -241,6 +241,25 @@ button.cpiHelper_sidebar_iconbutton span {
   stroke: #ff6b6b !important;
 }
 
+.cpiHelper_inlineInfo.cpiHelper_avg {
+  fill: #dcddde !important;
+}
+
+.cpiHelper_inlineInfo.cpiHelper_belowavg {
+  fill: #6dffff !important;
+}
+
+.cpiHelper_inlineInfo.cpiHelper_aboveavg {
+  fill: #ffe21f !important;
+}
+
+.cpiHelper_inlineInfo.cpiHelper_max {
+  fill: #ff851b !important;
+}
+
+.cpiHelper_inlineInfo.cpiHelper_min {
+  fill: #dc73ff !important;
+}
 
 #cpiHelper_bigPopup {
   display: none;
