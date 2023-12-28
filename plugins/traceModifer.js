@@ -65,18 +65,18 @@ var plugin = {
                 }
             })
             div.appendChild(inputtrace)
+            div.innerHTML += `<div class="ui divider"></div>`
             var btn = document.createElement("div");
             btn.classList = "ui checkbox"
             btn.innerHTML = `<input type="checkbox" id="traceModifer_box"><label>Performance Status</label>`
             var stats = document.createElement("div");
-            stats.classList = "ui traceModifer wrapped wrapping buttons"
+            stats.appendChild(btn)
+            stats.classList = "traceModifer"
             stats.innerHTML += `
-            <div class="ui basic button" data-variation="purple" data-tooltip="Min"><i class="battery empty icon purple"></i></div>
-            <div class="ui basic button" data-variation="teal" data-tooltip="Below Avg"><i class="battery quarter icon teal"></i></div>
-            <div class="ui basic button" data-variation="grey" data-tooltip="Avg"><i class="battery half icon grey"></i></div>
-            <div class="ui basic button" data-variation="yellow" data-tooltip="Above Avg"><i class="battery three quarters icon yellow"></i></div>
-            <div class="ui basic button" data-variation="orange" data-tooltip="Max"><i class="battery full icon orange"></i></div>`
-            div.appendChild(btn)
+            <div class="ui buttons fluid segment">
+                <label class="ui violet mini circular left bottom floating label">MIN</label>
+                <label class="ui red mini circular right bottom floating label">MAX</label>
+            </div>`
             div.appendChild(stats);
             return div;
         }

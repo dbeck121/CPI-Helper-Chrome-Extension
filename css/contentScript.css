@@ -242,23 +242,23 @@ button.cpiHelper_sidebar_iconbutton span {
 }
 
 .cpiHelper_inlineInfo.cpiHelper_avg {
-  fill: #dcddde !important;
+  fill: #82ff82 !important;
 }
 
 .cpiHelper_inlineInfo.cpiHelper_belowavg {
-  fill: #6dffff !important;
+  fill: #82ffff !important;
 }
 
 .cpiHelper_inlineInfo.cpiHelper_aboveavg {
-  fill: #ffe21f !important;
+  fill: #ffff82 !important;
 }
 
 .cpiHelper_inlineInfo.cpiHelper_max {
-  fill: #ff851b !important;
+  fill: #ff8282 !important;
 }
 
 .cpiHelper_inlineInfo.cpiHelper_min {
-  fill: #dc73ff !important;
+  fill: #8282ff !important;
 }
 
 #cpiHelper_bigPopup {
@@ -412,7 +412,7 @@ button.cpiHelper_sidebar_iconbutton span {
 }
 
 .cpiHelper_powertrace {
-  color: red !important
+  color: #ff0000 !important
 }
 
 .cpiHelper_traceText.cpiHelper_traceText_active {
@@ -458,7 +458,7 @@ button.cpiHelper_sidebar_iconbutton span {
 }
 
 .cpiHelper_logs_selected_button {
-  background-color: lightblue !important;
+  background-color: #add8e6 !important;
 }
 
 .cpiHelper_logs_table_div {
@@ -514,7 +514,7 @@ div#cpiHelper_messageSidebar_pluginArea {
 
 /* .card .extra.content:has(input:checked)>label, */
 .card .extra.content.checked>label {
-  background: hsl(113, 100%, 85%) !important;
+  background: #bbffb3 !important;
 }
 
 /* .card .extra.content:has(input:checked)>label::after, */
@@ -524,7 +524,7 @@ div#cpiHelper_messageSidebar_pluginArea {
 
 .card .extra.content>label:hover {
   color: #21436a;
-  background: hsl(0, 100%, 85%)
+  background: #ffb3b3
 }
 
 fieldset {
@@ -534,4 +534,11 @@ fieldset {
 .ui.modal.active>.header {
   background: var(--cpi-custom-color);
   color: #fff;
+}
+
+
+/* traceModifer Css */
+.traceModifer .fluid {
+  background: #ff8282;
+  background: linear-gradient(-90deg, #ff8282 0%, #ffff82 25%, #82ff82 50%, #82ffff 75%, #8282ff 100%) !important;
 }
