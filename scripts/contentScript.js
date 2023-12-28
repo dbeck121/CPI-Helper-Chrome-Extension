@@ -680,8 +680,15 @@ async function showInlineTrace(MessageGuid) {
       try {
         let target;
         let element;
+        let flag = true
         //    let target = element.children[getChild(element, ["g"])];
         //    target = target.children[getChild(target, ["rect", "circle", "path"])];
+
+        if (/StartEvent/.test(run.ModelStepId)) {
+          element = document.getElementById("BPMNShape_" + run.ModelStepId);
+          target = element.children[0].children[0];
+          flag = false
+        }
 
         if (/EndEvent/.test(run.StepId)) {
           element = document.getElementById("BPMNShape_" + run.StepId);
@@ -710,10 +717,11 @@ async function showInlineTrace(MessageGuid) {
 
         target.classList.add("cpiHelper_inlineInfo");
         //     target.addEventListener("onclick", function abc(event) { clickTrace(event); });
-        element.classList.add("cpiHelper_onclick");
-        element.onclick = clickTrace;
-        onClicKElements.push(element);
-
+        if (flag) {
+          element.classList.add("cpiHelper_onclick");
+          element.onclick = clickTrace;
+          onClicKElements.push(element);
+        }
         if (run.Error) {
           target.classList.add("cpiHelper_inlineInfo_error");
         }
@@ -746,7 +754,7 @@ async function showInlineTrace(MessageGuid) {
 
       } catch (e) {
         log.log("no element found for " + run.StepId);
-        log.log(run);
+        log.log(run, e);
       }
 
       return resolve(true);
