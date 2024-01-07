@@ -801,7 +801,9 @@ async function buildButtonBar() {
   try {
     var headerBar = document.getElementById('__xmlview0--iflowObjectPageHeader-identifierLine');
     headerBar.style.paddingBottom = "0px";
-  } catch (e) {  }
+  } catch (e) { 
+    log.debug("error when trying to set padding-bottom of headerbar");
+   }
 
 	// get status of powertrace button 
   var powertraceText = await refreshPowerTrace();
