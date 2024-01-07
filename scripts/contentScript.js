@@ -189,7 +189,6 @@ async function renderMessageSidebar() {
             let traceButton = createElementFromHTML("<button title='jump to trace page' id='trace--" + i + "' class='" + resp[i].MessageGuid + flash + "'>" + loglevel.substr(0, 1).toUpperCase() + "</button>");
 
             if (loglevel.toLowerCase() === "trace") {
-
               var quickInlineTraceButton = createElementFromHTML("<button title='activate inline trace for debugging' class='" + resp[i].MessageGuid + flash + " cpiHelper_inlineInfo-button' style='cursor: pointer;'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
             } else {
               var quickInlineTraceButton = createElementFromHTML("<span />")
@@ -259,11 +258,8 @@ async function renderMessageSidebar() {
             quickInlineTraceButton.onmouseup = async (e) => {
               var mytarget = e.currentTarget
               if (activeInlineItem == e.currentTarget.classList[0]) {
-
                 hideInlineTrace();
                 showToast("Inline-Debugging Deactivated");
-
-
               } else {
                 hideInlineTrace();
                 var inlineTrace = await showInlineTrace(e.currentTarget.classList[0]);
@@ -588,8 +584,7 @@ async function hideInlineTrace() {
 
   activeInlineItem = null;
 
-  var classesToBedeleted = ["cpiHelper_inlineInfo", "cpiHelper_inlineInfo_error", "cpiHelper_inlineInfo-active"]
-
+  var classesToBedeleted = ["cpiHelper_inlineInfo", "cpiHelper_inlineInfo_error", "cpiHelper_avg", "cpiHelper_belowavg", "cpiHelper_inlineInfo-active", "cpiHelper_aboveavg", "cpiHelper_max", "cpiHelper_min"]
   onClicKElements.forEach((element) => {
     if (element.onclick) {
       element.onclick = null;
@@ -606,12 +601,28 @@ async function hideInlineTrace() {
         //elements[i].removeEventListener('onclick', clickTrace);
       }
       elements[i].classList.remove(element)
-
     }
   });
 }
 
+function timenodediff(e) {
+  return {
+    "StepId": e.StepId, "ModelStepId": e.ModelStepId,
+    "CH_stats": parseInt(e.StepStop.match(/\d+/)[0]) - parseInt(e.StepStart.match(/\d+/)[0])
+  }
+}
+
+function maxNode(arr) {
+  let max = arr[0];
+  for (var i = 1; i < arr.length; i++) {
+    max = (arr[i] > max) ? arr[i] : max
+  }
+  return max
+};
+
 var inlineTraceElements;
+let cpi_timediff_list;
+let cpi_max_node;
 async function createInlineTraceElements(MessageGuid) {
   return new Promise(async (resolve, reject) => {
     inlineTraceElements = [];
@@ -621,18 +632,35 @@ async function createInlineTraceElements(MessageGuid) {
     if (logRuns == null || logRuns.length == 0) {
       return resolve(0);
     }
-
     logRuns.forEach((run) => {
       inlineTraceElements.push({
         StepId: run.StepId,
         ModelStepId: run.ModelStepId,
         ChildCount: run.ChildCount,
+        StepStop: run.StepStop,
+        StepStart: run.StepStart,
         RunId: run.RunId,
         BranchId: run.BranchId,
         Error: run.Error
       });
     });
 
+    // res is dataXHR request....
+    if (await getStorageValue('traceModifer', "isActive", null)) {
+      if (Array.isArray(logRuns) && document.getElementById("traceModifer_box").checked) {
+        cpi_sorted_nodes = [];
+        cpi_nodes = logRuns.filter((e) => { return e.StepStart != null && e.StepStop != null ? true : false }).map(timenodediff)
+        cpi_sorted_nodes = cpi_nodes.toSorted((a, b) => a.CH_stats - b.CH_stats);
+        cpi_timediff_list = [];
+        for (i in cpi_nodes) {
+          (cpi_timediff_list.includes(cpi_nodes[i].CH_stats)) ? "" : cpi_timediff_list.push(cpi_nodes[i].CH_stats)
+        }
+        cpi_group_node = Object.groupBy(cpi_sorted_nodes, (e) => { return e.ModelStepId })
+        cpi_max_node = []
+        for (const key in cpi_group_node) { cpi_max_node.push(maxNode(cpi_group_node[key])) }
+
+      }
+    }
     return resolve(logRuns.length);
   });
 }
@@ -643,7 +671,7 @@ async function showInlineTrace(MessageGuid) {
   return new Promise(async (resolve, reject) => {
     var observerInstalled = false;
     var logRuns = await createInlineTraceElements(MessageGuid);
-
+    var Trace_bool = await getStorageValue('traceModifer', "isActive", null)
     if (logRuns == null || logRuns == 0) {
       return resolve(null);
     }
@@ -652,10 +680,15 @@ async function showInlineTrace(MessageGuid) {
       try {
         let target;
         let element;
+        let flag = true
         //    let target = element.children[getChild(element, ["g"])];
         //    target = target.children[getChild(target, ["rect", "circle", "path"])];
 
-
+        if (/StartEvent/.test(run.ModelStepId)) {
+          element = document.getElementById("BPMNShape_" + run.ModelStepId);
+          target = element.children[0].children[0];
+          flag = false
+        }
 
         if (/EndEvent/.test(run.StepId)) {
           element = document.getElementById("BPMNShape_" + run.StepId);
@@ -684,16 +717,24 @@ async function showInlineTrace(MessageGuid) {
 
         target.classList.add("cpiHelper_inlineInfo");
         //     target.addEventListener("onclick", function abc(event) { clickTrace(event); });
-        element.classList.add("cpiHelper_onclick");
-        element.onclick = clickTrace;
-        onClicKElements.push(element);
-
+        if (flag) {
+          element.classList.add("cpiHelper_onclick");
+          element.onclick = clickTrace;
+          onClicKElements.push(element);
+        }
         if (run.Error) {
           target.classList.add("cpiHelper_inlineInfo_error");
         }
-
+        if (Trace_bool && document.getElementById("traceModifer_box").checked) {
+          indexofnode = cpi_timediff_list.findIndex(e => e === (cpi_max_node.find((f) => f.ModelStepId === run.ModelStepId)).CH_stats);
+          if (indexofnode == cpi_timediff_list.length - 1) { nodeclass = 'cpiHelper_max' }
+          else if (indexofnode == 0) { nodeclass = "cpiHelper_min" }
+          else if (indexofnode == (cpi_timediff_list.length % 2 === 0 ? cpi_timediff_list.length / 2 : Math.round(cpi_timediff_list.length / 2) - 1)) { nodeclass = 'cpiHelper_avg' }
+          else if (indexofnode < cpi_timediff_list.length / 2) { nodeclass = 'cpiHelper_belowavg' }
+          else if (indexofnode > cpi_timediff_list.length / 2) { nodeclass = 'cpiHelper_aboveavg' }
+          target.classList.add(nodeclass)
+        }
         if (!observerInstalled) {
-
           observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
               const el = mutation.target;
@@ -713,7 +754,7 @@ async function showInlineTrace(MessageGuid) {
 
       } catch (e) {
         log.log("no element found for " + run.StepId);
-        log.log(run);
+        log.log(run, e);
       }
 
       return resolve(true);
@@ -805,13 +846,12 @@ async function buildButtonBar() {
     log.debug("error when trying to set padding-bottom of headerbar");
    }
 
-	// get status of powertrace button 
+  // get status of powertrace button 
   var powertraceText = await refreshPowerTrace();
-  
   if (!document.getElementById("__buttonxx")) {
     whatsNewCheck();
     //timer for recruiting popup in 100 seconds
-    if(recrutingTimerSet == false) {
+    if (recrutingTimerSet == false) {
       setTimeout(() => {
         recrutingPopup();
       }, 600000);
@@ -907,14 +947,12 @@ async function buildButtonBar() {
     }
   }
 
-	// reapply status of powertrace button (needed after returning from script/message mapping
-    await refreshPowerTrace();
-
+  // reapply status of powertrace button (needed after returning from script/message mapping
+  await refreshPowerTrace();
 }
 
 //Collect Infos to Iflow
 async function getIflowInfo(callback, silent = false) {
-
   return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", false, null, null, null, null, !silent).then((response) => {
     response = new XmlToJson().parse(response)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
     var resp = response.artifactInformations;
@@ -1283,7 +1321,7 @@ async function openIflowInfoPopup() {
     recrutingButton.classList.add("button")
 
     var lang = navigator.language || navigator.userLanguage;
-  
+
     if (lang == "de-DE") {
       recrutingButton.innerText = "Werde Berater bei Kangoolutions";
       recrutingButton.addEventListener("click", (a) => {
@@ -1709,7 +1747,7 @@ async function checkURLchange() {
 
 //this function is fired when the url changes
 async function handleUrlChange() {
-    //check if powertrace button was on / set correct button status
+  //check if powertrace button was on / set correct button status
   await refreshPowerTrace();
 
   //check current artifact
@@ -1927,29 +1965,29 @@ async function storeVisitedIflowsForPopup() {
 }
 
 async function refreshPowerTrace() {
-    //get last run from store and check if it is less than 11 minutes ago, then reapply trace button status
+  //get last run from store and check if it is less than 11 minutes ago, then reapply trace button status
 
-    var powertraceText = ""
+  var powertraceText = ""
 
-    var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`
-    var timeAsStringOrNull = await storageGetPromise(objName)
+  var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`
+  var timeAsStringOrNull = await storageGetPromise(objName)
 
-    if (timeAsStringOrNull != null && timeAsStringOrNull != undefined) {
-      var now = new Date().getTime()
-      var time = now - parseInt(timeAsStringOrNull)
-      if (time != NaN && time < 1000 * 60 * 11) {
-        log.debug("update powertrace button status")
-        powertraceText = "cpiHelper_powertrace"
+  if (timeAsStringOrNull != null && timeAsStringOrNull != undefined) {
+    var now = new Date().getTime()
+    var time = now - parseInt(timeAsStringOrNull)
+    if (time != NaN && time < 1000 * 60 * 11) {
+      log.debug("update powertrace button status")
+      powertraceText = "cpiHelper_powertrace"
 
-        // if button list already exists (e.g. after url change), reapply class to button
-        var btn = document.getElementById("button134345-BDI-content")  
-        if (btn != undefined && !btn.classList.contains("cpiHelper_powertrace")) {
-	        btn.classList.toggle("cpiHelper_powertrace")
-	      }
+      // if button list already exists (e.g. after url change), reapply class to button
+      var btn = document.getElementById("button134345-BDI-content")
+      if (btn != undefined && !btn.classList.contains("cpiHelper_powertrace")) {
+        btn.classList.toggle("cpiHelper_powertrace")
       }
     }
-    return powertraceText;
   }
+  return powertraceText;
+}
 
 //start
 checkURLchange();
