@@ -1272,7 +1272,7 @@ async function openIflowInfoPopup() {
       undeploybutton.classList.add("ui")
       undeploybutton.classList.add("button")
 
-      undeploybutton.innerText = "Undeploy";
+      undeploybutton.innerText = "Undeploy this IFlow";
       undeploybutton.id = "undeploybutton";
       undeploybutton.addEventListener("click", (a) => {
         undeploy(cpiData?.flowData?.artifactInformation?.tenantId, cpiData?.flowData?.artifactInformation?.id);

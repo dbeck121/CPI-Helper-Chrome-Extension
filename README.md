@@ -44,21 +44,27 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.10.0
+
+- [Feature]Plugin: Trace Step Modifier (Beta) - Performance stats in trace. Thanks to [Omkar Patel](https://github.com/incpi)
+- [Bugfix] Some ui fixes
+- [Improvement] Improved stability
+
 ### 3.9.0
 
-- [Improvement] Hundreds of ui improvements. Thanks to [Omkar Patel](https://github.com/incpi) for the great contribution 
-- UI 3.8.1 fix 
+- [Improvement] Hundreds of ui improvements. Thanks to [Omkar Patel](https://github.com/incpi) for the great contribution
+- UI 3.8.1 fix
 - New Plugin: "Trace Modifier"
   - Trace step uppper limit [Over write Global host variable with iflow variable] [read more](https://incpi.github.io/cpihelper-plugin/)
-- New Configs: (* FireFox: Limited UI support)
+- New Configs: (\* FireFox: Limited UI support)
   - Preset Themes
-   - Zoom Level
-    - Trace step uppper limit [Global Host]
-    - [feature] auto light color adjuster(if you pick too bright color)
+  - Zoom Level
+  - Trace step uppper limit [Global Host]
+  - [feature] auto light color adjuster(if you pick too bright color)
 - For Plugin:
-    - Popup Mode [Separate / Joint]
-    - Engine enhanced with new fatures
-    - Plugin Page UI Changed
+  - Popup Mode [Separate / Joint]
+  - Engine enhanced with new fatures
+  - Plugin Page UI Changed
 - [Improvement] Many under the hood improvements
 - [Improvement] Updated Fomantic UI to 2.9.3
 - [Bugfix] Many small fixes

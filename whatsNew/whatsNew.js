@@ -6,16 +6,18 @@ async function whatsNewCheck(showOnlyOnce = true) {
 
   silentupdates = ["3.0.3"]
 
-  const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
+  //const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
+  const FIGAF_IMG = chrome.runtime.getURL("images/Figaf migration journey.jpg");
+  const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
 
   if (!check && !silentupdates.includes(manifestVersion) || showOnlyOnce == false) {
-    html = `<div class="ui icon positive message">
-              <i class="info icon"></i>
+    html = `<div class="ui message">
+              <img class="ui small floated image" src="${Kangoolutions_Logo}">
               <div class="content">
                 <div class="header">
                   You updated successfully to version ${manifestVersion}
                 </div>
-                <p>Follow our <a href="https://www.linkedin.com/company/kangoolutions" target="_blank">LinkedIn page</a> for
+                <p>Developed by a great community and Kangoolutions GmbH from Cologne, Germany! Follow our <a href="https://www.linkedin.com/company/kangoolutions" target="_blank">LinkedIn page</a> for
                   updates and news about CPI Helper.</p>
               </div>
             </div>
@@ -28,29 +30,27 @@ async function whatsNewCheck(showOnlyOnce = true) {
             <div class="ui bottom attached tab segment" data-tab="one">
               <div class="ui segment">
                 <div class="ui grid">
-                  <div class="four wide column">
-                    <a href="https://figaf.com/cpihelper-and-figaf" target="_blank"><img class="ui small left floated image"
+                  <div class="six wide column">
+                    <a href="https://figaf.com/cpihelper-and-figaf" target="_blank"><img class="ui big left floated image"
                         src="${FIGAF_IMG}"></a>
                   </div>
-                  <div class="twelve wide column">
+                  <div class="ten wide column">
                     <div class="ui header">This release is sponsored by Figaf </div>
                     <p>
-                    As we end the year, you are planning what to do with your SAP integration in 2024. Please consider Figaf it will make your life easier.
-               </p>
-                    If you want to see some of the areas where we can see, check our advent calendar <a href="https://figaf.com/cpihelper10" target="_blank"><u>here</u></a>.
+                    If you are starting on your SAP PI/PO to Integration Suite migration, 
+Figaf has created a guide to help you navigate many of the questions you will encounter as part of your journey to the Integration Suite.</p><br />
+                    <p>Start you journey <a href="https://figaf.com/cpihelper11" target="_blank"><u>here</u></a>.</p>
                   </div>
                 </div>
               </div>
               <h3 class="ui header">
               <i class="bell icon"></i>
               <div class="content">
-                Christmas Release 2023
+                January 2024 Release
               </div>
               </h3>
               <p>
-              This release is filled with new UI features and improvements. CPI Helper is free and open source, so perhaps you would like to assist us in contributing new features and bug fixes. Our community is expanding, and we would like to give a special thanks to Daniel Graversen and his amazing Figaf Tools, which have helped me dedicate more time to developing the CPI Helper. For those celebrating Christmas, we wish you a merry Christmas and a happy new year.<br />
-              Best regards,<br />
-              <a href="https://www.linkedin.com/in/dominic-beckbauer-515894188/">Dominic Beckbauer</a>
+              CPI Helper is free and open source, so perhaps you would like to assist us in contributing new features and bug fixes. Our community is expanding, and we would like to give a special thanks to Daniel Graversen and his amazing Figaf Tools, which have helped me dedicate more time to developing the CPI Helper.<br />
               </p>
             </h3>
               <h3 class="ui header">
@@ -64,15 +64,15 @@ async function whatsNewCheck(showOnlyOnce = true) {
 <a class="item"><i class="right triangle icon"></i>
                   <div class="content">
                     <div class="header">Feature</div>
-                    <div class="description">Hundreds of ui improvements. Thanks to Omkar Patel</div>
+                    <div class="description">Plugin: Trace Step Modifier (Beta) - Performance stats in trace. Thanks to Omkar Patel</div>
                   </div>
                 </a>
         <a class="item">
             <i class="right triangle icon"></i>
             <div class="content">
-                <div class="header">Feature</div>
+                <div class="header">Bugfixes</div>
                 <div class="description">
-                    <span class="ui text">New Plugin - Trace step uppper limit [Overwrite Global host variable with iflow]</span>
+                    <span class="ui text">Some overall stability improvements.</span>
                 </div>
             </div>
         </a>
@@ -80,43 +80,10 @@ async function whatsNewCheck(showOnlyOnce = true) {
             <i class="right triangle icon"></i>
             <div class="content">
                 <div class="header">Feature</div>
-                <div class="description">
-                    <span class="ui text">New Configs - Themes | Zoom Level | Trace step limit (Global Host)</span>
-                </div>
+                <div class="description">Small UI fixes</div>
             </div>
         </a>
-        <a class="item">
-            <i class="right triangle icon"></i>
-            <div class="content">
-                <div class="header">Feature</div>
-                <div class="description">Plugin - Popup Mode [Separate / Joint] | Engine enhanced with new fatures | Plugin Page UI Changed </div>
-            </div>
-        </a>
-        <a class="item">
-            <i class="right triangle icon"></i>
-            <div class="content">
-                <div class="header">Feature</div>
-                <div class="description">Improved Plugin UI</div>
-            </div>
-        </a>
-                <a class="item"><i class="right triangle icon"></i>
-                <div class="content">
-                  <div class="header">Feature</div>
-                  <div class="description">Many under the hood improvements</div>
-                </div>
-              </a>
-              <a class="item"><i class="right triangle icon"></i>
-              <div class="content">
-                <div class="header">Improvement</div>
-                <div class="description">Updated Fomantic UI to 2.9.3</div>
-              </div>
-            </a>
-                <a class="item"><i class="right triangle icon"></i>
-                  <div class="content">
-                    <div class="header">Bugfix</div>
-                    <div class="description">Many bugfixes</div>
-                  </div>
-                </a>
+            
                 <h3 class="ui header">
                   <a href="https://www.linkedin.com/company/kangoolutions" target="_blank"><i
                       class="linkedin icon"></i></a>
@@ -164,7 +131,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
               <p>To learn more about CPI Helper features and what's new on our <a
                   href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">Github
                   Page</a>.</p>
-              <p>Unfortunately, SAP does not work with us together and does not inform us when the APIs change. So be
+              <p>Unfortunately, SAP does not work together with us and does not inform us when the APIs change. So be
                 gentle if sth. does not work. We do this in our free time and sometimes it takes a while to adapt to
                 SAP changes.</p>
             </div>
@@ -232,6 +199,8 @@ async function recrutingPopup(force = false) {
 
   //show only for a fraction of user for testing
 
+  const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
+
   var randomGroup = parseInt(await storageGetPromise("recrutingPopupRandomGroup"));
 
   if(!randomGroup) {
@@ -255,12 +224,12 @@ async function recrutingPopup(force = false) {
     });
   }
 
-  if (lang == "de-DE" && (force || (!timestamp && randomGroup <= 30) || (timestamp && timestamp < today))) {
+  if (lang == "de-DE" && (force || (!timestamp && randomGroup <= 60) || (timestamp && timestamp < today))) {
     statistic("recrutingPopup","show")
     var html = `
     <div>
-      <div class="ui icon violet message">
-        <i class="info icon"></i>
+      <div class="ui message">
+      <img class="ui small floated image" src="${Kangoolutions_Logo}">
         <div class="content">
         <div class="header">
           Werde ein weiterer Held im Kampf für die Datenintegration!
@@ -289,7 +258,7 @@ async function recrutingPopup(force = false) {
   
     </div>
 
-    <p>Wir haben viel Humor und das vllt coolste Team der Welt. Lass uns doch mal plaudern:<p>
+    <p>Wir haben viel Humor und das vielleicht coolste Team der Welt. Lass uns doch mal plaudern:<p>
         </div>
                 </div>`;
 
@@ -302,6 +271,8 @@ async function recrutingPopup(force = false) {
       icon.className = "right bell icon";
       button.textContent = text;
       button.appendChild(icon);
+
+      button.style.marginBottom = "10px";
 
       button.onclick = async function () {
         statistic("recrutingPopup","remind", days)
@@ -325,7 +296,7 @@ async function recrutingPopup(force = false) {
     var icon = document.createElement("i");
     icon.className = "right arrow icon";
 
-    nextStepButtion.textContent = "Jau... ich will mehr wissen";
+    nextStepButtion.textContent = "Jau! Ich will mehr wissen.";
     nextStepButtion.appendChild(icon);
     nextStepButtion.onclick = async function () {
       statistic("recrutingPopup","nextStep")
@@ -333,38 +304,24 @@ async function recrutingPopup(force = false) {
       $('#cpiHelper_semanticui_modal').modal('hide');
     }
 
-    popup.appendChild(nextStepButtion)
-           //create br
-           var br = document.createElement("br");
-           popup.appendChild(br);       //create br
-           var br = document.createElement("br");
-           popup.appendChild(br);
-
-    
-
-    popup.appendChild(createRemindButtopn("Erinnere mich morgen", 1))
-       //create br
-       var br = document.createElement("br");
-       popup.appendChild(br);       //create br
-       var br = document.createElement("br");
-       popup.appendChild(br);
-   
-    popup.appendChild(createRemindButtopn("Erinnere mich in einem Monat", 30))
-       //create br
-       var br = document.createElement("br");
-       popup.appendChild(br);
-       var br = document.createElement("br");
-       popup.appendChild(br);
-   
-    popup.appendChild(createRemindButtopn("Erinnere mich in einem halben Jahr", 190))
-
     //create br
     var br = document.createElement("br");
-    popup.appendChild(br);
-    var br = document.createElement("br");
+    var span = document.createElement("span");
+    span.textContent = "Erinnere mich: ";
     popup.appendChild(br);
 
-    popup.appendChild(createRemindButtopn("Erinnere mich nicht mehr", 9999, "violet"))
+    popup.appendChild(nextStepButtion)
+    popup.appendChild(br);
+    popup.appendChild(createRemindButtopn("Schon ok... Erinnere mich nicht mehr", 9999, "violet"))
+
+    popup.appendChild(br);
+    popup.appendChild(span)
+    popup.appendChild(createRemindButtopn("Morgen", 1)) 
+
+    popup.appendChild(createRemindButtopn("In einer Woche", 7)) 
+
+   
+    popup.appendChild(createRemindButtopn("In einem halben Jahr", 190)) 
 
     await showBigPopup(popup, "Wir suchen Verstärkung!", { "fullscreen": false });
    
