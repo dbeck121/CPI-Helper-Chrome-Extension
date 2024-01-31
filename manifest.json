@@ -57,6 +57,7 @@
         "/plugins/example.js",
         "/scripts/ui.js",
         "/scripts/logs.js",
+        "/whatsNew/whatsNewLog.js",
         "/whatsNew/whatsNew.js",
         "/scripts/plugins.js",
         "/scripts/contentScript.js"
