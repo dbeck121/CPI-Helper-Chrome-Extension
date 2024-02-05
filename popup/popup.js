@@ -292,7 +292,7 @@ function addTenantSettings() {
     //reset color btn
     document.querySelector('#tenantSettings > div >div > button').addEventListener('click', () => {
         const tenantColor = document.querySelector('#colorSelect');
-        tenantColor.value = '#21436a';
+        tenantColor.value = '#354a5f';
         tenantColor.dispatchEvent(new Event("change"));
     })
     //cozy-compact mode btn

@@ -1,6 +1,6 @@
 /*root filter*/
 :root {
-  --cpi-custom-color: #21436a;
+  --cpi-custom-color: #354a5f;
 }
 
 /* whats new */
@@ -82,13 +82,13 @@
 
 .cpiHelper button.cpiHelper_inlineInfo-active {
   /*  border: solid 1px #be6500; */
-  background: #21436a;
+  background: #354a5f;
   color: white;
 
 }
 
 .cpiHelper button:active {
-  background: #21436a;
+  background: #354a5f;
 }
 
 .cpiHelper button:focus {
@@ -98,7 +98,7 @@
 .cpiHelper button.cpiHelper_sidebar_iconbutton,
 button.cpiHelper_sidebar_iconbutton span {
   cursor: pointer;
-  background-color: #21436a;
+  background-color: #354a5f;
   color: white !important;
   outline: none;
 }
@@ -209,7 +209,7 @@ button.cpiHelper_sidebar_iconbutton span {
 
 @keyframes cpiHelper_flash {
   from {
-    background: #21436a;
+    background: #354a5f;
   }
 
   to {
@@ -302,7 +302,7 @@ button.cpiHelper_sidebar_iconbutton span {
   padding: 10px;
 
   z-index: 10;
-  background-color: #21436a;
+  background-color: #354a5f;
   color: #fff;
   box-sizing: border-box;
   border-radius: 5px 5px 0px 0px;
@@ -375,7 +375,7 @@ button.cpiHelper_sidebar_iconbutton span {
 .cpiHelper_tabs_label:hover,
 .cpiHelper_tabs_input:checked+.cpiHelper_tabs_label:hover {
   color: #ff5722;
-  background: #21436a;
+  background: #354a5f;
   border-radius: 0.2857rem
 }
 
@@ -523,7 +523,7 @@ div#cpiHelper_messageSidebar_pluginArea {
 }
 
 .card .extra.content>label:hover {
-  color: #21436a;
+  color: #354a5f;
   background: #ffb3b3
 }
 
