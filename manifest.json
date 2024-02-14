@@ -53,6 +53,7 @@
         "/plugins/OpenAIServices.js",
         "/plugins/WHINT_IFD.js",
         "/plugins/settingsPaneResizer.js",
+        "/plugins/timeline.js",
         "/plugins/traceModifer.js",
         "/plugins/example.js",
         "/scripts/ui.js",
