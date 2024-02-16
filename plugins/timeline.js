@@ -58,22 +58,37 @@ function formatTimestamp(timestamp) {
 }
 
 function createContent(data, pluginHelper) {
-    console.log(data)
     // Table columns
     var popupContentPrefix = `
-    <table class="timeline-Table">
-        <tr class="timeline-TableRow" id="timeline-TableRowHeader">
-            <th class="timeline-TableHeader" style="text-align:center;">Nr.</th>
-            <th class="timeline-TableHeader">Integration Flow Name</th>
-            <th class="timeline-TableHeader">Integration Package</th>
-            <th class="timeline-TableHeader">Status</th>
-            <th class="timeline-TableHeader">Start Date</th>
-            <th class="timeline-TableHeader">Start Time</th>
-        </tr>`;
+    <table class="ui celled table">
+        <thead>
+            <tr class="black">
+                <th class="ui center aligned">Nr.</th>
+                <th>Integration Flow Name</th>
+                <th>Integration Package</th>
+                <th>Status</th>
+                <th>Start Date</th>
+                <th>Start Time</th>
+            </tr>
+        </thead>
+        </tbody>`;
 
     // Creating a table entry for every connected artifact
-    var artifactCounter = 1;
-    data.forEach(artifact => {
+    data.forEach(function(artifact, index) {
+        // Status coloring for status field
+        var statusColor = artifact.Status;
+        switch (statusColor) {
+            case "COMPLETED":
+                statusColor = "green colored left green marked";
+                break;
+            case "FAILED":
+                statusColor = "red colored left red marked";
+                break;
+            default:
+                statusColor = "orange colored left orange marked";
+                break;
+        }
+
         var date = JSON.parse(formatTimestamp(artifact.LogStart)).date;
         var time = JSON.parse(formatTimestamp(artifact.LogStart)).time;
         var packageLink = `https://${pluginHelper.tenant}/${pluginHelper.urlExtension}shell/design/contentpackage/${artifact.IntegrationArtifact.PackageId}?section=ARTIFACTS`;
@@ -81,82 +96,30 @@ function createContent(data, pluginHelper) {
         if(artifact.IntegrationArtifact.Id != pluginHelper.integrationFlowId){
             var link = `https://${pluginHelper.tenant}/${pluginHelper.urlExtension}shell/design/contentpackage/${artifact.IntegrationArtifact.PackageId}/integrationflows/${artifact.IntegrationArtifact.Id}`;
             popupContentPrefix += `
-            <tr class="timeline-TableRow">
-                <td class="timeline-TableData" style="text-align:center;">${artifactCounter}.</td>
-                <td class="timeline-TableData"><a href="${link}" target="_blank">${artifact.IntegrationArtifact.Name}</a></td>
-                <td class="timeline-TableData"><a href="${packageLink}" target="_blank">${artifact.IntegrationArtifact.PackageName}</a></td>
-                <td class="timeline-TableData">${artifact.Status}</td>
-                <td class="timeline-TableData">${date}</td>
-                <td class="timeline-TableData">${time}</td>
+            <tr>
+                <td data-label="Nr." class="ui center aligned">${index + 1}.</td>
+                <td data-label="Integration Flow Name" class="selectable"><a href="${link}" target="_blank">${artifact.IntegrationArtifact.Name}</a></td>
+                <td data-label="Integration Package" class="selectable"><a href="${packageLink}" target="_blank">${artifact.IntegrationArtifact.PackageName}</a></td>
+                <td data-label="Status" class="${statusColor}">${artifact.Status}</td>
+                <td data-label="Start Date">${date}</td>
+                <td data-label="Start Time">${time}</td>
             </tr>`;
         }else{
             // No link for currently viewed artifact (because we are already viewing it)
             // Has different background coloring and indicating text
             popupContentPrefix += `
-            <tr class="timeline-TableRow" id="timeline-activeTableRow">
-                <td class="timeline-TableData" style="text-align:center;">${artifactCounter}.</td>
-                <td class="timeline-TableData">${artifact.IntegrationArtifact.Name} (currently viewing)</td>
-                <td class="timeline-TableData"><a href="${packageLink}" target="_blank">${artifact.IntegrationArtifact.PackageName}</a></td>
-                <td class="timeline-TableData">${artifact.Status}</td>
-                <td class="timeline-TableData">${date}</td>
-                <td class="timeline-TableData">${time}</td>
+            <tr class="yellow">
+                <td data-label="Nr." class="ui center aligned">${index + 1}.</td>
+                <td data-label="Integration Flow Name">${artifact.IntegrationArtifact.Name} (currently viewing)</td>
+                <td data-label="Integration Package" class="selectable"><a href="${packageLink}" target="_blank">${artifact.IntegrationArtifact.PackageName}</a></td>
+                <td data-label="Status" class="${statusColor}">${artifact.Status}</td>
+                <td data-label="Start Date">${date}</td>
+                <td data-label="Start Time">${time}</td>
             </tr>`;
         }
-        artifactCounter++;
     });
 
-    // Styling
-    var style = `
-    <style>
-        .timeline-Table {
-            font-family: arial, sans-serif;
-            border-collapse: separate;
-            width: 100%;
-            border-spacing: 0;
-            border: 1px solid #1B1C1D;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .timeline-TableData, #timeline-activeTableRow, .timeline-TableHeader {
-            border: 1px solid #1B1C1D;
-            text-align: left;
-            padding: 8px;
-        }
-
-        #timeline-activeTableRow {
-            background-color: #FDFD96;
-        }
-
-        .timeline-TableRow:nth-child(even) {
-            background-color: #dddddd;
-        }
-
-        .timeline-TableHeader {
-            background-color: #1B1C1D;
-            color: white;
-            text-align: left;
-            padding: 8px;
-        }
-
-        .timeline-TableHeader:first-child {
-            border-top-left-radius: 8px;
-        }
-
-        .timeline-TableHeader:last-child {
-            border-top-right-radius: 8px;
-        }
-
-        .timeline-TableRow:last-child .timeline-TableData:first-child {
-            border-bottom-left-radius: 8px;
-        }
-
-        .timeline-TableRow:last-child .timeline-TableData:last-child {
-            border-bottom-right-radius: 8px;
-        }
-    </style>`;
-
-    return popupContentPrefix + `</table>` + style;
+    return popupContentPrefix + `</tbody></table>`;
 }
 
 pluginList.push(plugin);
