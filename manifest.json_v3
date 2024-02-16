@@ -39,6 +39,7 @@
         "/plugins/figaf.js",
         "/plugins/OpenAIServices.js",
         "/plugins/settingsPaneResizer.js",
+        "/plugins/timeline.js",
         "/scripts/ui.js",
         "/scripts/tools.js",
         "/scripts/logs.js",
