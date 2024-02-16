@@ -9,20 +9,19 @@ async function messageSidebarPluginContent(forceRender = false) {
     let activeness = false;
     for (element of pluginList) {
         var settings = await getPluginSettings(element.id);
-        if (settings[element.id + "---isActive"] === true) {
+        if (settings[element.id + "---isActive"] === true && (element?.messageSidebarContent?.onRender && (!element?.messageSidebarContent?.static || forceRender == true))) {
             activeness = true;
-            if (element?.messageSidebarContent?.onRender && (!element?.messageSidebarContent?.static || forceRender == true)) {
-                var div = document.getElementById("cpiHelper_messageSidebar_pluginArea_" + element.id)
-                if (!div) {
-                    div = document.createElement("fieldset");
-                    div.id = "cpiHelper_messageSidebar_pluginArea_" + element.id;
-                    div.classList = "ui fluid segment";
-                }
-                div.innerHTML = ""
-                div.appendChild(createElementFromHTML("<div class='ui tiny header'>" + element.name + "</div>"));
-                div.appendChild(element.messageSidebarContent.onRender(cpiData, settings));
-                document.querySelector('#cpiHelper_messageSidebar_pluginArea').appendChild(div);
+            var div = document.getElementById("cpiHelper_messageSidebar_pluginArea_" + element.id)
+            if (!div) {
+                div = document.createElement("fieldset");
+                div.id = "cpiHelper_messageSidebar_pluginArea_" + element.id;
+                div.classList = "ui fluid segment";
             }
+            div.innerHTML = ""
+            div.appendChild(createElementFromHTML("<div class='ui tiny header'>" + element.name + "</div>"));
+            div.appendChild(element.messageSidebarContent.onRender(cpiData, settings));
+            document.querySelector('#cpiHelper_messageSidebar_pluginArea').appendChild(div);
+
         }
     }
     const ctxbtnclose = document.querySelector('#cpiHelper_contentheader')
@@ -235,7 +234,7 @@ async function createPluginPopupUI(plugin) {
                     text.id = `cpiHelper_popup_plugins - ${plugin.id} -${key} `;
                     text.innerHTML = plugin.settings[key].text
                     var div = document.createElement('div');
-                    div.classList= plugin.settings[key].class
+                    div.classList = plugin.settings[key].class
                     div.appendChild(text);
                     subcontainer.appendChild(div);
                 }
@@ -248,7 +247,7 @@ async function createPluginPopupUI(plugin) {
                     subcontainer.appendChild(btn);
                 }
             }
-            container.appendChild(subcontainer);
+            if (subcontainer.childElementCount > 0) { container.appendChild(subcontainer) }
         }
     }
     var activeCheckbox = document.createElement('input');
