@@ -392,7 +392,7 @@ async function getHost() {
             var url = currentTab.url;
             var tempHost = "https://" + url.split("/")[2];
 
-            if (!url.match(/.*\.integrationsuite(-trial){0,1}\..*/)) {
+            if (!url.match(/.*\.integrationsuite(-trial)?.*/)) {
                 tempHost += "/itspaces"
             }
             resolve(tempHost);
