@@ -11,9 +11,8 @@ var plugin = {
         "icon": { "type" : "icon" , "src" : "/images/plugin_logos/AGILITAAG_Logo.jpg" }
     },
     messageSidebarButton: {
-        "text": "⏳",
+        "icon": { "type": "icon", "text": "xe088" }, //⏳
         "title": "display timeline",
-        "icon": "",
         "onClick": async (pluginHelper, settings, runInfo) => {
             // Data Prep for table
             // Get correlationId of current message
@@ -74,7 +73,7 @@ function createContent(data, pluginHelper) {
         </tbody>`;
 
     // Creating a table entry for every connected artifact
-    data.forEach(function(artifact, index) {
+    data.forEach(function (artifact, index) {
         // Status coloring for status field
         var statusColor = artifact.Status;
         switch (statusColor) {
@@ -93,7 +92,7 @@ function createContent(data, pluginHelper) {
         var time = JSON.parse(formatTimestamp(artifact.LogStart)).time;
         var packageLink = `https://${pluginHelper.tenant}/${pluginHelper.urlExtension}shell/design/contentpackage/${artifact.IntegrationArtifact.PackageId}?section=ARTIFACTS`;
         // Displaying the currently viewed artifact differently than the connected artifacts
-        if(artifact.IntegrationArtifact.Id != pluginHelper.integrationFlowId){
+        if (artifact.IntegrationArtifact.Id != pluginHelper.integrationFlowId) {
             var link = `https://${pluginHelper.tenant}/${pluginHelper.urlExtension}shell/design/contentpackage/${artifact.IntegrationArtifact.PackageId}/integrationflows/${artifact.IntegrationArtifact.Id}`;
             popupContentPrefix += `
             <tr>
@@ -104,7 +103,7 @@ function createContent(data, pluginHelper) {
                 <td data-label="Start Date">${date}</td>
                 <td data-label="Start Time">${time}</td>
             </tr>`;
-        }else{
+        } else {
             // No link for currently viewed artifact (because we are already viewing it)
             // Has different background coloring and indicating text
             popupContentPrefix += `
