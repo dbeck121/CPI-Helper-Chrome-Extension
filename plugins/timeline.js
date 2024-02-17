@@ -8,7 +8,7 @@ var plugin = {
     email: "gregor.schuetz@agilita.ch",
     description: "Displays the timeline of a message.",
     settings: {
-        "icon": { "type" : "icon" , "src" : "/images/plugin_logos/AGILITAAG_Logo.jpg" }
+        "icon": { "type": "icon", "src": "/images/plugin_logos/AGILITAAG_Logo.jpg" }
     },
     messageSidebarButton: {
         "icon": { "type": "icon", "text": "xe088" }, //⏳
@@ -26,7 +26,7 @@ var plugin = {
 
             // Popup
             var popupContent = document.createElement("div");
-            
+
             // Place the table inside of the div
             popupContent.innerHTML = createContent(dataForTable, pluginHelper);
 
@@ -59,7 +59,7 @@ function formatTimestamp(timestamp) {
 function createContent(data, pluginHelper) {
     // Table columns
     var popupContentPrefix = `
-    <table class="ui celled table">
+    <table class="ui celled center aligned table" id='timelinetable'>
         <thead>
             <tr class="black">
                 <th class="ui center aligned">Nr.</th>
@@ -76,46 +76,44 @@ function createContent(data, pluginHelper) {
     data.forEach(function (artifact, index) {
         // Status coloring for status field
         var statusColor = artifact.Status;
-        switch (statusColor) {
-            case "COMPLETED":
-                statusColor = "green colored left green marked";
-                break;
-            case "FAILED":
-                statusColor = "red colored left red marked";
-                break;
-            default:
-                statusColor = "orange colored left orange marked";
-                break;
+        if (statusColor == "PROCESSING") {
+            statusColor = "yellow";
+        }
+        else if (statusColor == "FAILED") {
+            statusColor = "red";
+        }
+        else if (statusColor == "COMPLETED") {
+            statusColor = "green";
+        }
+        else if (statusColor.match(/^(ESCALATED|RETRY)$/)) {
+            statusColor = "orange";
+        }
+        else if (statusColor.match(/^(CANCELLED)$/)) {
+            statusColor = "grey";
+        }
+        else {
+            statusColor = "blue";
         }
 
         var date = JSON.parse(formatTimestamp(artifact.LogStart)).date;
         var time = JSON.parse(formatTimestamp(artifact.LogStart)).time;
         var packageLink = `https://${pluginHelper.tenant}/${pluginHelper.urlExtension}shell/design/contentpackage/${artifact.IntegrationArtifact.PackageId}?section=ARTIFACTS`;
         // Displaying the currently viewed artifact differently than the connected artifacts
-        if (artifact.IntegrationArtifact.Id != pluginHelper.integrationFlowId) {
-            var link = `https://${pluginHelper.tenant}/${pluginHelper.urlExtension}shell/design/contentpackage/${artifact.IntegrationArtifact.PackageId}/integrationflows/${artifact.IntegrationArtifact.Id}`;
-            popupContentPrefix += `
-            <tr>
+        // No link for currently viewed artifact (because we are already viewing it)
+        // Has different background coloring and indicating text
+        var link = `https://${pluginHelper.tenant}/${pluginHelper.urlExtension}shell/design/contentpackage/${artifact.IntegrationArtifact.PackageId}/integrationflows/${artifact.IntegrationArtifact.Id}`;
+        popupContentPrefix += `
+            <tr class="${statusColor}">
                 <td data-label="Nr." class="ui center aligned">${index + 1}.</td>
-                <td data-label="Integration Flow Name" class="selectable"><a href="${link}" target="_blank">${artifact.IntegrationArtifact.Name}</a></td>
-                <td data-label="Integration Package" class="selectable"><a href="${packageLink}" target="_blank">${artifact.IntegrationArtifact.PackageName}</a></td>
-                <td data-label="Status" class="${statusColor}">${artifact.Status}</td>
+                <td data-label="Integration Flow Name"class="selectable">${artifact.IntegrationArtifact.Id != pluginHelper.integrationFlowId
+                ? `<a class='ui basic fluid button' href="${link}" target="_blank"><b>${artifact.IntegrationArtifact.Name}</b></a>`
+                : `<a class='ui fluid button'target="_blank">${artifact.IntegrationArtifact.Name} (currently viewing)</a>`}
+                </td>
+                <td data-label="Integration Package" class="selectable"><a href="${packageLink}" class='ui basic fluid button' target="_blank"><b>${artifact.IntegrationArtifact.PackageName}</b></a></td>
+                <td data-label="Status">${artifact.Status}</td>
                 <td data-label="Start Date">${date}</td>
                 <td data-label="Start Time">${time}</td>
             </tr>`;
-        } else {
-            // No link for currently viewed artifact (because we are already viewing it)
-            // Has different background coloring and indicating text
-            popupContentPrefix += `
-            <tr class="yellow">
-                <td data-label="Nr." class="ui center aligned">${index + 1}.</td>
-                <td data-label="Integration Flow Name">${artifact.IntegrationArtifact.Name} (currently viewing)</td>
-                <td data-label="Integration Package" class="selectable"><a href="${packageLink}" target="_blank">${artifact.IntegrationArtifact.PackageName}</a></td>
-                <td data-label="Status" class="${statusColor}">${artifact.Status}</td>
-                <td data-label="Start Date">${date}</td>
-                <td data-label="Start Time">${time}</td>
-            </tr>`;
-        }
     });
 
     return popupContentPrefix + `</tbody></table>`;
