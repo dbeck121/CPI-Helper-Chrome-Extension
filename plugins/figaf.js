@@ -25,9 +25,8 @@ var plugin = {
         "icon": { "src": "images/plugin_logos/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png", "type": "icon" }
     },
     messageSidebarButton: {
-        "text": "F",
+        "icon": { "text": "F", "type": "text" },
         "title": "Record in Figaf",
-        "icon": "",
         "onClick": (pluginHelper, settings, runInfo) => {
             var currentIflowId = pluginHelper.currentIflowId ? pluginHelper.currentIflowId : pluginHelper.lastVisitedIflowId;
             var figafHost = getFigafHost(settings);
