@@ -542,3 +542,14 @@ fieldset {
   background: #ff8282;
   background: linear-gradient(-90deg, #ff8282 0%, #ffff82 25%, #82ff82 50%, #82ffff 75%, #8282ff 100%) !important;
 }
+
+/* timelinetable */
+#timelinetable td,
+#timelinetable th {
+  padding: 0 !important;
+  font-weight: bold !important;
+}
+
+#timelinetable a {
+  box-shadow: none;
+}

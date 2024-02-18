@@ -23,7 +23,7 @@ In case of questions, please open an issue in github.
 5. the filename should not contain special characters or spaces. Be aware that the filename is case sensitiv
 6. please open a ticket and start discussion if you need more than the provided functions and objects
 
-### Plugin Implemetation metadata v1.0.0
+##  Plugin Implemetation metadata v1.0.0
 
 #### metadata description
 
@@ -42,25 +42,26 @@ var plugin = {
     email: "author@company.com",                //an email where to reach the author
     description: "Example plugin",              //a short description what the plugin does
     settings: {                                 //defines the settings and appearance in plugin popup
-        "text1": { "text": "This is a plugin", "type": "label" },                   //a label with additional info
-        "textField1": { "text": "Tenant URL", "type": "textinput", scope: "tenant" },    //a textfield that is stored for each tenant
-        "textField2": { "text": "Iflow xy", "type": "textinput", scope: "iflow" },       //a textfield that is stored for each iflow
-        "textField3": { "text": "general", "type": "textinput", scope: "browser" },      //a textfield that is stored for each browser
-        "checkbox1": { "text": "xyz", "type": "checkbox", scope: "browser" },      //a checkbox that is stored for each browser
+        "text1": { "text": "This is a plugin", "type": "label" },                     //a label with additional info
+        "textField1": { "text": "Tenant URL", "type": "textinput", scope: "tenant" }, //a textfield that is stored for each tenant
+        "textField2": { "text": "Iflow xy", "type": "textinput", scope: "iflow" },    //a textfield that is stored for each iflow
+        "textField3": { "text": "general", "type": "textinput", scope: "browser" },   //a textfield that is stored for each browser
+        "checkbox1": { "text": "xyz", "type": "checkbox", scope: "browser" },         //a checkbox that is stored for each browser
         "icon": { "type" : "icon" , "src" : "/images/plugin_logos/[your Image Source].png" } // image for plugin page
     },
 
-    messageSidebarButton: {                    //if you want to add a button to message sidebar, add a "messageSidebarButton" element
-        "text": "E",                           //text for the button. please keep it short (will be truncated after 3 letters)
-        "title": "Example Title",              //hover title
-        "icon": "",                            //icon for the button (not yet implemented)
-        "onClick": (pluginHelper, settings, runInfo) => {         //write the javascript you need in the onclick method
+    messageSidebarButton: { //if you want to add a button to message sidebar, add a "messageSidebarButton" element
+        "icon": { "text": "E", "type": "text" },
+        "icon": { "text": "xe088", "type": "icon" },   //unicode for link icon Type = icon (From SAP UI5)/text & text HTML/Text for the button.
+        // please keep it short (will be truncated after 3 letters)
+        "title": "Example Title",  //hover title
+        "onClick": (pluginHelper, settings, runInfo) => { //write the javascript you need in the onclick method
             console.log("clicked");
             console.log(pluginHelper);
             console.log(settings);
             console.log(runInfo);
         },
-        "condition": (pluginHelper, settings, runInfo) => {       // can be missing. that means it is always true
+        "condition": (pluginHelper, settings, runInfo) => { // can be missing. that means it is always true
             console.log(pluginHelper);
             console.log(settings);
             console.log(runInfo);
@@ -131,7 +132,7 @@ var plugin = {
             return true
         }
     },
-
+}
 pluginList.push(plugin);
 ```
 

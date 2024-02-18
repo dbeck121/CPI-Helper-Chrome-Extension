@@ -15,9 +15,8 @@ var plugin = {
         "icon": { "type": "icon", "src": "/images/plugin_logos/example.png" }
     },
     messageSidebarButton: {
-        "text": "E",
+        "icon": { "text": "E", "type": "text" },
         "title": "Example Title",
-        "icon": "",
         "onClick": (pluginHelper, settings, runInfo) => {
             log.log("clicked");
             log.log(pluginHelper);

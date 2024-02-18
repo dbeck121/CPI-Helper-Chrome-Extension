@@ -21,7 +21,6 @@ async function messageSidebarPluginContent(forceRender = false) {
             div.appendChild(createElementFromHTML("<div class='ui tiny header'>" + element.name + "</div>"));
             div.appendChild(element.messageSidebarContent.onRender(cpiData, settings));
             document.querySelector('#cpiHelper_messageSidebar_pluginArea').appendChild(div);
-
         }
     }
     const ctxbtnclose = document.querySelector('#cpiHelper_contentheader')
@@ -63,8 +62,7 @@ async function createPluginButtonsInMessageSidebar(runInfoElement, i, flash) {
         var settings = await getPluginSettings(plugin.id);
         if (settings[plugin.id + "---isActive"] === true) {
             if (plugin.messageSidebarButton && !plugin.messageSidebarButton.condition || plugin.messageSidebarButton && plugin.messageSidebarButton.condition(cpiData, settings, runInfoElement)) {
-                var button = createElementFromHTML("<button title='" + plugin.messageSidebarButton.title + "' id='cpiHelperPlugin--" + plugin.id + "' class='" + runInfoElement.messageGuid + flash + "'>" + plugin?.messageSidebarButton?.text?.substring(0, 3) + "</button>");
-
+                var button = createElementFromHTML(`<button title='${plugin.messageSidebarButton.title}' id='cpiHelperPlugin--${plugin.id}' class='${runInfoElement.messageGuid + flash}'>${(plugin?.messageSidebarButton?.icon?.type === "icon") ? `<span data-sap-ui-icon-content="&#${plugin.messageSidebarButton.icon.text}" class="sapUiIcon sapUiIconMirrorInRTL" style="font-family: SAP-icons; font-size: 0.9rem;"></span>` : plugin.messageSidebarButton.icon.text.substring(0, 3)}</button>`);
                 button.onclick = async (btn) => {
                     let pluginID = btn.target.id.replace("cpiHelperPlugin--", "")
                     let pluginItem = pluginList.find((element) => element.id == pluginID)
