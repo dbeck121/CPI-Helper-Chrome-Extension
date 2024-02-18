@@ -544,12 +544,16 @@ fieldset {
 }
 
 /* timelinetable */
-#timelinetable td,
-#timelinetable th {
+#timelinetable td {
   padding: 0 !important;
   font-weight: bold !important;
 }
 
 #timelinetable a {
   box-shadow: none;
+  text-decoration: none;
+}
+
+#timelinetable td:has(a):hover {
+  background: rgba(0, 0, 0, 0.1) !important
 }
