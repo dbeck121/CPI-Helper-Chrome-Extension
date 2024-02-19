@@ -105,11 +105,11 @@ function createContent(data, pluginHelper) {
         popupContentPrefix += `
             <tr class="${statusColor}">
                 <td data-label="Nr." class="ui center aligned">${index + 1}.</td>
-                <td data-label="Integration Flow Name"class="selectable">${artifact.IntegrationArtifact.Id != pluginHelper.integrationFlowId
-                ? `<a class='ui basic fluid button' href="${link}" target="_blank"><b>${artifact.IntegrationArtifact.Name}</b></a>`
-                : `<a class='ui fluid button'target="_blank">${artifact.IntegrationArtifact.Name} (currently viewing)</a>`}
+                <td data-label="Integration Flow Name" ${artifact.IntegrationArtifact.Id != pluginHelper.integrationFlowId
+                ? `class="selectable"><a href="${link}" target="_blank">${artifact.IntegrationArtifact.Name}</a>`
+                : `class="selectable yellow">${artifact.IntegrationArtifact.Name} (currently viewing)`}
                 </td>
-                <td data-label="Integration Package" class="selectable"><a href="${packageLink}" class='ui basic fluid button' target="_blank"><b>${artifact.IntegrationArtifact.PackageName}</b></a></td>
+                <td data-label="Integration Package" class="selectable"><a href="${packageLink}" target="_blank">${artifact.IntegrationArtifact.PackageName}</a></td>
                 <td data-label="Status">${artifact.Status}</td>
                 <td data-label="Start Date">${date}</td>
                 <td data-label="Start Time">${time}</td>
