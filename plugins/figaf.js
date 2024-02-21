@@ -67,7 +67,7 @@ var plugin = {
         }
     },
     scriptCollectionButton: {
-        "text": "Open in Figaf",
+        "icon": { "text": "Open in Figaf", "type": "text" },
         "title": "Open in Figaf",
         "onClick": (pluginHelper, settings) => {
             var objectType = "Script Collection";
@@ -90,7 +90,7 @@ var plugin = {
         }
     },
     scriptButton: {
-        "text": "Open in Figaf",
+        "icon": { "text": "Open in Figaf", "type": "text" },
         "title": "Open in Figaf",
         "onClick": (pluginHelper, settings) => {
             var objectType = "IFlow";
@@ -109,7 +109,7 @@ var plugin = {
         }
     },
     xsltButton: {
-        "text": "Open in Figaf",
+        "icon": { "text": "Open in Figaf", "type": "text" },
         "title": "Open in Figaf",
         "onClick": (pluginHelper, settings) => {
             var objectType = "IFlow";

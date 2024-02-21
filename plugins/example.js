@@ -46,7 +46,7 @@ var plugin = {
         }
     },
     scriptCollectionButton: {
-        "text": "Example Button",
+        "icon": { "text": "E", "type": "text" },
         "title": "Example Title",
         "onClick": (pluginHelper, settings) => {
             log.log("clicked");
@@ -65,7 +65,7 @@ var plugin = {
         }
     },
     scriptButton: {
-        "text": "E",
+        "icon": { "text": "E", "type": "text" },  
         "title": "Example Title",
         "onClick": (pluginHelper, settings) => {
             log.log("clicked");
@@ -82,7 +82,7 @@ var plugin = {
         }
     },
     xsltButton: {
-        "text": "XSLT Button",
+        "icon": { "text": "XSLT", "type": "text" },
         "title": "Example Title",
         "onClick": (pluginHelper, settings) => {
             log.log("clicked");
