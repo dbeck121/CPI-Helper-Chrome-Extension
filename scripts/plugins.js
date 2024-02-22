@@ -72,10 +72,17 @@ async function createPluginButtonsInMessageSidebar(runInfoElement, i, flash) {
                     let pluginID = btn.target.id.replace("cpiHelperPlugin--", "")
                     let pluginItem = pluginList.find((element) => element.id == pluginID)
                     let pluginsettings = await getPluginSettings(pluginID);
-                    pluginItem.messageSidebarButton.onClick(cpiData, pluginsettings, runInfoElement);
+                    let pluginbtnstatus = document.querySelector(`[id='cpiHelperPlugin--${pluginID}'].${runInfoElement.messageGuid}`)
+                    isactivebutton = !pluginbtnstatus.classList.contains("cpiHelper_plugin-active")
+                    pluginItem.messageSidebarButton.onClick(cpiData, pluginsettings, runInfoElement, isactivebutton);
+                    if (!isactivebutton) {
+                        pluginbtnstatus.classList.remove("cpiHelper_plugin-active")
+                    } else {
+                        document.querySelectorAll(`#outerFrame button`).forEach(e => e.classList.remove("cpiHelper_plugin-active"));
+                        pluginbtnstatus.classList.add("cpiHelper_plugin-active")
+                    }
                     statistic("messagebar_btn_plugin_click", pluginID)
                 };
-
                 pluginButtons.push(button);
             }
         }

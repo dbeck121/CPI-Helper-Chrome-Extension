@@ -79,7 +79,8 @@
   border: solid var(--cpi-width) var(--cpi-background-color);
 }
 
-.cpiHelper button.cpiHelper_inlineInfo-active {
+.cpiHelper button.cpiHelper_inlineInfo-active,
+.cpiHelper button.cpiHelper_plugin-active {
   background: var(--cpi-custom-color);
   color: var(--cpi-background-color);
 }

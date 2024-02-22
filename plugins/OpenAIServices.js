@@ -11,7 +11,7 @@ var plugin = {
     messageSidebarButton: {
         "icon": { "text": "My AI Coding Buddy", "type": "text" },
         "title": "Powered by OpenAI",
-        "onClick": (pluginHelper, settings, runInfo) => {
+        "onClick": (pluginHelper, settings, runInfo, active) => {
         },
         "condition": (pluginHelper, settings, runInfo) => {
             return false;

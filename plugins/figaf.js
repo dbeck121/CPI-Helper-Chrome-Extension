@@ -27,7 +27,7 @@ var plugin = {
     messageSidebarButton: {
         "icon": { "text": "F", "type": "text" },
         "title": "Record in Figaf",
-        "onClick": (pluginHelper, settings, runInfo) => {
+        "onClick": (pluginHelper, settings, runInfo, active) => {
             var currentIflowId = pluginHelper.currentIflowId ? pluginHelper.currentIflowId : pluginHelper.lastVisitedIflowId;
             var figafHost = getFigafHost(settings);
             var figafAgentSystemId = getFigafAgentSystemId(pluginHelper, settings);

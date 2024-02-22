@@ -56,7 +56,7 @@ In case of questions, please open an issue in github.
  | icon*     | "text": "E", "type": "text"             | please keep it short (will be truncated after 3 letters)                               |
  | icon*     | "text": "xe088", "type": "icon"         | unicode for link icon Type = icon (From SAP UI5)/text & text HTML/Text for the button. |
  | title     | Example Title                           | hover title                                                                            |
- | onClick   | (pluginHelper, settings, runInfo) => {} | write the javascript you need in the onclick method                                    |
+ | onClick   | (pluginHelper, settings, runInfo, active) => {} | write the javascript you need in the onclick method                             |
  | condition | (pluginHelper, settings, runInfo) => {} | can be missing. that means it is always true                                           |
 
 \*type text/icon (icon field)
@@ -66,7 +66,8 @@ onClick:
  | pluginHelper | an object with additional iflow information and functions that you can user |
  | settings     | data that is stored (see settings element)                                  |
  | runInfo      | details to the message run that belongs to the specific button              |
-
+ | active    | boolean type, status of button          | 
+ 
  | Logging Notes:  | Example                                                                     |
  | --------------- | --------------------------------------------------------------------------- |
  | not recommended | log.log(document.getElementById("__xmlview0--ceFileLabel-bdi").textContent) |
@@ -122,11 +123,12 @@ var plugin = {
  "icon": { "text": "xe088", "type": "icon" }, //unicode for link icon Type = icon (From SAP UI5)/text & text HTML/Text for the button.
  // please keep it short (will be truncated after 3 letters)
  "title": "Example Title", //hover title
- "onClick": (pluginHelper, settings, runInfo) => { //write the javascript you need in the onclick method
+ "onClick": (pluginHelper, settings, runInfo, active) => { //write the javascript you need in the onclick method
  console.log("clicked");
  console.log(pluginHelper);
  console.log(settings);
  console.log(runInfo);
+ console.log(active); //status of button (Boolean)
  },
  "condition": (pluginHelper, settings, runInfo) => { // can be missing. that means it is always true
  console.log(pluginHelper);

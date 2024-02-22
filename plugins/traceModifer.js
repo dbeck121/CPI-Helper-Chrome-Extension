@@ -79,13 +79,19 @@ var plugin = {
     messageSidebarButton: {
         "icon": { "type": "icon", "text": "xe0d9" },
         "title": "Trace Modifier",
-        "onClick": async (pluginHelper, settings, runInfo) => {
-            hideInlineTrace();
-            var inlineTrace = await showInlineTrace(runInfo.messageGuid, true);
-            if (inlineTrace) {
-                showToast("Performance Stats Activated");
-            } else {
-                showToast( "No data found.","Performance Stats not possible", "warning");
+        "onClick": async (pluginHelper, settings, runInfo, active) => {
+            if (active) {
+                hideInlineTrace();
+                var inlineTrace = await showInlineTrace(runInfo.messageGuid, true);
+                if (inlineTrace) {
+                    showToast("Performance Stats Activated");
+                } else {
+                    showToast("No data found.", "Performance Stats not possible", "warning");
+                }
+            }
+            else {
+                hideInlineTrace();
+                showToast("Performance Stats Deactivated");
             }
         },
         "condition": (pluginHelper, settings, runInfo) => {
