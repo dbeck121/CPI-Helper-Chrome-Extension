@@ -80,20 +80,12 @@ var plugin = {
         "icon": { "type": "icon", "text": "xe0d9" },
         "title": "Trace Modifier",
         "onClick": async (pluginHelper, settings, runInfo) => {
-            performancebutton = document.querySelector(`button[id="cpiHelperPlugin--traceModifer"].${runInfo.messageGuid}`)
-            if (performancebutton.classList.contains('cpiHelper_inlineInfo-active')) {
-                hideInlineTrace();
-                performancebutton.classList.remove("cpiHelper_inlineInfo-active");
-                showToast("Performance Stats Deactivated");
+            hideInlineTrace();
+            var inlineTrace = await showInlineTrace(runInfo.messageGuid, true);
+            if (inlineTrace) {
+                showToast("Performance Stats Activated");
             } else {
-                hideInlineTrace();
-                var inlineTrace = await showInlineTrace(runInfo.messageGuid,true);
-                if (inlineTrace) {
-                    showToast("Performance Stats Activated");
-                    performancebutton.classList.add("cpiHelper_inlineInfo-active");
-                } else {
-                    showToast("Performance Stats not possible", "No data found.", "warning");
-                }
+                showToast( "No data found.","Performance Stats not possible", "warning");
             }
         },
         "condition": (pluginHelper, settings, runInfo) => {

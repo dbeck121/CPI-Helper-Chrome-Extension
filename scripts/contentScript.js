@@ -270,7 +270,7 @@ async function renderMessageSidebar() {
                   activeInlineItem = mytarget.classList[0];
                 } else {
                   activeInlineItem = null;
-                  showToast("Inline debugging not possible", "No data found.", "warning");
+                  showToast("No data found.", "Inline debugging not possible", "warning");
                 }
               }
             };
@@ -431,7 +431,7 @@ async function clickTrace(e) {
       return a.TraceId - b.TraceId;
     })[0];
     if (!trace) {
-      showToast("No trace exists", "it is already deleted or not in trace mode.", "warning");
+      showToast("it is already deleted or not in trace mode.", "No trace exists", "warning");
       return "No trace for this step exists, it is already deleted or not in trace mode.";
       //   throw new Error("no trace found");
     }
@@ -1208,7 +1208,7 @@ async function openIflowInfoPopup() {
               cpiHelper_infoPopUp_Variables.children[0].remove();
 
             } catch (err) {
-              showToast("Can not delete variable", "Do you have sufficient rights?", "error");
+              showToast("Do you have sufficient rights?","Can not delete variable", "error");
             }
 
           }

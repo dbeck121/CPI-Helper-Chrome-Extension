@@ -1,11 +1,7 @@
 
 # Contributing
-#### nav
-
-* [Home](/README.md)
-* [Code of conduct](/docs/code_of_conduct.md)
-* [License](/docs/LICENSE)
-* [plugin development](/plugins/README.md)
+|[Home](/README.md)|[Plugin Dev](/plugins/README.md)|[Code of conduct](/docs/code_of_conduct.md)|[License](/docs/LICENSE)|
+|-|-|-|-|
 
 Pull requests are welcome and I hope the community will take part with great ideas and support.
 
