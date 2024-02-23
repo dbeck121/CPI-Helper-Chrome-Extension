@@ -2,7 +2,7 @@ var plugin = {
     metadataVersion: "0.9.0",
     id: "OpenAI",
     name: "My AI Coding Buddy",
-    version: "",
+    version: "1.0.0",
     author: "CPI Helper Plugin developed by Nick Yang, APIs powered by OpenAI.",
     website: "https://github.com/SAPNickYang/CPI-Helper-Chrome-Extension/wiki/CPI-Helper-Plugin---My-AI-Coding-Buddy",
     description: "This CPI Helper plugin is designed to help developers utilize <a href='https://beta.openai.com/docs/introduction' target='_blank'>OpenAI APIs</a> with their <a href='https://beta.openai.com/docs/api-reference/authentication' target='_blank'>OpenAI API key</a>. <br>While it can assist in generating code snippets, inserting code, explaining code, or fixing errors in the code, <br>users are reminded that all risks associated with the use of the APIs are solely assumed by the user.<br>Read more about this plugin please open this <a href='https://github.com/SAPNickYang/CPI-Helper-Chrome-Extension/wiki/CPI-Helper-Plugin---My-AI-Coding-Buddy' target='_blank'>link</a>.",
@@ -11,7 +11,7 @@ var plugin = {
     messageSidebarButton: {
         "icon": { "text": "My AI Coding Buddy", "type": "text" },
         "title": "Powered by OpenAI",
-        "onClick": (pluginHelper, settings, runInfo) => {
+        "onClick": (pluginHelper, settings, runInfo, active) => {
         },
         "condition": (pluginHelper, settings, runInfo) => {
             return false;

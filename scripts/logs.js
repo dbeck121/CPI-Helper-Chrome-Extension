@@ -24,7 +24,7 @@ createLogsLeftSide = async (leftActive = false) => {
 
     var artifactList = document.createElement('select');
     artifactList.style.width = "100%";
-    artifactList.className="cpi_padding_blockend"
+    artifactList.className = "cpi_padding_blockend"
     artifactList.onload = updateArtifactList;
     artifactList.id = 'logs-left-side_cpiHelper_artifactList';
 
@@ -202,7 +202,7 @@ updateLogList = async () => {
         log.log(response);
     } catch (error) {
         log.log(error);
-        showToast("Error while fetching logs", "Check input data.", "error");
+        showToast("Check input data.", "Error while fetching logs", "error");
     }
 }
 

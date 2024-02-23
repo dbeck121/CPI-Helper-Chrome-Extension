@@ -13,7 +13,7 @@ var plugin = {
     messageSidebarButton: {
         "icon": { "type": "icon", "text": "xe088" }, //⏳
         "title": "display timeline",
-        "onClick": async (pluginHelper, settings, runInfo) => {
+        "onClick": async (pluginHelper, settings, runInfo, active) => {
             // Data Prep for table
             // Get correlationId of current message
             const urlForCorrelationId = `/${pluginHelper.urlExtension}odata/api/v1/MessageProcessingLogs?$format=json&$filter=MessageGuid eq '${runInfo.messageGuid}'`;

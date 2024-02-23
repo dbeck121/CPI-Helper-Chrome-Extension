@@ -23,19 +23,17 @@ function workingIndicator(status) {
 }
 
 //snackbar for messages (e.g. trace is on)
-function showToast(title, message, type = "") {
+function showToast(message, title, type = "") {
 
   //type = success, error, warning
-
   $.toast({
     class: type,
     position: 'bottom center',
-    title,
+    showProgress: 'bottom',
+    ...(title ? { title: title } : {}),
     message,
     newestOnTop: true
-
-  })
-    ;
+  });
 }
 
 async function showBigPopup(content, header, parameters = { fullscreen: true, callback: null }) {

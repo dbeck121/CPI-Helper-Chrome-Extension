@@ -62,15 +62,27 @@ async function createPluginButtonsInMessageSidebar(runInfoElement, i, flash) {
         var settings = await getPluginSettings(plugin.id);
         if (settings[plugin.id + "---isActive"] === true) {
             if (plugin.messageSidebarButton && !plugin.messageSidebarButton.condition || plugin.messageSidebarButton && plugin.messageSidebarButton.condition(cpiData, settings, runInfoElement)) {
-                var button = createElementFromHTML(`<button title='${plugin.messageSidebarButton.title}' id='cpiHelperPlugin--${plugin.id}' class='${runInfoElement.messageGuid + flash}'>${(plugin?.messageSidebarButton?.icon?.type === "icon") ? `<span data-sap-ui-icon-content="&#${plugin.messageSidebarButton.icon.text}" class="sapUiIcon sapUiIconMirrorInRTL" style="font-family: SAP-icons; font-size: 0.9rem;"></span>` : plugin.messageSidebarButton.icon.text.substring(0, 3)}</button>`);
+                var button = createElementFromHTML(`<button title='${plugin.messageSidebarButton.title}' id='cpiHelperPlugin--${plugin.id}' 
+                class='${runInfoElement.messageGuid + flash}'>
+                ${(plugin?.messageSidebarButton?.icon?.type === "icon") ?
+                        `<span data-sap-ui-icon-content="&#${plugin.messageSidebarButton.icon.text}" class="sapUiIcon sapUiIconMirrorInRTL" style="font-family: SAP-icons; font-size: 0.9rem;"></span>`
+                        : plugin.messageSidebarButton.icon.text.substring(0, 3)}
+                     </button>`);
                 button.onclick = async (btn) => {
                     let pluginID = btn.target.id.replace("cpiHelperPlugin--", "")
                     let pluginItem = pluginList.find((element) => element.id == pluginID)
                     let pluginsettings = await getPluginSettings(pluginID);
-                    pluginItem.messageSidebarButton.onClick(cpiData, pluginsettings, runInfoElement);
+                    let pluginbtnstatus = document.querySelector(`[id='cpiHelperPlugin--${pluginID}'].${runInfoElement.messageGuid}`)
+                    isactivebutton = !pluginbtnstatus.classList.contains("cpiHelper_plugin-active")
+                    pluginItem.messageSidebarButton.onClick(cpiData, pluginsettings, runInfoElement, isactivebutton);
+                    if (!isactivebutton) {
+                        pluginbtnstatus.classList.remove("cpiHelper_plugin-active")
+                    } else {
+                        document.querySelectorAll(`#outerFrame button`).forEach(e => e.classList.remove("cpiHelper_plugin-active"));
+                        pluginbtnstatus.classList.add("cpiHelper_plugin-active")
+                    }
                     statistic("messagebar_btn_plugin_click", pluginID)
                 };
-
                 pluginButtons.push(button);
             }
         }
@@ -85,8 +97,9 @@ async function createPluginButtons(type) {
         var settings = await getPluginSettings(plugin.id);
         if (settings[plugin.id + "---isActive"] === true) {
             if (plugin[type] && !plugin[type].condition || plugin[type] && plugin[type].condition(cpiData, settings)) {
-                var button = createElementFromHTML("<button title='" + plugin[type].title + "' id='cpiHelperPlugin--" + plugin.id + "' class='cpiHelper_pluginButton_" + type + " mini ui button cpiHelper_pluginButton'>" + plugin[type]?.text + "</button>");
-
+                var button = createElementFromHTML(`<button title='${plugin[type].title}' id='cpiHelperPlugin--${plugin.id}' class='cpiHelper_pluginButton_${type} mini ui button cpiHelper_pluginButton'>
+                ${(plugin?.messageSidebarButton?.icon?.type === "icon") ?
+                        `<span data-sap-ui-icon-content="&#${plugin.messageSidebarButton.icon.text}" class="sapUiIcon sapUiIconMirrorInRTL" style="font-family: SAP-icons; font-size: 0.9rem;"></span>` : plugin[type]?.text}</button>`);
                 button.onclick = async (btn) => {
                     let pluginID = btn.target.id.replace("cpiHelperPlugin--", "")
                     let pluginItem = pluginList.find((element) => element.id == pluginID)
@@ -94,7 +107,6 @@ async function createPluginButtons(type) {
                     pluginItem[type].onClick(cpiData, pluginsettings);
                     statistic("messagebar_btn_plugin_click", pluginID)
                 };
-
                 pluginButtons.push(button);
             }
         }

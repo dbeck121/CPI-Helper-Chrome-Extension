@@ -19,16 +19,15 @@ clearalldata = () => {
 }
 
 var plugin = {
-    metadataVersion: "1.1.0",
+    metadataVersion: "1.0.0",
     id: "traceModifer",
     name: "Trace Step Modifier (Beta)",
-    version: "1.1.0",
+    version: "1.5.0",
     author: "Developed by Omkar",
     email: "omk14p@outlook.com",
     website: "https://incpi.github.io",
-    description: `The CPI Helper plugin lets developers use trace step modifiers in integration flows.<br/>
-     But be careful: the plugin changes the global variable you set for each flow. it will use global instead if input is blank. <a href="https://incpi.github.io/cpihelper-plugin/">Read More</a><br>
-     New Feature: Performance Statatics checkbox to enable inline trace.`,
+    description: `New Feature: Performance Statatics checkbox to enable inline trace.<br>The CPI Helper plugin lets developers use trace step modifiers in integration flows.<br/>
+     But be careful: the plugin changes the global variable you set for each flow. it will use global instead if input is blank. <a href="https://incpi.github.io/cpihelper-plugin/">Read More</a>`,
     settings: {
         "detail": {
             "type": "text", "class": "ui fluid segment", "text": "Set null which will use global.<br/>Set Global (Scope: browser)<br/>Set flow modifer count (Scope: Iflow)"
@@ -66,11 +65,7 @@ var plugin = {
             })
             div.appendChild(inputtrace)
             div.innerHTML += `<div class="ui divider"></div>`
-            var btn = document.createElement("div");
-            btn.classList = "ui checkbox"
-            btn.innerHTML = `<input type="checkbox" id="traceModifer_box"><label>Performance Status</label>`
             var stats = document.createElement("div");
-            stats.appendChild(btn)
             stats.classList = "traceModifer"
             stats.innerHTML += `
             <div class="ui buttons fluid segment">
@@ -80,6 +75,28 @@ var plugin = {
             div.appendChild(stats);
             return div;
         }
+    },
+    messageSidebarButton: {
+        "icon": { "type": "icon", "text": "xe0d9" },
+        "title": "Trace Modifier",
+        "onClick": async (pluginHelper, settings, runInfo, active) => {
+            if (active) {
+                hideInlineTrace();
+                var inlineTrace = await showInlineTrace(runInfo.messageGuid, true);
+                if (inlineTrace) {
+                    showToast("Performance Stats Activated");
+                } else {
+                    showToast("No data found.", "Performance Stats not possible", "warning");
+                }
+            }
+            else {
+                hideInlineTrace();
+                showToast("Performance Stats Deactivated");
+            }
+        },
+        "condition": (pluginHelper, settings, runInfo) => {
+            return runInfo.logLevel === "trace";
+        },
     },
 };
 

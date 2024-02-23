@@ -17,11 +17,12 @@ var plugin = {
     messageSidebarButton: {
         "icon": { "text": "E", "type": "text" },
         "title": "Example Title",
-        "onClick": (pluginHelper, settings, runInfo) => {
+        "onClick": (pluginHelper, settings, runInfo, active) => {
             log.log("clicked");
             log.log(pluginHelper);
             log.log(settings);
             log.log(runInfo);
+            log.log(active);
         },
         "condition": (pluginHelper, settings, runInfo) => {
             //eg runInfo.logLevel === "trace"
@@ -46,7 +47,7 @@ var plugin = {
         }
     },
     scriptCollectionButton: {
-        "text": "Example Button",
+        "icon": { "text": "E", "type": "text" },
         "title": "Example Title",
         "onClick": (pluginHelper, settings) => {
             log.log("clicked");
@@ -65,7 +66,7 @@ var plugin = {
         }
     },
     scriptButton: {
-        "text": "E",
+        "icon": { "text": "E", "type": "text" },
         "title": "Example Title",
         "onClick": (pluginHelper, settings) => {
             log.log("clicked");
@@ -82,7 +83,7 @@ var plugin = {
         }
     },
     xsltButton: {
-        "text": "XSLT Button",
+        "icon": { "text": "XSLT", "type": "text" },
         "title": "Example Title",
         "onClick": (pluginHelper, settings) => {
             log.log("clicked");

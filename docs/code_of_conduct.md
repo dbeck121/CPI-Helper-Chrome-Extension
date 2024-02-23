@@ -1,5 +1,7 @@
 
 # Contributor Covenant Code of Conduct
+|[Home](/README.md)|[Contribution](/docs/contributing.md)|[Plugin Dev](/plugins/README.md)|[License](/docs/LICENSE)|
+|-|-|-|-|
 
 ## Our Pledge
 

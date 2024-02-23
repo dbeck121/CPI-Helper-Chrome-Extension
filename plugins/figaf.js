@@ -27,7 +27,7 @@ var plugin = {
     messageSidebarButton: {
         "icon": { "text": "F", "type": "text" },
         "title": "Record in Figaf",
-        "onClick": (pluginHelper, settings, runInfo) => {
+        "onClick": (pluginHelper, settings, runInfo, active) => {
             var currentIflowId = pluginHelper.currentIflowId ? pluginHelper.currentIflowId : pluginHelper.lastVisitedIflowId;
             var figafHost = getFigafHost(settings);
             var figafAgentSystemId = getFigafAgentSystemId(pluginHelper, settings);
@@ -67,7 +67,7 @@ var plugin = {
         }
     },
     scriptCollectionButton: {
-        "text": "Open in Figaf",
+        "icon": { "text": "Open in Figaf", "type": "text" },
         "title": "Open in Figaf",
         "onClick": (pluginHelper, settings) => {
             var objectType = "Script Collection";
@@ -90,7 +90,7 @@ var plugin = {
         }
     },
     scriptButton: {
-        "text": "Open in Figaf",
+        "icon": { "text": "Open in Figaf", "type": "text" },
         "title": "Open in Figaf",
         "onClick": (pluginHelper, settings) => {
             var objectType = "IFlow";
@@ -109,7 +109,7 @@ var plugin = {
         }
     },
     xsltButton: {
-        "text": "Open in Figaf",
+        "icon": { "text": "Open in Figaf", "type": "text" },
         "title": "Open in Figaf",
         "onClick": (pluginHelper, settings) => {
             var objectType = "IFlow";
