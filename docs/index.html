@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPI Helper</title>
+    <link rel="shortcut icon" href="logo.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css">
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.0.0/dist/markdown-it.min.js"
+        integrity="sha256-vNrI7Be7OvtxCt81pQFiwouPfW6/1dflm4CAAqE5GZU=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="wrapper">
+        <nav class="ui top m0 blue centered fluid secondary pointing menu ">
+            <span class="pb0 item">
+                <img src="https://incpi.github.io/CPI-Helper-Chrome-Extension/logo.png" />
+                <span style="margin-inline-start: 1em;" class="ui large text">CPI Helper</span>
+            </span>
+            <span class="right item active" data-tab="general">
+                <p>General</p>
+            </span>
+            <span class="item" data-tab="readme">
+                <p>Readme</p>
+            </span>
+            <span class="item" data-tab="plugin">
+                <p>Plugin</p>
+            </span>
+            <span class="item" data-tab="details">
+                <p>Details</p>
+            </span>
+        </nav>
+        <div class="content">
+            <div class="ui bottom tab segment" id="GeneralDiv" data-tab="general">
+                <div class="ui container">
+                    <div class="ui segment">
+                        <div class="ui segment">
+                            <div class="ui header">General details</div>
+                            <div class="ui list">
+                                <div class="item">
+                                    <i class="right triangle icon"></i>
+                                    <div class="content">
+                                        <div class="header">UI</div>
+                                        <div class="description">Fomantic - UI</div>
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <i class="right triangle icon"></i>
+                                    <div class="content">
+                                        <div class="header">Popup folder icons</div>
+                                        <div class="description">from Font-awesome icon</div>
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <i class="right triangle icon"></i>
+                                    <div class="content">
+                                        <div class="header">SAP web UI</div>
+                                        <div class="description">from SAP UI5 Icon Pack <a target="_blank"
+                                                href="https://ui5.sap.com/test-resources/sap/m/demokit/iconExplorer/webapp/index.html#/overview/SAP-icons/?tab=grid&icon=chain-link&search=link"
+                                                class="href">Link Example (Unicode - for plugin)</a></div>
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <i class="right triangle icon"></i>
+                                    <div class="content">
+                                        <div class="header">Logger</div>
+                                        <div class="description"> ulog | jQuery</div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="ui horizontal divider header">General Links*</div>
+                            <div class="ui spaced wrapping buttons">
+                                <a class="ui primary tertiary button" target="_blank"
+                                    href="https://help.sap.com/viewer/product/CLOUD_INTEGRATION/Cloud/">
+                                    SAP CPI Help</a>
+                                <a class="ui primary tertiary button" target="_blank"
+                                    href="https://help.sap.com/viewer/product/CLOUD_INTEGRATION/Cloud/en-US?task=develop_task">
+                                    SAP CPI Development</a>
+                                <a class="ui primary tertiary button" target="_blank"
+                                    href="https://blogs.sap.com/2020/03/05/cpi-chrome-plugin-to-enhance-sap-cloud-platform-integration-usability/">
+                                    CPI Helper Blog Post</a>
+                                <a class="ui primary tertiary button" href="https://groovyide.com/cpi" target="_blank">
+                                    Groovy IDE</a>
+                                <a class="ui primary tertiary button" target="_blank"
+                                    href="https://kangoolutions.com/blog/">
+                                    CPI Helper Blog</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ui bottom tab segment" data-tab="readme">
+                <div class="ui container">
+                    <div class="ui segment">
+                        <div id="readmeDiv"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="ui bottom tab segment" data-tab="plugin">
+                <div class="ui container">
+                    <div class="ui segment">
+                        <div id="PluginDiv"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="ui bottom tab segment" data-tab="details">
+                <div class="ui container">
+                    <div class="ui segment" id="cocDiv"></div><div class="ui divider"></div>
+                    <div class="ui segment" id="contributionDiv"></div>
+                </div>
+            </div>
+        </div>
+        <footer>
+            <span class="ui large text">&copy; CPI-Helper-Chrome-Extension </span>
+        </footer>
+    </div>
+    <script>
+        const baseUrl = document.baseURI.match(/\d/g) == null ? document.baseURI : "/docs/";
+        script = document.createElement('script')
+        script.src = baseUrl + "/web_content/script.js"
+        if (!document.querySelector(`body script[src='${baseUrl}script.js']`)) {
+            document.body.appendChild(script);
+        }
+        link = document.createElement('link')
+        link.rel = "stylesheet"
+        link.type = "text/css"
+        link.href = baseUrl + "/web_content/style.css"
+        if (!document.querySelector(`head link[href='${baseUrl}style.css']`)) {
+            document.head.appendChild(link);
+        }
+    </script>
+</body>
+
+</html>

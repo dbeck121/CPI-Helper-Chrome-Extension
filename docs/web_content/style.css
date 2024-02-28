@@ -1,0 +1,133 @@
+:root {
+    /* colors */
+    --cpi-brand-color: #354a5f;
+    --cpi-background: #fff;
+    --cpi-custom-color: #354a5f;
+    --cpi-dark-green: #008000;
+    --cpi-green: #c7ffce;
+    --cpi-grey: #e3e3e3;
+    --cpi-blue: #c7c7ff;
+    --cpi-red: #ffc7c7;
+    --cpi-color: #000;
+    --cpi-hover: #ff5722;
+    /* Fonts */
+    --cpi-font: 'Arial';
+    /* padding */
+    --footer: 3rem;
+    --header: 3.5rem;
+}
+
+nav {
+    height: var(--header);
+    padding-inline: 5%;
+    position: fixed !important;
+    top: 0;
+    padding-block: .5em;
+    z-index: 10;
+    background-color: var(--cpi-custom-color) !important;
+    border-radius: 0 0 2rem 2rem !important;
+}
+
+nav>span.pb0.item {
+    width: 50%;
+    justify-content: flex-start !important;
+}
+
+nav>* {
+    color: var(--cpi-background) !important;
+    font-weight: bold;
+}
+
+
+.ui.menu {
+    overflow: hidden !important;
+}
+
+.ui.label {
+    font-size: 1rem;
+}
+
+.m0 {
+    margin: 0 !important;
+}
+
+.hidden {
+    display: none
+}
+
+a>p {
+    padding-inline-end: .5rem;
+    margin: 0;
+}
+
+code {
+    white-space: pre-wrap;
+}
+
+a {
+    text-decoration: none;
+    padding: .1em .5em;
+    color: var(--cpi-brand-color);
+    border-radius: .25em;
+}
+
+img {
+    width: 100%;
+    border-radius: .25em;
+}
+
+a:hover {
+    color: var(--cpi-background);
+    background: var(--cpi-brand-color);
+}
+
+th {
+    background: var(--cpi-brand-color) !important;
+    color: var(--cpi-background) !important;
+}
+
+.ui.bottom.tab.segment,
+.container>.ui.segment {
+    border: none;
+    margin: 0;
+    box-shadow: none;
+    padding: 0;
+}
+
+footer {
+    width: 100%;
+    padding-inline: 5%;
+    height: var(--footer);
+    background-color: var(--cpi-custom-color) !important;
+    color: var(--cpi-background) !important;
+    text-align: center;
+    line-height: var(--footer);
+    position: fixed !important;
+    border-radius: 2rem 2rem 0 0;
+    bottom: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pb0 {
+    padding: 0 !important;
+}
+
+html,
+body {
+    height: 100%;
+    line-height: 1.5rem;
+    padding-bottom: 50px;
+    margin: 0px;
+    font-family: var(--cpi-font), sans-serif;
+}
+
+.wrapper {
+    min-height: 100%;
+}
+
+.content {
+    padding-bottom: calc(var(--footer) + 0.5rem);
+    padding-top: calc(var(--header) + 0.5rem);
+}
