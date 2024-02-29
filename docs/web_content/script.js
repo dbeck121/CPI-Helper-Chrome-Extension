@@ -64,9 +64,10 @@ $(window).on('load', function () {
     changeTabFromQueryParam();
     $('nav .item').tab({
         onVisible: function (tabPath) {
+            var currentUrl = window.location.href.replace(/\/$/, '');
             var urlParams = new URLSearchParams(window.location.search);
-            urlParams.set('tab', tabPath); 
-            history.replaceState(null, null, '?' + urlParams.toString()); 
+            urlParams.set('tab', tabPath);
+            history.replaceState(null, null, currentUrl + '?' + urlParams.toString());
         }
     });
 });
