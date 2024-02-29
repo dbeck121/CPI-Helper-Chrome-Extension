@@ -9,14 +9,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CPI Helper</title>
     <link rel="shortcut icon" href="logo.png">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.0.0/dist/markdown-it.min.js"
         integrity="sha256-vNrI7Be7OvtxCt81pQFiwouPfW6/1dflm4CAAqE5GZU=" crossorigin="anonymous"></script>
 </head>
 
 <body>
     <div class="wrapper">
-        <nav class="ui top m0 blue centered fluid secondary pointing menu ">
+        <nav class="ui top m0 blue centered fluid secondary pointing menu">
             <span class="pb0 item">
                 <img src="https://incpi.github.io/CPI-Helper-Chrome-Extension/logo.png" />
                 <span style="margin-inline-start: 1em;" class="ui large text">CPI Helper</span>
@@ -35,6 +37,7 @@
             </span>
         </nav>
         <div class="content">
+            <div id="sidebar-menu"></div>
             <div class="ui bottom tab segment" id="GeneralDiv" data-tab="general">
                 <div class="ui container">
                     <div class="ui segment">
@@ -110,8 +113,13 @@
             </div>
             <div class="ui bottom tab segment" data-tab="details">
                 <div class="ui container">
-                    <div class="ui segment" id="cocDiv"></div><div class="ui divider"></div>
-                    <div class="ui segment" id="contributionDiv"></div>
+                    <div class="ui segment">
+                        <div id="cocDiv"></div>
+                    </div>
+                    <div class="ui divider"></div>
+                    <div class="ui segment">
+                        <div id="contributionDiv"></div>
+                    </div>
                 </div>
             </div>
         </div>

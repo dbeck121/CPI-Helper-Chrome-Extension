@@ -1,6 +1,6 @@
 :root {
-    /* colors */
-    --cpi-brand-color: #354a5f;
+    /* Colors */
+    --cpi-brand-color: hsl(210, 28%, 50%);
     --cpi-background: #fff;
     --cpi-custom-color: #354a5f;
     --cpi-dark-green: #008000;
@@ -11,21 +11,21 @@
     --cpi-color: #000;
     --cpi-hover: #ff5722;
     /* Fonts */
-    --cpi-font: 'Arial';
-    /* padding */
+    --cpi-font: 'Poppins';
+    /* Padding */
     --footer: 3rem;
-    --header: 3.5rem;
+    --header: 3.7rem;
 }
 
 nav {
     height: var(--header);
-    padding-inline: 5%;
+    padding: 0.5em 5%;
     position: fixed !important;
     top: 0;
-    padding-block: .5em;
+    font-size: 1.2rem;
+    padding-block-start: 3.2rem;
     z-index: 10;
     background-color: var(--cpi-custom-color) !important;
-    border-radius: 0 0 2rem 2rem !important;
 }
 
 nav>span.pb0.item {
@@ -33,11 +33,10 @@ nav>span.pb0.item {
     justify-content: flex-start !important;
 }
 
-nav>* {
+nav * {
     color: var(--cpi-background) !important;
-    font-weight: bold;
+    font-weight: 500;
 }
-
 
 .ui.menu {
     overflow: hidden !important;
@@ -52,11 +51,11 @@ nav>* {
 }
 
 .hidden {
-    display: none
+    display: none;
 }
 
 a>p {
-    padding-inline-end: .5rem;
+    padding-inline-end: 0.5rem;
     margin: 0;
 }
 
@@ -64,16 +63,19 @@ code {
     white-space: pre-wrap;
 }
 
+h1.blue,
+h2.blue {
+    color: var(--cpi-brand-color) !important;
+}
+
 a {
-    text-decoration: none;
-    padding: .1em .5em;
-    color: var(--cpi-brand-color);
-    border-radius: .25em;
+    padding: 0.1em 0.5em;
+    border-radius: 0.25em;
 }
 
 img {
     width: 100%;
-    border-radius: .25em;
+    border-radius: 0.25em;
 }
 
 a:hover {
@@ -96,14 +98,13 @@ th {
 
 footer {
     width: 100%;
-    padding-inline: 5%;
+    padding: 0 5%;
     height: var(--footer);
     background-color: var(--cpi-custom-color) !important;
     color: var(--cpi-background) !important;
     text-align: center;
     line-height: var(--footer);
     position: fixed !important;
-    border-radius: 2rem 2rem 0 0;
     bottom: 0;
     display: inline-flex;
     align-items: center;
@@ -119,7 +120,7 @@ body {
     height: 100%;
     line-height: 1.5rem;
     padding-bottom: 50px;
-    margin: 0px;
+    margin: 0;
     font-family: var(--cpi-font), sans-serif;
 }
 
