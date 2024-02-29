@@ -22,28 +22,16 @@ async function fetchReadmeFile(lst, baseUrl = document.baseURI.match(/\d/g) == n
         console.error("Error fetching readme files:", error);
     }
 }
-function changeTabFromHash() {
-    var hash = window.location.hash.substring(1);
-    if (hash) {
-        $('nav .item').tab('change tab', hash);
-    }
-}
-
-function updateHashFromTab(tabPath) {
-    history.pushState(null, null, '#' + tabPath);
-}
-
-function updatemenulisten() {
-
-    $('nav .item').tab({ onVisible: function (tabPath) { updateHashFromTab(tabPath); } });
-    $(window).on('hashchange', changeTabFromHash);
-    changeTabFromHash();
-    console[activeTab !== null ? 'log' : 'warn']("Retrieved active tab:", null);
-    var $tabMenu = $('nav .item[data-tab="' + activeTab + '"]');
-    if ($tabMenu.length > 0) {
-        $tabMenu.tab('change tab', activeTab);
-    } else if (activeTab !== null) {
-        console.error("Tab with data-tab='" + activeTab + "' not found.");
+function changeTabFromQueryParam() {
+    var urlParams = new URLSearchParams(window.location.search);
+    var tabParam = urlParams.get('tab');
+    if (tabParam) {
+        var $targetTab = $('nav .item[data-tab="' + tabParam + '"]');
+        if ($targetTab.length > 0) {
+            $targetTab.tab('change tab', tabParam);
+        } else {
+            console.warn("Tab with data-tab='" + tabParam + "' not found.");
+        }
     }
 }
 
@@ -71,8 +59,14 @@ const listofreadme = [
     { "id": "cocDiv", "path": "readme/code_of_conduct.md", "divider": "##" },
     { "id": "contributionDiv", "path": "readme/contributing.md", "divider": "##" }
 ];
-
-$(document).ready(function () {
-    fetchReadmeFile(listofreadme);
-    updatemenulisten();
+fetchReadmeFile(listofreadme);
+$(window).on('load', function () {
+    changeTabFromQueryParam();
+    $('nav .item').tab({
+        onVisible: function (tabPath) {
+            var urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('tab', tabPath); 
+            history.replaceState(null, null, '?' + urlParams.toString()); 
+        }
+    });
 });
