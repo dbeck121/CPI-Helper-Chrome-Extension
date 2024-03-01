@@ -7,7 +7,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
   silentupdates = ["3.0.3"]
   
   //const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
-  const FIGAF_IMG = chrome.runtime.getURL("images/Figaf migration journey.jpg");
+  const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo.png");
   const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
 
   if (!check && !silentupdates.includes(manifestVersion) || showOnlyOnce == false) {
@@ -29,17 +29,24 @@ async function whatsNewCheck(showOnlyOnce = true) {
         <div class="ui bottom attached tab segment" data-tab="one">
             <div class="ui segment">
                 <div class="ui grid">
-                    <div class="six wide column">
+                    <div class="four wide column">
                         <a href="https://figaf.com/cpihelper-and-figaf" target="_blank"><img
                                 class="ui big left floated image" src="${FIGAF_IMG}"></a>
                     </div>
-                    <div class="ten wide column">
+                    <div class="twelve wide column">
                         <div class="ui header">This release is sponsored by Figaf </div>
                         <p>
-                            If you are starting on your SAP PI/PO to Integration Suite migration,
-                            Figaf has created a guide to help you navigate many of the questions you will encounter as part
-                            of your journey to the Integration Suite.</p><br />
-                        <p>Start you journey <a href="https://figaf.com/cpihelper11" target="_blank"><u>here</u></a>.</p>
+                        Understanding your current setup is crucial, and although a message mapping might appear fine in the assessment report, hidden issues often emerge during migration. Optimize your SAP PI to Integration Suite migration with Figaf's comprehensive landscape analysis.
+                        Unlock the power of Figaf's latest release, offering an awesome overview of your SAP PI landscape. Dive deeper with custom queries for Directory or Repository objects, enhancing your insight into message mappings and identifying existing issues.
+                      </p>
+
+                    </div>
+                    <div class="sixteen wide column">
+                    <p>
+                    Figaf simplifies the process, allowing you to quickly locate all related ICOs sharing the same issue.
+                    <br>
+                    Leverage our free Figaf Migration Edition to streamline your planning and ensure a smooth transition.</p><br />
+                    <p>Start you journey <a href="https://figaf.com/cpihelper12" target="_blank"><u>here</u></a>.</p>
                     </div>
                 </div>
             </div>
