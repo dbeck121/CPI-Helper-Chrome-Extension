@@ -11,7 +11,7 @@ const whats_new_log = [
     },
     {
         "header": "Feature",
-        "description": "Create a project webpage on Github with improved structure and design. Special thanks to <a href='http://github.com/incpi'>Omkar Patel</a>"
+        "description": "Create a <a href='https://dbeck121.github.io/CPI-Helper-Chrome-Extension'>Github Webpage</a> with improved structure and design. Special thanks to <a href='http://github.com/incpi'>Omkar Patel</a>"
     },
     {
         "header": "Bugfixes",
