@@ -167,7 +167,7 @@
       </footer>
     </div>
     <script>
-      const baseUrlRaw = `${location.protocol}//${location.host}${location.pathname}`;
+      const baseUrlRaw = `${location.protocol}//${location.host}${location.pathname.replace(/[^\/]+\.html$/i,'')}`;
       const slash = baseUrlRaw.endsWith("/") ? "" : "/";
       const baseUrl = `${baseUrlRaw}${slash}`;
       const webContentUrl = `${baseUrl}${slash}web_content`;
