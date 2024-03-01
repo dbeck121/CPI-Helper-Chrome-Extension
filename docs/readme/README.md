@@ -1,6 +1,7 @@
 # CPI-Helper Chrome-Extension
-|[Plugin Dev](/docs/readme/pluginREADME.md)|[Contribution](/docs/readme/contributing.md)|[Code of conduct](/docs/readme/code_of_conduct.md)|[License](/docs/LICENSE)|
-|-|-|-|-|
+
+| [Plugin Dev](/docs/readme/pluginREADME.md) | [Contribution](/docs/readme/contributing.md) | [Code of conduct](/docs/readme/code_of_conduct.md) | [License](/docs/LICENSE) |
+| ------------------------------------------ | -------------------------------------------- | -------------------------------------------------- | ------------------------ |
 
 This Browser Plugin extends the SAP Cloud Platform Integration with some useful features.
 
@@ -45,6 +46,13 @@ It is open source so feel free to check the source code.
 - Last visited iflows in browser-bar-popup
 
 ## Changelog
+
+### 3.11.0
+
+- [Feature] Plugin: New Timeline Plugin: Get overview about message flow. Thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/)
+- [Improvement] Create a project webpage on Github with improved structure and design. Special thanks to [Omkar Patel](https://github.com/incpi)
+- [Bugfix] Some ui fixes
+- [Improvement] Improved stability
 
 ### 3.10.0
 
