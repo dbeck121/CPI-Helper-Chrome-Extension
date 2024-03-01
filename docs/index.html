@@ -128,7 +128,7 @@
         </footer>
     </div>
     <script>
-        const baseUrl = window.location.host.match(/\d\d\d\./g) == null ? window.location.origin + window.location.pathname : "/docs/";
+        const baseUrl = window.location.host.match(/\d\d\d\.\d/g) == null ? window.location.origin + window.location.pathname : "/docs/";
         script = document.createElement('script')
         script.src = baseUrl + "/web_content/script.js"
         if (!document.querySelector(`body script[src='${baseUrl}script.js']`)) {

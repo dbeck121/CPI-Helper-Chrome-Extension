@@ -1,4 +1,4 @@
-async function fetchReadmeFile(lst, baseUrl = document.baseURI.match(/\d\d\d\./g) == null ? window.location.origin + window.location.pathname : "/docs/") {
+async function fetchReadmeFile(lst, baseUrl = document.baseURI.match(/\d\d\d\.\d/g) == null ? window.location.origin + window.location.pathname : "/docs/") {
     try {
         for (const item of lst) {
             $.ajax({
