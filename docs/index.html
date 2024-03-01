@@ -168,14 +168,14 @@
     </div>
     <script>
       const baseUrlRaw = `${location.protocol}//${location.host}${location.pathname}`;
-      const slash = baseUrl.endsWith("/") ? "" : "/";
-      const baseUrl = `${baseUrl}${slash}`;
+      const slash = baseUrlRaw.endsWith("/") ? "" : "/";
+      const baseUrl = `${baseUrlRaw}${slash}`;
       const webContentUrl = `${baseUrl}${slash}web_content`;
 
       const scriptId = "web-content-script";
       script = document.createElement("script");
       script.id = scriptId;
-      script.src = `${baseUrl}${slash}web_content/script.js`;
+      script.src = `${webContentUrl}/script.js`;
       document.getElementById(scriptId)?.remove();
       document.body.appendChild(script);
 
@@ -184,7 +184,7 @@
       link.id = linkId;
       link.rel = "stylesheet";
       link.type = "text/css";
-      link.href = `${baseUrl}${slash}web_content/style.js`;
+      link.href = `${webContentUrl}/style.js`;
       document.getElementById(linkId)?.remove();
       document.body.appendChild(link);
     </script>
