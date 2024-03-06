@@ -1,0 +1,135 @@
+:root {
+    /* Colors */
+    --cpi-background: #fff;
+    --cpi-custom-color: #354a5f;
+    /* Fonts */
+    --cpi-font: 'Poppins';
+}
+
+nav {
+    padding: 0.5em 5% !important;
+}
+
+html,
+body {
+    font-family: var(--cpi-font), sans-serif;
+}
+
+section img:not(.card-image) {
+    width: 100%;
+    padding: 2%;
+}
+
+.hide {
+    display: none;
+}
+
+/* home */
+#carouselhome img {
+    filter: brightness(0.5) !important;
+}
+
+#carouselhome {
+    width: 80%;
+    margin-inline: auto;
+}
+
+/* table */
+table {
+    border-radius: .1em;
+}
+
+thead {
+    background-color: var(--cpi-custom-color);
+    color: var(--cpi-background)
+}
+
+.image-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.image-container img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+table {
+    overflow-x: auto;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+}
+
+pre[class*="language-"] {
+    background-color: transparent !important;
+}
+
+a {
+    color: var(--bs-indigo);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+a:has(i) {
+    color: white;
+    border-bottom: none;
+}
+
+nav a.active {
+    color: var(--bs-primary) !important;
+}
+
+section a:hover {
+    color: var(--cpi-custom-color);
+    border-bottom: 2px solid var(--bs-indigo);
+}
+
+a:has(i, img):hover {
+    border-bottom: none;
+}
+
+#navbarSupportedContent {
+    overflow: hidden;
+    transition: 0.5s ease-in-out;
+}
+
+.feature {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 3rem;
+    width: 3rem;
+    font-size: 1.5rem;
+}
+
+.bg-featured-blog {
+    height: 100%;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 15rem;
+}
+
+.stats span {
+    font-size: 29px;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+@media (max-width: 800px) {
+    #carouselhome {
+        width: 100%;
+        margin-inline: auto;
+    }
+}
+
+@media (max-width: 576px) {
+    table {
+        display: block;
+        width: 100%;
+    }
+}
