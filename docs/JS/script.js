@@ -78,13 +78,13 @@ function createCard(cardData) {
       <div class="card h-100">
         <div class="card-header d-flex justify-content-between align-items-center">
           <b>${cardData.name}</b>
-          ${cardData.src == "" ? "" : `<img src="${baseUrl + cardData.src}" class="card-image" width="32" alt="${cardData.name} Logo">`}
+          ${cardData.logo_src == "" ? "" : `<img src="${baseUrl + cardData.logo_src}" class="card-image" width="32" alt="${cardData.name} Logo">`}
         </div>
         <div class="card-body">
           <p class="card-text">${cardData.description}</p>
         </div>
         <div class="card-footer p-0">
-          <a href="${cardData.link}" class="btn btn-primary rounded-0 rounded-bottom w-100">Developer Site</a>
+          <a href="${cardData.devSite}" class="btn btn-primary rounded-0 rounded-bottom w-100">Developer Site</a>
         </div>
       </div>
     `;

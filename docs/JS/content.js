@@ -9,71 +9,71 @@ const features = [
 const plugin_data = [
     {
         "description": "This plugin adds a button to the message sidebar, which opens a notepad for storing data in the browser. The data is only visible to you and can be used to store information like custom property names or external URLs. It is not visible to other developers and is just for your convenience. If you tick the checkbox 'Encrypt when saving data', the entered data will be encrypted, providing an extra layer of protection.",
-        "src": "/images/logo.png",
+        "logo_src": "/images/logo.png",
         "name": "Simple Notepad (Beta)",
-        "link": "https://kangoolutions.com/"
+        "devSite": "https://kangoolutions.com/"
     },
     {
         "description": "Adds an button to the message sidebar to open a reference guide.",
-        "src": "/images/logo.png",
+        "logo_src": "/images/logo.png",
         "name": "Simple Reference (Beta)",
-        "link": "https://kangoolutions.com/"
+        "devSite": "https://kangoolutions.com/"
     },
     {
         "description": "Adds an undeploy button to the message sidebar.",
-        "src": "/images/logo.png",
+        "logo_src": "/images/logo.png",
         "name": "undeploy plugin",
-        "link": "https://kangoolutions.com/"
+        "devSite": "https://kangoolutions.com/"
     },
     {
         "description": "[BETA] Open Transport System (cpi-transporter.com)",
-        "src": "",
+        "logo_src": "",
         "name": "CPI Transporter",
-        "link": "https://cpi-transporter.com/"
+        "devSite": "https://cpi-transporter.com/"
     },
     {
         "description": "Simplify your SAP Cloud Integration work with Figaf. Learn more at figaf.com",
-        "src": "",
+        "logo_src": "",
         "name": "Figaf",
-        "link": "https://figaf.com/"
+        "devSite": "https://figaf.com/"
     },
     {
-        "description": "This CPI Helper plugin is designed to help developers utilize OpenAI APIs with their OpenAI API key. While it can assist in generating code snippets, inserting code, explaining code, or fixing errors in the code, users are reminded that all risks associated with the use of the APIs are solely assumed by the user.Read more about this plugin please open this link.",
-        "src": "",
+        "description": "This CPI Helper plugin is designed to help developers utilize OpenAI APIs with their OpenAI API key. While it can assist in generating code snippets, inserting code, explaining code, or fixing errors in the code, users are reminded that all risks associated with the use of the APIs are solely assumed by the user.Read more about this plugin please open this devSite.",
+        "logo_src": "",
         "name": "My AI Coding Buddy",
-        "link": "https://github.com/SAPNickYang/CPI-Helper-Chrome-Extension/wiki/CPI-Helper-Plugin---My-AI-Coding-Buddy"
+        "devSite": "https://github.com/SAPNickYang/CPI-Helper-Chrome-Extension/wiki/CPI-Helper-Plugin---My-AI-Coding-Buddy"
     },
     {
         "description": "Navigate directly to your Technical Interface Documentation in Microsoft SharePoint. See integration-excellence.com for more details.",
-        "src": "",
+        "logo_src": "",
         "name": "WHINT® Interface Documentation",
-        "link": "https://whitepaper-id.com/"
+        "devSite": "https://whitepaper-id.com/"
     },
     {
         "description": "Auto opens(*) the settings pane and keeps it at your chosen size or even dynamically adjust the height to the content! Improves your flow, reduces your pa(i)ne! ;-) \n                  (*) If you have configured the CPI Helper Extension to open on launch (recommended). ",
-        "src": "",
+        "logo_src": "",
         "name": "Settings Pane Resizer",
-        "link": "https://bmtg.ch/"
+        "devSite": "https://bmtg.ch/"
     },
     {
         "description": "The CPI Helper plugin lets developers use trace step modifiers in integration flows.\n     But be careful: the plugin changes the global variable you set for each flow. it will use global instead if input is blank. Read More\n     New Feature: Performance Statatics checkbox to enable inline trace.",
-        "src": "",
+        "logo_src": "",
         "name": "Trace Step Modifier (Beta)",
-        "link": "https://incpi.github.io/"
+        "devSite": "https://incpi.github.io/"
     },
     {
         "description": "Only for plugin developers",
-        "src": "",
+        "logo_src": "",
         "name": "example for developers",
-        "link": "https://github.com/dbeck121/CPI-Helper-Chrome-Extension"
+        "devSite": "https://github.com/dbeck121/CPI-Helper-Chrome-Extension"
     }
 ]
-const readme = [
+const readme_configs = [
     { "divider": "##", "id": "readmeDiv", "path": "readme/README.md" },
     { "divider": "##", "id": "PluginDiv", "path": "readme/PluginREADME.md" },
     { "divider": "##", "id": "cocDiv", "path": "readme/code_of_conduct.md" },
     { "divider": "##", "id": "contributionDiv", "path": "readme/contributing.md" }]
-const slides = [
+const prev_feature = [
     { "caption": "Sidebar with Processed Messages", "description": "Conveniently view processed messages alongside your integration flow design.", "image": "chrome1.png" },
     { "caption": "Activate InlineTrace", "description": "Enable InlineTrace to visualize the message route directly within the integration flow designer.", "image": "chrome_inlinetrace_small.png" },
     { "caption": "Direct Trace Message Viewing", "description": "Instantly access and review trace messages within the integration flow designer interface.", "image": "chrome_trace_properties_small.png" },
@@ -90,7 +90,7 @@ const stats_cards = [
     { "color": "bg-danger", "count": "14595", "icon": "fab fa-chrome", "rating": 5, "label": "Chrome Users", "link": "https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb" },
     { "color": "bg-warning", "count": "3246", "icon": "fab fa-edge", "rating": 4, "label": "Edge Users", "link": "https://microsoftedge.microsoft.com/addons/detail/sap-cpi-helper/chnohkopccdfgpglplooonoaigfgfkda" },
     { "color": "bg-info", "count": "123", "icon": "fab fa-firefox", "rating": 5, "label": "FireFox Users", "link": "https://addons.mozilla.org/de/firefox/addon/cpi-helper/" }]
-const users = [
+const contributors = [
     { "name": "Dominic Beckbauer", "username": "dbeck121" },
     { "name": "Omkar Patel", "username": "Incpi" },
     { "name": "Gregor Schütz", "username": "DevGregor" },
@@ -101,4 +101,4 @@ const users = [
     { "name": "JensWallgrenImplema", "username": "JensWallgrenImplema" },
     { "name": "Mr Figure Skating", "username": "MrFigureSkating" }]
 
-export { users, stats_cards, slides, readme, plugin_data, features, baseUrl }
+export { contributors, stats_cards, prev_feature, readme_configs as readme, plugin_data, features, baseUrl }

@@ -1,4 +1,4 @@
-import { slides, users, baseUrl, features } from './content.js';
+import { prev_feature, contributors, baseUrl, features } from './content.js';
 async function features_home() {
     const collection = ["fa-wrench", "fa-toolbox", "fa-cogs", "fa-hammer"]
     const colors = ['bg-warning', 'bg-danger', 'bg-info', 'bg-success', 'bg-primary']
@@ -10,9 +10,9 @@ async function features_home() {
     $('nav .navbar-brand img').attr('src', baseUrl + "/images/logo.png");
 }
 
-// users details onload
+// contributors details onload
 async function users_details() {
-    users.forEach(it => {
+    contributors.forEach(it => {
         var div = document.createElement("div")
         div.classList = "col mb-5 mb-5 mb-xl-0"
         div.innerHTML = `<div class="text-center"><a href="https://github.com/${it.username}">
@@ -28,8 +28,8 @@ async function carousel(){
 
     const carouselInner = document.querySelector("#carouselhome > div");
 
-    // Add slides dynamically
-    slides.forEach((slide, index) => {
+    // Add prev_feature dynamically
+    prev_feature.forEach((slide, index) => {
         const carouselItem = document.createElement("div");
         carouselItem.classList.add("carousel-item");
         if (index === 0) {
