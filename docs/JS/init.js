@@ -15,7 +15,7 @@ window.addEventListener('resize', adjustSectionMargin);
 
 async function stats_card_data() {
     // Generate HTML content using a loop
-    let htmlContent="";
+    let htmlContent = "";
     stats_cards.forEach(data => {
         // Generate star icons based on the rating value
         let starsHtml = "";
@@ -53,7 +53,19 @@ async function stats_card_data() {
 
     // Set the generated HTML content to the element with ID "stats"
     $('#stats').html(htmlContent);
+    const promises = stats_cards.map(data => {
+        const obj = $(`#stats>div:has(a[href='${data.link}']) span`);
+        const startValue = 0;
+        const endValue = data.count;
+        const duration = 2000;
+        return animateValue(obj, startValue, endValue, duration);
+    });
+    
+    Promise.all(promises).then(() => {
+        $(`#stats>div:has(a[href="javascript:void(0);"]) span`).append("+");
+    });    
 }
+
 function changeTabFromQueryParam() {
     var urlParams = new URLSearchParams(window.location.search);
     if (!urlParams.has('page')) {
