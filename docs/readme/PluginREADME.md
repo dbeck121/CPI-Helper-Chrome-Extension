@@ -38,7 +38,8 @@ In case of questions, please open an issue in github.
  | email           | author@company.com        | an email where to reach the author                                |
  | description     | Example plugin            | a short description what the plugin does                          |
 
-### Settings : defines the settings and appearance in plugin popup
+### Settings : 
+defines the settings and appearance in plugin popup
  | TYPE      | FIELD Value                                            | DESCRIPTION                                 | SCOPE   |
  | --------- | ------------------------------------------------------ | ------------------------------------------- | ------- |
  | label     | "text": "This is a plugin"                             | a label with additional info                | NA      |
@@ -48,7 +49,8 @@ In case of questions, please open an issue in github.
  | checkbox  | "text": "xyz"                                          | a checkbox that is stored for each browser  | browser |
  | icon      | "src" : "/images/plugin_logos/[your Image Source].png" | image for plugin page                       | NA      |
 
-### messageSidebarButton: if you want to add a button to message sidebar
+### messageSidebarButton: 
+if you want to add a button to message sidebar
  | FIELD     | FIELD VALUE                             | DESCRIPTION                                                                            |
  | --------- | --------------------------------------- | -------------------------------------------------------------------------------------- |
  | icon*     | "text": "E", "type": "text"             | please keep it short (will be truncated after 3 letters)                               |
@@ -71,7 +73,8 @@ onClick:
  | not recommended | log.log(document.getElementById("__xmlview0--ceFileLabel-bdi").textContent) |
  | recommended     | log.log(document.querySelector('bdi[id$="--ceFileLabel-bdi"]').textContent) |
 
-### messageSidebarContent Button: can be used to show sth in message sidebar
+### messageSidebarContent Button: 
+can be used to show sth in message sidebar
  | FIELD NAME | VALUE                                    | DESCRIPTION                                                              |
  | ---------- | ---------------------------------------- | ------------------------------------------------------------------------ |
  | onRender   | (pluginHelper, settings) => {return div} | implement and return html element                                        |
