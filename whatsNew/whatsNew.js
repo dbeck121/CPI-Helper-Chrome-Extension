@@ -53,7 +53,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
             <h3 class="ui header">
                 <i class="bell icon"></i>
                 <div class="content">
-                    January 2024 Release
+                    March 2024 Release
                 </div>
             </h3>
             <p>
