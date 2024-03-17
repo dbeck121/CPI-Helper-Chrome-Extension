@@ -488,7 +488,8 @@ SAP deletes trace messages after a while. Trace messages normally do not live lo
 
 In case of problems, you can contact me and send a debug log. You can activate the debug log while visiting an deployed IFlow, extend the url with ?cpihelper_debug=true&cpihelper_debug_download_duration=60000 and press enter to load again. Try to reproduce the error and after 60s, the debug log will download automatically. Send this to me via mail or linkedin.
 
-Example url: https://xxxxxtrial.integrationsuite-trial.cfapps.us10-001.hana.ondemand.com/shell/design/contentpackage/test/integrationflows/test?cpihelper_debug=true&cpihelper_debug_download_duration=60000
+Example url:
+https://xxxxxtrial.integrationsuite-trial.cfapps.us10-001.hana.ondemand.com/shell/design/contentpackage/test/integrationflows/test?cpihelper_debug=true&cpihelper_debug_download_duration=60000
 
 Please send me the debug log and answer the following questions:
 

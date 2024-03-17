@@ -2,7 +2,6 @@ import { baseUrl, readme, plugin_data } from './content.js'
 
 async function fetchReadmeFile(lst, baseUrl) {
     try {
-        // Array to hold all promises
         const promises = lst.map(item => {
             return new Promise((resolve, reject) => {
                 $.ajax({
@@ -15,17 +14,15 @@ async function fetchReadmeFile(lst, baseUrl) {
                             htmlContent += "<div class='mt-4 mb-4'>" + md.render(`${(key == 0) ? arrayread[key] : item.divider + " " + arrayread[key]}`) + "</div>";
                         }
                         $(`#${item.id}`).html(htmlContent);
-                        resolve(); // Resolve the promise on success
+                        resolve();
                     },
                     error: function (xhr, status, error) {
                         console.error("Failed to fetch", item.path, "Error:", error);
-                        reject(error); // Reject the promise on error
+                        reject(error);
                     }
                 });
             });
         });
-
-        // Wait for all promises to resolve
         await Promise.all(promises);
 
         // Perform UI updates after all promises have resolved
@@ -103,19 +100,14 @@ function renderCards(data, id) {
 
 // init
 fetchAndRenderReadmeFiles().then(() => {
-    // Append elements to target elements
     $('#changelog').append($('#readmeDiv_Changelog').parent());
     $('#privacy').append($('#readmeDiv_PrivacyandDataProtection').parent());
     console.log("Elements appended successfully.");
-    // Highlight jQuery code using Prism.js
     $('pre code').addClass('language-js');
     $('pre code.language-js').each((i, element) => {
         Prism.highlightElement(element);
     });
-    // Call the renderCards function with the provided data
     renderCards(plugin_data, 'pluginRow');
-    // Remove the first two and last two div elements inside #readmeDiv
     $('#readmeDiv > div').slice(-2).remove();
     $('#readmeDiv > div').slice(0, 2).remove();
-
-}).catch(error => { console.error("Error:", error); });
+}).catch(error => console.error("Error:", error));

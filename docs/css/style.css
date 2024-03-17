@@ -20,6 +20,10 @@ section img:not(.card-image) {
     padding: 2%;
 }
 
+section {
+    word-wrap: break-word;
+}
+
 .hide {
     display: none;
 }
@@ -118,6 +122,41 @@ a:has(i, img):hover {
 
 .navbar-toggler:focus {
     box-shadow: none;
+}
+
+#loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, .9);
+    background: radial-gradient(circle, rgba(255, 255, 255, 1) 20%, rgba(255, 255, 255, 0.8) 100%);
+    z-index: 9999;
+    display: flex;
+}
+
+#loader svg,
+nav .logo>svg {
+    width: var(--svg-size);
+    height: var(--svg-size);
+    background: #fff;
+    border-radius: 50%;
+}
+
+#loader svg {
+    --svg-size: 240px
+}
+
+nav .logo>svg {
+    --svg-size: 24px
+}
+
+#loader .fw-semibold {
+    font-family: "Urbanist", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 900;
+    font-style: normal;
 }
 
 @media (max-width: 800px) {
