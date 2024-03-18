@@ -145,7 +145,22 @@ nav .logo>svg {
 }
 
 #loader svg {
-    --svg-size: 240px
+    --svg-size: 240px;
+    fill: none;
+    stroke: #21436A;
+    stroke-linecap: round;
+    stroke-width: 20px;
+    width: 200px;
+}
+
+@keyframes svganimationstroke {
+
+    90%,
+    to {
+        stroke-dashoffset: 0;
+        fill: #21436A;
+        stroke: none;
+    }
 }
 
 nav .logo>svg {

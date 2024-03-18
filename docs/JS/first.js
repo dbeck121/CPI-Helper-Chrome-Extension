@@ -77,12 +77,20 @@ function doTask() {
 }
 
 $(document).ready(() => {
-    changeTabFromQueryParam()
-    stats_card_data();
+    var paths = document.querySelectorAll('#loader path');
+    paths.forEach(function (path) {
+        var length = path.getTotalLength();
+        path.style.strokeDasharray = length;
+        path.style.strokeDashoffset = length;
+        path.getBoundingClientRect();
+        path.style.animation ='2s linear 0s 1 forwards svganimationstroke';
+    }); 
     // Show loader when page starts loading
     $(window).on('load', () => {
         setTimeout(() => {
             $('#loader').fadeOut('slow', () => doTask())
-        }, 500);
+        }, 800);
     });
+    changeTabFromQueryParam()
+    stats_card_data();
 });
