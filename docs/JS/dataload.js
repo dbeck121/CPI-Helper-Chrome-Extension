@@ -7,7 +7,7 @@ async function features_home() {
         `<div class="col mb-5"><div class="feature ${colors[(index) % colors.length]} bg-gradient text-white rounded-3 mb-3"><i class="fas ${collection[(index) % collection.length]}"></i></div>
         <h2 class="h5">${it.title}</h2><p class="mb-0">${it.desc}</p></div>`)
     $('#home > header > div > div img').attr('src', baseUrl + "/images/undraw_in_sync_re_jlqd.svg");
-    $('nav .navbar-brand img').attr('src', baseUrl + "/images/logo.png");
+    // $('img[alt="Logo"]').attr('src', baseUrl + "/images/logo.svg");
 }
 
 // contributors details onload
