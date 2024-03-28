@@ -438,9 +438,9 @@ If you open an Integration Flow, the plugin will automatically add a "Messages",
 #### Message Button
 
 The "Message" button opens a small draggable sidebar with the last processed messages. You can jump directly to infos and traces of the message run. If you hover over the status icon of message, you will see a pop-up with the error message directly. If you click on the time button, InlineTrace is activated (Only when trace was activated for message). If you click on a color coded integration flow item and trace is available, a pop-up opens with the trace of the message at this point.
-![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/images/screenshots/chrome1.png)
+![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome1.png)
 
-![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/images/screenshots/chrome4.png)
+![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome4.png)
 
 #### Trace Button
 
@@ -449,12 +449,12 @@ The "Trace" button sets the loglevel of the current Iflow to trace.
 #### Info Button
 
 The "Info" button lets you see detailed information of the deployment state of your Integration Flow.
-![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/images/screenshots/chrome2.png)
+![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome2.png)
 
 ### Toolbar Popup
 
 The button of the plugin in the toolbar gives you a list of useful links of your current tenant. It includes last visited Integration Flows.
-![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/images/screenshots/chrome3.png)
+![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome3.png)
 See also the [SAP Community Blog](https://blogs.sap.com/2020/03/05/cpi-chrome-plugin-to-enhance-sap-cloud-platform-integration-usability/#)
 
 ### Inline Trace
@@ -466,13 +466,13 @@ On the message sidebar, press the time button next to the status icon of a proce
 >   SAP does not provide good information about errors. So when an error at a Splitter-Element occurs, this does not have to mean that the error occurred here. It can also be a catched error from elements after the Splitter.
 
 Run steps exist for processed messages with trace and for a short time in processed messages with errors.
-![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/images/screenshots/chrome_inlinetrace.png)
+![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome_inlinetrace.png)
 
 ### Inline Trace - Show Headers, Properties, Trace, Error and Logs
 
 If you activated the Inline Trace feature, you can get more details. Traces only exist for processed messages with loglevel trace and will be deleted after around about 1 hour by SAP.
-![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/images/screenshots/chrome_trace_properties.png)
-![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/images/screenshots/chrome_after_beautify.png)
+![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome_trace_properties.png)
+![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome_after_beautify.png)
 
 ## FAQ
 
@@ -488,7 +488,9 @@ SAP deletes trace messages after a while. Trace messages normally do not live lo
 
 In case of problems, you can contact me and send a debug log. You can activate the debug log while visiting an deployed IFlow, extend the url with ?cpihelper_debug=true&cpihelper_debug_download_duration=60000 and press enter to load again. Try to reproduce the error and after 60s, the debug log will download automatically. Send this to me via mail or linkedin.
 
-Example url: https://xxxxxtrial.integrationsuite-trial.cfapps.us10-001.hana.ondemand.com/shell/design/contentpackage/test/integrationflows/test?cpihelper_debug=true&cpihelper_debug_download_duration=60000
+Example url:
+``` https://xxxxxtrial.integrationsuite-trial.cfapps.us10-001.hana.ondemand.com/shell/design/contentpackage/test/integrationflows/test?cpihelper_debug=true&cpihelper_debug_download_duration=60000
+```
 
 Please send me the debug log and answer the following questions:
 
