@@ -6,7 +6,11 @@
   },
   "name": "SAP CPI Helper",
   "short_name": "CPI Helper",
+<<<<<<< HEAD
+  "version": "3.11.2",
+=======
   "version": "3.12.0",
+>>>>>>> dev
   "description": "Extends the SAP Cloud Platform Integration with some useful features to improve usability.",
   "author": "Dominic Beckbauer",
   "homepage_url": "https://github.com/dbeck121/CPI-Helper-Chrome-Extension",

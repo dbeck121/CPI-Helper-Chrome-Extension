@@ -82,6 +82,23 @@ var plugin = {
             return true
         }
     },
+    messageMappingButton: {
+        "icon": { "text": "MM", "type": "text" },
+        "title": "Example Title MM",
+        "onClick": (pluginHelper, settings) => {
+            log.log("clicked");
+            log.log(pluginHelper);
+            log.log(settings);
+            log.log(pluginHelper.currentArtifactId)
+            log.log(pluginHelper.currentArtifactType)
+            log.log(pluginHelper.currentIflowId)
+            log.log(pluginHelper.currentPackageId)
+            log.log(pluginHelper.lastVisitedIflowId)
+        },
+        condition: (pluginHelper, settings) => {
+            return true
+        }
+    },
     xsltButton: {
         "icon": { "text": "XSLT", "type": "text" },
         "title": "Example Title",
