@@ -1763,6 +1763,9 @@ async function handleUrlChange() {
         //wait until id is available and then append buttons. Try again and wait if not available
         var interval = setInterval(() => {
           var pluginArea = document.querySelector('span[id$="--scriptPageContainerHeader-identifierLineContainer"]')
+          if(!pluginArea){
+            pluginArea = document.querySelector('span[id$="--scriptPageHeaderTitle-identifierLineContainer"]')
+          }
           if (pluginArea && scriptCount > 10 || cpiData.currentArtifactType != "Script") {
             clearInterval(interval);
             scriptCount = 0;
@@ -1828,7 +1831,33 @@ async function handleUrlChange() {
 
         }, 1000);
       }
-    } else {
+    } else if (cpiData.currentArtifactType == "M_Mapping") {
+      var buttonsForPlugins = await createPluginButtons("messageMappingButton");
+      if (buttonsForPlugins.length > 0) {
+        //wait until id is available and then append buttons. Try again and wait if not available
+        var interval = setInterval(() => {
+          var pluginArea = document.querySelector('span[id$="--mappingPageHeaderTitle-identifierLineContainer"]')
+
+          if (pluginArea && xsltCount > 10 || cpiData.currentArtifactType != "M_Mapping") {
+            clearInterval(interval);
+            scriptCollectionCount = 0;
+            return
+          }
+
+          buttons = document.getElementsByClassName("cpiHelper_pluginButton_messageMappingButton");
+          if (pluginArea && buttons.length == 0) {
+            xsltCount++;
+            buttonsForPlugins.forEach((element) => {
+              pluginArea.appendChild(element);
+            });
+          } else {
+            xsltCount++;
+          }
+
+        }, 1000);
+      }
+    }  
+    else {
       //deactivate sidebar if not on iflow page to root
       if (sidebar.active) {
         sidebar.deactivate();

@@ -168,7 +168,7 @@ async function createTabHTML(objects, idPart, overwriteActivePosition) {
 
       let label = createElementFromHTML(`<label for="tab-${idPart}-${i}" class="cpiHelper_tabs_label">${objects[i].label}</label>`);
 
-      //content of tab
+      //content of tabobjects
       let content = createElementFromHTML(` <div id="${idPart}-${i}-content" class="cpiHelper_tabs_panel"></div>`);
 
       if (typeof (objects[i].content) == "string") {
