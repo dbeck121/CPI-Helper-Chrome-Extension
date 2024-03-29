@@ -365,13 +365,10 @@ function calculateMessageSidebarTimerTime(lastTabHidden, lastDurationRefresh) {
 
 var inlineTraceRunning = false;
 async function clickTrace(e) {
-
   if (inlineTraceRunning) {
     return;
   }
-
   inlineTraceRunning = true;
-
 
   var formatLogContent = function (inputList) {
     inputList = inputList.sort(function (a, b) { return a.Name.toLowerCase() > b.Name.toLowerCase() ? 1 : -1 });
@@ -423,7 +420,6 @@ async function clickTrace(e) {
     return result;
   }
 
-
   //get the content for a tab in a trace popup
   var getTraceTabContent = async function (object) {
     var traceData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/TraceMessages?$format=json", true)).d.results;
@@ -470,112 +466,106 @@ async function clickTrace(e) {
     return element.StepId == id || element.ModelStepId == id;
   })
 
-  var runs = [];
+  //trace level check
+  var messageguid = document.querySelector('.cpiHelper_inlineInfo-button.cpiHelper_inlineInfo-active').className.replace(/cpiHelper_inlineInfo-[A-z]+|\s+/g, '').trim()
+  var logleveldata = JSON.parse(await makeCallPromise("GET", `/${cpiData.urlExtension}odata/api/v1/MessageProcessingLogs('${messageguid}')?$format=json`, true)).d;
 
-  for (var n = targetElements.length - 1; n >= 0; n--) {
-    var childCount = targetElements[n].ChildCount;
-    var runId = targetElements[n].RunId;
-    var branch = targetElements[n].BranchId
-    try {
+  if (logleveldata.LogLevel != 'TRACE') {
+    showToast("Trace is not enabled", "your log level is" + logleveldata.LogLevel, "warning");
+  }
+  else if (logleveldata.LogLevel == 'TRACE' && new Date(parseInt(logleveldata.LogEnd.replace(/\D/g, '')) + (1.05 * 60 * 60000)) < new Date()) {
+    showToast("Trace is expired", "1 hour is already passed", "warning");
+  }
+  else {
+    //Trace
+    //https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/odata/api/v1/TraceMessages(7875L)/$value
 
-      // var traceId = JSON.parse(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogRunSteps(RunId='" + runId + "',ChildCount=" + childCount + ")/TraceMessages?$format=json", true)).d.results[0].TraceId;
+    //Properties
+    //https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/odata/api/v1/TraceMessages(7875L)/ExchangeProperties?$format=json
 
-      var objects = [{
-        label: "Properties",
-        content: getTraceTabContent,
-        active: true,
-        childCount: childCount,
-        runId: runId,
-        traceType: "properties"
-      }, {
-        label: "Headers",
-        content: getTraceTabContent,
-        active: false,
-        childCount: childCount,
-        runId: runId,
-        traceType: "headers"
-      }, {
-        label: "Body",
-        content: getTraceTabContent,
-        active: false,
-        childCount: childCount,
-        runId: runId,
-        traceType: "trace"
-      }, {
-        label: "Log",
-        content: getTraceTabContent,
-        active: false,
-        childCount: childCount,
-        runId: runId,
-        traceType: "logContent"
-      },
-      {
-        label: "Info",
-        content: getTraceTabContent,
-        active: false,
-        childCount: childCount,
-        runId: runId,
-        traceType: "info"
-      }
-      ]
+    //Headers
+    //https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/odata/api/v1/TraceMessages(7875L)/Properties?$format=json
 
-      if (targetElements[n].Error) {
-        let innerContent = document.createElement("div");
-        innerContent.classList.add("cpiHelper_traceText");
-        innerContent.innerText = targetElements[n].Error;
-        innerContent.style.display = "block";
-
-        objects.push({
-          label: "Error",
-          content: innerContent,
-          active: false
+    //TraceID
+    //https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='AF57ga2G45vKDTfn7zqO0zwJ9n93',ChildCount=17)/TraceMessages?$format=json
+    var runs = [];
+    for (var n = targetElements.length - 1; n >= 0; n--) {
+      var childCount = targetElements[n].ChildCount;
+      var runId = targetElements[n].RunId;
+      var branch = targetElements[n].BranchId
+      try {
+        // var traceId = JSON.parse(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogRunSteps(RunId='" + runId + "',ChildCount=" + childCount + ")/TraceMessages?$format=json", true)).d.results[0].TraceId;
+        var objects = [{
+          label: "Properties",
+          content: getTraceTabContent,
+          active: true,
+          childCount: childCount,
+          runId: runId,
+          traceType: "properties"
+        }, {
+          label: "Headers",
+          content: getTraceTabContent,
+          active: false,
+          childCount: childCount,
+          runId: runId,
+          traceType: "headers"
+        }, {
+          label: "Body",
+          content: getTraceTabContent,
+          active: false,
+          childCount: childCount,
+          runId: runId,
+          traceType: "trace"
+        }, {
+          label: "Log",
+          content: getTraceTabContent,
+          active: false,
+          childCount: childCount,
+          runId: runId,
+          traceType: "logContent"
+        },
+        {
+          label: "Info",
+          content: getTraceTabContent,
+          active: false,
+          childCount: childCount,
+          runId: runId,
+          traceType: "info"
         }
-        );
+        ]
+        if (targetElements[n].Error) {
+          let innerContent = document.createElement("div");
+          innerContent.classList.add("cpiHelper_traceText");
+          innerContent.innerText = targetElements[n].Error;
+          innerContent.style.display = "block";
+          objects.push({
+            label: "Error",
+            content: innerContent,
+            active: false
+          }
+          );
+        }
+        let label = "" + branch
+        let content = await createTabHTML(objects, "tracetab-" + childCount)
+        if (content) {
+          runs.push({
+            label,
+            content
+          });
+        }
+      } catch (error) {
+        log.log("error catching trace");
       }
-
-      let label = "" + branch
-      let content = await createTabHTML(objects, "tracetab-" + childCount)
-
-      if (content) {
-
-        runs.push({
-          label,
-          content
-        });
-
-      }
-
-
-    } catch (error) {
-      log.log("error catching trace");
-
     }
-
-
-
-  }
-
-  //Trace
-  //https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/odata/api/v1/TraceMessages(7875L)/$value
-
-  //Properties
-  //https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/odata/api/v1/TraceMessages(7875L)/ExchangeProperties?$format=json
-
-  //Headers
-  //https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/odata/api/v1/TraceMessages(7875L)/Properties?$format=json
-
-  //TraceID
-  //https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='AF57ga2G45vKDTfn7zqO0zwJ9n93',ChildCount=17)/TraceMessages?$format=json
-
-  if (runs.length == 0) {
-    showToast("No Trace Found", "", "warning");
-    return;
-  }
-
-  if (runs.length == 1) {
-    showBigPopup(runs[0].content, "Content Before Step");
-  } else {
-    showBigPopup(await createTabHTML(runs, "runstab", 0), "Content Before Step");
+    if (runs.length == 0) {
+      showToast("No Trace Found", "", "warning");
+      return;
+    }
+    if (runs.length == 1) {
+      showBigPopup(runs[0].content, "Content Before Step");
+    } else {
+      showBigPopup(await createTabHTML(runs, "runstab", 0), "Content Before Step");
+    }
   }
   inlineTraceRunning = false;
 }
@@ -1208,7 +1198,7 @@ async function openIflowInfoPopup() {
               cpiHelper_infoPopUp_Variables.children[0].remove();
 
             } catch (err) {
-              showToast("Do you have sufficient rights?","Can not delete variable", "error");
+              showToast("Do you have sufficient rights?", "Can not delete variable", "error");
             }
 
           }
@@ -1763,7 +1753,7 @@ async function handleUrlChange() {
         //wait until id is available and then append buttons. Try again and wait if not available
         var interval = setInterval(() => {
           var pluginArea = document.querySelector('span[id$="--scriptPageContainerHeader-identifierLineContainer"]')
-          if(!pluginArea){
+          if (!pluginArea) {
             pluginArea = document.querySelector('span[id$="--scriptPageHeaderTitle-identifierLineContainer"]')
           }
           if (pluginArea && scriptCount > 10 || cpiData.currentArtifactType != "Script") {
@@ -1856,7 +1846,7 @@ async function handleUrlChange() {
 
         }, 1000);
       }
-    }  
+    }
     else {
       //deactivate sidebar if not on iflow page to root
       if (sidebar.active) {
