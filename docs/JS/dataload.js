@@ -14,7 +14,6 @@ async function features_home() {
 async function users_details() {
     contributors.forEach(it => {
         var div = document.createElement("div")
-        div.classList = "col mb-5 mb-5 mb-xl-0"
         div.innerHTML = `<div class="text-center"><a href="https://github.com/${it.username}">
         <img class="img-fluid rounded-circle mb-4 px-4" src="https://github.com/${it.username}.png" alt="..." /></a>
         <h5 class="fw-bolder">${it.name.replace(/\b\w/g, c => c.toUpperCase())}</h5>
