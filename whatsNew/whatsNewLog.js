@@ -7,11 +7,7 @@
 const whats_new_log = [
     {
         "header": "Feature",
-        "description": "New Timeline Plugin: Get overview about message flow. Thanks to Gregor Schütz from <a href='https://www.agilita.ch/'>AGILITA AG</a>"
-    },
-    {
-        "header": "Feature",
-        "description": "Create a <a href='https://dbeck121.github.io/CPI-Helper-Chrome-Extension'>Github Webpage</a> with improved structure and design. Special thanks to <a href='http://github.com/incpi'>Omkar Patel</a>"
+        "description": "Go live of <a href='https://dbeck121.github.io/CPI-Helper-Chrome-Extension'>Github Webpage</a>. Special thanks to <a href='http://github.com/incpi'>Omkar Patel</a>"
     },
     {
         "header": "Bugfixes",

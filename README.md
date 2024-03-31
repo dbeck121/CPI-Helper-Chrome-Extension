@@ -5,7 +5,8 @@
 
 This Browser Plugin extends the SAP Cloud Platform Integration with some useful features.
 
-For news about CPI-Helper please follow our [LinkedIn Page](https://www.linkedin.com/company/kangoolutions)
+Please check the CPI-Helper [Landing page](https://dbeck121.github.io/CPI-Helper-Chrome-Extension/?page=home)
+More information on our [LinkedIn Page](https://www.linkedin.com/company/kangoolutions)
 
 I recommend reading the readme first but if you know what you are doing, you can add it to your Chrome or Edge Browser directly:
 [Chrome Web Store](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb)
@@ -46,6 +47,11 @@ It is open source so feel free to check the source code.
 - Last visited iflows in browser-bar-popup
 
 ## Changelog
+
+### 3.12.0
+
+- [Improvement] release webpage
+- [Bugfix] Some ui fixes
 
 ### 3.11.0
 
@@ -489,7 +495,9 @@ SAP deletes trace messages after a while. Trace messages normally do not live lo
 In case of problems, you can contact me and send a debug log. You can activate the debug log while visiting an deployed IFlow, extend the url with ?cpihelper_debug=true&cpihelper_debug_download_duration=60000 and press enter to load again. Try to reproduce the error and after 60s, the debug log will download automatically. Send this to me via mail or linkedin.
 
 Example url:
-``` https://xxxxxtrial.integrationsuite-trial.cfapps.us10-001.hana.ondemand.com/shell/design/contentpackage/test/integrationflows/test?cpihelper_debug=true&cpihelper_debug_download_duration=60000
+
+```https://xxxxxtrial.integrationsuite-trial.cfapps.us10-001.hana.ondemand.com/shell/design/contentpackage/test/integrationflows/test?cpihelper_debug=true&cpihelper_debug_download_duration=60000
+
 ```
 
 Please send me the debug log and answer the following questions:
