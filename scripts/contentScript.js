@@ -300,7 +300,6 @@ async function renderMessageSidebar() {
             traceButton.addEventListener("click", (a) => {
               statistic("messagebar_btn_trace_click")
               openTrace(a.currentTarget.classList[0]);
-
             });
 
 
@@ -488,83 +487,83 @@ async function clickTrace(e) {
 
     //TraceID
     //https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='AF57ga2G45vKDTfn7zqO0zwJ9n93',ChildCount=17)/TraceMessages?$format=json
-    var runs = [];
-    for (var n = targetElements.length - 1; n >= 0; n--) {
-      var childCount = targetElements[n].ChildCount;
-      var runId = targetElements[n].RunId;
-      var branch = targetElements[n].BranchId
-      try {
-        // var traceId = JSON.parse(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogRunSteps(RunId='" + runId + "',ChildCount=" + childCount + ")/TraceMessages?$format=json", true)).d.results[0].TraceId;
-        var objects = [{
-          label: "Properties",
-          content: getTraceTabContent,
-          active: true,
-          childCount: childCount,
-          runId: runId,
-          traceType: "properties"
-        }, {
-          label: "Headers",
-          content: getTraceTabContent,
-          active: false,
-          childCount: childCount,
-          runId: runId,
-          traceType: "headers"
-        }, {
-          label: "Body",
-          content: getTraceTabContent,
-          active: false,
-          childCount: childCount,
-          runId: runId,
-          traceType: "trace"
-        }, {
-          label: "Log",
-          content: getTraceTabContent,
-          active: false,
-          childCount: childCount,
-          runId: runId,
-          traceType: "logContent"
-        },
-        {
-          label: "Info",
-          content: getTraceTabContent,
-          active: false,
-          childCount: childCount,
-          runId: runId,
-          traceType: "info"
+  var runs = [];
+  for (var n = targetElements.length - 1; n >= 0; n--) {
+    var childCount = targetElements[n].ChildCount;
+    var runId = targetElements[n].RunId;
+    var branch = targetElements[n].BranchId
+    try {
+      // var traceId = JSON.parse(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogRunSteps(RunId='" + runId + "',ChildCount=" + childCount + ")/TraceMessages?$format=json", true)).d.results[0].TraceId;
+      var objects = [{
+        label: "Properties",
+        content: getTraceTabContent,
+        active: true,
+        childCount: childCount,
+        runId: runId,
+        traceType: "properties"
+      }, {
+        label: "Headers",
+        content: getTraceTabContent,
+        active: false,
+        childCount: childCount,
+        runId: runId,
+        traceType: "headers"
+      }, {
+        label: "Body",
+        content: getTraceTabContent,
+        active: false,
+        childCount: childCount,
+        runId: runId,
+        traceType: "trace"
+      }, {
+        label: "Log",
+        content: getTraceTabContent,
+        active: false,
+        childCount: childCount,
+        runId: runId,
+        traceType: "logContent"
+      },
+      {
+        label: "Info",
+        content: getTraceTabContent,
+        active: false,
+        childCount: childCount,
+        runId: runId,
+        traceType: "info"
+      }
+      ]
+      if (targetElements[n].Error) {
+        let innerContent = document.createElement("div");
+        innerContent.classList.add("cpiHelper_traceText");
+        innerContent.innerText = targetElements[n].Error;
+        innerContent.style.display = "block";
+        objects.push({
+          label: "Error",
+          content: innerContent,
+          active: false
         }
-        ]
-        if (targetElements[n].Error) {
-          let innerContent = document.createElement("div");
-          innerContent.classList.add("cpiHelper_traceText");
-          innerContent.innerText = targetElements[n].Error;
-          innerContent.style.display = "block";
-          objects.push({
-            label: "Error",
-            content: innerContent,
-            active: false
-          }
-          );
-        }
-        let label = "" + branch
-        let content = await createTabHTML(objects, "tracetab-" + childCount)
-        if (content) {
-          runs.push({
-            label,
-            content
-          });
-        }
-      } catch (error) {
-        log.log("error catching trace");
+        );
+      }
+      let label = "" + branch
+      let content = await createTabHTML(objects, "tracetab-" + childCount)
+      if (content) {
+        runs.push({
+          label,
+          content
+        });
+      }
+    } catch (error) {
+      log.log("error catching trace");
       }
     }
-    if (runs.length == 0) {
-      showToast("No Trace Found", "", "warning");
-      return;
-    }
-    if (runs.length == 1) {
-      showBigPopup(runs[0].content, "Content Before Step");
-    } else {
-      showBigPopup(await createTabHTML(runs, "runstab", 0), "Content Before Step");
+  if (runs.length == 0) {
+    showToast("No Trace Found", "", "warning");
+    return;
+  }
+  if (runs.length == 1) {
+    showBigPopup(runs[0].content, "Content Before Step");
+  } else {
+    showBigPopup(await createTabHTML(runs, "runstab", 0), "Content Before Step");
     }
   }
   inlineTraceRunning = false;
@@ -871,26 +870,24 @@ async function buildButtonBar() {
     }
 
 
-    tracebutton.addEventListener("click", () => {
-      btn = document.getElementById("button134345-BDI-content")
-      btn.classList.toggle("cpiHelper_powertrace")
+    tracebutton.addEventListener("click", async () => {
+      const btn = document.getElementById("button134345-BDI-content");
+      btn.classList.toggle("cpiHelper_powertrace");
+      const objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`;
       if (btn.classList.contains("cpiHelper_powertrace")) {
         setLogLevel("TRACE", cpiData.integrationFlowId);
         statistic("set_log_level", "TRACE")
-
-        var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`
-        var objectToStore = {}
-        objectToStore[objName] = new Date().getTime().toString()
-        storageSetPromise(objectToStore, function () {
-          log.log("powertraceLastRefresh saved");
-        });
-
+        const objectToStore = {};
+        objectToStore[objName] = new Date().getTime().toString();
+        await storageSetPromise(objectToStore);
+        log.log("powertraceLastRefresh saved");
       } else {
         showToast("Trace will not be retriggered anymore.");
-        var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`
-        storageSetPromise({ objName: null });
+        const objectToStore = {};
+        objectToStore[objName] = null;
+        await storageSetPromise(objectToStore);
+        log.log("powertraceLastRefresh Cleared");
       }
-
     });
     messagebutton.addEventListener("click", (btn) => {
 

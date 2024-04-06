@@ -187,13 +187,24 @@ function addTenantSettings() {
                 <input type="number"  min="0" name="cpi_top_mode">
                 <div class="ui label">Steps</div>
             </div>
-        </div>
+        </div><br/>
         <div class="ui label buttons">
             <div id="setzoom" class="ui right labeled input">
                 <div class="ui label"> Zoom Level </div>
                 <input min="60" max="120" type="number">
                 <div class="ui label">%</div>
                 <button class="ui blue basic button">Reset Zoom</button>
+            </div>
+        </div><br/>
+        <div class="ui label buttons">
+            <div class="ui labeled input">
+                <div class="ui label">Choose Tab</div>
+                <select name="icon" id="tab-choice-select" class="ui selection dropdown">
+                    <option value="one">Last Visited (Default)</option>
+                    <option value="two">Links</option>
+                    <option value="three">Settings</option>
+                    <option value="four">Info</option>
+                </select>
             </div>
         </div><br/>
         <div  id="openMessageSidebarOnStartup" class="ui label buttons">
@@ -245,6 +256,7 @@ function addTenantSettings() {
         </div>
         <div class="ui segment">
             <div class="ui medium header" style="color:var(--cpi-dark-green)">CPI Helper Settings</div>
+            <p><b>Choose Tab</b>:Set active tab on start <span class="ui green text"> Last visited(Default)</span><div class="ui fitted divider"></div></p>
             <p><b>Open Message Sidebar on start?</b>: yes /<span class="ui green text"> No(Default)</span><div class="ui fitted divider"></div></p>
             <p><b>Plugin-page as Sidebar (Separate)?</b>: yes(Separate & Closed) /<span class="ui green text"> No(Default)(Joint & Open)</span><div class="ui fitted divider"></div></p>
             <p><b>Set Zoom Level:</b> This value will change zoom level of current page only.<br /> Min: 60% | Max: 120% | <span class="ui green text">Default: 85%</span><div class="ui fitted divider"></div></p>
@@ -304,6 +316,16 @@ function addTenantSettings() {
         icon.classList.toggle('expand');
         addLastVisitedIflows();
     });
+    //default tab mode
+    const dropdown = document.getElementById('tab-choice-select');
+    const storedValue = localStorage.getItem('tab-choice-select');
+    if (storedValue) {
+        dropdown.value = storedValue;
+    }
+    dropdown.addEventListener('input', () => {
+        localStorage.setItem('tab-choice-select', dropdown.value);
+    });
+
     chrome.storage.local.get(['cpi_top_mode'], (result) => document.querySelector('#cpi_top_mode input').value = result.cpi_top_mode ? result.cpi_top_mode : 300);
     document.querySelector('#cpi_top_mode input').addEventListener('change', () => {
         chrome.storage.local.set({ 'cpi_top_mode': document.querySelector('#cpi_top_mode input').value })
@@ -635,5 +657,10 @@ $('.top .item').on('mouseenter', function () {
 });
 
 // Initialize tabs
-$('.top .menu .item').tab();
+const tab_choice = localStorage.getItem('tab-choice-select') || 'one';
+console.log(tab_choice)
+$(`.top.menu data-tab[${tab_choice}]`).addClass('active');
+$('.top.menu .item').tab('change tab', tab_choice);
+
+// Initialize dropdown
 $('.ui.dropdown').dropdown('show');
