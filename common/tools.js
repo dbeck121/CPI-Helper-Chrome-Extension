@@ -495,13 +495,13 @@ async function statistic(event, value = null, value2 = null) {
 
   log.debug(event, value, value2)
   try {
-      var sessionId = await storageGetPromise("sessionId")
-      var installtype = await storageGetPromise("installtype")
-      var img = document.createElement("img");
-      img.src = `https://mmjs2inijoe3rpwsdmqbgtyvdu0ldvfj.lambda-url.eu-central-1.on.aws?version=${chrome.runtime.getManifest().version}&event=${event}&session=${sessionId}&value=${value}&value2=${value2}&installtype=${installtype}&nonse=${Date.now()}`;
-    } catch (e) {
-      log.log(e)
-    }
+    var sessionId = await storageGetPromise("sessionId")
+    var installtype = await storageGetPromise("installtype")
+    var img = document.createElement("img");
+    img.src = `https://mmjs2inijoe3rpwsdmqbgtyvdu0ldvfj.lambda-url.eu-central-1.on.aws?version=${chrome.runtime.getManifest().version}&event=${event}&session=${sessionId}&value=${value}&value2=${value2}&installtype=${installtype}&nonse=${Date.now()}`;
+  } catch (e) {
+    log.log(e)
+  }
 }
 
 async function onInitStatistic() {
@@ -529,15 +529,23 @@ async function onInitStatistic() {
 async function storageGetPromise(name) {
   return new Promise((resolve, reject) => {
     chrome.storage.local.get([name], function (result) {
-      resolve(result[name]);
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      } else {
+        resolve(result[name]);
+      }
     });
-  })
+  });
 }
 
 async function storageSetPromise(obj) {
   return new Promise((resolve, reject) => {
-    chrome.storage.local.set(obj, function (result) {
-      resolve("OK");
+    chrome.storage.local.set(obj, function () {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      } else {
+        resolve("OK");
+      }
     });
-  })
+  });
 }
