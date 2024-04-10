@@ -212,14 +212,14 @@ async function recrutingPopup(force = false) {
     });
   }
 
-  if (lang == "de-DE" && (force || (!timestamp && randomGroup <= 60) || (timestamp && timestamp < today))) {
+  if (lang == "de-DE" && (force || (!timestamp && randomGroup <= 80) || (timestamp && timestamp < today))) {
     statistic("recrutingPopup", "show")
     var html = `<div>
     <div class="ui message">
         <img class="ui small floated image" src="${Kangoolutions_Logo}">
         <div class="content">
-            <div class="header">                Werde ein weiterer Held im Kampf für die Datenintegration!            </div>
-            <p>Design können wir wirklich nicht und eine Werbeagentur fehlt uns noch… aber wir können Integration Suite,                Softwareentwicklung und Architekturberatung            </p>
+            <div class="header">                Werde ein weiterer Held mit der Mission Datenintegration!            </div>
+            <p>Wir wollen moderne Beratung auf Augenhöhe liefern. Unsere Kunden sind super happy mit uns und daher suchen wir aktuell wirklich überall nach den Besten für unser Team.</p>
         </div>
     </div>
     <div class="ui segment">
@@ -233,11 +233,13 @@ async function recrutingPopup(force = false) {
         <p>
         <div class="ui bulleted list">
             <div class="item">Fordernde und knifflige Aufgabenstellungen</div>
+            <div class="item">Einen sicheren und langfristigen Job</div>
             <div class="item">Arbeiten aus dem Home Office oder ab und zu mal beim Kunden vor Ort</div>
             <div class="item">Minimale Hierarchien </div>
             <div class="item">Eigenverantwortung und Freiraum, statt Formularen und starren Prozessen</div>
             <div class="item">Eine junge Firma, mit jungen Menschen und feinen Events</div>
             <div class="item">Mitgestaltungsmöglichkeit beim Aufbau unserer Firma</div>
+            <div class="item">Summer Events mit der ganzen Firma (2023 auf Sizilien und 2024 auf Kreta).</div>
         </div>
         <p>Wir haben viel Humor und das vielleicht coolste Team der Welt. Lass uns doch mal plaudern:
         </p>
