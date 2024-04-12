@@ -255,14 +255,15 @@ let absolutePath = function (href) {
 }
 
 var formatTrace = function (input, id, traceId) {
-
+  var editorManager;
   var encodeHTML = function (str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '&#010;').replace(/'/g, "&#039;");
   }
   var decodeHTML = function (str) {
     return String(str).replace('&amp;', "&").replace('&lt;', "<").replace('&gt;', ">").replace('&quot;', "\"").replace('&#010;', "\n").replace("&#039;", '\'');
   }
-  var formatXml = function (sourceXml) {
+  var formatXml = function (sourceXml, tab_size) {
+    //tab_size not implemented yet.
     filterflag = 0;
     var xmlDoc = new DOMParser().parseFromString(`${sourceXml}`, 'application/xml');
     if (xmlDoc.getElementsByTagName('parsererror').length > 0) {
@@ -289,46 +290,37 @@ var formatTrace = function (input, id, traceId) {
     if (filterflag === 1) { resultXml = resultXml.substring(12, resultXml.length - 13).replaceAll('\n  ', '\n'); }
     return resultXml
   };
+  var prettify_type = function (input) {
 
-  var prettify = function (input) {
-    var stringToFormat;
-    var type;
-
-
-    try {
-      stringToFormat = JSON.stringify(JSON.parse(input), null, 4);
-      type = "js";
-    } catch (error) {
-
+    if (input.trim()[0] == "<") {
+      return "xml";
     }
-
-    if (stringToFormat == null) {
-      if (input.trim()[0] == "<") {
-        stringToFormat = formatXml(input);
-        stringToFormat = encodeHTML(stringToFormat);
-        type = "xml";
-      }
+    if (input.trim()[0] == "{" || input.trim()[0] == "[") {
+      return "json";
     }
-
-    if (stringToFormat == null) {
-      let sqloccurence = input.substring(0, 100).toLowerCase().match(/select|from|where|update|insert|upsert|create table|union|join|values|group by/gm)?.length
-      if (sqloccurence && sqloccurence >= 2 || input.substring(0, 2).match("--")?.length === 2 && sqloccurence >= 1 || input.substring(0, 6).match("--sql")) {
-        stringToFormat = input;
-        type = "sql"
-      }
+    let sqloccurence = input.substring(0, 100).toLowerCase().match(/select|from|where|update|insert|upsert|create table|union|join|values|group by/gm)?.length
+    if (sqloccurence && sqloccurence >= 2 || input.substring(0, 2).match("--")?.length === 2 && sqloccurence >= 1 || input.substring(0, 6).match("--sql")) {
+      return "sql"
     }
-
-    if (stringToFormat == null) {
-      stringToFormat = input;
-    }
-
-    PR.prettyPrint();
-    showToast("Autodetect content: " + type ? type : "unknown");
-    return PR.prettyPrintOne(stringToFormat, type, 1);
-
+    return "text"
   }
 
-
+  var prettify = function (input, tab_size) {
+    try {
+      if (input.trim()[0] == "{" || input.trim()[0] == "[") {
+        return JSON.stringify(JSON.parse(input), 1, tab_size);
+      }
+      else if (input.trim()[0] == "<") {
+        return formatXml(input, tab_size);
+      }
+      else {
+        return input
+      }
+    } catch (error) {
+      log.error(error)
+      return input;
+    }
+  }
 
   if (traceId) {
     var downloadButton = document.createElement("button");
@@ -350,55 +342,33 @@ var formatTrace = function (input, id, traceId) {
     var text;
     //check who is active
     var unformatted = document.getElementById("cpiHelper_traceText_unformatted_" + id);
-    var formatted = document.getElementById("cpiHelper_traceText_formatted_" + id);
-
     if (unformatted.classList.contains("cpiHelper_traceText_active")) {
       text = unformatted.innerText;
     } else {
-      text = formatted.innerText;
+      text = editorManager.getContent();
     }
-
     copyText(text);
   };
 
   var beautifyButton = document.createElement("button");
   beautifyButton.innerText = "Beautify";
   beautifyButton.onclick = (event) => {
-
-    //check who is active
-    var unformatted = document.getElementById("cpiHelper_traceText_unformatted_" + id);
-    var formatted = document.getElementById("cpiHelper_traceText_formatted_" + id);
-
-    if (unformatted.classList.contains("cpiHelper_traceText_active")) {
-      unformatted.classList.remove("cpiHelper_traceText_active");
-      formatted.classList.add("cpiHelper_traceText_active");
-      beautifyButton.innerText = "Linearize";
-    } else {
-      formatted.classList.remove("cpiHelper_traceText_active");
-      unformatted.classList.add("cpiHelper_traceText_active");
-      beautifyButton.innerText = "Beautify";
+    var $unformatted = $("#cpiHelper_traceText_unformatted_" + id);
+    var $formatted = $("#cpiHelper_traceText_formatted_" + id);
+    var isActive = $unformatted.hasClass("cpiHelper_traceText_active");
+    $unformatted.toggleClass("cpiHelper_traceText_active", !isActive);
+    $formatted.toggleClass("cpiHelper_traceText_active", isActive);
+    $("#beautifyButton").text(isActive ? "Linearize" : "Beautify");
+    if ($formatted.text().trim() === "") {
+      editorManager = new EditorManager("cpiHelper_traceText_formatted_" + id, prettify_type(input));
+      editorManager.setContent(prettify(input))
     }
-
-    if (formatted.innerHTML == "") {
-      var pre = document.createElement("pre");
-      pre.classList.add("prettyprint");
-      pre.classList.add("linenums");
-      pre.style.border = "none";
-      pre.style.whiteSpace = "pre-wrap";
-      pre.style.margin = "0px";
-      pre.innerHTML = prettify(unformatted.innerText);
-      formatted.appendChild(pre);
-    }
-
   }
 
   var result = document.createElement("div");
-
   if (!input) {
-
     result.innerHTML = '<div class="cpiHelper_infoPopUp_content">No elements found. If this should be part of the trace of an adapter step, try other tabs with same step Id on top of this popup.</div>';
     return result;
-
   }
 
   result.appendChild(beautifyButton);
@@ -423,19 +393,20 @@ var formatTrace = function (input, id, traceId) {
     span.innerText = " Length unformated: " + input.split(/\r\n|\r|\n/).length + " lines; Size unformated: " + textEncoder.length + " bytes, " + kb + " KB, " + Math.round(kb / 1024 * 100) / 100 + " MB" + additionalText;
     result.appendChild(span);
   }
-
-  var unformattedTrace = document.createElement("div");
-  var formattedTrace = document.createElement("div");
-  formattedTrace.id = "cpiHelper_traceText_formatted_" + id;
-  formattedTrace.classList.add("cpiHelper_traceText");
-
-
-
+  var unformattedTrace = document.createElement("code");
   unformattedTrace.classList.add("cpiHelper_traceText");
   unformattedTrace.classList.add("cpiHelper_traceText_active");
   unformattedTrace.id = "cpiHelper_traceText_unformatted_" + id;
   unformattedTrace.innerText = input;
-  result.appendChild(unformattedTrace);
+  var formattedTrace = document.createElement("div");
+  formattedTrace.id = "cpiHelper_traceText_formatted_" + id;
+  formattedTrace.classList.add("cpiHelper_traceText");
+  formattedTrace.style.minHeight = "25vh";
+  formattedTrace.style.height = "50dvh";
+  formattedTrace.classList.add("language-" + prettify_type(input));
+  var wrap = document.createElement("pre");
+  wrap.appendChild(unformattedTrace)
+  result.appendChild(wrap);
   result.appendChild(formattedTrace);
   return result;
 }
@@ -548,4 +519,35 @@ async function storageSetPromise(obj) {
       }
     });
   });
+}
+
+class EditorManager {
+  constructor(id, type = 'text', tabSize = 2) {
+    this.tabSize = tabSize;
+    ace.require("ace/ext/searchbox");
+    this.mode = "ace/mode/" + type;
+    this.editor = ace.edit(id, {
+      theme: "ace/theme/textmate",
+      readOnly: true,
+      fontSize: "1.2rem",
+      enableMultiselect: true,
+      mode: this.mode,
+      foldStyle: "markbegin",
+      tabSize: this.tabSize,
+      cursorStyle: "slim",
+      highlightActiveLine: true,
+      wrap: true,
+      showLineNumbers: true,
+      showGutter: true,
+      showPrintMargin: false,
+      highlightSelectedWord: true
+    });
+    this.editor.resize();
+  }
+  setContent(content) {
+    this.editor.setValue(content);
+  }
+  getContent() {
+    return this.editor.getValue();
+  }
 }

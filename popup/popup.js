@@ -383,7 +383,7 @@ function addTenantUrls() {
                 </div>
                 <div class='ui menu'>
                     <a class="ui item " href="${host + '/shell/tpm/companyProfile'}" target="_blank"><strong>Trading Partner Management</strong></a>
-                    <div class="ui wrapped wrapping buttons">
+                    <div class="ui wrapped wrapping buttons fluid">
                         <a class="ui button" href="${host + '/shell/b2bmonitor/landing'}" target="_blank">B2B Monitor</a>
                         <a class="ui button" href="${host + '/shell/tpm/companyProfile'}" target="_blank">Company Profile</a>
                         <a class="ui button" href="${host + '/shell/tpm/agreementTemplates'}" target="_blank">Agreement Templates</a>
@@ -394,7 +394,7 @@ function addTenantUrls() {
                 </div>
                 <div class='ui menu'>
                     <a class="ui item " href="${host + '/shell/tpm/companyProfile'}" target="_blank"><strong>Integration Advisor</strong></a>
-                    <div class="ui wrapped wrapping buttons">
+                    <div class="ui wrapped wrapping buttons fluid">
                         <a class="ui button" href="${host + '/shell/migs'}" target="_blank">MIGs (Message Implementation Guidelines)</a>
                         <a class="ui button" href="${host + '/shell/mags'}" target="_blank">MAGs (Mapping Guidelines)</a>
                         <a class="ui button" href="${host + '/shell/customtypesystems'}" target="_blank">Custom Type Systems</a>

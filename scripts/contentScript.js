@@ -186,16 +186,16 @@ async function renderMessageSidebar() {
             // logLevel[0] = logLevel[0].toUpperCase();
             runInfoElement[thisMessageHash].logLevel = loglevel;
 
-            let traceButton = createElementFromHTML("<button title='jump to trace page' id='trace--" + i + "' class='" + resp[i].MessageGuid + flash + "'>" + loglevel.substr(0, 1).toUpperCase() + "</button>");
+            let traceButton = createElementFromHTML(`<button title='jump to trace page' id='trace--${i}' class='${resp[i].MessageGuid} ${flash}'>${loglevel.substr(0, 1).toUpperCase()}</button>`);
 
             if (loglevel.toLowerCase() === "trace") {
-              var quickInlineTraceButton = createElementFromHTML("<button title='activate inline trace for debugging'  id='inlinetrace--" + i + "' class='" + resp[i].MessageGuid + flash + " cpiHelper_inlineInfo-button'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
+              var quickInlineTraceButton = createElementFromHTML(`<button title='activate inline trace for debugging'  id='inlinetrace--${i}' class='${resp[i].MessageGuid} ${flash} cpiHelper_inlineInfo-button'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>`);
             } else {
               var quickInlineTraceButton = createElementFromHTML("<span />")
             }
 
-            let infoButton = createElementFromHTML("<button title='show logs in new tab' id='info--" + i + "' class='" + (cpiData.urlExtension && !resp[i].AlternateWebLink.replace("https://", "").match(cpiTypeRegexp) ? resp[i].AlternateWebLink.replace("443/shell", "443/" + cpiData.urlExtension + "shell") : resp[i].AlternateWebLink) + flash + "'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
-            let logButton = createElementFromHTML("<button title='show log viewer on this page' id='logs--" + i + "' class='" + resp[i].MessageGuid + flash + "'><span data-sap-ui-icon-content=\"\" class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
+            let infoButton = createElementFromHTML(`<button title='show logs in new tab' id='info--${i}' class='${(cpiData.urlExtension && !resp[i].AlternateWebLink.replace("https://", "").match(cpiTypeRegexp) ? resp[i].AlternateWebLink.replace("443/shell", "443/" + cpiData.urlExtension + "shell") : resp[i].AlternateWebLink)} ${flash}'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>`);
+            let logButton = createElementFromHTML(`<button title='show log viewer on this page' id='logs--${i}' class='${resp[i].MessageGuid} ${flash}'><span data-sap-ui-icon-content=\"\" class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>`);
 
             //let listItem = document.createElement("div");
             //listItem.classList.add("cpiHelper_messageListItem")
@@ -466,7 +466,7 @@ async function clickTrace(e) {
   })
 
   //trace level check
-  var messageguid = document.querySelector('.cpiHelper_inlineInfo-button.cpiHelper_inlineInfo-active').className.replace(/cpiHelper_inlineInfo-[A-z]+|\s+/g, '').trim()
+  var messageguid = document.querySelector('.cpiHelper_inlineInfo-button.cpiHelper_inlineInfo-active').className.replace('flash',"").replace(/cpiHelper_inlineInfo-[A-z]+|\s+/g, '').trim()
   var logleveldata = JSON.parse(await makeCallPromise("GET", `/${cpiData.urlExtension}odata/api/v1/MessageProcessingLogs('${messageguid}')?$format=json`, true)).d;
 
   if (logleveldata.LogLevel != 'TRACE') {
