@@ -200,23 +200,23 @@ async function renderMessageSidebar() {
             //let listItem = document.createElement("div");
             //listItem.classList.add("cpiHelper_messageListItem")
             let statusColor = "#008000";
-            let statusIcon = "";
+            let statusIcon = "xe05b";
             if (resp[i].Status == "PROCESSING") {
               statusColor = "#FFC300";
-              statusIcon = "";
+              statusIcon = "xe047";
             }
             if (resp[i].Status == "FAILED") {
               statusColor = "#C70039";
-              statusIcon = "";
+              statusIcon = "xe03e";
             }
             if (resp[i].Status.match(/^(ESCALATED|RETRY)$/)) {
 
               statusColor = "#ff8300";
-              statusIcon = "";
+              statusIcon = "xe201";
             }
-            if (resp[i].Status.match(/^(CANCELLED)$/)) {
+            if (resp[i].Status.match(/^(CANCELLED|ABANDONED)$/)) {
               statusColor = "#7f7f7f";
-              statusIcon = "";
+              statusIcon = "xe090";
             }
 
             //listItem.style["color"] = statusColor;
@@ -224,7 +224,7 @@ async function renderMessageSidebar() {
             activeInlineItem == quickInlineTraceButton.classList[0] && quickInlineTraceButton.classList.add("cpiHelper_inlineInfo-active");
 
             let statusicon = createElementFromHTML(
-              `<button title='Status Details' class='${resp[i].MessageGuid} cpiHelper_inlineInfo-button'><span data-sap-ui-icon-content='${statusIcon}' class='${resp[i].MessageGuid}`
+              `<button title='Status Details' class='${resp[i].MessageGuid} cpiHelper_inlineInfo-button'><span data-sap-ui-icon-content='&#${statusIcon}' class='${resp[i].MessageGuid}`
               + " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" +
               `${statusColor}'></span>` +
               //timeButton here
@@ -466,7 +466,7 @@ async function clickTrace(e) {
   })
 
   //trace level check
-  var messageguid = document.querySelector('.cpiHelper_inlineInfo-button.cpiHelper_inlineInfo-active').className.replace('flash',"").replace(/cpiHelper_inlineInfo-[A-z]+|\s+/g, '').trim()
+  var messageguid = document.querySelector('.cpiHelper_inlineInfo-button.cpiHelper_inlineInfo-active').className.replace('flash', "").replace(/cpiHelper_inlineInfo-[A-z]+|\s+/g, '').trim()
   var logleveldata = JSON.parse(await makeCallPromise("GET", `/${cpiData.urlExtension}odata/api/v1/MessageProcessingLogs('${messageguid}')?$format=json`, true)).d;
 
   if (logleveldata.LogLevel != 'TRACE') {
@@ -487,83 +487,83 @@ async function clickTrace(e) {
 
     //TraceID
     //https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='AF57ga2G45vKDTfn7zqO0zwJ9n93',ChildCount=17)/TraceMessages?$format=json
-  var runs = [];
-  for (var n = targetElements.length - 1; n >= 0; n--) {
-    var childCount = targetElements[n].ChildCount;
-    var runId = targetElements[n].RunId;
-    var branch = targetElements[n].BranchId
-    try {
-      // var traceId = JSON.parse(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogRunSteps(RunId='" + runId + "',ChildCount=" + childCount + ")/TraceMessages?$format=json", true)).d.results[0].TraceId;
-      var objects = [{
-        label: "Properties",
-        content: getTraceTabContent,
-        active: true,
-        childCount: childCount,
-        runId: runId,
-        traceType: "properties"
-      }, {
-        label: "Headers",
-        content: getTraceTabContent,
-        active: false,
-        childCount: childCount,
-        runId: runId,
-        traceType: "headers"
-      }, {
-        label: "Body",
-        content: getTraceTabContent,
-        active: false,
-        childCount: childCount,
-        runId: runId,
-        traceType: "trace"
-      }, {
-        label: "Log",
-        content: getTraceTabContent,
-        active: false,
-        childCount: childCount,
-        runId: runId,
-        traceType: "logContent"
-      },
-      {
-        label: "Info",
-        content: getTraceTabContent,
-        active: false,
-        childCount: childCount,
-        runId: runId,
-        traceType: "info"
-      }
-      ]
-      if (targetElements[n].Error) {
-        let innerContent = document.createElement("div");
-        innerContent.classList.add("cpiHelper_traceText");
-        innerContent.innerText = targetElements[n].Error;
-        innerContent.style.display = "block";
-        objects.push({
-          label: "Error",
-          content: innerContent,
-          active: false
+    var runs = [];
+    for (var n = targetElements.length - 1; n >= 0; n--) {
+      var childCount = targetElements[n].ChildCount;
+      var runId = targetElements[n].RunId;
+      var branch = targetElements[n].BranchId
+      try {
+        // var traceId = JSON.parse(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogRunSteps(RunId='" + runId + "',ChildCount=" + childCount + ")/TraceMessages?$format=json", true)).d.results[0].TraceId;
+        var objects = [{
+          label: "Properties",
+          content: getTraceTabContent,
+          active: true,
+          childCount: childCount,
+          runId: runId,
+          traceType: "properties"
+        }, {
+          label: "Headers",
+          content: getTraceTabContent,
+          active: false,
+          childCount: childCount,
+          runId: runId,
+          traceType: "headers"
+        }, {
+          label: "Body",
+          content: getTraceTabContent,
+          active: false,
+          childCount: childCount,
+          runId: runId,
+          traceType: "trace"
+        }, {
+          label: "Log",
+          content: getTraceTabContent,
+          active: false,
+          childCount: childCount,
+          runId: runId,
+          traceType: "logContent"
+        },
+        {
+          label: "Info",
+          content: getTraceTabContent,
+          active: false,
+          childCount: childCount,
+          runId: runId,
+          traceType: "info"
         }
-        );
-      }
-      let label = "" + branch
-      let content = await createTabHTML(objects, "tracetab-" + childCount)
-      if (content) {
-        runs.push({
-          label,
-          content
-        });
-      }
-    } catch (error) {
-      log.log("error catching trace");
+        ]
+        if (targetElements[n].Error) {
+          let innerContent = document.createElement("div");
+          innerContent.classList.add("cpiHelper_traceText");
+          innerContent.innerText = targetElements[n].Error;
+          innerContent.style.display = "block";
+          objects.push({
+            label: "Error",
+            content: innerContent,
+            active: false
+          }
+          );
+        }
+        let label = "" + branch
+        let content = await createTabHTML(objects, "tracetab-" + childCount)
+        if (content) {
+          runs.push({
+            label,
+            content
+          });
+        }
+      } catch (error) {
+        log.log("error catching trace");
       }
     }
-  if (runs.length == 0) {
-    showToast("No Trace Found", "", "warning");
-    return;
-  }
-  if (runs.length == 1) {
-    showBigPopup(runs[0].content, "Content Before Step");
-  } else {
-    showBigPopup(await createTabHTML(runs, "runstab", 0), "Content Before Step");
+    if (runs.length == 0) {
+      showToast("No Trace Found", "", "warning");
+      return;
+    }
+    if (runs.length == 1) {
+      showBigPopup(runs[0].content, "Content Before Step");
+    } else {
+      showBigPopup(await createTabHTML(runs, "runstab", 0), "Content Before Step");
     }
   }
   inlineTraceRunning = false;
@@ -896,6 +896,7 @@ async function buildButtonBar() {
       }
       else {
         sidebar.init();
+        log.debug("headerbar message btn clicked.")
         statistic("headerbar_btn_message_click")
       }
     });
@@ -919,10 +920,11 @@ async function buildButtonBar() {
 
     });
 
-    if (sidebar.active == null || sidebar.active == false) {
+    if ((sidebar.active == null || sidebar.active == false) && newArtifactDetected()) {
       chrome.storage.sync.get(["openMessageSidebarOnStartup"], function (result) {
         var openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
         if (openMessageSidebarOnStartupValue) {
+          log.debug('opened sidebar on startup');
           sidebar.init();
         }
       }
