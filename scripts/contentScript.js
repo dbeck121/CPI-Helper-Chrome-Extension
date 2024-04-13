@@ -216,7 +216,7 @@ async function renderMessageSidebar() {
             }
             if (resp[i].Status.match(/^(CANCELLED|ABANDONED)$/)) {
               statusColor = "#7f7f7f";
-              statusIcon = "xe090";
+              statusIcon = "xe23e";
             }
 
             //listItem.style["color"] = statusColor;
