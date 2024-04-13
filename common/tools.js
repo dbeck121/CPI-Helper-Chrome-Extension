@@ -401,9 +401,7 @@ var formatTrace = function (input, id, traceId) {
   var formattedTrace = document.createElement("div");
   formattedTrace.id = "cpiHelper_traceText_formatted_" + id;
   formattedTrace.classList.add("cpiHelper_traceText");
-  formattedTrace.style.minHeight = "25vh";
-  formattedTrace.style.height = "50dvh";
-  formattedTrace.classList.add("language-" + prettify_type(input));
+  formattedTrace.classList.add("cpi_editor");
   var wrap = document.createElement("pre");
   wrap.appendChild(unformattedTrace)
   result.appendChild(wrap);

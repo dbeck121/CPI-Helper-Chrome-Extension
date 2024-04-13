@@ -417,12 +417,19 @@ button.cpiHelper_sidebar_iconbutton span {
   display: none;
 }
 
-.cpiHelper_powertrace {
-  color: #ff0000 !important
-}
-
 .cpiHelper_traceText.cpiHelper_traceText_active {
   display: block;
+}
+
+/* editor */
+.cpi_editor {
+  height: 50dvh;
+  min-height: 30vh;
+  width: 100%;
+}
+
+.cpiHelper_powertrace {
+  color: #ff0000 !important
 }
 
 .cpiHelper li.L0,
@@ -540,26 +547,4 @@ fieldset {
 .ui.modal.active>.header {
   background: var(--cpi-custom-color);
   color: var(--cpi-background-color);
-}
-
-
-/* traceModifer Css */
-.traceModifer .fluid {
-  background: #ff8282;
-  background: linear-gradient(-90deg, #ff8282 0%, #ffff82 25%, #82ff82 50%, #82ffff 75%, #8282ff 100%) !important;
-}
-
-/* timelinetable */
-#timelinetable td {
-  padding: 0 !important;
-  font-weight: bold !important;
-}
-
-#timelinetable a {
-  box-shadow: none;
-  text-decoration: none;
-}
-
-#timelinetable td:has(a):hover {
-  background: rgba(0, 0, 0, 0.1) !important
 }
