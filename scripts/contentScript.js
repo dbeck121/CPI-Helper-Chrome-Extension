@@ -920,7 +920,7 @@ async function buildButtonBar() {
 
     });
 
-    if ((sidebar.active == null || sidebar.active == false) && newArtifactDetected()) {
+    if ((sidebar.active == null || sidebar.active == false) && cpiData.currentArtifactType) {
       chrome.storage.sync.get(["openMessageSidebarOnStartup"], function (result) {
         var openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
         if (openMessageSidebarOnStartupValue) {
