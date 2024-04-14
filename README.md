@@ -50,8 +50,10 @@ It is open source so feel free to check the source code.
 
 ### 3.12.0
 
-- [Improvement] release webpage
+- [Improvement] Better payload viewer. Special thanks to [Omkar Patel](https://github.com/incpi)
+- [Improvement] Release of the webpage
 - [Bugfix] Some ui fixes
+- [Bugfix] Some general fixes. Shows Content Enricher in Trace now
 
 ### 3.11.0
 

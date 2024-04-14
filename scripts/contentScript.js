@@ -682,6 +682,11 @@ async function showInlineTrace(MessageGuid, checked = false) {
           target = element.children[0].children[0];
         }
 
+        if (/ServiceTask/.test(run.StepId)) {
+          element = document.getElementById("BPMNShape_" + run.StepId);
+          target = element.children[getChild(element, ["g"])].children[0];
+        }
+
         if (/CallActivity/.test(run.StepId)) {
           element = document.getElementById("BPMNShape_" + run.StepId);
           target = element.children[getChild(element, ["g"])].children[0];
