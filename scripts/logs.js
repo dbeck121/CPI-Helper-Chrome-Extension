@@ -171,13 +171,13 @@ updateLogList = async () => {
             let statusIcon = "";
             if (response[i].Status == "PROCESSING") {
                 statusColor = "#FFC300";
-                statusIcon = "";
+                statusIcon = "xe047";
             }
             if (response[i].Status == "FAILED") {
                 statusColor = "#C70039";
-                statusIcon = "";
+                statusIcon = "xe03e";
             }
-            statusicon = "<span data-sap-ui-icon-content='" + statusIcon + "' class='" + response[i].MessageGuid + " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" + statusColor + ";'> </span>"
+            statusicon = "<span data-sap-ui-icon-content='&#" + statusIcon + "' class='" + response[i].MessageGuid + " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" + statusColor + ";'> </span>"
             //end statusicon
             let buttonWrap = document.createElement('td');
             buttonWrap.style.padding = "0px";

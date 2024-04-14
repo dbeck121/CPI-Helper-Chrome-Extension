@@ -1,0 +1,20 @@
+/* traceModifer Css */
+.traceModifer .fluid {
+    background: #ff8282;
+    background: linear-gradient(-90deg, #ff8282 0%, #ffff82 25%, #82ff82 50%, #82ffff 75%, #8282ff 100%) !important;
+}
+
+/* timelinetable */
+#timelinetable td {
+    padding: 0 !important;
+    font-weight: bold !important;
+}
+
+#timelinetable a {
+    box-shadow: none;
+    text-decoration: none;
+}
+
+#timelinetable td:has(a):hover {
+    background: rgba(0, 0, 0, 0.1) !important
+}
