@@ -36,17 +36,13 @@ async function whatsNewCheck(showOnlyOnce = true) {
                     <div class="twelve wide column">
                         <div class="ui header">This release is sponsored by Figaf </div>
                         <p>
-                        Understanding your current setup is crucial, and although a message mapping might appear fine in the assessment report, hidden issues often emerge during migration. Optimize your SAP PI to Integration Suite migration with Figaf's comprehensive landscape analysis.
-                        Unlock the power of Figaf's latest release, offering an awesome overview of your SAP PI landscape. Dive deeper with custom queries for Directory or Repository objects, enhancing your insight into message mappings and identifying existing issues.
+                        Pipelines is a concept from SAP that makes it easier to manage reliable delivery of messages in Integration Suite. It makes a lot of sense for migration projects but also for your new integrations. 
+See how to explore the concept here.
                       </p>
 
                     </div>
                     <div class="sixteen wide column">
-                    <p>
-                    Figaf simplifies the process, allowing you to quickly locate all related ICOs sharing the same issue.
-                    <br>
-                    Leverage our free Figaf Migration Edition to streamline your planning and ensure a smooth transition.</p><br />
-                    <p>Start you journey <a href="https://figaf.com/cpihelper12" target="_blank"><u>here</u></a>.</p>
+                    <p>Start you journey with Figaf <a href="https://figaf.com/cpihelper13" target="_blank"><u>here</u></a>.</p>
                     </div>
                 </div>
             </div>
