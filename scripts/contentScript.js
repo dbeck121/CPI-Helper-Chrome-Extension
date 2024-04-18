@@ -114,8 +114,9 @@ async function renderMessageSidebar() {
 
 
   //get the messagelogs for current iflow
-  var xhr = await makeCallPromiseXHR("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and Status ne 'RETRY' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogEnd desc", false, null, null, false, "", false)
-  //makeCall("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogEnd desc", false, "", async (xhr) => {
+  //var xhr = await makeCallPromiseXHR("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and Status ne 'RETRY' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogEnd desc", false, null, null, false, "", false)
+  // 18.4.2024, Addor: changed back to include Retry (for JMS based sender adapters it's crucial to see hanging messages in the sidebar)
+  var xhr = await makeCallPromiseXHR("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogEnd desc", false, null, null, false, "", false)
 
   if (xhr.readyState == 4 && sidebar.active) {
 
