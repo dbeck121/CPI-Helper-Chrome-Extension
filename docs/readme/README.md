@@ -48,11 +48,14 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
-### 3.12.0
+### 3.12.1
 
-- [Improvement] Better payload viewer. Special thanks to [Omkar Patel](https://github.com/incpi)
-- [Improvement] Release of the webpage
-- [Bugfix] Some ui fixes
+- [Improvement] Better payload viewer & Update payload directly in trace Body panel. Special thanks to [Omkar Patel](https://github.com/incpi).
+- [Improvement] Once trace expired, no popup will be shown instead warning will be given.
+- [Improvement] UI Icon are changed + UI Bugfixes
+- [Feature] Resize Body from Content modifier.
+- [Feature] Regex/ find /replace featured added with Ctrl + F (find) in formatted payload(Trace body tab).
+- [Feature] Release of the [webpage](https://dbeck121.github.io/CPI-Helper-Chrome-Extension).
 - [Bugfix] Some general fixes. Shows Content Enricher in Trace now
 
 ### 3.11.0

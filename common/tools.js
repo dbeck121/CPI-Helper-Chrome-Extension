@@ -255,6 +255,7 @@ let absolutePath = function (href) {
 }
 
 var formatTrace = function (input, id, traceId) {
+  var tab_size = 2;
   var editorManager;
   var encodeHTML = function (str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '&#010;').replace(/'/g, "&#039;");
@@ -306,6 +307,7 @@ var formatTrace = function (input, id, traceId) {
   }
 
   var prettify = function (input, tab_size) {
+    tab_size = tab_size > 0 ? tab_size : 2;
     try {
       if (input.trim()[0] == "{" || input.trim()[0] == "[") {
         return JSON.stringify(JSON.parse(input), 1, tab_size);
@@ -317,7 +319,7 @@ var formatTrace = function (input, id, traceId) {
         return input
       }
     } catch (error) {
-      log.error(error)
+      log.log(error)
       return input;
     }
   }
@@ -350,6 +352,14 @@ var formatTrace = function (input, id, traceId) {
     copyText(text);
   };
 
+  var themeButton = document.createElement("button");
+  themeButton.innerText = "Color Mode";
+  themeButton.onclick = (event) => editorManager.toggleTheme();
+
+  var readonlyButton = document.createElement("button");
+  readonlyButton.innerText = "Edit";
+  readonlyButton.onclick = (event) => { readonlyButton.innerText = editorManager.toggleReadOnly() ? "Edit" : "Read Only"; }
+
   var beautifyButton = document.createElement("button");
   beautifyButton.innerText = "Beautify";
   beautifyButton.onclick = (event) => {
@@ -361,7 +371,7 @@ var formatTrace = function (input, id, traceId) {
     $("#beautifyButton").text(isActive ? "Linearize" : "Beautify");
     if ($formatted.text().trim() === "") {
       editorManager = new EditorManager("cpiHelper_traceText_formatted_" + id, prettify_type(input));
-      editorManager.setContent(prettify(input))
+      editorManager.setContent(prettify(input, tab_size))
     }
   }
 
@@ -375,6 +385,8 @@ var formatTrace = function (input, id, traceId) {
   result.appendChild(copyButton);
   if (traceId) {
     result.appendChild(downloadButton);
+    result.appendChild(themeButton);
+    result.appendChild(readonlyButton);
   }
 
   var textEncoder = new TextEncoder().encode(input)
@@ -517,35 +529,4 @@ async function storageSetPromise(obj) {
       }
     });
   });
-}
-
-class EditorManager {
-  constructor(id, type = 'text', tabSize = 2) {
-    this.tabSize = tabSize;
-    ace.require("ace/ext/searchbox");
-    this.mode = "ace/mode/" + type;
-    this.editor = ace.edit(id, {
-      theme: "ace/theme/textmate",
-      readOnly: true,
-      fontSize: "1.2rem",
-      enableMultiselect: true,
-      mode: this.mode,
-      foldStyle: "markbegin",
-      tabSize: this.tabSize,
-      cursorStyle: "slim",
-      highlightActiveLine: true,
-      wrap: true,
-      showLineNumbers: true,
-      showGutter: true,
-      showPrintMargin: false,
-      highlightSelectedWord: true
-    });
-    this.editor.resize();
-  }
-  setContent(content) {
-    this.editor.setValue(content);
-  }
-  getContent() {
-    return this.editor.getValue();
-  }
 }

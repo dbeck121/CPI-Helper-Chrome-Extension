@@ -1583,6 +1583,7 @@ async function getMessageProcessingLogRuns(MessageGuid, store = true) {
   //Plugin over-write
   if (await getStorageValue('traceModifer', "isActive", null)) {
     var top_mode_count_flow = await storageGetPromise(`traceModifer_${cpiData.integrationFlowId}`)
+    console.debug("traceModifer_flow",cpiData.integrationFlowId, top_mode_count, top_mode_count_flow)
     top_mode_count = ((top_mode_count_flow == null && top_mode_count_flow == undefined) || top_mode_count_flow == 0) ? top_mode_count : `&$top=${parseInt(top_mode_count_flow)}`
   }
   console.log(top_mode_count)
