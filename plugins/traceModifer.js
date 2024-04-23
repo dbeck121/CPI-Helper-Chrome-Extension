@@ -62,6 +62,7 @@ var plugin = {
                 } else {
                     chrome.storage.local.set(JSON.parse(`{ "traceModifer_${pluginHelper.currentArtifactId}":"${data}"}`))
                 }
+                log.debug('set',data)
             })
             div.appendChild(inputtrace)
             div.innerHTML += `<div class="ui divider"></div>`
