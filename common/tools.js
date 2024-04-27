@@ -319,7 +319,7 @@ var formatTrace = function (input, id, traceId) {
         return input
       }
     } catch (error) {
-      log.log(error)
+    showToast(error,"","error")
       return input;
     }
   }
