@@ -14,15 +14,14 @@
 
 /* start working indicator */
 #cpiHelper_workingIndicator {
-  visibility: hidden;
   min-width: 10px;
-  margin-left: -125px;
-  color: var(--cpi-background-color);
-  position: fixed;
+  color: var(--cpi-custom-color);
+  position: absolute;
   z-index: 500;
-  right: 10%;
-  bottom: 30px;
-  font-size: 17px;
+  min-height: 10px;
+  font-size: 2rem;
+  right: 2%;
+  bottom: 4%;
 }
 
 #cpiHelper_workingIndicator.cpiHelper_workingIndicator_show {

@@ -166,7 +166,6 @@ updateLogList = async () => {
             }
 
             //statusicon
-
             let statusColor = "#008000";
             let statusIcon = "xe05b";
             if (response[i].Status == "PROCESSING") {

@@ -424,7 +424,8 @@ template {
  */
 
 [hidden] {
-  display: none;
+  display: none !important;  
+  /* CPI HELPER CHANGE */
 }
 
 /*******************************

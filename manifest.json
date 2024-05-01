@@ -42,8 +42,6 @@
         "lib/ace/mode-json.js",
         "lib/ace/mode-sql.js",
         "lib/ace/mode-text.js",
-        "lib/ace/mode-groovy.js",
-        "lib/ace/mode-javascript.js",
         "lib/ace/mode-xml.js",
         "lib/ace/ace.js",
         "/common/logging.js",
@@ -73,7 +71,6 @@
         "/scripts/contentScript.js"
       ],
       "css": [
-        "/lib/threeDots/three-dots.min.css",
         "/lib/semanticui/semantic.min.css",
         "/css/contentScript.css",
         "/css/plugin.css"
