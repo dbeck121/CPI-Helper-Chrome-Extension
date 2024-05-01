@@ -19,13 +19,9 @@
   position: absolute;
   z-index: 500;
   min-height: 10px;
-  font-size: 2rem;
+  font-size: 1.5rem;
   right: 2%;
   bottom: 4%;
-}
-
-#cpiHelper_workingIndicator.cpiHelper_workingIndicator_show {
-  visibility: visible;
 }
 
 /* end working indicator */
@@ -459,7 +455,7 @@ button.cpiHelper_sidebar_iconbutton span {
   width: calc(100% - 200px);
 }
 
-.cpiHelper_hidden {
+.cpiHelper_hidden{
   display: none !important;
 }
 

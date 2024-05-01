@@ -1,8 +1,8 @@
 function workingIndicator(status) {
-  log.log(`CPI-Helper show indicator: $status`)
+  // log.log(`CPI-Helper show indicator: $status`)
   //create snackbar div element
   if (!document.querySelector("#cpiHelper_workingIndicator")) {
-    document.body.appendChild(createElementFromHTML(`<i id='cpiHelper_workingIndicator' class='spinner loading icon' hidden></i>`))
+    document.body.appendChild(createElementFromHTML(`<i id='cpiHelper_workingIndicator' class='sync alternate loading icon' hidden></i>`))
   }
   var x = $("#cpiHelper_workingIndicator");
   status ? x.removeAttr('hidden') : x.attr('hidden', '');
