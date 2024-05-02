@@ -14,19 +14,14 @@
 
 /* start working indicator */
 #cpiHelper_workingIndicator {
-  visibility: hidden;
   min-width: 10px;
-  margin-left: -125px;
-  color: var(--cpi-background-color);
-  position: fixed;
+  color: var(--cpi-custom-color);
+  position: absolute;
   z-index: 500;
-  right: 10%;
-  bottom: 30px;
-  font-size: 17px;
-}
-
-#cpiHelper_workingIndicator.cpiHelper_workingIndicator_show {
-  visibility: visible;
+  min-height: 10px;
+  font-size: 1.5rem;
+  right: 2%;
+  bottom: 4%;
 }
 
 /* end working indicator */
@@ -460,7 +455,7 @@ button.cpiHelper_sidebar_iconbutton span {
   width: calc(100% - 200px);
 }
 
-.cpiHelper_hidden {
+.cpiHelper_hidden{
   display: none !important;
 }
 

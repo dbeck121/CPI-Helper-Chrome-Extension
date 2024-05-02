@@ -22,6 +22,5 @@ done < manifest.json
 name="${name//,/}"
 name="${name// /_}"
 
-# zipping files
 echo "Zipping files..."
-zip -r "bin/${name}_${version}.zip" *
+find . -type f ! \( -path "./docs/*" -o -path "./.*" \) -exec zip -r "bin/${name}_${version}.zip" {} +
