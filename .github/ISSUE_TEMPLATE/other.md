@@ -1,8 +1,8 @@
 ---
 name: Other
 about: All other topics.
-title: ''
-labels: ''
+title: '[Other]: <<title>>'
+labels: 'help wanted'
 assignees: ''
 
 ---
