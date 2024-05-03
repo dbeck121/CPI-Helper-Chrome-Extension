@@ -925,7 +925,7 @@ async function buildButtonBar() {
       showBigPopup(await createContentNodeForPlugins(), "Plugins");
 
     });
-
+    log.debug("Artifect from checks for sidebar",cpiData.currentArtifactType)
     if ((sidebar.active == null || sidebar.active == false) && cpiData.currentArtifactType) {
       chrome.storage.sync.get(["openMessageSidebarOnStartup"], function (result) {
         var openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
@@ -1583,7 +1583,7 @@ async function getMessageProcessingLogRuns(MessageGuid, store = true) {
   //Plugin over-write
   if (await getStorageValue('traceModifer', "isActive", null)) {
     var top_mode_count_flow = await storageGetPromise(`traceModifer_${cpiData.integrationFlowId}`)
-    console.debug("traceModifer_flow",cpiData.integrationFlowId, top_mode_count, top_mode_count_flow)
+    console.debug("traceModifer_flow", cpiData.integrationFlowId, top_mode_count, top_mode_count_flow)
     top_mode_count = ((top_mode_count_flow == null && top_mode_count_flow == undefined) || top_mode_count_flow == 0) ? top_mode_count : `&$top=${parseInt(top_mode_count_flow)}`
   }
   console.log(top_mode_count)
@@ -1596,7 +1596,7 @@ async function getMessageProcessingLogRuns(MessageGuid, store = true) {
   }).then((runId) => {
     return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json" + top_mode_count, store);
   }).then((response) => {
-    return JSON.parse(response).d.results;
+    return JSON.parse(response).d.results.filter((e) => e.StepStop != null);
   }).catch((e) => {
     log.log(e);
     return null;
