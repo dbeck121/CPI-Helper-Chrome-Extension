@@ -12,7 +12,7 @@ name=""
 version=""
 while IFS='' read -r line || [[ -n "$line" ]]; do
     if [[ "$line" == *"\"name\":"* ]]; then
-        name=$(echo "$line" | awk -F'"' '{print $4}' )
+        name=$(echo "$line" | awk -F'"' '{print $4}')
     elif [[ "$line" == *"\"version\":"* ]]; then
         version=$(echo "$line" | awk -F'"' '{print $4}' | tr -d ',')
     fi
@@ -22,5 +22,12 @@ done < manifest.json
 name="${name//,/}"
 name="${name// /_}"
 
-echo "Zipping files..."
-find . -type f ! \( -path "./docs/*" -o -path "./.*" \) -exec zip -r "bin/${name}_${version}.zip" {} +
+exclusions=("./docs/*" "./node_modules" "./images/v[1-3]/*" "./.*")
+
+exclude_args=()
+for pattern in "${exclusions[@]}"; do
+    exclude_args+=( -o -path "$pattern" )
+done
+exclude_args=( "${exclude_args[@]:1}" )
+
+find . -type f ! \( "${exclude_args[@]}" \) -exec zip -r "bin/${name}_${version}.zip" {} +
