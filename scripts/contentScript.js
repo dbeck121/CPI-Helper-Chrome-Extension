@@ -928,7 +928,15 @@ async function buildButtonBar() {
 
     if ((sidebar.active == null || sidebar.active == false) && cpiData.currentArtifactType) {
       chrome.storage.sync.get(["openMessageSidebarOnStartup"], function (result) {
-        var openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
+        var openMessageSidebarOnStartupValue;
+        // default mode is open
+        if (result["openMessageSidebarOnStartup"] === undefined) {
+            chrome.storage.sync.set({ "openMessageSidebarOnStartup": true });
+            openMessageSidebarOnStartupValue = true;
+        }
+        else { openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"] ; }
+
+        openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
         if (openMessageSidebarOnStartupValue) {
           log.debug('opened sidebar on startup');
           sidebar.init();
