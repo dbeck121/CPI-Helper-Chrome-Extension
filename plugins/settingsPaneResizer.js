@@ -6,14 +6,15 @@ var plugin = {
     author: "Philippe Addor, BMT Consulting AG, Bottighofen, Switzerland",
     email: "philippe.addor@bmtg.ch",
     website: "https://bmtg.ch",
-    description: `Auto opens(*) the settings pane and keeps it at your chosen size or even dynamically adjust the height to the content! Improves your flow, reduces your pa(i)ne! ;-) <br>
-                  (*) If you have configured the CPI Helper Extension to open on launch (recommended). <br>`,
+    description: `Auto opens (*) the settings pane and keeps it at your chosen size or even dynamically adjust the height to the content! Improves your flow, reduces your pa(i)ne! ;-) <br>
+                  (*)  <b>If you have configured the CPI Helper Extension to open on launch (recommended).</b> <br>`,
     settings: {
-            "text1": { "text": "Enter either settings for pane height in Pixel or percent (pixel takes precedence if both are defined; if both empty, use CPI default (50%))", "type": "label" },
+            "text1": { "text": "Enter either settings for pane height in Pixel or percent (pixel takes precedence if both are defined; if both empty, use CPI default (50%))", "type": "label" },            
             "paneHeight": { "text": "Pixel", "type": "textinput", scope: "browser" },
-            "paneHeightPercent": { "text": "%", "type": "textinput", scope: "browser" },
+            "paneHeightPercent": { "text": "%", "type": "textinput", scope: "browser" },            
 			"dynamicResizing": { "text": "Automatic Dynamic Resizing (if pane content is lower than above configured values)", "type": "checkbox", scope: "browser" },
-            "delay": { "text": "Dynamic Resizing Delay in ms (0 = no delay, empty = default 500) (refresh page to take effect)", "type": "textinput", scope: "browser" }
+            "text2": { "text": "Dynamic Resizing Delay in ms (0 = no delay, empty = default 500) (refresh page to take effect)", "type": "label" },
+            "delay": { "text": "Resizing Delay", "placeholder": "ms", "type": "textinput", scope: "browser" }
         },        
     messageSidebarContent: {
         "static": false,

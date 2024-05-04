@@ -210,9 +210,11 @@ async function createPluginPopupUI(plugin) {
 
                 if (plugin.settings[key].type == "textinput") {
                     var outerDiv = document.createElement('div');
+                    outerDiv.classList = "inputbox-spacing";
                     var text = document.createElement('input');
                     text.id = `cpiHelper_popup_plugins-${plugin.id}-${key}`;
                     text.key = `${getStoragePath(plugin.id, key, plugin.settings[key].scope)}`
+                    text.placeholder = `${(plugin.settings[key].placeholder == undefined ? plugin.settings[key].text : plugin.settings[key].placeholder) }`;
                     text.type = 'text';
                     text.value = await getStorageValue(plugin.id, key, plugin.settings[key].scope);
 
@@ -223,8 +225,8 @@ async function createPluginPopupUI(plugin) {
                     });
                     var div = document.createElement('div');
                     div.classList = "ui fluid input"
-                    div.appendChild(text);
                     div.appendChild(createElementFromHTML(`<div class="ui basic label" for="cpiHelper_popup_plugins-${plugin.id}-${key}"> ${plugin.settings[key].text}</div>`));
+                    div.appendChild(text);                    
                     outerDiv.appendChild(div);
                     subcontainer.appendChild(outerDiv);
                 }
@@ -234,7 +236,7 @@ async function createPluginPopupUI(plugin) {
                     label.innerText = plugin.settings[key].text;
 
                     var div = document.createElement('div');
-                    div.classList = "ui label"
+                    div.classList = "ui pointing below label"
                     div.appendChild(label);
                     subcontainer.appendChild(div);
 
