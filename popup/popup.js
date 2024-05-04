@@ -363,10 +363,14 @@ function addTenantUrls() {
                             <a class="ui button" href="${host + '/shell/monitoring/Variables'}" target="_blank">Variables</a>
                             <a class="ui button" href="${host + '/shell/monitoring/MessageQueues'}" target="_blank">Message Queues</a>
                         </div>
-                        <a class="fluid ui button" href="${host + '/shell/monitoring/NumberRangeObject'}" target="_blank">Number Ranges</a>
+                        <div class="three ui buttons">
+                            <a class="fluid ui button" href="${host + '/shell/monitoring/NumberRangeObject'}" target="_blank">Number Ranges</a>
+                            <a class="fluid ui button" href="${host + '/shell/monitoring/UserRoles'}" target="_blank">User Roles</a>
+                            <a class="fluid ui button" href="${host + '/shell/monitoring/MessageUsage'}" target="_blank">Message Usage</a>                            
+                        </div>
                         <div class="ui fitted divider"></div>
                         <div class="three ui buttons">
-                            <a class="ui button" href="${host + '/shell/monitoring/AuditLog'}" target="_blank">Audit Log</a>
+                            <a class="ui button" href="${host + '/shell/monitoring/SystemLogs'}" target="_blank">System Logs</a>
                             <a class="ui button" href="${host + '/shell/monitoring/Locks'}" target="_blank">Message Locks</a>
                             <a class="ui button" href="${host + '/shell/monitoring/DesigntimeLocks'}" target="_blank">Designtime Artifact Locks</a>
                         </div>
@@ -389,6 +393,7 @@ function addTenantUrls() {
                         <a class="ui button" href="${host + '/shell/tpm/agreements'}" target="_blank">Agreements</a>                                                
                         <a class="ui button" href="${host + '/shell/tpm/tradingPartners'}" target="_blank">Trading Partners</a>                                                
                         <a class="ui button" href="${host + '/shell/tpm/pdContent'}" target="_blank">Partner Directory Data</a>
+                        <a class="ui button" href="${host + '/shell/tpm/crossActions'}" target="_blank">Cross Actions</a>                        
                     </div>
                 </div>
                 <div class='ui menu'>
