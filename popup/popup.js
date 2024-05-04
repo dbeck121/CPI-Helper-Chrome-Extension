@@ -375,10 +375,9 @@ function addTenantUrls() {
                 <div class='ui menu'>
                     <a class="ui item" href="${host + '/shell/settings'}" target="_blank"><strong>API Management</strong></a>
                     <div class="ui wrapped wrapping buttons fluid">
-                        <a class="ui button" href="${host + '/shell/configure'}" target="_blank">Configure API</a>
-                        <a class="ui button" href="${host + '/shell/develop'}" target="_blank">Design API</a>
-                        <a class="ui button" href="${host + '/shell/testconsole'}" target="_blank">Test API</a>
-                        <a class="ui button" href="${host + '/shell/analytics'}" target="_blank">Analyze API</a> 
+                        <a class="ui button" href="${host + '/shell/configure'}" target="_blank">Configure APIs</a>
+                        <a class="ui button" href="${host + '/shell/testconsole'}" target="_blank">Test APIs</a>
+                        <a class="ui button" href="${host + '/shell/analytics'}" target="_blank">Analyze APIs</a> 
                     </div>
                 </div>
                 <div class='ui menu'>
