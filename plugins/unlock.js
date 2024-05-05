@@ -19,7 +19,7 @@ var plugin = {
             button.innerHTML = "unlock";
 
             //removes or rather deletes the lock on this artifact
-            button.onclick = async (x) => {
+            button.onclick = async () => {
                 //prepare unlock
                 const urlForResourceId = `/${pluginHelper.urlExtension}odata/api/v1/IntegrationDesigntimeLocks?$format=json`;
                 var dataOfDesigntimeLocks = JSON.parse(await makeCallPromise("GET", urlForResourceId, false)).d.results;
