@@ -48,6 +48,10 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.13.0
+
+- [Plugin] Unlock Plugin to unlock integration flows directly from design screen. Special thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/).
+
 ### 3.12.1
 
 - [Improvement] Better payload viewer & Update payload directly in trace Body panel. Special thanks to [Omkar Patel](https://github.com/incpi).
