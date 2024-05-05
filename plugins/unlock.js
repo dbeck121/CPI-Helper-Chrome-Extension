@@ -1,7 +1,7 @@
 var plugin = {
     metadataVersion: "1.0.0",
     id: "unlock",
-    name: "Unlock Artifact",
+    name: "unlock plugin",
     version: "1.0.0",
     author: "Gregor Schütz, AGILITA AG",
     website: "https://www.agilita.ch/",
