@@ -24,15 +24,18 @@ var plugin = {
                 const urlForResourceId = `/${pluginHelper.urlExtension}odata/api/v1/IntegrationDesigntimeLocks?$format=json`;
                 var dataOfDesigntimeLocks = JSON.parse(await makeCallPromise("GET", urlForResourceId, false)).d.results;
                 
+                //get resourceid by matching the artifactid
                 var resourceId = dataOfDesigntimeLocks.find(function (a){
                     return a.ArtifactId === pluginHelper.currentArtifactId
                 })?.ResourceId;
                 
                 //unlock artifact if locked
                 if(resourceId != undefined){ //undefined means it's not locked
-                    location.reload(); //refresh is need because of issues when switching from one CPI tenant to another
                     var urlForUnlock = `/${pluginHelper.urlExtension}odata/api/v1/IntegrationDesigntimeLocks(ResourceId='${resourceId}')`;
                     await makeCallPromise("DELETE", urlForUnlock, false);
+                    showToast("The artifact has been unlocked");
+                }else{
+                    showToast("The artifact is not locked");
                 }
             }
 
