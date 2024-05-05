@@ -363,10 +363,14 @@ function addTenantUrls() {
                             <a class="ui button" href="${host + '/shell/monitoring/Variables'}" target="_blank">Variables</a>
                             <a class="ui button" href="${host + '/shell/monitoring/MessageQueues'}" target="_blank">Message Queues</a>
                         </div>
-                        <a class="fluid ui button" href="${host + '/shell/monitoring/NumberRangeObject'}" target="_blank">Number Ranges</a>
+                        <div class="three ui buttons">
+                            <a class="fluid ui button" href="${host + '/shell/monitoring/NumberRangeObject'}" target="_blank">Number Ranges</a>
+                            <a class="fluid ui button" href="${host + '/shell/monitoring/UserRoles'}" target="_blank">User Roles</a>
+                            <a class="fluid ui button" href="${host + '/shell/monitoring/MessageUsage'}" target="_blank">Message Usage</a>                            
+                        </div>
                         <div class="ui fitted divider"></div>
                         <div class="three ui buttons">
-                            <a class="ui button" href="${host + '/shell/monitoring/AuditLog'}" target="_blank">Audit Log</a>
+                            <a class="ui button" href="${host + '/shell/monitoring/SystemLogs'}" target="_blank">System Logs</a>
                             <a class="ui button" href="${host + '/shell/monitoring/Locks'}" target="_blank">Message Locks</a>
                             <a class="ui button" href="${host + '/shell/monitoring/DesigntimeLocks'}" target="_blank">Designtime Artifact Locks</a>
                         </div>
@@ -375,10 +379,9 @@ function addTenantUrls() {
                 <div class='ui menu'>
                     <a class="ui item" href="${host + '/shell/settings'}" target="_blank"><strong>API Management</strong></a>
                     <div class="ui wrapped wrapping buttons fluid">
-                        <a class="ui button" href="${host + '/shell/configure'}" target="_blank">Configure API</a>
-                        <a class="ui button" href="${host + '/shell/develop'}" target="_blank">Design API</a>
-                        <a class="ui button" href="${host + '/shell/testconsole'}" target="_blank">Test API</a>
-                        <a class="ui button" href="${host + '/shell/analytics'}" target="_blank">Analyze API</a> 
+                        <a class="ui button" href="${host + '/shell/configure'}" target="_blank">Configure APIs</a>
+                        <a class="ui button" href="${host + '/shell/testconsole'}" target="_blank">Test APIs</a>
+                        <a class="ui button" href="${host + '/shell/analytics'}" target="_blank">Analyze APIs</a> 
                     </div>
                 </div>
                 <div class='ui menu'>
@@ -390,6 +393,7 @@ function addTenantUrls() {
                         <a class="ui button" href="${host + '/shell/tpm/agreements'}" target="_blank">Agreements</a>                                                
                         <a class="ui button" href="${host + '/shell/tpm/tradingPartners'}" target="_blank">Trading Partners</a>                                                
                         <a class="ui button" href="${host + '/shell/tpm/pdContent'}" target="_blank">Partner Directory Data</a>
+                        <a class="ui button" href="${host + '/shell/tpm/crossActions'}" target="_blank">Cross Actions</a>                        
                     </div>
                 </div>
                 <div class='ui menu'>
