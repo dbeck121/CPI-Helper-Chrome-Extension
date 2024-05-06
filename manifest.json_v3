@@ -35,6 +35,7 @@
         "/lib/semanticui/semantic.min.js",
         "/plugins/run.js",
         "/plugins/undeploy.js",
+        "/plugins/unlock.js",
         "/plugins/cpitransporter.js",
         "/plugins/figaf.js",
         "/plugins/OpenAIServices.js",

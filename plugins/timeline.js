@@ -6,7 +6,7 @@ var plugin = {
     author: "Gregor Schütz, AGILITA AG",
     website: "https://www.agilita.ch/",
     email: "gregor.schuetz@agilita.ch",
-    description: "Displays the timeline of a message.",
+    description: "<br><b>(Trace not needed)</b></br> Displays the timeline of a message.",
     settings: {
         "icon": { "type": "icon", "src": "/images/plugin_logos/AGILITAAG_Logo.jpg" }
     },
@@ -68,6 +68,8 @@ function createContent(data, pluginHelper) {
                 <th>Status</th>
                 <th>Start Date</th>
                 <th>Start Time</th>
+                <th>End Date</th>
+                <th>End Time</th>
             </tr>
         </thead>
         </tbody>`;
@@ -95,8 +97,10 @@ function createContent(data, pluginHelper) {
             statusColor = "blue";
         }
 
-        var date = JSON.parse(formatTimestamp(artifact.LogStart)).date;
-        var time = JSON.parse(formatTimestamp(artifact.LogStart)).time;
+        var startdate = JSON.parse(formatTimestamp(artifact.LogStart)).date;
+        var starttime = JSON.parse(formatTimestamp(artifact.LogStart)).time;
+        var enddate = JSON.parse(formatTimestamp(artifact.LogEnd)).date;
+        var endtime = JSON.parse(formatTimestamp(artifact.LogEnd)).time;
         var packageLink = `https://${pluginHelper.tenant}/${pluginHelper.urlExtension}shell/design/contentpackage/${artifact.IntegrationArtifact.PackageId}?section=ARTIFACTS`;
         // Displaying the currently viewed artifact differently than the connected artifacts
         // No link for currently viewed artifact (because we are already viewing it)
@@ -107,12 +111,14 @@ function createContent(data, pluginHelper) {
                 <td data-label="Nr." class="ui center aligned">${index + 1}.</td>
                 <td data-label="Integration Flow Name" ${artifact.IntegrationArtifact.Id != pluginHelper.integrationFlowId
                 ? `class="selectable"><a href="${link}" target="_blank">${artifact.IntegrationArtifact.Name}</a>`
-                : `class="selectable yellow">${artifact.IntegrationArtifact.Name} (currently viewing)`}
+                : `class="yellow">${artifact.IntegrationArtifact.Name} (currently viewing)`}
                 </td>
                 <td data-label="Integration Package" class="selectable"><a href="${packageLink}" target="_blank">${artifact.IntegrationArtifact.PackageName}</a></td>
                 <td data-label="Status">${artifact.Status}</td>
-                <td data-label="Start Date">${date}</td>
-                <td data-label="Start Time">${time}</td>
+                <td data-label="Start Date">${startdate}</td>
+                <td data-label="Start Time">${starttime}</td>
+                <td data-label="End Date">${enddate}</td>
+                <td data-label="End Time">${endtime}</td>
             </tr>`;
     });
 
