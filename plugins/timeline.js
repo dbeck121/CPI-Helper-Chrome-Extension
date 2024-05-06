@@ -2,7 +2,7 @@ var plugin = {
     metadataVersion: "1.0.0",
     id: "timeline",
     name: "Timeline",
-    version: "1.0.0",
+    version: "1.0.1",
     author: "Gregor Schütz, AGILITA AG",
     website: "https://www.agilita.ch/",
     email: "gregor.schuetz@agilita.ch",
@@ -32,6 +32,9 @@ var plugin = {
 
             // Add content inside of a popup
             pluginHelper.functions.popup(popupContent, "Timeline");
+
+            // Add table sorting
+            $('table').tablesort();
         }
     }
 }
@@ -59,17 +62,15 @@ function formatTimestamp(timestamp) {
 function createContent(data, pluginHelper) {
     // Table columns
     var popupContentPrefix = `
-    <table class="ui celled center aligned table" id='timelinetable'>
+    <table class="ui sortable celled center aligned table" id='timelinetable'>
         <thead>
             <tr class="black">
                 <th class="ui center aligned">Nr.</th>
                 <th>Integration Flow Name</th>
                 <th>Integration Package</th>
                 <th>Status</th>
-                <th>Start Date</th>
-                <th>Start Time</th>
-                <th>End Date</th>
-                <th>End Time</th>
+                <th class="sorted ascending">Start</th>
+                <th>End</th>
             </tr>
         </thead>
         </tbody>`;
@@ -97,10 +98,8 @@ function createContent(data, pluginHelper) {
             statusColor = "blue";
         }
 
-        var startdate = JSON.parse(formatTimestamp(artifact.LogStart)).date;
-        var starttime = JSON.parse(formatTimestamp(artifact.LogStart)).time;
-        var enddate = JSON.parse(formatTimestamp(artifact.LogEnd)).date;
-        var endtime = JSON.parse(formatTimestamp(artifact.LogEnd)).time;
+        var start = JSON.parse(formatTimestamp(artifact.LogStart));
+        var end = JSON.parse(formatTimestamp(artifact.LogEnd));
         var packageLink = `https://${pluginHelper.tenant}/${pluginHelper.urlExtension}shell/design/contentpackage/${artifact.IntegrationArtifact.PackageId}?section=ARTIFACTS`;
         // Displaying the currently viewed artifact differently than the connected artifacts
         // No link for currently viewed artifact (because we are already viewing it)
@@ -115,10 +114,8 @@ function createContent(data, pluginHelper) {
                 </td>
                 <td data-label="Integration Package" class="selectable"><a href="${packageLink}" target="_blank">${artifact.IntegrationArtifact.PackageName}</a></td>
                 <td data-label="Status">${artifact.Status}</td>
-                <td data-label="Start Date">${startdate}</td>
-                <td data-label="Start Time">${starttime}</td>
-                <td data-label="End Date">${enddate}</td>
-                <td data-label="End Time">${endtime}</td>
+                <td data-label="Start">${start.date} ${start.time}</td>
+                <td data-label="End">${end.date} ${end.time}</td>
             </tr>`;
     });
 
@@ -126,3 +123,136 @@ function createContent(data, pluginHelper) {
 }
 
 pluginList.push(plugin);
+
+/*
+	A simple, lightweight jQuery plugin for creating sortable tables.
+	https://github.com/kylefox/jquery-tablesort
+	Version 0.0.11
+*/
+
+(function($) {
+	$.tablesort = function ($table, settings) {
+		var self = this;
+		this.$table = $table;
+		this.$thead = this.$table.find('thead');
+		this.settings = $.extend({}, $.tablesort.defaults, settings);
+		this.$sortCells = this.$thead.length > 0 ? this.$thead.find('th:not(.no-sort)') : this.$table.find('th:not(.no-sort)');
+		this.$sortCells.on('click.tablesort', function() {
+			self.sort($(this));
+		});
+		this.index = null;
+		this.$th = null;
+		this.direction = null;
+	};
+
+	$.tablesort.prototype = {
+
+		sort: function(th, direction) {
+			var start = new Date(),
+				self = this,
+				table = this.$table,
+				rowsContainer = table.find('tbody').length > 0 ? table.find('tbody') : table,
+				rows = rowsContainer.find('tr').has('td, th'),
+				cells = rows.find(':nth-child(' + (th.index() + 1) + ')').filter('td, th'),
+				sortBy = th.data().sortBy,
+				sortedMap = [];
+
+			var unsortedValues = cells.map(function(idx, cell) {
+				if (sortBy)
+					return (typeof sortBy === 'function') ? sortBy($(th), $(cell), self) : sortBy;
+				return ($(this).data().sortValue != null ? $(this).data().sortValue : $(this).text());
+			});
+			if (unsortedValues.length === 0) return;
+
+			//click on a different column
+			if (this.index !== th.index()) {
+				this.direction = 'asc';
+				this.index = th.index();
+			}
+			else if (direction !== 'asc' && direction !== 'desc')
+				this.direction = this.direction === 'asc' ? 'desc' : 'asc';
+			else
+				this.direction = direction;
+
+			direction = this.direction == 'asc' ? 1 : -1;
+
+			self.$table.trigger('tablesort:start', [self]);
+			self.log("Sorting by " + this.index + ' ' + this.direction);
+
+			// Try to force a browser redraw
+			self.$table.css("display");
+			// Run sorting asynchronously on a timeout to force browser redraw after
+			// `tablesort:start` callback. Also avoids locking up the browser too much.
+			setTimeout(function() {
+				self.$sortCells.removeClass(self.settings.asc + ' ' + self.settings.desc);
+				for (var i = 0, length = unsortedValues.length; i < length; i++)
+				{
+					sortedMap.push({
+						index: i,
+						cell: cells[i],
+						row: rows[i],
+						value: unsortedValues[i]
+					});
+				}
+
+				sortedMap.sort(function(a, b) {
+					return self.settings.compare(a.value, b.value) * direction;
+				});
+
+				$.each(sortedMap, function(i, entry) {
+					rowsContainer.append(entry.row);
+				});
+
+				th.addClass(self.settings[self.direction]);
+
+				self.log('Sort finished in ' + ((new Date()).getTime() - start.getTime()) + 'ms');
+				self.$table.trigger('tablesort:complete', [self]);
+				//Try to force a browser redraw
+				self.$table.css("display");
+			}, unsortedValues.length > 2000 ? 200 : 10);
+		},
+
+		log: function(msg) {
+			if(($.tablesort.DEBUG || this.settings.debug) && console && console.log) {
+				console.log('[tablesort] ' + msg);
+			}
+		},
+
+		destroy: function() {
+			this.$sortCells.off('click.tablesort');
+			this.$table.data('tablesort', null);
+			return null;
+		}
+
+	};
+
+	$.tablesort.DEBUG = false;
+
+	$.tablesort.defaults = {
+		debug: $.tablesort.DEBUG,
+		asc: 'sorted ascending',
+		desc: 'sorted descending',
+		compare: function(a, b) {
+			if (a > b) {
+				return 1;
+			} else if (a < b) {
+				return -1;
+			} else {
+				return 0;
+			}
+		}
+	};
+
+	$.fn.tablesort = function(settings) {
+		var table, sortable, previous;
+		return this.each(function() {
+			table = $(this);
+			previous = table.data('tablesort');
+			if(previous) {
+				previous.destroy();
+			}
+			table.data('tablesort', new $.tablesort(table, settings));
+		});
+	};
+
+})(window.Zepto || window.jQuery);
