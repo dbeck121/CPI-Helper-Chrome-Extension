@@ -33,7 +33,7 @@ var plugin = {
                 if(resourceId != undefined){ //undefined means it's not locked
                     try{
                         var urlForUnlock = `/${pluginHelper.urlExtension}odata/api/v1/IntegrationDesigntimeLocks(ResourceId='${resourceId}')`;
-                        await makeCallPromise("DELETE", urlForUnlock, false);
+                        await makeCallPromise("DELETE", urlForUnlock, false, null, null, true);
                         showToast("The artifact has been unlocked", "", "success");
                     }catch(exception){
                         showToast("Could not unlock artifact", "", "error");

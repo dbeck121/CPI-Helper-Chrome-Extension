@@ -11,7 +11,7 @@ var plugin = {
         "icon": { "type": "icon", "src": "/images/plugin_logos/AGILITAAG_Logo.jpg" }
     },
     messageSidebarButton: {
-        "icon": { "type": "icon", "text": "xe088" }, //⏳
+        "icon": { "type": "icon", "text": "xe088" },
         "title": "display timeline",
         "onClick": async (pluginHelper, settings, runInfo, active) => {
             // Data Prep for table
