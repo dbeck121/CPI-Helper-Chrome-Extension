@@ -83,7 +83,6 @@ async function renderMessageSidebar() {
     return;
   }
 
-
   await getIflowInfo((data) => {
     let deploymentText = document.getElementById('deploymentText');
     if (deploymentText) {
@@ -925,16 +924,16 @@ async function buildButtonBar() {
       showBigPopup(await createContentNodeForPlugins(), "Plugins");
 
     });
-    log.debug("Artifect from checks for sidebar",cpiData.currentArtifactType)
+    log.debug("Artifect from checks for sidebar", cpiData.currentArtifactType)
     if ((sidebar.active == null || sidebar.active == false) && cpiData.currentArtifactType) {
       chrome.storage.sync.get(["openMessageSidebarOnStartup"], function (result) {
         var openMessageSidebarOnStartupValue;
         // default mode is open
         if (result["openMessageSidebarOnStartup"] === undefined) {
-            chrome.storage.sync.set({ "openMessageSidebarOnStartup": true });
-            openMessageSidebarOnStartupValue = true;
+          chrome.storage.sync.set({ "openMessageSidebarOnStartup": true });
+          openMessageSidebarOnStartupValue = true;
         }
-        else { openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"] ; }
+        else { openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"]; }
 
         openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
         if (openMessageSidebarOnStartupValue) {
@@ -2017,7 +2016,11 @@ setInterval(async function () {
   }
 
   log.debug("check for button bar");
-
+  try {
+    navigationButton()
+  } catch (error) {
+    log.error(error)
+  }
   await checkURLchange(window.location.href);
 
   //new update message sidebar
@@ -2075,3 +2078,74 @@ setInterval(async function () {
     nextMessageSidebarRefreshCount = 0;
   }
 }, 3000);
+function navigationButton() {
+  //main Frame
+  const data_content = `
+    <div class="ui menu">
+      <a class="item active" data-tab="CH_Creds">Creds</a>
+      <a class="item" data-tab="CH_Debug">Debug_Mode</a>
+    </div>
+    <div class="ui active tab" data-tab="CH_Creds">
+      <div class="ui segment"></div>
+    </div>
+    <div class="ui tab" data-tab="CH_Debug">
+      <div class="ui segment">
+        <div class="ui container form-container" style='margin:1em'>
+          <h3 class="ui header">Debug Mode Selector</h3>
+          <div class="ui container">
+            <form id="debug-form" class="ui form">
+              <div class="field">
+                <label>Timeout:</label>
+                <select id="timeout" name="timeout" class="ui dropdown">
+                              <option value="30">30 seconds</option>
+                              <option value="60">1 minute</option>
+                              <option value="120">2 minutes</option>
+                              <option value="300">5 minutes</option>
+                          </select>
+              </div>
+              <div class="field">
+                <label>Log Level:</label>
+                <select id="logLevel" name="logLevel" class="ui dropdown">
+                              <option value="warn">Warning</option>
+                              <option value="info">Info</option>
+                              <option value="log">Log</option>
+                              <option value="debug">Debug</option>
+                          </select>
+              </div>
+              <button type="submit" class="ui primary button">Submit</button>
+              <button type="button" id="downloadButton" class="ui button">Download</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>`
+  if ($('#__cpihelper').length === 0) {
+    log.log('adding navigation for main page');
+    $('#shell--toolHeader').append(`
+    <button id="__cpihelper" data-sap-ui="loginDetailsButton" data-sap-ui-render="" data-ui5-accesskey="" 
+    class="sapMBtnBase sapMBtn sapMBarChild"><i class="circular inverted teal cloud icon"></i></button>`);
+    $('#__cpihelper').on('click', async () => await showBigPopup(data_content, "CPI Helper", {
+       "fullscreen": true, 
+       callback: async () => { $('.menu .item').tab();} 
+      }).then(async (e)=>{
+        await defaultdebug();
+        var list = await getSecurityNamelist();
+        //pending
+      }))
+  }
+}
+/*const icons = chrome.runtime.getManifest().icons | chrome.runtime.getURL(icons['16'])*/
+async function getSecurityNamelist() {
+  return await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.km.api.commands.SecurityMaterialsListCommand", false, null, null, null, null, false).then((response) => {
+    return response = new XmlToJson().parse(response)['com.sap.it.km.api.commands.SecurityMaterialsListResponse']["artifactInformations"].filter(obj => obj.deployState === "DEPLOYED")
+      .reduce((result, obj) => {
+        const credentialKindTag = obj.tags.find(tag => tag.name === "sec:credential.kind");
+        const key = credentialKindTag ? credentialKindTag.value : null;
+        if (key != null) {
+          result[key] = result[key] || [];
+          result[key].push(String(obj.name));
+        }
+        return result;
+      }, {});
+  });
+}
