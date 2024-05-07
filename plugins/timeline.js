@@ -65,7 +65,6 @@ function createContent(data, pluginHelper) {
     <table class="ui sortable celled center aligned table" id='timelinetable'>
         <thead>
             <tr class="black">
-                <th class="ui center aligned">Nr.</th>
                 <th>Integration Flow Name</th>
                 <th>Integration Package</th>
                 <th>Status</th>
@@ -76,7 +75,7 @@ function createContent(data, pluginHelper) {
         </tbody>`;
 
     // Creating a table entry for every connected artifact
-    data.forEach(function (artifact, index) {
+    data.forEach(function (artifact) {
         // Status coloring for status field
         var statusColor = artifact.Status;
         if (statusColor == "PROCESSING") {
@@ -107,7 +106,6 @@ function createContent(data, pluginHelper) {
         var link = `https://${pluginHelper.tenant}/${pluginHelper.urlExtension}shell/design/contentpackage/${artifact.IntegrationArtifact.PackageId}/integrationflows/${artifact.IntegrationArtifact.Id}`;
         popupContentPrefix += `
             <tr class="${statusColor}">
-                <td data-label="Nr." class="ui center aligned">${index + 1}.</td>
                 <td data-label="Integration Flow Name" ${artifact.IntegrationArtifact.Id != pluginHelper.integrationFlowId
                 ? `class="selectable"><a href="${link}" target="_blank">${artifact.IntegrationArtifact.Name}</a>`
                 : `class="yellow">${artifact.IntegrationArtifact.Name} (currently viewing)`}
