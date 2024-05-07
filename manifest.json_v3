@@ -37,7 +37,6 @@
         "/plugins/run.js",
         "/plugins/undeploy.js",
         "/plugins/unlock.js",
-        "/plugins/credentialHelper.js",
         "/plugins/cpitransporter.js",
         "/plugins/figaf.js",
         "/plugins/OpenAIServices.js",
