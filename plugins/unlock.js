@@ -16,7 +16,7 @@ var plugin = {
             //prepare button
             var div = document.createElement("div");
             var button = document.createElement("button");
-            button.innerHTML = "unlock";
+            button.innerHTML = "Unlock";
 
             //removes or rather deletes the lock on this artifact
             button.onclick = async () => {
