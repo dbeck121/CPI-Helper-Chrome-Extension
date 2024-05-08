@@ -2083,17 +2083,17 @@ setInterval(async function () {
 function navigationButton() {
   //main Frame
   const data_content = `
-    <div class="ui menu">
-      <a class="item active" data-tab="CH_Creds">Creds</a>
-      <a class="item" data-tab="CH_Debug">Debug_Mode</a>
-    </div>
-    <div class="ui active tab" data-tab="CH_Creds">
-      <div class="ui segment"></div>
-    </div>
-    <div class="ui tab" data-tab="CH_Debug">
       <div class="ui segment">
         <div class="ui container form-container" style='margin:1em'>
-          <h3 class="ui header">Debug Mode Selector</h3>
+         <h3 class="ui header">Credentials:</h3>
+          <div class="ui search">
+  <div class="ui icon input">
+    <input class="prompt" type="text" placeholder="Search items...">
+    <i class="search icon"></i>
+  </div>
+  <div class="results"></div>
+</div>
+<h3 class="ui header">Debug Mode Selector:</h3>
           <div class="ui container">
             <form id="debug-form" class="ui form">
               <div class="field">
@@ -2114,12 +2114,11 @@ function navigationButton() {
                               <option value="debug">Debug</option>
                           </select>
               </div>
-              <button type="submit" class="ui primary button">Submit</button>
-              <button type="button" id="downloadButton" class="ui button">Download</button>
+              <button type="submit" class="ui primary icon button"><i class="icon save"></i></button>
+              <button type="button" id="downloadButton" class="ui icon button"><i class="icon download"></i></button>
             </form>
           </div>
         </div>
-      </div>
     </div>`
   if ($('#__cpihelper').length === 0) {
     log.log('adding navigation for main page');
@@ -2127,27 +2126,48 @@ function navigationButton() {
     <button id="__cpihelper" data-sap-ui="loginDetailsButton" data-sap-ui-render="" data-ui5-accesskey="" 
     class="sapMBtnBase sapMBtn sapMBarChild"><i class="circular inverted teal cloud icon"></i></button>`);
     $('#__cpihelper').on('click', async () => await showBigPopup(data_content, "CPI Helper", {
-       "fullscreen": true, 
-       callback: async () => { $('.menu .item').tab();} 
-      }).then(async (e)=>{
-        await defaultdebug();
-        var list = await getSecurityNamelist();
-        //pending
-      }))
+      "fullscreen": true,
+      callback: async () => {
+        data = await getSecurityNamelist();
+        $('.ui.search')
+          .search({
+            source: data,
+            onSelect: (result, resp) => copyText(result.title),
+            searchFields: ['title'],
+            type: 'category',
+            minCharacters: 1,
+          });
+      }
+    }).then(async (e) => {
+      await defaultdebug();
+    }))
   }
 }
 /*const icons = chrome.runtime.getManifest().icons | chrome.runtime.getURL(icons['16'])*/
 async function getSecurityNamelist() {
-  return await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.km.api.commands.SecurityMaterialsListCommand", false, null, null, null, null, false).then((response) => {
+  let map = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.km.api.commands.SecurityMaterialsListCommand", false, null, null, null, null, false).then((response) => {
     return response = new XmlToJson().parse(response)['com.sap.it.km.api.commands.SecurityMaterialsListResponse']["artifactInformations"].filter(obj => obj.deployState === "DEPLOYED")
       .reduce((result, obj) => {
         const credentialKindTag = obj.tags.find(tag => tag.name === "sec:credential.kind");
-        const key = credentialKindTag ? credentialKindTag.value : null;
+        var key = credentialKindTag ? credentialKindTag.value : null;
         if (key != null) {
+          if (key === 'oauth2:default') {
+            key = obj.tags.find(tag => tag.name === "sec:grant.type").value;
+          }
           result[key] = result[key] || [];
           result[key].push(String(obj.name));
         }
         return result;
       }, {});
   });
+  const category1 = {
+    "default": "User Credentials",
+    "client_credentials": "Odata client credentials",
+    "OAuth2SAMLBearerAssertion": "OAuth2 SAML Bearer Assertion",
+    "secure_param": "Secure Parameter",
+    "Token": "OAuth2 Authorization Code" //yet to do...
+  };
+  return Object.entries(map).flatMap(([key, titles]) =>
+    titles.map(title => ({ title, category: category1[key] }))
+  );
 }
