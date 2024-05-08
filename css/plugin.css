@@ -21,6 +21,10 @@ Users are encouraged to integrate this library with care to ensure compatibility
     text-decoration: none;
 }
 
+#timelinetable th:hover {
+    color: rgba(128, 128, 128, 0.9) !important;
+}
+
 #timelinetable td:has(a):hover {
     background: rgba(0, 0, 0, 0.1) !important
 }

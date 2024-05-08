@@ -48,6 +48,7 @@
         "/lib/xmlToJson/xmlToJson.js",
         "/lib/jQuery/jquery.min.js",
         "/lib/semanticui/semantic.min.js",
+        "/lib/semanticui/tablesort.js",
         "/common/logging.js",
         "/common/tools.js",
         "/scripts/identify-tenant.js",

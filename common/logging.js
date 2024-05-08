@@ -96,7 +96,7 @@ function adjustLogLevelByTime(timeout = $('#timeout').val()) {
       log.level = defaultLogLevel
       showToast(String(levelMap[log.level]) + " Switched Back.")
       timerId = null;
-      $('#logLevel').dropdown('set selected', defaultLogLevel)
+      $('#logLevel').dropdown('set selected', defaultLogLevel);
     }, parseInt(timeout) * 1000);
   }
 }
