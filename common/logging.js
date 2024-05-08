@@ -1,5 +1,5 @@
 var log = anylogger('cpihelper')
-log.level = log.LOG
+log.level = log.WARN
 log.format = "date time lvl name perf"
 log('Logger active for CPI-Helper on level: ' + log.level)
 logsarray = []
@@ -89,13 +89,14 @@ function adjustLogLevelByTime(timeout = $('#timeout').val()) {
     clearTimeout(timerId);
   } else {
     log.level = $('#logLevel').val();
-    log.log(String(levelMap[log.level]) + " mode active")
+    log.log(String(levelMap[log.level]) + " mode active " + timeout + " ms")
+    showToast(String(levelMap[log.level]) + " is activated for " + timeout + " ms")
     if (log.level === ulog.levels.debug) { log.output = "exporter" }
     timerId = setTimeout(() => {
       log.level = defaultLogLevel
+      showToast(String(levelMap[log.level]) + " Switched Back.")
       timerId = null;
       $('#logLevel').dropdown('set selected', defaultLogLevel)
-      showToast(log.level + " is activated for" + timeout)
     }, parseInt(timeout) * 1000);
   }
 }
