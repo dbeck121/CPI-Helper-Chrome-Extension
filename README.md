@@ -51,6 +51,7 @@ It is open source so feel free to check the source code.
 ### 3.13.0
 
 - [Plugin] Unlock Plugin to unlock integration flows directly from design screen. Special thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/).
+- [Plugin] Timeline Plugin now with sorting options. Again special thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/).
 
 ### 3.12.1
 
