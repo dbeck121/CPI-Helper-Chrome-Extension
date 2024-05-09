@@ -47,6 +47,8 @@ var plugin = {
                 dropdown.style.boxShadow = '0px 8px 16px 0px rgba(0,0,0,0.2)';
                 dropdown.style.zIndex = '1000'; //making sure it is not overlapped by other elements
                 dropdown.style.width = event.target.offsetWidth + 'px';
+                dropdown.style.maxHeight = '200px'; // Adjust this value according to your needs
+                dropdown.style.overflowY = 'auto';
         
                 //position the dropdown directly below the input field relative to the viewport
                 const inputRect = event.target.getBoundingClientRect();
