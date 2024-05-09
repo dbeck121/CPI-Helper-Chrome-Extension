@@ -97,6 +97,17 @@ var plugin = {
                 //append the dropdown to the body to ensure it is absolutely positioned
                 document.body.appendChild(dropdown);
                 dropdown.style.display = 'block';
+
+                //add a scroll event listener to close the dropdown if scrolling is happening except for the dropdown
+                function closeOnExternalScroll(event) {
+                    if (!dropdown.contains(event.target)) {
+                        dropdown.remove(); // Close the dropdown
+                        document.removeEventListener('scroll', closeOnExternalScroll, true);
+                    }
+                }
+
+                //capture scroll events on any scrollable element
+                document.addEventListener('scroll', closeOnExternalScroll, true);
             }
             
             document.addEventListener('click', async function (event) {
