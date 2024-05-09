@@ -50,9 +50,16 @@ var plugin = {
                 dropdown.style.maxHeight = '200px'; // Adjust this value according to your needs
                 dropdown.style.overflowY = 'auto';
         
-                //position the dropdown directly below the input field relative to the viewport
+                //get the input field's position relative to the viewport
                 const inputRect = event.target.getBoundingClientRect();
-                dropdown.style.top = inputRect.bottom + window.scrollY + 'px';
+                const spaceBelow = window.innerHeight - inputRect.bottom;
+
+                //determine if the dropdown should be placed above or below the input field
+                if (spaceBelow < dropdown.style.maxHeight.replace('px', '')) {
+                    dropdown.style.top = inputRect.top + window.scrollY - dropdown.style.maxHeight.replace('px', '') + 'px';
+                } else {
+                    dropdown.style.top = inputRect.bottom + window.scrollY + 'px';
+                }
                 dropdown.style.left = inputRect.left + window.scrollX + 'px';
         
                 //populate the dropdown with matching items as selectable divs
