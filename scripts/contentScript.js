@@ -2117,7 +2117,17 @@ function navigationButton() {
               <button type="submit" class="ui primary icon button"><i class="icon save"></i></button>
               <button type="button" id="downloadButton" class="ui icon button"><i class="icon download"></i></button>
             </form>
-            <div class='ui orange message'>download only with debug mode</div>
+            <div class="ui warning message">
+                <i class="close icon"></i>
+                <div class="header">
+                  Log mode note:
+                </div>
+                <ul class="list">
+                  <li>Once timer expires, Debug mode payload auto downloads.</li>
+                  <li>To download Log file , mode must be set as debug, for others use Dev tools.</li>
+                  <li>Please download payload if it's not auto downloaded.</li>
+                </ul>
+              </div>
           </div>
         </div>
     </div>`
