@@ -140,8 +140,8 @@ var plugin = {
                     //$format is ignored in both requests, so we need to set accept in order to get a json response
                     var urlForKeyStoreEntries = `/${pluginHelper.urlExtension}odata/api/v1/KeystoreEntries`;
                     var keyStoreEntries = JSON.parse(await makeCallPromise("GET", urlForKeyStoreEntries, false, "application/json")).d.results.map(ks => ks.Alias);
-                    var urlForSecurityMaterialList = `/${pluginHelper.urlExtension}odata/api/v1/UserCredentials`;
-                    securityMaterialList = JSON.parse(await makeCallPromise("GET", urlForSecurityMaterialList, false, "application/json")).d.results.map(sm => sm.Name);
+                    var urlForSecurityMaterialList = `/${pluginHelper.urlExtension}Operations/com.sap.it.km.api.commands.SecurityMaterialsListCommand`;
+                    securityMaterialList = JSON.parse(await makeCallPromise("GET", urlForSecurityMaterialList, false, "application/json")).artifactInformations.map(sm => sm.name);
 
                     //add key store entries to the security material list
                     for (let i = 0; i < keyStoreEntries.length; i++) {
