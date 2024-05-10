@@ -105,6 +105,7 @@ var plugin = {
                     item.textContent = option;
                     item.style.padding = '8px 12px';
                     item.style.borderBottom = '1px solid #eee';
+                    item.dataset.originInput = event.target.id;
                     
                     if(hasMatches == true){
                         item.style.cursor = 'pointer';
@@ -113,7 +114,8 @@ var plugin = {
                         //set the input field value to the selected option on click
                         item.addEventListener('click', () => {
                             //we need to reselect the input field because SAP changes the id or recreates the input field for some reason
-                            const selector = patterns.map(pattern => `input[id*="__input_"][id*="${pattern}"]`).join(', ');
+                            const matchedPattern = patterns.find(pattern => item.dataset.originInput.includes(pattern));
+                            const selector = patterns.map(pattern => `input[id*="__input_"][id*="${matchedPattern}"]`).join(', ');
                             var inputField = document.querySelector(selector);
                             inputField.value = option;
                             dropdown.remove();
