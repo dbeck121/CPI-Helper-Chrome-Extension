@@ -2,11 +2,11 @@ var plugin = {
     metadataVersion: "1.0.0",
     id: "credentialHelper",
     name: "Credential Helper",
-    version: "0.0.1",
+    version: "1.0.0",
     author: "Gregor Schütz, AGILITA AG",
     website: "https://www.agilita.ch/",
     email: "gregor.schuetz@agilita.ch",
-    description: "<br><br><b>BETA</b></br>Provides a search help for existing credential names and key aliases <br><br><b>Supported Adapters are:</b></br> AMQP, Ariba, AS2, AS4, Elster, Facebook, FTP, OData, HTTP, IDOC, JDBC, Kafka, LDAP, Mail, MDI, ODC, SFTP, SOAP, SuccessFactors, Twitter, XI</br>",
+    description: "Provides a search help for existing credential names and key aliases <br><br><b>Supported Adapters are:</b></br> AMQP, Ariba, AS2, AS4, Elster, Facebook, FTP, OData, HTTP, IDOC, JDBC, Kafka, LDAP, Mail, MDI, ODC, SFTP, SOAP, SuccessFactors, Twitter, XI</br>",
     settings: {
         "icon": { "type": "icon", "src": "/images/plugin_logos/AGILITAAG_Logo.jpg" }
     },
@@ -17,8 +17,8 @@ var plugin = {
             var securityMaterialList;
 
             //the ids of the input fields vary from adapter to adapter
-            //if the ids are changed or new adapters were added we need to adjust/expand this check with the new ids
-            //these ids were checked for both Neo and CF environments for the following adapters... (07. May 2024)
+            //if the ids are changed or new adapters were added we need to adjust/expand this array with the new or changed ids
+            //these ids were checked for both Neo and CF environments for the following adapters... (7. May 2024)
             //AMQP, Ariba, AS2, AS4, Elster, Facebook, FTP, OData, HTTP, IDOC, JDBC, Kafka, LDAP, Mail, MDI, ODC, SFTP, SOAP, SuccessFactors, Twitter, XI
             const patterns = [
                 'credentialName',
@@ -71,24 +71,30 @@ var plugin = {
                 const dropdown = document.createElement('div');
                 dropdown.classList.add('credentialHelperDropdown');
         
-                //style the dropdown appropriately
+                //style the dropdown
                 dropdown.style.position = 'absolute';
                 dropdown.style.backgroundColor = '#f9f9f9';
                 dropdown.style.border = '1px solid #ccc';
                 dropdown.style.boxShadow = '0px 8px 16px 0px rgba(0,0,0,0.2)';
-                dropdown.style.zIndex = '1000'; //making sure it is not overlapped by other elements
+                dropdown.style.zIndex = '1000';
                 dropdown.style.width = event.target.parentElement.parentElement.parentElement.offsetWidth + 'px';
-                dropdown.style.maxHeight = '200px'; // Adjust this value according to your needs
+                dropdown.style.maxHeight = '200px';
                 dropdown.style.overflowY = 'auto';
-                
+                dropdown.style.display = 'flex';
+                dropdown.style.flexDirection = 'column-reverse'; // Reverses the order of items
+
                 //get the input field's position relative to the viewport
                 const inputRect = event.target.parentElement.parentElement.parentElement.getBoundingClientRect();
                 const spaceBelow = window.innerHeight - inputRect.bottom;
+                const dropdownMaxHeight = parseInt(dropdown.style.maxHeight.replace('px', ''), 10);
+                const dropdownHeight = Math.min(dropdownMaxHeight, matchingAliases.length * 40); // Estimate each item height
 
-                //determine if the dropdown should be placed above or below the input field
-                if (spaceBelow < dropdown.style.maxHeight.replace('px', '')) {
-                    dropdown.style.top = inputRect.top + window.scrollY - dropdown.style.maxHeight.replace('px', '') + 'px';
+                //determine if the dropdown should be placed above or below
+                if (spaceBelow < dropdownHeight && inputRect.top > dropdownHeight) {
+                    //place dropdown above the input field
+                    dropdown.style.top = inputRect.top + window.scrollY - dropdownHeight + 'px';
                 } else {
+                    //place dropdown below the input field
                     dropdown.style.top = inputRect.bottom + window.scrollY + 'px';
                 }
                 dropdown.style.left = inputRect.left + window.scrollX + 'px';
@@ -108,8 +114,8 @@ var plugin = {
                         item.addEventListener('click', () => {
                             //we need to reselect the input field because SAP changes the id or recreates the input field for some reason
                             const selector = patterns.map(pattern => `input[id*="__input_"][id*="${pattern}"]`).join(', ');
-                            var input = document.querySelector(selector);
-                            input.value = option;
+                            var inputField = document.querySelector(selector);
+                            inputField.value = option;
                             dropdown.remove(); //close the dropdown after selection
                         });
                     }
