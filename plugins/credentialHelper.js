@@ -134,7 +134,6 @@ var plugin = {
             }
             
             document.addEventListener('click', async function (event) {
-                console.log(event)
                 //check if a credential name or private key alias input was clicked and is not in readonly mode
                 if (event.target?.attributes?.readonly?.textContent != 'readonly' && event.target.tagName === 'INPUT' && event.target.id.includes('__input_') && patterns.some(pattern => event.target.id.includes(pattern))) {
                     //get Security Material and Key Store entries
