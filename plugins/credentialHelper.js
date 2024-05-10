@@ -12,7 +12,7 @@ var plugin = {
     },
     messageSidebarContent: {
         "static": true,
-        "onRender": async (pluginHelper) => {
+        "onRender": (pluginHelper) => {
             //prepare array to be filled
             var securityMaterialList;
 
@@ -116,7 +116,8 @@ var plugin = {
                             const selector = patterns.map(pattern => `input[id*="__input_"][id*="${pattern}"]`).join(', ');
                             var inputField = document.querySelector(selector);
                             inputField.value = option;
-                            dropdown.remove(); //close the dropdown after selection
+                            dropdown.remove();
+                            inputField.focus(); 
                         });
                     }
                     
@@ -130,7 +131,7 @@ var plugin = {
                 //add a scroll event listener to close the dropdown if scrolling is happening except for the dropdown
                 function closeOnExternalScroll(event) {
                     if (!dropdown.contains(event.target)) {
-                        dropdown.remove(); // Close the dropdown
+                        dropdown.remove();
                         document.removeEventListener('scroll', closeOnExternalScroll, true);
                     }
                 }
