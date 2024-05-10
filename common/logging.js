@@ -1,5 +1,5 @@
 var log = anylogger('cpihelper')
-log.level = log.WARN
+log.level = log.LOG
 log.format = "date time lvl name perf"
 log('Logger active for CPI-Helper on level: ' + log.level)
 logsarray = []

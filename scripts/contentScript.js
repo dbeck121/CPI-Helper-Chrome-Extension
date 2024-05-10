@@ -116,9 +116,9 @@ async function renderMessageSidebar() {
   //var xhr = await makeCallPromiseXHR("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and Status ne 'RETRY' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogEnd desc", false, null, null, false, "", false)
   // 18.4.2024, Addor: changed back to include Retry (for JMS based sender adapters it's crucial to see hanging messages in the sidebar)
   //var xhr = await makeCallPromiseXHR("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogEnd desc", false, null, null, false, "", false)
-//24-04-2024, On some tenants there are Retry messages hanging without any LogStart and LogEnd date and SAP is unable to discard them, these msgs stops CPI helper to display messages in popup ,using a timestamp from long back helpsso using date from 1900
+  //24-04-2024, On some tenants there are Retry messages hanging without any LogStart and LogEnd date and SAP is unable to discard them, these msgs stops CPI helper to display messages in popup ,using a timestamp from long back helpsso using date from 1900
   var xhr = await makeCallPromiseXHR("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and LogStart gt datetime'1900-01-01T01:02:50' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogEnd desc", false, null, null, false, "", false)
-  
+
   if (xhr.readyState == 4 && sidebar.active) {
 
     var resp = null
@@ -2093,7 +2093,7 @@ function navigationButton() {
   </div>
   <div class="results"></div>
 </div>
-<h3 class="ui header">Debug Mode Selector:</h3>
+<h3 class="ui header">Log Mode Selector for CPI Helper:</h3>
           <div class="ui container">
             <form id="debug-form" class="ui form">
               <div class="field">
@@ -2117,14 +2117,19 @@ function navigationButton() {
               <button type="submit" class="ui primary icon button"><i class="icon save"></i></button>
               <button type="button" id="downloadButton" class="ui icon button"><i class="icon download"></i></button>
             </form>
+            <div class='ui orange message'>download only with debug mode</div>
           </div>
         </div>
     </div>`
   if ($('#__cpihelper').length === 0) {
     log.log('adding navigation for main page');
-    $('#shell--toolHeader').append(`
-    <button id="__cpihelper" data-sap-ui="loginDetailsButton" data-sap-ui-render="" data-ui5-accesskey="" 
-    class="sapMBtnBase sapMBtn sapMBarChild"><i class="circular inverted teal cloud icon"></i></button>`);
+    cloudbutton = $(`<button id="__cpihelper" aria-label="CPI Helper" title="CPI Helper" class="sapMBtnBase sapMBtn sapMBarChild">
+    <span id="__cpihelper-inner" class="sapMBtnInner sapMBtnHoverable sapMFocusable sapMBtnIconFirst sapMBtnTransparent">
+      <span id="__cpihelper-img" data-sap-ui="__cpihelper-img" role="presentation" aria-hidden="true" data-sap-ui-icon-content="&#xe21d" class="sapUiIcon sapMBtnCustomIcon sapMBtnIcon sapMBtnIconLeft" style="font-family: SAP-icons;"></span>
+    </span>
+    <span id="__cpihelper-tooltip" class="sapUiInvisibleText">CPI Helper</span>
+  </button>`);
+    $('#shell--toolHeader').children().eq(3).after(cloudbutton);
     $('#__cpihelper').on('click', async () => await showBigPopup(data_content, "CPI Helper", {
       "fullscreen": true,
       callback: async () => {
@@ -2145,29 +2150,34 @@ function navigationButton() {
 }
 /*const icons = chrome.runtime.getManifest().icons | chrome.runtime.getURL(icons['16'])*/
 async function getSecurityNamelist() {
-  let map = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.km.api.commands.SecurityMaterialsListCommand", false, null, null, null, null, false).then((response) => {
-    return response = new XmlToJson().parse(response)['com.sap.it.km.api.commands.SecurityMaterialsListResponse']["artifactInformations"].filter(obj => obj.deployState === "DEPLOYED")
-      .reduce((result, obj) => {
-        const credentialKindTag = obj.tags.find(tag => tag.name === "sec:credential.kind");
-        var key = credentialKindTag ? credentialKindTag.value : null;
-        if (key != null) {
-          if (key === 'oauth2:default') {
-            key = obj.tags.find(tag => tag.name === "sec:grant.type").value;
-          }
-          result[key] = result[key] || [];
-          result[key].push(String(obj.name));
-        }
-        return result;
-      }, {});
-  });
-  const category1 = {
+  const response = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.km.api.commands.SecurityMaterialsListCommand", false, "application/json")).artifactInformations.filter(e => e.deployState = 'DEPLOYED').reduce((result, obj) => {
+    const credentialKindTag = obj.tags.find(tag => tag.name === "sec:credential.kind");
+    var key = credentialKindTag ? credentialKindTag.value : (
+      obj.type === "TOKEN_CREDENTIAL" ? obj.tags.find(tag => tag.name === "provider").value : null
+    )
+    if (key != null) {
+      if (key === 'oauth2:default') {
+        key = obj.tags.find(tag => tag.name === "sec:grant.type").value;
+      }
+      if (key === 'OAuth2SAMLBearerAssertion') {
+        key = obj.tags.find(tag => tag.name === "targetSystemType").value;
+      }
+      result[key] = result[key] || [];
+      result[key].push(String(obj.name));
+    }
+    return result;
+  }, {});
+  const Mat_category = {
+    "CloudFoundry": "OAuth2 SAML Bearer Assertion (BTP CF)",
     "default": "User Credentials",
-    "client_credentials": "Odata client credentials",
-    "OAuth2SAMLBearerAssertion": "OAuth2 SAML Bearer Assertion",
-    "secure_param": "Secure Parameter",
-    "Token": "OAuth2 Authorization Code" //yet to do...
-  };
-  return Object.entries(map).flatMap(([key, titles]) =>
-    titles.map(title => ({ title, category: category1[key] }))
-  );
+    "openconnectors": "User Credentials (Open Connectors)",
+    "client_credentials": "OAuth2 Client Credentials",
+    "SuccessFactors": "OAuth2 SAML Bearer Assertion (SuccessFactors)",
+    "successfactors": "User Credentials (SuccessFactors)",
+    "CloudSystem": "OAuth2 SAML Bearer Assertion (BTP Neo)",
+    "Generic": "OAuth2 Authorization Code (Generic)"
+  }
+  return Object.entries(response).flatMap(([key, titles]) =>
+    titles.map(title => ({ title, category: Mat_category[key] }))
+  )
 }
