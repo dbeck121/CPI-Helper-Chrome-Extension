@@ -11,15 +11,13 @@ var plugin = {
         "icon": { "type": "icon", "src": "/images/plugin_logos/AGILITAAG_Logo.jpg" }
     },
     messageSidebarContent: {
-        "static": true,
         "onRender": (pluginHelper) => {
             //prepare button
-            var div = document.createElement("div");
             var button = document.createElement("button");
             button.innerHTML = "Unlock";
 
             //removes or rather deletes the lock on this artifact
-            button.onclick = async () => {
+            button.addEventListener("click", async () => {
                 //prepare unlock
                 const urlForResourceId = `/${pluginHelper.urlExtension}odata/api/v1/IntegrationDesigntimeLocks?$format=json`;
                 var dataOfDesigntimeLocks = JSON.parse(await makeCallPromise("GET", urlForResourceId, false)).d.results;
@@ -42,11 +40,9 @@ var plugin = {
                 }else{
                     showToast("The artifact is not locked");
                 }
-            }
+            });
 
-            //adds button
-            div.appendChild(button)
-            return div;
+            return button;
         }
     }
 };
