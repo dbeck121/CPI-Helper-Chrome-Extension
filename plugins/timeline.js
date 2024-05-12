@@ -77,26 +77,7 @@ function createContent(data, pluginHelper) {
     // Creating a table entry for every connected artifact
     data.forEach(function (artifact) {
         // Status coloring for status field
-        var statusColor = artifact.Status;
-        if (statusColor == "PROCESSING") {
-            statusColor = "yellow";
-        }
-        else if (statusColor == "FAILED") {
-            statusColor = "red";
-        }
-        else if (statusColor == "COMPLETED") {
-            statusColor = "green";
-        }
-        else if (statusColor.match(/^(ESCALATED|RETRY)$/)) {
-            statusColor = "orange";
-        }
-        else if (statusColor.match(/^(CANCELLED)$/)) {
-            statusColor = "grey";
-        }
-        else {
-            statusColor = "blue";
-        }
-
+        var statusColor = getStatusColor(artifact.Status);
         var start = JSON.parse(formatTimestamp(artifact.LogStart));
         var end = JSON.parse(formatTimestamp(artifact.LogEnd));
         var packageLink = `https://${pluginHelper.tenant}/${pluginHelper.urlExtension}shell/design/contentpackage/${artifact.IntegrationArtifact.PackageId}?section=ARTIFACTS`;

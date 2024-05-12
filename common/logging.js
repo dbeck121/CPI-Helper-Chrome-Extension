@@ -1,5 +1,5 @@
 var log = anylogger('cpihelper')
-log.level = log.LOG
+log.level = log.WARN
 log.format = "date time lvl name perf"
 log('Logger active for CPI-Helper on level: ' + log.level)
 logsarray = []
@@ -34,7 +34,6 @@ ulog.use({
   }
 })
 const levelMap = Object.entries(ulog.levels).reduce((acc, [key, value]) => ({ ...acc, [value]: key }), {})
-log.log(levelMap)
 // if url contains query parameter cpihelper_debug=true, use custom logger
 log.log("Checking for debug mode in url", window.location.href)
 if (window.location.href.indexOf('cpihelper_debug=true') > -1) {

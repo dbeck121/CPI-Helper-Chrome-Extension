@@ -21,7 +21,7 @@ clearalldata = () => {
 var plugin = {
     metadataVersion: "1.0.0",
     id: "traceModifer",
-    name: "Trace Step Modifier (Beta)",
+    name: "Performance stats | Trace Step (Beta)",
     version: "1.5.0",
     author: "Developed by Omkar",
     email: "omk14p@outlook.com",
@@ -42,6 +42,15 @@ var plugin = {
         "static": true,
         "onRender": (pluginHelper, settings) => {
             var div = document.createElement("div");
+            var stats = document.createElement("div");
+            stats.classList = "traceModifer"
+            stats.innerHTML += `
+            <div class="ui buttons fluid segment">
+                <label class="ui violet mini circular left bottom floating label">MIN</label>
+                <label class="ui red mini circular right bottom floating label">MAX</label>
+            </div>`
+            div.appendChild(stats);
+            div.innerHTML += `<div class="ui divider"></div>`
             var inputtrace = document.createElement("div");
             inputtrace.classList = "ui mini fluid input"
             inputtrace.innerHTML = `<input type="number" id="traceModifer_${pluginHelper.currentArtifactId}" placeholder="Global"  min="0" name="cpi_traceModifer_mode"><br/>`;
@@ -65,15 +74,6 @@ var plugin = {
                 log.debug('set',data)
             })
             div.appendChild(inputtrace)
-            div.innerHTML += `<div class="ui divider"></div>`
-            var stats = document.createElement("div");
-            stats.classList = "traceModifer"
-            stats.innerHTML += `
-            <div class="ui buttons fluid segment">
-                <label class="ui violet mini circular left bottom floating label">MIN</label>
-                <label class="ui red mini circular right bottom floating label">MAX</label>
-            </div>`
-            div.appendChild(stats);
             return div;
         }
     },
@@ -96,7 +96,8 @@ var plugin = {
             }
         },
         "condition": (pluginHelper, settings, runInfo) => {
-            return runInfo.logLevel === "trace";
+            return  true
+            //runInfo.logLevel === "trace";
         },
     },
 };

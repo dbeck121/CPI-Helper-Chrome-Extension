@@ -35,8 +35,8 @@ function navigationButton() {
                 <button type="submit" class="ui primary icon button"><i class="icon save"></i></button>
                 <button type="button" id="downloadButton" class="ui icon button"><i class="icon download"></i></button>
               </form>
+              <div class="ui message info">Use this feature if you are facing problems with CPI Helper and you would like to provide more details to the developers.</div>
               <div class="ui warning message">
-                  <i class="close icon"></i>
                   <div class="header">
                     Download happens Automatically on time expires, when debug mode is selected
                   </div>
