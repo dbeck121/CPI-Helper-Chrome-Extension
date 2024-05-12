@@ -2123,7 +2123,6 @@ function navigationButton() {
                   Log mode note:
                 </div>
                 <ul class="list">
-                  <li>Use this feature if you are facing problems with CPI Helper and you would like to provide more details to the developers.</li>
                   <li>Once timer expires, Debug mode payload auto downloads.</li>
                   <li>To download Log file , mode must be set as debug, for others use Dev tools.</li>
                   <li>Please download payload if it's not auto downloaded.</li>
