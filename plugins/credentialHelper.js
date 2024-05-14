@@ -119,7 +119,9 @@ var plugin = {
                             var inputField = document.querySelector(selector);
                             inputField.value = option;
                             dropdown.remove();
-                            inputField.focus(); 
+                            inputField.focus();
+                            //add an event listener to the credential name input field for typing
+                            inputField.addEventListener('input', handleTyping);
                         });
                     }
                     
