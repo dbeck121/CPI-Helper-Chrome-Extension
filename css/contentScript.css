@@ -162,8 +162,10 @@ button.cpiHelper_sidebar_iconbutton span {
   position: fixed;
   z-index: 400;
   background: var(--cpi-background-color);
-  top: 150px;
-  right: 80px;
+  /*top: 20rem;
+  right: 80px;*/
+  top: 7rem;
+  right: 5rem;
   width: fit-content;
   border: 0;
   border-radius: 10px;
