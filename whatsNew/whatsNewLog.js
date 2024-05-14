@@ -7,6 +7,10 @@
 const whats_new_log = [
     {
         "header": "Plugin",
+        "description": "Credential Helper Plugin to add a search help for existing Security Material aliases and Key Store entries. Special thanks to Gregor Schütz from <a target='_blank' href='https://www.agilita.ch/'>AGILITA AG</a>"
+    },
+    {
+        "header": "Plugin",
         "description": "Unlock Plugin to unlock integration flows directly from design screen. Special thanks to Gregor Schütz from <a target='_blank' href='https://www.agilita.ch/'>AGILITA AG</a>"
     },
     {
