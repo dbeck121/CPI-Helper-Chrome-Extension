@@ -88,8 +88,6 @@ async function renderMessageSidebar() {
     let deploymentText = document.getElementById('deploymentText');
     if (deploymentText) {
 
-
-
       let statusColor = "#000";
 
       if (cpiData?.flowData?.artifactInformation?.deployState == "DEPLOYED") {
