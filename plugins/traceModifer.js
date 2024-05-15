@@ -96,8 +96,7 @@ var plugin = {
             }
         },
         "condition": (pluginHelper, settings, runInfo) => {
-            return  true
-            //runInfo.logLevel === "trace";
+            return  runInfo.logLevel === "trace";
         },
     },
 };
