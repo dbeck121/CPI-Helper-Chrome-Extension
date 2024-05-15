@@ -1,17 +1,17 @@
 async function whatsNewCheck(showOnlyOnce = true) {
 
-  var manifestVersion = chrome.runtime.getManifest().version;
+    var manifestVersion = chrome.runtime.getManifest().version;
 
-  check = await storageGetPromise("whatsNewV" + manifestVersion);
+    check = await storageGetPromise("whatsNewV" + manifestVersion);
 
-  silentupdates = ["3.0.3"]
-  
-  //const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
-  const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo.png");
-  const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
+    silentupdates = ["3.0.3"]
 
-  if (!check && !silentupdates.includes(manifestVersion) || showOnlyOnce == false) {
-    html = `<div class="ui message">
+    //const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
+    const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo.png");
+    const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
+
+    if (!check && !silentupdates.includes(manifestVersion) || showOnlyOnce == false) {
+        html = `<div class="ui message">
         <img class="ui small floated image" src="${Kangoolutions_Logo}">
         <div class="content">
             <div class="header"> You updated successfully to version ${manifestVersion} </div>
@@ -147,7 +147,7 @@ See how to explore the concept here.
                 look at our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">GitHub
                     Page</a> and our <a href="https://kangoolutions.com" target="_blank">Homepage</a>. You can find
                 the main developer Dominic Beckbauer on <a
-                    href="https://www.linkedin.com/in/dominic-beckbauer-515894188/">LinkedIn</a></p>
+                target='_blank' href="https://www.linkedin.com/in/dominic-beckbauer-515894188/">LinkedIn</a></p>
             <h3 class="ui header">
                 <i class="glasses icon"></i>
                 <div class="content">
@@ -156,61 +156,59 @@ See how to explore the concept here.
             </h3>
             <div>License: <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU GPL v3</a>
             </div>
-            <div>Please also check our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension"
-                    target="_blank">Github
-                    Page</a>.
+            <div>Please also check our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">Github Page</a>.
             </div>
             <div>Created by: Dominic Beckbauer and Kangoolutions.com</div>
         </div>
     </div>`;
-    await showBigPopup(html, "Your SAP CI Toolbox since 1963", { "fullscreen": false, callback: () => { $('.menu .item').tab(); } });
+        await showBigPopup(html, "Your SAP CI Toolbox since 1963", { "fullscreen": false, callback: () => { $('.menu .item').tab(); } });
 
-    var obj = {};
-    obj["whatsNewV" + manifestVersion] = "show";
-    chrome.storage.local.set(obj, function () {
-      log.log("whats new displayed and saved");
-    });
+        var obj = {};
+        obj["whatsNewV" + manifestVersion] = "show";
+        chrome.storage.local.set(obj, function () {
+            log.log("whats new displayed and saved");
+        });
 
-    return true
-  }
-  return false
+        return true
+    }
+    return false
 
-  //persist so that the popup does not appear again
+    //persist so that the popup does not appear again
 }
 
 async function recrutingPopup(force = false) {
-  //shows a popup if browser language is German and if timestamp is not set or today is after timestamp in chrome storage
+    //shows a popup if browser language is German and if timestamp is not set or today is after timestamp in chrome storage
 
-  //show only for a fraction of user for testing
+    //show only for a fraction of user for testing
 
-  const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
+    const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
 
-  var randomGroup = parseInt(await storageGetPromise("recrutingPopupRandomGroup"));
+    var randomGroup = parseInt(await storageGetPromise("recrutingPopupRandomGroup"));
 
-  if (!randomGroup) {
-    randomGroup = Math.floor(Math.random() * 100);
-    var obj = {}
-    obj["recrutingPopupRandomGroup"] = randomGroup
-    await storageSetPromise(obj)
-  }
+    if (!randomGroup) {
+        randomGroup = Math.floor(Math.random() * 100);
+        var obj = {}
+        obj["recrutingPopupRandomGroup"] = randomGroup
+        await storageSetPromise(obj)
+    }
 
-  var lang = navigator.language || navigator.userLanguage;
-  var timestamp = parseInt(await storageGetPromise("recrutingPopupTimestamp"));
-  var today = +new Date();
+    var lang = navigator.language || navigator.userLanguage;
+    var timestamp = parseInt(await storageGetPromise("recrutingPopupTimestamp"));
+    var today = +new Date();
 
-  if (!timestamp) {
-    var oneweek = +new Date() + 30 * 24 * 60 * 60 * 1000;
+    if (!timestamp) {
+        var oneweek = +new Date() + 30 * 24 * 60 * 60 * 1000;
 
-    var obj = {};
-    obj["recrutingPopupTimestamp"] = oneweek;
-    chrome.storage.local.set(obj, function () {
-      log.log("recruting popup timestamp set to today + " + 7 + " days");
-    });
-  }
+        var obj = {};
+        obj["recrutingPopupTimestamp"] = oneweek;
+        chrome.storage.local.set(obj, function () {
+            log.log("recruting popup timestamp set to today + " + 7 + " days");
+        });
+    }
 
-  if (lang == "de-DE" && (force || (!timestamp && randomGroup <= 80) || (timestamp && timestamp < today))) {
-    statistic("recrutingPopup", "show")
-    var html = `<div>
+    if (lang == "de-DE" && (force || (!timestamp && randomGroup <= 80) || (timestamp && timestamp < today))) {
+        statistic("recrutingPopup", "show")
+        var html = `<div>
     <div class="ui message">
         <img class="ui small floated image" src="${Kangoolutions_Logo}">
         <div class="content">
@@ -242,67 +240,67 @@ async function recrutingPopup(force = false) {
     </div>
     </div>`;
 
-    var popup = createElementFromHTML(html);
+        var popup = createElementFromHTML(html);
 
-    var createRemindButtopn = function (text, days, color = "teal") {
-      var button = document.createElement("button");
-      button.className = "ui " + color + " right labled icon button";
-      var icon = document.createElement("i");
-      icon.className = "right bell icon";
-      button.textContent = text;
-      button.appendChild(icon);
+        var createRemindButtopn = function (text, days, color = "teal") {
+            var button = document.createElement("button");
+            button.className = "ui " + color + " right labled icon button";
+            var icon = document.createElement("i");
+            icon.className = "right bell icon";
+            button.textContent = text;
+            button.appendChild(icon);
 
-      button.style.marginBottom = "10px";
+            button.style.marginBottom = "10px";
 
-      button.onclick = async function () {
-        statistic("recrutingPopup", "remind", days)
+            button.onclick = async function () {
+                statistic("recrutingPopup", "remind", days)
 
-        //get unix timestamp for tomorrow
-        var tomorrow = +new Date() + days * 24 * 60 * 60 * 1000;
+                //get unix timestamp for tomorrow
+                var tomorrow = +new Date() + days * 24 * 60 * 60 * 1000;
 
-        var obj = {};
-        obj["recrutingPopupTimestamp"] = tomorrow;
-        chrome.storage.local.set(obj, function () {
-          log.log("recruting popup timestamp set to today + " + days + " days");
-        });
+                var obj = {};
+                obj["recrutingPopupTimestamp"] = tomorrow;
+                chrome.storage.local.set(obj, function () {
+                    log.log("recruting popup timestamp set to today + " + days + " days");
+                });
 
-        $('#cpiHelper_semanticui_modal').modal('hide');
-      }
-      return button
+                $('#cpiHelper_semanticui_modal').modal('hide');
+            }
+            return button
+        }
+
+        var nextStepButtion = document.createElement("button");
+        nextStepButtion.className = "ui teal right labled icon button";
+        var icon = document.createElement("i");
+        icon.className = "right arrow icon";
+
+        nextStepButtion.textContent = "Jau! Ich will mehr wissen.";
+        nextStepButtion.appendChild(icon);
+        nextStepButtion.onclick = async function () {
+            statistic("recrutingPopup", "nextStep")
+            window.open("https://ich-will-zur.kangoolutions.com/", "_blank");
+            $('#cpiHelper_semanticui_modal').modal('hide');
+        }
+
+        //create br
+        var br = document.createElement("br");
+        var span = document.createElement("span");
+        span.textContent = "Erinnere mich: ";
+        popup.appendChild(br);
+
+        popup.appendChild(nextStepButtion)
+        popup.appendChild(br);
+        popup.appendChild(createRemindButtopn("Schon ok... Erinnere mich nicht mehr", 9999, "violet"))
+
+        popup.appendChild(br);
+        popup.appendChild(span)
+        popup.appendChild(createRemindButtopn("Morgen", 1))
+
+        popup.appendChild(createRemindButtopn("In einer Woche", 7))
+
+
+        popup.appendChild(createRemindButtopn("In einem halben Jahr", 190))
+
+        await showBigPopup(popup, "Wir suchen Verstärkung!", { "fullscreen": false });
     }
-
-    var nextStepButtion = document.createElement("button");
-    nextStepButtion.className = "ui teal right labled icon button";
-    var icon = document.createElement("i");
-    icon.className = "right arrow icon";
-
-    nextStepButtion.textContent = "Jau! Ich will mehr wissen.";
-    nextStepButtion.appendChild(icon);
-    nextStepButtion.onclick = async function () {
-      statistic("recrutingPopup", "nextStep")
-      window.open("https://ich-will-zur.kangoolutions.com/", "_blank");
-      $('#cpiHelper_semanticui_modal').modal('hide');
-    }
-
-    //create br
-    var br = document.createElement("br");
-    var span = document.createElement("span");
-    span.textContent = "Erinnere mich: ";
-    popup.appendChild(br);
-
-    popup.appendChild(nextStepButtion)
-    popup.appendChild(br);
-    popup.appendChild(createRemindButtopn("Schon ok... Erinnere mich nicht mehr", 9999, "violet"))
-
-    popup.appendChild(br);
-    popup.appendChild(span)
-    popup.appendChild(createRemindButtopn("Morgen", 1))
-
-    popup.appendChild(createRemindButtopn("In einer Woche", 7))
-
-
-    popup.appendChild(createRemindButtopn("In einem halben Jahr", 190))
-
-    await showBigPopup(popup, "Wir suchen Verstärkung!", { "fullscreen": false });
-  }
 }

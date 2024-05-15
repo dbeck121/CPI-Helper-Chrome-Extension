@@ -27,7 +27,7 @@ var plugin = {
     email: "omk14p@outlook.com",
     website: "https://incpi.github.io",
     description: `New Feature: Performance Statatics checkbox to enable inline trace.<br>The CPI Helper plugin lets developers use trace step modifiers in integration flows.<br/>
-     But be careful: the plugin changes the global variable you set for each flow. it will use global instead if input is blank. <a href="https://incpi.github.io/cpihelper-plugin/">Read More</a>`,
+     But be careful: the plugin changes the global variable you set for each flow. it will use global instead if input is blank. <a href="https://incpi.github.io/cpihelper-plugin/" target='_blank'>Read More</a>`,
     settings: {
         "detail": {
             "type": "text", "class": "ui fluid segment", "text": "Set null which will use global.<br/>Set Global (Scope: browser)<br/>Set flow modifer count (Scope: Iflow)"
