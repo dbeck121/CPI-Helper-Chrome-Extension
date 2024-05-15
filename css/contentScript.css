@@ -1,6 +1,6 @@
 /*root filter*/
 :root {
-  --cpi-custom-color: #354a5f;
+  --cpi-custom-color: #ffffff;
   --cpi-background-color: #fff;
 }
 
@@ -162,8 +162,8 @@ button.cpiHelper_sidebar_iconbutton span {
   position: fixed;
   z-index: 400;
   background: var(--cpi-background-color);
-  top: 150px;
-  right: 80px;
+  top: 7rem;
+  right: 5rem;
   width: fit-content;
   border: 0;
   border-radius: 10px;
@@ -187,7 +187,7 @@ button.cpiHelper_sidebar_iconbutton span {
   font-weight: bold;
   z-index: 10;
   background-color: var(--cpi-custom-color);
-  color: var(--cpi-background-color);
+  color:var(--cpi-background-color);
   box-sizing: border-box;
   border-radius: 5px 5px 0px 0px;
   display: flex;
