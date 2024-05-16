@@ -16,6 +16,7 @@
     "https://*.hana.ondemand.com/itspaces",
     "https://*.platform.sapcloud.cn/itspaces",
     "https://*.hana.ondemand.com/shell",
+    "https://*.platform.sapcloud.cn/shell",
     "webRequest"
   ],
   "background": {
@@ -31,7 +32,8 @@
         "https://*.hana.ondemand.com/shell/design/*",
         "https://*.hana.ondemand.com/itspaces/*",
         "https://*.hana.ondemand.com/shell/*",
-        "https://*.platform.sapcloud.cn/itspaces/*"
+        "https://*.platform.sapcloud.cn/itspaces/*",
+        "https://*.platform.sapcloud.cn/shell"
       ],
       "js": [
         "/lib/ulog/ulog-full.min.js",
@@ -92,7 +94,8 @@
       "https://*.hana.ondemand.com/shell/design/*",
       "https://*.hana.ondemand.com/itspaces/*",
       "https://*.hana.ondemand.com/shell/*",
-      "https://*.platform.sapcloud.cn/itspaces/*"
+      "https://*.platform.sapcloud.cn/itspaces/*",
+      "https://*.platform.sapcloud.cn/shell"
     ]
   },
   "icons": {
