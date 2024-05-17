@@ -175,7 +175,6 @@ function addTenantSettings() {
                 <button data-variation="orange" data-tooltip="Orange" class="ui orange button"></button>
                 <button data-variation="yellow" data-tooltip="Yellow" class="ui yellow button"></button>
                 <button data-variation="grey" data-tooltip="Grey" class="ui grey button"></button>
-                <button data-variation="black" data-tooltip="Black" class="ui black button"></button>
             </div>
         </div>
     </div>
@@ -273,7 +272,7 @@ function addTenantSettings() {
     </div>
     `;
     document.querySelectorAll('.preset .button').forEach(e => e.addEventListener('click', () => {
-        const preset = { "blue": "#2185d0", "green": "#21ba45", "purple": "#a333c8", "red": "#db2828", "yellow": "#fbbd08", "orange": "#f2711c", "grey": "#767676", "black": "#1b1c1d" }
+        const preset = { "blue": "#2185d0", "green": "#21ba45", "purple": "#a333c8", "red": "#db2828", "yellow": "#fbbd08", "orange": "#f2711c", "grey": "#767676" }
         const tenantColor = document.querySelector('#colorSelect');
         tenantColor.value = preset[e.getAttribute('data-variation')]
         tenantColor.dispatchEvent(new Event("change"));
@@ -304,7 +303,7 @@ function addTenantSettings() {
     //reset color btn
     document.querySelector('#tenantSettings > div >div > button').addEventListener('click', () => {
         const tenantColor = document.querySelector('#colorSelect');
-        tenantColor.value = '#354a5f';
+        tenantColor.value = '#ffffff';
         tenantColor.dispatchEvent(new Event("change"));
     })
     //cozy-compact mode btn
@@ -535,7 +534,7 @@ function tenantIdentityChanges() {
         // Update color on change
         tenantColor.addEventListener('change', () => {
             // custom filter skip
-            tenantColor.value = adjustColorLimiter(tenantColor.value, 80, 10)
+            tenantColor.value = adjustColorLimiter(tenantColor.value, 80, 20)
             hostData.color = tenantColor.value
             console.log(tenantColor.value)
             // set popup.html header
@@ -555,15 +554,22 @@ function tenantIdentityChanges() {
     })
 }
 
-function adjustColorLimiter(ihex, perct, dim, lightness = true) {
-    // color = #hex input only
+function adjustColorLimiter(ihex, limit, dim, abovelimit = false) {
+    /**
+     * Adjusts a hex color based on the threshold specified by @abovelimit.
+     * If @abovelimit is true, adjusts the color darker by @dim; if false, adjusts lighter.
+     * @param {string} hexColor - The input hex color (e.g., '#RRGGBB' or '#RGB').
+     * @param {number} limit - The threshold limit for adjusting the color.
+     * @param {number} dim - The amount of lightness to adjust (positive for lighter, negative for darker).Reccomanded to use Flag.
+     * @param {boolean} abovelimit - Indicates whether to adjust the color above or below the limit.
+     * @returns {string} - The adjusted hex color.
+    */
     let h, s, l, ohex;
     var list = hexToHsl(ihex, true).split(" ")
     h = parseInt(list[0]);
     s = parseInt(list[1]);
     l = parseInt(list[2]);
-    if (lightness) { dim *= -1 }
-    if (l >= perct) { l += dim }
+    l = Math.max(0, Math.min((l > limit === abovelimit) ? l + dim * (abovelimit ? -1 : 1) : l, 100));
     ohex = hslToHex(h, s, l)
     return ohex
 }
