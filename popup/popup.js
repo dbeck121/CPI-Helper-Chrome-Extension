@@ -303,7 +303,7 @@ function addTenantSettings() {
     //reset color btn
     document.querySelector('#tenantSettings > div >div > button').addEventListener('click', () => {
         const tenantColor = document.querySelector('#colorSelect');
-        tenantColor.value = '#ffffff';
+        tenantColor.value = '#2185d0';
         tenantColor.dispatchEvent(new Event("change"));
     })
     //cozy-compact mode btn
