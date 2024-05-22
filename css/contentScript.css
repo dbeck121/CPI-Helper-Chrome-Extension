@@ -543,3 +543,7 @@ fieldset {
   background: var(--cpi-custom-color);
   color: var(--cpi-background-color);
 }
+
+.ui.selection.dropdown .menu > .item {
+  min-height: 0 !important;
+}

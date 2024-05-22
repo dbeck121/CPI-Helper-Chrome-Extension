@@ -319,7 +319,7 @@ var formatTrace = function (input, id, traceId) {
         return input
       }
     } catch (error) {
-    showToast(error,"","error")
+      showToast(error, "", "error")
       return input;
     }
   }
@@ -529,4 +529,30 @@ async function storageSetPromise(obj) {
       }
     });
   });
+}
+
+// get from fomantic class to consume in code
+function getStatusColor(status) {
+  switch (status) {
+    case "PROCESSING": return "warning";
+    case "FAILED": return "negative";
+    case "COMPLETED": return "positive";
+    case "ESCALATED":
+    case "RETRY": return "orange";
+    case "CANCELLED": return "grey";
+    default: return "info";
+  }
+}
+function getStatusIcon(status) {
+  let Icon;
+  switch (status) {
+    case "PROCESSING": Icon = "angle double right"; break;
+    case "FAILED": Icon = "times"; break;
+    case "COMPLETED": Icon = "check"; break;
+    case "ESCALATED": Icon = "exclamation"; break;
+    case "RETRY": Icon = "redo"; break;
+    case "CANCELLED": Icon = "ban"; break;
+    default: return "";
+  }
+  return `<i class="${Icon} icon"></i>`
 }

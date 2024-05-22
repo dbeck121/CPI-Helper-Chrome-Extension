@@ -7,6 +7,7 @@
     title: 'Cloud Integration',
     color: '#ffffff',
     icon: 'default',
+    loglevel: 'warn',
     maxcount: 20, //max number fetch
     count: 10  // default visible
   }
@@ -34,6 +35,7 @@
           hostData.title = storageChange.title
           hostData.color = storageChange.color
           hostData.icon = storageChange.icon
+          hostData.loglevel = storageChange.loglevel
           hostData.count = storageChange.count
           // Update the page
           setData(hostData);
@@ -52,6 +54,7 @@
         hostData.title = message.save.title || hostData.title;
         hostData.color = message.save.color || hostData.color;
         hostData.icon = message.save.icon || hostData.icon;
+        hostData.loglevel = message.save.loglevel || hostData.loglevel;
         hostData.count = message.save.count || hostData.count;
         let saveObject = {}
         saveObject[host] = hostData
@@ -120,6 +123,7 @@
     hostData.title = newData.title || hostData.title,
       hostData.color = newData.color || hostData.color,
       hostData.icon = newData.icon || hostData.icon,
+      hostData.loglevel = newData.loglevel || hostData.loglevel,
       hostData.count = newData.count || hostData.count
     let saveObj = {}
     saveObj[host] = hostData
@@ -127,12 +131,13 @@
   }
 
   // interval is used to overwrite SAPUI5 behaviour
-  function setData({ title, color, icon, count }) {
+  function setData({ title, color, icon, loglevel, count }) {
     clearInterval(documentTitleIntervalId)
     // Update element now
     setDocumentTitle(title);
     setHeaderColor(color)
     setFavIcon(icon)
+    setLog(loglevel)
     setcount(count)
     // prepare interval function to keep elements updated
     let intervalCount = 10; // Times to run the interval function
@@ -143,6 +148,7 @@
       intervalCount--;
       setDocumentTitle(title)
       setHeaderColor(color)
+      setLog(loglevel)
       setFavIcon(icon)
       if (intervalCount == 0) {
         log.log('Ending update sequence')
@@ -196,6 +202,12 @@
     link.rel = 'shortcut icon';
     link.href = chrome.extension.getURL(`/images/favicons/${icon}.png`);
     document.getElementsByTagName('head')[0].appendChild(link);
+  }
+
+  function setLog(loglevel) {
+    if(loglevel === String(levelMap[log.level])) return;
+    log.level = loglevel ? loglevel : 'warn'
+    console.log(String(loglevel + " is activated"))
   }
 
   function setcount(count) {

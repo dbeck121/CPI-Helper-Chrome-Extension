@@ -66,8 +66,9 @@ var numberEntries = hostData.maxcount
 //fill the message sidebar
 async function renderMessageSidebar() {
 
-  var createRow = function (elements) {
+  var createRow = function (elements, trClass) {
     var tr = document.createElement("tr");
+    tr.className = trClass
     elements.forEach(element => {
       let td = document.createElement("td");
       elements.length == 1 ? td.colSpan = 3 : null;
@@ -83,12 +84,9 @@ async function renderMessageSidebar() {
     return;
   }
 
-
   await getIflowInfo((data) => {
     let deploymentText = document.getElementById('deploymentText');
     if (deploymentText) {
-
-
 
       let statusColor = "#000";
 
@@ -117,9 +115,10 @@ async function renderMessageSidebar() {
   //var xhr = await makeCallPromiseXHR("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and Status ne 'RETRY' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogEnd desc", false, null, null, false, "", false)
   // 18.4.2024, Addor: changed back to include Retry (for JMS based sender adapters it's crucial to see hanging messages in the sidebar)
   //var xhr = await makeCallPromiseXHR("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogEnd desc", false, null, null, false, "", false)
-//24-04-2024, On some tenants there are Retry messages hanging without any LogStart and LogEnd date and SAP is unable to discard them, these msgs stops CPI helper to display messages in popup ,using a timestamp from long back helpsso using date from 1900
+
+  //24-04-2024, On some tenants there are Retry messages hanging without any LogStart and LogEnd date and SAP is unable to discard them, these msgs stops CPI helper to display messages in popup ,using a timestamp from long back helpsso using date from 1900
   var xhr = await makeCallPromiseXHR("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and LogStart gt datetime'1900-01-01T01:02:50' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogEnd desc", false, null, null, false, "", false)
-  
+
   if (xhr.readyState == 4 && sidebar.active) {
 
     var resp = null
@@ -127,7 +126,7 @@ async function renderMessageSidebar() {
       resp = JSON.parse(xhr.responseText);
       resp = resp.d.results;
     } catch (e) {
-      log.log("There was a faulty message from CI-API. CPI Helper will ignore it: " + e)
+      log.error("There was a faulty message from CI-API. CPI Helper will ignore it: " + e)
     }
     //    document.getElementById('iflowName').innerText = cpiData.integrationFlowId;
 
@@ -227,50 +226,37 @@ async function renderMessageSidebar() {
             activeInlineItem == quickInlineTraceButton.classList[0] && quickInlineTraceButton.classList.add("cpiHelper_inlineInfo-active");
 
             let statusicon = createElementFromHTML(
-              `<button title='Status Details' class='${resp[i].MessageGuid} cpiHelper_inlineInfo-button'><span data-sap-ui-icon-content='&#${statusIcon}' class='${resp[i].MessageGuid}`
+              `<button title='Status Details' class='cpiHelper_inlineInfo-button'><span data-sap-ui-icon-content='&#${statusIcon}' class='${resp[i].MessageGuid}`
               + " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" +
               `${statusColor}'></span>` +
               //timeButton here
               `<span style='color:${statusColor};padding-inline-start:0.3em'>${date.substr(11, 8)}</span></button>`);
 
-            statusicon.onclick = (e) => {
-              x = document.getElementById('cpiHelper_sidebar_popup')
-              if (!x) {
-                errorPopupOpen(e.currentTarget.classList[0]);
-                e.currentTarget.classList.add('cpiHelper_sidebar_iconbutton')
-              } else {
-                if (x.getAttribute('class') === 'show' && e.currentTarget.classList.contains('cpiHelper_sidebar_iconbutton')) {
-                  errorPopupClose(); e.currentTarget.classList.remove('cpiHelper_sidebar_iconbutton')
-                }
-                else {
-                  document.querySelectorAll('.cpiHelper_sidebar_iconbutton').forEach((i) => i.classList.remove('cpiHelper_sidebar_iconbutton'));
-                  errorPopupOpen(e.currentTarget.classList[0]);
-                  e.currentTarget.classList.add('cpiHelper_sidebar_iconbutton');
-                }
+            statusicon.onclick = async (e) => {
+              if (e.currentTarget.classList.contains('cpiHelper_sidebar_iconbutton')) {
+                $('.ui.toast').toast('close');
+                e.currentTarget.classList.remove('cpiHelper_sidebar_iconbutton')
+              }
+              else {
+                document.querySelectorAll('.cpiHelper_sidebar_iconbutton').forEach((i) => i.classList.remove('cpiHelper_sidebar_iconbutton'));
+                apireserror(e.currentTarget.parentNode.parentNode.className);
+                e.currentTarget.classList.add('cpiHelper_sidebar_iconbutton');
               }
             }
-            //earlier code
-            // statusicon.onmouseover = (e) => {
-            //   errorPopupOpen(e.currentTarget.classList[0]);
-            //   errorPopupSetTimeout(null);
-            // };
-            // statusicon.onmouseout = (e) => {
-            //   errorPopupSetTimeout(2000);
-            // };
 
             quickInlineTraceButton.onmouseup = async (e) => {
               var mytarget = e.currentTarget
-              if (activeInlineItem == e.currentTarget.classList[0]) {
+              if (activeInlineItem == e.currentTarget.parentNode.parentNode.className) {
                 hideInlineTrace();
                 showToast("Inline-Debugging Deactivated");
               } else {
                 hideInlineTrace();
-                var inlineTrace = await showInlineTrace(e.currentTarget.classList[0]);
+                var inlineTrace = await showInlineTrace(e.currentTarget.parentNode.parentNode.className);
                 if (inlineTrace) {
                   statistic("messagebar_btn_inlinetrace_click")
                   showToast("Inline-Debugging Activated");
                   mytarget.classList.add("cpiHelper_inlineInfo-active");
-                  activeInlineItem = mytarget.classList[0];
+                  activeInlineItem = mytarget.parentNode.parentNode.className;
                 } else {
                   activeInlineItem = null;
                   showToast("No data found.", "Inline debugging not possible", "warning");
@@ -281,8 +267,7 @@ async function renderMessageSidebar() {
             var pluginButtons = await createPluginButtonsInMessageSidebar(runInfoElement[thisMessageHash], i, flash);
 
             //timebutton merged in statusicon.
-            messageList.appendChild(createRow([statusicon, logButton, infoButton, traceButton, quickInlineTraceButton, ...pluginButtons]));
-
+            messageList.appendChild(createRow([statusicon, logButton, infoButton, traceButton, quickInlineTraceButton, ...pluginButtons], resp[i].MessageGuid));
             infoButton.addEventListener("click", (a) => {
               statistic("messagebar_btn_info_click")
               let url = a.currentTarget.classList[0]
@@ -293,44 +278,21 @@ async function renderMessageSidebar() {
             });
 
             logButton.addEventListener("click", async (a) => {
-
               statistic("messagebar_btn_logs_click")
               await showBigPopup(await createContentNodeForLogs(a.currentTarget.classList[0], false), "Logs");
-
             });
-
 
             traceButton.addEventListener("click", (a) => {
               statistic("messagebar_btn_trace_click")
               openTrace(a.currentTarget.classList[0]);
             });
 
-
             cpiData.messageSidebar.lastMessageHashList = thisMessageHashList;
           }
-
-          /*       var moreButton = document.getElementById('showmore');
-         
-             moreButton.onclick = (a) => {
-               if (numberEntries == 10) {
-               numberEntries = 20
-               cpiData.messageSidebar.lastMessageHashList = []
-               a.currentTarget.innerText = "show less"
-         
-               } else {
-         
-               cpiData.messageSidebar.lastMessageHashList = []
-               numberEntries = 10;
-               a.currentTarget.innerText = "show more"
-               }
-             }
-         
-             */
-
         }
       }
       catch (e) {
-        log.log("There was an error when processing the log entries. Process aborted. " + e)
+        log.error("There was an error when processing the log entries. Process aborted. " + e)
       }
     }
     await messageSidebarPluginContent();
@@ -927,16 +889,16 @@ async function buildButtonBar() {
       showBigPopup(await createContentNodeForPlugins(), "Plugins");
 
     });
-
+    log.debug("Artifect from checks for sidebar", cpiData.currentArtifactType)
     if ((sidebar.active == null || sidebar.active == false) && cpiData.currentArtifactType) {
       chrome.storage.sync.get(["openMessageSidebarOnStartup"], function (result) {
         var openMessageSidebarOnStartupValue;
         // default mode is open
         if (result["openMessageSidebarOnStartup"] === undefined) {
-            chrome.storage.sync.set({ "openMessageSidebarOnStartup": true });
-            openMessageSidebarOnStartupValue = true;
+          chrome.storage.sync.set({ "openMessageSidebarOnStartup": true });
+          openMessageSidebarOnStartupValue = true;
         }
-        else { openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"] ; }
+        else { openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"]; }
 
         openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
         if (openMessageSidebarOnStartupValue) {
@@ -1456,110 +1418,109 @@ function removeElementsWithClass(classToDelete) {
   }
   return true;
 }
+function formatDuration(durationMs) {
+  const h = Math.floor(durationMs / (1000 * 60 * 60)) % 24;
+  const m = Math.floor(durationMs / (1000 * 60)) % 60;
+  const s = Math.floor(durationMs / 1000) % 60;
+  const ms = durationMs % 1000;
+
+  return `${h ? h + 'h ' : ''}${m ? m + 'm ' : ''}${s ? s + 's ' : ''}${ms}ms`.trim();
+}
 
 async function errorPopupOpen(MessageGuid) {
-  var x = document.getElementById("cpiHelper_sidebar_popup");
-  if (!x) {
-    x = document.createElement('div');
-    x.id = "cpiHelper_sidebar_popup";
-    //x.onmouseover = (e) => {errorPopupSetTimeout(null)};
-    //x.onmouseout = (e) => {errorPopupSetTimeout(3000)};
-    document.body.appendChild(x);
-  }
-
-  x.innerText = "Please wait...";
-  x.className = "show";
-
   ///MessageProcessingLogRuns('AF5eUbNwAc1SeL_vdh09y4njOvwO')/RunSteps?$inlinecount=allpages&$format=json&$top=500
   var resp = await getMessageProcessingLogRuns(MessageGuid, false)
+  var customHeaders = await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')?$format=json&$expand=CustomHeaderProperties", false)
+  customHeaders = JSON.parse(customHeaders).d
 
+  //Duration
+  var stepStart = new Date(parseInt(customHeaders.LogStart.substr(6, 13)));
+  stepStart.setTime(stepStart.getTime() - stepStart.getTimezoneOffset() * 60 * 1000);
+  var stepStop = new Date(parseInt(customHeaders.LogEnd.substr(6, 13)));
+  stepStop.setTime(stepStop.getTime() - stepStop.getTimezoneOffset() * 60 * 1000);
 
-  y = document.createElement('div');
-  y.innerText = "";
-  let popup = document.createElement("span");
-  popup.className = "cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL";
-  popup.style = "font-family: SAP-icons; font-size: 1.5rem";
-  popup.onclick = () => {
-    document.querySelectorAll('#messageList > tr > td:nth-child(1) > button').forEach((e) => e.classList.remove("cpiHelper_sidebar_iconbutton"));
-    document.getElementById('cpiHelper_sidebar_popup').classList.replace('show', 'hide_popup')
-  }
-  popup.setAttribute('data-sap-ui-icon-content', "");
-  y.appendChild(popup)
-
-  try {
-    var customHeaders = await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')?$format=json&$expand=CustomHeaderProperties", false)
-    customHeaders = JSON.parse(customHeaders).d
-
-    //Duration
-    var stepStart = new Date(parseInt(customHeaders.LogStart.substr(6, 13)));
-    stepStart.setTime(stepStart.getTime() - stepStart.getTimezoneOffset() * 60 * 1000);
-
-    var stepStop = new Date(parseInt(customHeaders.LogEnd.substr(6, 13)));
-    stepStop.setTime(stepStop.getTime() - stepStop.getTimezoneOffset() * 60 * 1000);
-
-
-    let status = document.createElement("div");
-    status.className = "contentText";
-    status.innerText = "Status: " + customHeaders.Status
-    y.appendChild(status)
-
-    let customstatus = document.createElement("div");
-    customstatus.className = "contentText";
-    customstatus.innerText = "Custom Status: " + customHeaders.CustomStatus
-    y.appendChild(customstatus)
-
-
-    let text = document.createElement("div");
-    text.className = "contentText";
-    text.innerText = "Duration: " + ((stepStop - stepStart) / 1000).toFixed(2) + " seconds"
-    y.appendChild(text)
-
-    let text2 = document.createElement("div");
-    text2.className = "contentText";
-    text2.innerText = "Duration: " + ((stepStop - stepStart) / 1000 / 60).toFixed(2) + " minutes"
-    y.appendChild(text2)
-
-    //custom Headers and Properties
-    customHeaders?.CustomHeaderProperties?.results.forEach(
-      (element) => {
-        let text = document.createElement("div");
-        text.className = "contentText";
-        text.innerText = element?.Name + ": " + element?.Value?.substr(0, 150)
-        y.appendChild(text)
-      }
-    )
-  } catch (err) {
-    log.log(err + "no custom headers available")
-  }
-
-
-  if (resp == null || resp.length == 0) {
-    let text = document.createElement("div");
-    text.className = "contentText";
-    text.innerText = "No Errormessage found."
-    y.appendChild(text)
-
-  } else {
-
-
+  //custom Headers and Properties
+  propertyArray = [];
+  customHeaders?.CustomHeaderProperties?.results.forEach((element) => propertyArray.push(element?.Name + ": " + element?.Value?.substr(0, 150)))
+  // Error Collect
+  errorDetails = [];
+  if (resp != null || resp.length != 0) {
     let error = false;
     for (var i = 0; i < resp.length; i++) {
       if (resp[i].Error) {
         error = true;
-        let errorText = createErrorMessageElement(resp[i].Error);
-        y.appendChild(errorText);
+        let logtext = resp[i].Error
+        let explain = lookupError(resp[i].Error);
+        if (explain) {
+          logtext += "<br>Possible explanation: " + explain;
+        }
+        errorDetails.push(logtext);
       }
     }
-    if (!error || resp.length == 0) {
-      let errorText = document.createElement("div");
-      errorText.className = "contentText";
-      y.appendChild(errorText);
-    }
   }
-  x.innerHTML = "";
-  x.appendChild(y)
+  return {
+    'status': customHeaders.Status, 'customstatus': customHeaders.CustomStatus, 'duration': formatDuration((stepStop - stepStart)),
+    'errors': errorDetails, 'property': propertyArray
+  }
+}
+async function popupTable(message) {
+  let data = await errorPopupOpen(message)
+  log.debug(data)
+  let popupHTML = `<table class="ui celled very compact table">
+  <tbody>
+    <tr class="center aligned">
+      <td class="info">Status</td>
+      <td class="${getStatusColor(data.status)}">${getStatusIcon(data.status)}${data.status}</td>
+    </tr>
+    <tr class="center aligned">
+      <td class="info">Custom Status</td>
+      <td class="${getStatusColor(data.customstatus)}">${getStatusIcon(data.customstatus)}${data.customstatus}</td>
+    </tr>
+    <tr class="center aligned">
+      <td class="info">Duration</td>
+      <td>${data.duration}</td>
+    </tr>`;
 
-};
+  if (data.errors.length > 0 || data.property.length > 0) {
+    popupHTML += `<tr><td colspan="2" style="height: 10vh; padding: 0;">
+      <div class="ui fluid scrolling segment" style="width: unset;">`;
+    if (data.property.length > 0) {
+      popupHTML += data.property.join('<br>');
+    }
+    if (data.errors.length > 0) {
+      popupHTML += `<h5 class="ui horizontal red divider header">Errors</h5>`;
+      popupHTML += data.errors.map((e) => `<span class="ui red text">${e}</span>`).join("<div class='ui divider'></div>")
+    }
+    popupHTML += `</div></td></tr>`;
+  }
+  popupHTML += `</tbody></table>`
+  return popupHTML
+}
+function apireserror(message) {
+  $('.ui.toast').toast('close');
+  $.toast({
+    message: "Please wait while we prepare...",
+    position: 'bottom right',
+    onVisible: async () =>
+      popupTable(message).then((message) => {
+        $('.ui.toast').toast('close');
+        $.toast({
+          closeIcon: true,
+          showProgress: 'top',
+          classProgress: 'blue',
+          progressUp: true,
+          position: 'bottom right',
+          displayTime: 5000,
+          onRemove: () => {
+            document.querySelectorAll('.cpiHelper_sidebar_iconbutton').forEach((i) => i.classList.remove('cpiHelper_sidebar_iconbutton'));
+          },
+          message: message
+        })
+      }).catch((error) => {
+        log.error('Error loading data:', error);
+      })
+  });
+}
 
 function lookupError(message) {
   if (/unable to find valid certification path to requested target/.test(message)) {
@@ -1569,32 +1530,16 @@ function lookupError(message) {
   return null;
 }
 
-function createErrorMessageElement(message) {
-  let errorElement = document.createElement("div");
-  errorElement.style.color = "red";
-  errorElement.className = "contentText";
-  errorElement.innerText = message;
-
-  let errorContainer = document.createElement("div");
-  errorContainer.appendChild(errorElement);
-
-  let explain = lookupError(message);
-  if (explain) {
-    errorContainer.appendChild(createElementFromHTML("<div>Possible explanation: " + explain + "</div>"));
-  }
-  return errorContainer;
-}
-
 //to check for errors and inline trace
 async function getMessageProcessingLogRuns(MessageGuid, store = true) {
   var top_mode_count = await storageGetPromise("cpi_top_mode")
-  top_mode_count = (top_mode_count == null && top_mode_count == undefined) ? "&$top=300" : `&$top=${parseInt(top_mode_count)}`//Default
+  top_mode_count = (top_mode_count == null && top_mode_count == undefined) ? "&$top=300" : `& $top=${parseInt(top_mode_count)} `//Default
   if (top_mode_count === '&$top=0') { top_mode_count = "" }
   //Plugin over-write
   if (await getStorageValue('traceModifer', "isActive", null)) {
-    var top_mode_count_flow = await storageGetPromise(`traceModifer_${cpiData.integrationFlowId}`)
-    console.debug("traceModifer_flow",cpiData.integrationFlowId, top_mode_count, top_mode_count_flow)
-    top_mode_count = ((top_mode_count_flow == null && top_mode_count_flow == undefined) || top_mode_count_flow == 0) ? top_mode_count : `&$top=${parseInt(top_mode_count_flow)}`
+    var top_mode_count_flow = await storageGetPromise(`traceModifer_${cpiData.integrationFlowId} `)
+    console.debug("traceModifer_flow", cpiData.integrationFlowId, top_mode_count, top_mode_count_flow)
+    top_mode_count = ((top_mode_count_flow == null && top_mode_count_flow == undefined) || top_mode_count_flow == 0) ? top_mode_count : `& $top=${parseInt(top_mode_count_flow)} `
   }
   console.log(top_mode_count)
   return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store).then((responseText) => {
@@ -1606,29 +1551,11 @@ async function getMessageProcessingLogRuns(MessageGuid, store = true) {
   }).then((runId) => {
     return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json" + top_mode_count, store);
   }).then((response) => {
-    return JSON.parse(response).d.results;
+    return JSON.parse(response).d.results.filter((e) => e.StepStop != null);
   }).catch((e) => {
     log.log(e);
     return null;
   });
-}
-
-var timeOutTimer;
-function errorPopupSetTimeout(milliseconds) {
-  if (milliseconds) {
-    timeOutTimer = setTimeout(() => {
-      errorPopupClose();
-    }, milliseconds);
-  } else {
-    clearTimeout(timeOutTimer);
-  }
-}
-
-function errorPopupClose() {
-  var x = document.getElementById("cpiHelper_sidebar_popup");
-  if (x) {
-    x.className = "hide_popup";
-  }
 }
 
 //function to get the current artifact name from the URL
@@ -1948,7 +1875,7 @@ async function storeVisitedIflowsForPopup() {
           //filter out the current flow
           if (visitedIflows.length > 0) {
             visitedIflows = visitedIflows.filter((element) => {
-              return !(element.name == `${cpiArtifactId}` && dataRegexp[1] == element.type);
+              return !(element.name == `${cpiArtifactId} ` && dataRegexp[1] == element.type);
             });
           }
 
@@ -1958,7 +1885,7 @@ async function storeVisitedIflowsForPopup() {
           }
 
           //put the current flow to the last element. last position indicates last visited element
-          visitedIflows.push({ name: `${cpiArtifactId}`, "url": document.location.href + urlext, "favorit": false, "type": `${dataRegexp[1]}` });
+          visitedIflows.push({ name: `${cpiArtifactId} `, "url": document.location.href + urlext, "favorit": false, "type": `${dataRegexp[1]} ` });
 
           //delete the first one when there are more than 10 iflows in visited list
           if (visitedIflows.length > 15) {
@@ -2019,7 +1946,11 @@ setInterval(async function () {
   }
 
   log.debug("check for button bar");
-
+  try {
+    navigationButton()
+  } catch (error) {
+    log.error(error)
+  }
   await checkURLchange(window.location.href);
 
   //new update message sidebar
@@ -2053,7 +1984,7 @@ setInterval(async function () {
 
   //check if trace should be refreshed again
   //check if value in storage exists and time is longer than 9 (overlap) and less than 20 minutes (upper limit in order to not auto-reactivate the trace after a longer break)
-  var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`
+  var objName = `${cpiData.integrationFlowId} _powertraceLastRefresh`
   var timeAsStringOrNull = await storageGetPromise(objName)
   if (timeAsStringOrNull != null && timeAsStringOrNull != undefined) {
     var now = new Date().getTime()

@@ -160,6 +160,16 @@ function addTenantSettings() {
         </div>
         <div>
             <div class="ui labeled input">
+                <div class="ui label">Choose an Default Log mode</div>
+                <select name="log" id="log-select" class="ui selection dropdown">
+                    <option value="warn">Warning</option>
+                    <option value="info">Info</option>
+                    <option value="log">Log</option>
+              </select>
+            </div>
+        </div>
+        <div>
+            <div class="ui labeled input">
                 <div class="ui label">Theme Color</div>
                 <input type="color" name="color" id="colorSelect"/>
             </div>
@@ -249,6 +259,7 @@ function addTenantSettings() {
                 <p><b>Theme Color:</b> set header color <br />
                     (we recommend that you select a darker color. If color is too light, it will automatically adjust it to a darker shade.) <br />This is to ensure that the text is readable and clear.
                 <div class="ui fitted divider"></div></p>
+                <p><b>Choose log level:</b> set log level <span class="ui green text"> Warning(Default) </span>at tab.</p><div class="ui fitted divider"></div></p>
                 <p><b>Choose icon:</b> set icon at tab.</p><div class="ui fitted divider"></div></p>
                 <p><b>Preset Themes</b> Set predefined theme for host  </p>
             </section>
@@ -492,6 +503,7 @@ function tenantIdentityChanges() {
         let tenantName = document.querySelector('#tenantName')
         let tenantColor = document.querySelector('#colorSelect')
         let tenantIcon = document.querySelector('#icon-select')
+        let tenantLog = document.querySelector('#log-select')
         let tenantCount = document.querySelector('#setCount')
         let popupcolor = document.querySelector(':root')
         let timeoutId;
@@ -503,7 +515,8 @@ function tenantIdentityChanges() {
             if (response) {
                 tenantName.value = hostData.title = response.title;
                 tenantColor.value = hostData.color = response.color;
-                tenantIcon.value = hostData.icon = response.icon
+                tenantIcon.value = hostData.icon = response.icon;
+                tenantLog.value = hostData.loglevel = response.loglevel;
                 tenantCount.value = hostData.count = response.count
                 popupcolor.style.setProperty('--cpi-custom-color', hostData.color = response.color);
             }
@@ -543,7 +556,14 @@ function tenantIdentityChanges() {
                 console.dir(response);
             })
         })
-
+        //Default log change on input
+        tenantLog.addEventListener('input', () => {
+            hostData.loglevel = tenantLog.value
+            console.log(tenantLog.value)
+            chrome.tabs.sendMessage(tab.id, { save: hostData }, (response) => {
+                console.dir(response);
+            })
+        })
         // Update icon on input
         tenantIcon.addEventListener('input', () => {
             hostData.icon = tenantIcon.value
