@@ -1,8 +1,8 @@
 :root {
     /* colors */
-    --cpi-brand-color: #354a5f;
+    --cpi-brand-color: #ffffff;
     --cpi-background: #fff;
-    --cpi-custom-color: #354a5f;
+    --cpi-custom-color: #ffffff;
     --cpi-dark-green: #008000;
     --cpi-green: #c7ffce;
     --cpi-grey: #e3e3e3;
@@ -44,7 +44,7 @@ a[href].item:hover,
 }
 
 #cpiHelper_contentheader>* {
-    color: var(--cpi-background);
+    color: #000;
     font-weight: bold;
 }
 

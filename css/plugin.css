@@ -44,3 +44,7 @@ Users are encouraged to integrate this library with care to ensure compatibility
     margin-bottom: 10px;
     margin-top: 0px;
 }
+
+.credentialHelperDropdown-item:hover {
+    background-color: rgba(190, 190, 190, 0.9) !important;
+}

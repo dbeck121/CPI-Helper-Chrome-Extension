@@ -6,7 +6,7 @@
   },
   "name": "SAP CPI Helper",
   "short_name": "CPI Helper",
-  "version": "3.13.0",
+  "version": "4.0.0",
   "description": "Extends the SAP Cloud Platform Integration with some useful features to improve usability.",
   "author": "Dominic Beckbauer",
   "homepage_url": "https://github.com/dbeck121/CPI-Helper-Chrome-Extension",
@@ -16,6 +16,7 @@
     "https://*.hana.ondemand.com/itspaces",
     "https://*.platform.sapcloud.cn/itspaces",
     "https://*.hana.ondemand.com/shell",
+    "https://*.platform.sapcloud.cn/shell",
     "webRequest"
   ],
   "background": {
@@ -31,7 +32,8 @@
         "https://*.hana.ondemand.com/shell/design/*",
         "https://*.hana.ondemand.com/itspaces/*",
         "https://*.hana.ondemand.com/shell/*",
-        "https://*.platform.sapcloud.cn/itspaces/*"
+        "https://*.platform.sapcloud.cn/itspaces/*",
+        "https://*.platform.sapcloud.cn/shell"
       ],
       "js": [
         "/lib/ulog/ulog-full.min.js",
@@ -57,6 +59,7 @@
         "/plugins/reference.js",
         "/plugins/undeploy.js",
         "/plugins/unlock.js",
+        "/plugins/credentialHelper.js",
         "/plugins/cpitransporter.js",
         "/plugins/figaf.js",
         "/plugins/OpenAIServices.js",
@@ -92,7 +95,8 @@
       "https://*.hana.ondemand.com/shell/design/*",
       "https://*.hana.ondemand.com/itspaces/*",
       "https://*.hana.ondemand.com/shell/*",
-      "https://*.platform.sapcloud.cn/itspaces/*"
+      "https://*.platform.sapcloud.cn/itspaces/*",
+      "https://*.platform.sapcloud.cn/shell"
     ]
   },
   "icons": {

@@ -115,6 +115,7 @@ async function renderMessageSidebar() {
   //var xhr = await makeCallPromiseXHR("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and Status ne 'RETRY' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogEnd desc", false, null, null, false, "", false)
   // 18.4.2024, Addor: changed back to include Retry (for JMS based sender adapters it's crucial to see hanging messages in the sidebar)
   //var xhr = await makeCallPromiseXHR("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogEnd desc", false, null, null, false, "", false)
+
   //24-04-2024, On some tenants there are Retry messages hanging without any LogStart and LogEnd date and SAP is unable to discard them, these msgs stops CPI helper to display messages in popup ,using a timestamp from long back helpsso using date from 1900
   var xhr = await makeCallPromiseXHR("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and LogStart gt datetime'1900-01-01T01:02:50' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogEnd desc", false, null, null, false, "", false)
 
