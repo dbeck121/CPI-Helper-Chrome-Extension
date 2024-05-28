@@ -542,7 +542,7 @@ fieldset {
 
 .ui.modal.active>.header {
   background: var(--cpi-custom-color);
-  color: var(--cpi-background-color);
+  color: #000;
 }
 
 .ui.selection.dropdown .menu > .item {
