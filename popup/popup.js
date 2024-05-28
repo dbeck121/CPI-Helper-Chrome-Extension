@@ -314,7 +314,7 @@ function addTenantSettings() {
     //reset color btn
     document.querySelector('#tenantSettings > div >div > button').addEventListener('click', () => {
         const tenantColor = document.querySelector('#colorSelect');
-        tenantColor.value = '#2185d0';
+        tenantColor.value = '#ffffff';
         tenantColor.dispatchEvent(new Event("change"));
     })
     //cozy-compact mode btn
@@ -519,6 +519,7 @@ function tenantIdentityChanges() {
                 tenantLog.value = hostData.loglevel = response.loglevel;
                 tenantCount.value = hostData.count = response.count
                 popupcolor.style.setProperty('--cpi-custom-color', hostData.color = response.color);
+                popupcolor.style.setProperty('--button-active-color', hostData.color = response.color);
             }
         });
 
@@ -552,6 +553,7 @@ function tenantIdentityChanges() {
             console.log(tenantColor.value)
             // set popup.html header
             popupcolor.style.setProperty('--cpi-custom-color', tenantColor.value);
+            popupcolor.style.setProperty('--button-active-color', tenantColor.value);
             chrome.tabs.sendMessage(tab.id, { save: hostData }, (response) => {
                 console.dir(response);
             })
