@@ -180,7 +180,7 @@
       const root = document.querySelector(':root');
       root.style.setProperty('--cpi-custom-color', color);
       if(color == "#ffffff"){
-        root.style.setProperty('--button-active-color', "#2185d0");
+        root.style.setProperty('--button-active-color', "#767676");
       }else{
         root.style.setProperty('--button-active-color', color);
       }
