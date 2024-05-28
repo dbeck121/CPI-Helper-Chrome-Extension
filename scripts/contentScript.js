@@ -1329,7 +1329,7 @@ var sidebar = {
       <span id='sidebar_modal_minimize' class='cpiHelper_closeButton_sidebar'>CPI Helper</span>
       <span id='sidebar_modal_close' data-sap-ui-icon-content="&#xe03e" class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>
     </div>
-    <div id="outerFrame">
+    <div id="outerFrame" style="color: black;">
       <div>
         <div id="updatedText" class="contentText"></div>
         <div id="deploymentText" class="contentText">State: </div>
