@@ -36,20 +36,21 @@ async function whatsNewCheck(showOnlyOnce = true) {
                     <div class="twelve wide column">
                         <div class="ui header">This release is sponsored by Figaf </div>
                         <p>
-                        Pipelines is a concept from SAP that makes it easier to manage reliable delivery of messages in Integration Suite. It makes a lot of sense for migration projects but also for your new integrations. 
-See how to explore the concept here.
+                        <b>Pipelines for building solid integration for SAP Integration Suite</b><br />
+Figaf just improved the way you can run and manage the pipelines for SAP.
+<ul><li>One click migration from ICO to all items needed for pipelines</li>
+<li>Partner Directory management to edit and change all values</li></ul>
                       </p>
-
                     </div>
                     <div class="sixteen wide column">
-                    <p>Start you journey with Figaf <a href="https://figaf.com/cpihelper13" target="_blank"><u>here</u></a>.</p>
+                    Start you journey with Figaf <a href="https://figaf.com/cpihelper14" target="_blank"><u>here</u></a>.
                     </div>
                 </div>
             </div>
             <h3 class="ui header">
                 <i class="bell icon"></i>
                 <div class="content">
-                    March 2024 Release
+                   New Release
                 </div>
             </h3>
             <p>

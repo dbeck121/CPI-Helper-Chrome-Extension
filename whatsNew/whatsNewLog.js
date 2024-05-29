@@ -19,11 +19,11 @@ const whats_new_log = [
     },
     {
         "header": "General Improvement",
-        "description": "Filter to remove extra Empty Steps from Trace & Tool is now more compact.Special thanks to [Omkar Patel](https://github.com/incpi)",
+        "description": "Filter to remove extra Empty Steps from Trace & Tool is now more compact. Special thanks to <a target='_blank' href='https://github.com/incpi'>Omkar Patel</a>",
     },
     {
         "header": "Search Feature",
-        "description": "New global Button for all Logging & Security Materials search with All category supported. Special thanks to [Omkar Patel](https://github.com/incpi).",
+        "description": "New global Button for all Logging & Security Materials search with All category supported. Special thanks to <a target='_blank' href='https://github.com/incpi'>Omkar Patel</a>",
     },
     {
         "header": "Debug Feature",
@@ -31,7 +31,7 @@ const whats_new_log = [
     },
     {
         "header": "Extension Feature",
-        "description": "Can select default log level at extension page.Special thanks to[Omkar Patel](https://github.com/incpi).",
+        "description": "Can select default log level at extension page. Special thanks to <a target='_blank' href='https://github.com/incpi'>Omkar Patel</a>",
     },
     {
         "header": "BugFix",
