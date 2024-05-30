@@ -50,13 +50,14 @@ It is open source so feel free to check the source code.
 
 ### 3.13.0
 
-- [Plugin] Unlock Plugin to unlock integration flows directly from design screen. Special thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/).
-- [Plugin] Timeline Plugin now with sorting options. Again special thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/).
+- [Plugin] "Credential Helper" Plugin to add a search help for existing Security Material aliases and Key Store entries. Special thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/)
+- [Plugin] "Unlock" Plugin to unlock integration flows directly from design screen. Special thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/).
+- [Plugin] "Timeline" Plugin now with sorting options. Again special thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/).
 - [Improvement] Filter to remove extra Empty Steps from Trace & Tool is now more compact.Special thanks to [Omkar Patel](https://github.com/incpi).
 - [Feature] New global Button for all Logging & Security Materials search with All category supported. Special thanks to [Omkar Patel](https://github.com/incpi).
 - [Feature] Debug Logging button UI as well as by parameters.
 - [Feature] Can select default log level at extension page. Special thanks to [Omkar Patel](https://github.com/incpi).
-- [BugFix] UI and Bug fixes
+- [BugFix] UI and Bug fixes (adaptations to new SAP Horizon theme)
 
 ### 3.12.1
 
