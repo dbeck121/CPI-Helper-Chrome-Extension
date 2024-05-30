@@ -213,7 +213,7 @@ async function recrutingPopup(force = false) {
     <div class="ui message">
         <img class="ui small floated image" src="${Kangoolutions_Logo}">
         <div class="content">
-            <div class="header">                Werde ein weiterer Held mit der Mission Datenintegration!            </div>
+            <div class="header">                Werde ein weiterer Held mit der Mission Daten- und Prozessintegration!            </div>
             <p>Wir wollen moderne Beratung auf Augenhöhe liefern. Unsere Kunden sind super happy mit uns und daher suchen wir aktuell wirklich überall nach den Besten für unser Team.</p>
         </div>
     </div>
@@ -223,7 +223,7 @@ async function recrutingPopup(force = false) {
             <div class="content">                Berater*in für SAP Integration gesucht            </div>
         </h3>
         <p>
-            Kannst du dir vorstellen unsere Kunden als SAP Integrationsspezialist*in in den o.g. Themen zu unterstützen?
+            Kannst du dir vorstellen unsere Kunden als SAP Integrationsspezialist*in zu unterstützen?
             Das erwartet dich:
         <p>
         <div class="ui bulleted list">
@@ -234,7 +234,7 @@ async function recrutingPopup(force = false) {
             <div class="item">Eigenverantwortung und Freiraum, statt Formularen und starren Prozessen</div>
             <div class="item">Eine junge Firma, mit jungen Menschen und feinen Events</div>
             <div class="item">Mitgestaltungsmöglichkeit beim Aufbau unserer Firma</div>
-            <div class="item">Summer Events mit der ganzen Firma (2023 auf Sizilien und 2024 auf Kreta).</div>
+            <div class="item">Summer Event mit der ganzen Firma (2023 auf Sizilien und 2024 auf Kreta).</div>
         </div>
         <p>Wir haben viel Humor und das vielleicht coolste Team der Welt. Lass uns doch mal plaudern:
         </p>
