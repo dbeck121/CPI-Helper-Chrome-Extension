@@ -2,6 +2,7 @@
 :root {
   --cpi-custom-color: #2185d0;
   --cpi-background-color: #ffffff;
+  --cpi-fui-active-color: #00144a; /* constant color  =  Don't overwrite this*/
 }
 
 /* whats new */
@@ -76,8 +77,8 @@
 
 .cpiHelper button.cpiHelper_inlineInfo-active,
 .cpiHelper button.cpiHelper_plugin-active {
-  background: var(--cpi-custom-color);
-  color: var(--cpi-text-color);
+  background: var(--cpi-fui-active-color);
+  color: var(--cpi-custom-color);
 }
 
 .cpiHelper button:active {
@@ -91,7 +92,7 @@
 .cpiHelper button.cpiHelper_sidebar_iconbutton,
 button.cpiHelper_sidebar_iconbutton span {
   cursor: pointer;
-  background-color: var(--cpi-custom-color);
+  background-color: var(--cpi-fui-active-color);
   color: var(--cpi-background-color) !important;
   outline: none;
 }

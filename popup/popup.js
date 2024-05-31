@@ -312,9 +312,10 @@ function addTenantSettings() {
         document.querySelector('#tenantSettings > div:nth-child(4) > div.ui.segment').classList.toggle("hidden")//#tenantSettings>div>div:has(table)
     });
     //reset color btn
-    document.querySelector('#tenantSettings > div >div > button').addEventListener('click',async () => {
+    document.querySelector('#tenantSettings > div >div > button').addEventListener('click', async () => {
         const tenantColor = document.querySelector('#colorSelect');
-        tenantColor.value = await callChromeStoragePromise('CPIhelperThemeInfo')?'#ffffff':'#354a5f';
+        tenantColor.value = await callChromeStoragePromise('CPIhelperThemeInfo') ? '#ffffff' : '#354a5f';
+        console.log(tenantColor.value);
         tenantColor.dispatchEvent(new Event("change"));
     })
     //cozy-compact mode btn
@@ -509,9 +510,6 @@ function tenantIdentityChanges() {
         let timeoutId;
         let tab = tabs[0];
 
-        chrome.storage.sync.get("CPIhelperThemeInfo", (theme) => {
-            popupcolor.style.setProperty('--cpi-text-color', theme['CPIhelperThemeInfo'] ? '#000000' : '#ffffff');
-        });
         // get the current document title - this runs evey time the popup is opened
         chrome.tabs.sendMessage(tab.id, 'get', response => {
             console.dir(response)
@@ -521,7 +519,13 @@ function tenantIdentityChanges() {
                 tenantIcon.value = hostData.icon = response.icon;
                 tenantLog.value = hostData.loglevel = response.loglevel;
                 tenantCount.value = hostData.count = response.count
-                popupcolor.style.setProperty('--cpi-custom-color', hostData.color = response.color);
+                chrome.storage.sync.get("CPIhelperThemeInfo", (theme) => {
+                    tenantColor.value = hostData.color = adjustColorLimiter(tenantColor.value, 80, 20, !(theme['CPIhelperThemeInfo']));
+                    tenantColor.dispatchEvent(new Event("change"));
+                    console.log(tenantColor.value);
+                    popupcolor.style.setProperty('--cpi-text-color', !(theme['CPIhelperThemeInfo']) ? '#ffffff' : '#000000');
+                    popupcolor.style.setProperty('--cpi-custom-color', tenantColor.value);
+                });
             }
         });
 
@@ -535,7 +539,6 @@ function tenantIdentityChanges() {
                 })
             }, 1000);
         })
-
 
         // Autosave on change after 1s
         tenantCount.addEventListener('input', () => {
