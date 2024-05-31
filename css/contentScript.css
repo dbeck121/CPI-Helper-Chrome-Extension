@@ -1,8 +1,7 @@
 /*root filter*/
 :root {
-  --cpi-custom-color: #ffffff;
+  --cpi-custom-color: #2185d0;
   --cpi-background-color: #ffffff;
-  --button-active-color: #767676;
 }
 
 /* whats new */
@@ -77,12 +76,12 @@
 
 .cpiHelper button.cpiHelper_inlineInfo-active,
 .cpiHelper button.cpiHelper_plugin-active {
-  background: var(--button-active-color);
-  color: #000;
+  background: var(--cpi-custom-color);
+  color: var(--cpi-text-color);
 }
 
 .cpiHelper button:active {
-  background: var(--button-active-color);
+  background: var(--cpi-custom-color);
 }
 
 .cpiHelper button:focus {
@@ -153,12 +152,6 @@ button.cpiHelper_sidebar_iconbutton span {
   border-radius: 0px 0px 5px 5px;
 }
 
-/* show more button arranged vertically / tbd
-  .cpiHelper button#showmore {
-    margin-left: 35px;
-  }
-  */
-
 #cpiHelper_content {
   position: fixed;
   z-index: 400;
@@ -188,7 +181,7 @@ button.cpiHelper_sidebar_iconbutton span {
   font-weight: bold;
   z-index: 10;
   background-color: var(--cpi-custom-color);
-  color: #000;
+  color: var(--cpi-text-color);
   box-sizing: border-box;
   border-radius: 5px 5px 0px 0px;
   display: flex;
@@ -456,7 +449,7 @@ button.cpiHelper_sidebar_iconbutton span {
   width: calc(100% - 200px);
 }
 
-.cpiHelper_hidden{
+.cpiHelper_hidden {
   display: none !important;
 }
 
@@ -542,9 +535,13 @@ fieldset {
 
 .ui.modal.active>.header {
   background: var(--cpi-custom-color);
-  color: #000;
+  color: var(--cpi-text-color);
 }
 
-.ui.selection.dropdown .menu > .item {
+.ui.selection.dropdown .menu>.item {
   min-height: 0 !important;
+}
+
+.ui.modal>.content {
+  color: #000;
 }

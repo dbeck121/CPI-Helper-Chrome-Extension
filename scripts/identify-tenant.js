@@ -179,12 +179,9 @@
       //sync header with popup header
       const root = document.querySelector(':root');
       root.style.setProperty('--cpi-custom-color', color);
-      if(color == "#ffffff"){
-        root.style.setProperty('--button-active-color', "#767676");
-      }else{
-        root.style.setProperty('--button-active-color', color);
-      }
-
+      chrome.storage.sync.get("CPIhelperThemeInfo", (theme) => {
+        root.style.setProperty('--cpi-text-color', theme['CPIhelperThemeInfo'] ? '#000000' : '#ffffff');
+      });
       // Set the theme color meta tag
       let themeColorElement = document.querySelector("meta[name='theme-color']");
       if (themeColorElement) {
@@ -210,7 +207,7 @@
   }
 
   function setLog(loglevel) {
-    if(loglevel === String(levelMap[log.level])) return;
+    if (loglevel === String(levelMap[log.level])) return;
     log.level = loglevel ? loglevel : 'warn'
     console.log(String(loglevel + " is activated"))
   }

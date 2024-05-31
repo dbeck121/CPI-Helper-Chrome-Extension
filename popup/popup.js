@@ -312,9 +312,9 @@ function addTenantSettings() {
         document.querySelector('#tenantSettings > div:nth-child(4) > div.ui.segment').classList.toggle("hidden")//#tenantSettings>div>div:has(table)
     });
     //reset color btn
-    document.querySelector('#tenantSettings > div >div > button').addEventListener('click', () => {
+    document.querySelector('#tenantSettings > div >div > button').addEventListener('click',async () => {
         const tenantColor = document.querySelector('#colorSelect');
-        tenantColor.value = '#ffffff';
+        tenantColor.value = await callChromeStoragePromise('CPIhelperThemeInfo')?'#ffffff':'#354a5f';
         tenantColor.dispatchEvent(new Event("change"));
     })
     //cozy-compact mode btn
@@ -509,6 +509,9 @@ function tenantIdentityChanges() {
         let timeoutId;
         let tab = tabs[0];
 
+        chrome.storage.sync.get("CPIhelperThemeInfo", (theme) => {
+            popupcolor.style.setProperty('--cpi-text-color', theme['CPIhelperThemeInfo'] ? '#000000' : '#ffffff');
+        });
         // get the current document title - this runs evey time the popup is opened
         chrome.tabs.sendMessage(tab.id, 'get', response => {
             console.dir(response)
@@ -519,7 +522,6 @@ function tenantIdentityChanges() {
                 tenantLog.value = hostData.loglevel = response.loglevel;
                 tenantCount.value = hostData.count = response.count
                 popupcolor.style.setProperty('--cpi-custom-color', hostData.color = response.color);
-                popupcolor.style.setProperty('--button-active-color', hostData.color = response.color);
             }
         });
 
@@ -534,6 +536,7 @@ function tenantIdentityChanges() {
             }, 1000);
         })
 
+
         // Autosave on change after 1s
         tenantCount.addEventListener('input', () => {
             clearTimeout(timeoutId)
@@ -546,14 +549,15 @@ function tenantIdentityChanges() {
         })
 
         // Update color on change
-        tenantColor.addEventListener('change', () => {
+        tenantColor.addEventListener('change', async () => {
             // custom filter skip
-            tenantColor.value = adjustColorLimiter(tenantColor.value, 80, 20)
+            let theme = await callChromeStoragePromise("CPIhelperThemeInfo")
+            tenantColor.value = adjustColorLimiter(tenantColor.value, 80, 20, !theme)
             hostData.color = tenantColor.value
             console.log(tenantColor.value)
             // set popup.html header
             popupcolor.style.setProperty('--cpi-custom-color', tenantColor.value);
-            popupcolor.style.setProperty('--button-active-color', tenantColor.value);
+            popupcolor.style.setProperty('--cpi-text-color', theme ? '#000000' : '#ffffff');
             chrome.tabs.sendMessage(tab.id, { save: hostData }, (response) => {
                 console.dir(response);
             })
@@ -595,6 +599,7 @@ function adjustColorLimiter(ihex, limit, dim, abovelimit = false) {
     ohex = hslToHex(h, s, l)
     return ohex
 }
+
 function hslToHex(h, s, l) {
     h /= 360;
     s /= 100;
@@ -623,6 +628,7 @@ function hslToHex(h, s, l) {
     };
     return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
+
 function hexToHsl(hex, values = false) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     var r = parseInt(result[1], 16);
@@ -650,6 +656,7 @@ function hexToHsl(hex, values = false) {
     cssString = values ? `${h} ${s} ${l}` : `hsl(${h}deg ${s}% ${l}%)`
     return cssString
 }
+
 async function storageGetPromise(name) {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get([name], function (result) {
@@ -669,6 +676,31 @@ async function statistic(event, value = null, value2 = null) {
         console.log(e)
     }
 }
+
+function callChromeStoragePromise(key) {
+    return new Promise(async function (resolve, reject) {
+        var input = key ? [key] : null;
+        chrome.storage.sync.get(input, function (storage) {
+            if (!key) {
+                resolve(storage);
+                console.log("callChromeStoragePromise response: ", storage)
+            }
+            resolve(storage[key]);
+        });
+    });
+}
+
+// on change chrome storage triggers change of color..
+chrome.storage.onChanged.addListener((changes, namespace) => {
+    for (var key in changes) {
+        console.log(key, changes[key]);
+        if (key === "CPIhelperThemeInfo") {
+            var theme = changes[key];
+            document.querySelector('#colorSelect').dispatchEvent(new Event("change"));
+            document.querySelector(':root').style.setProperty('--cpi-text-color', theme ? '#000000' : '#ffffff');
+        }
+    }
+});
 
 async function main() {
     checkUpdate();
