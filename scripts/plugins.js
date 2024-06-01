@@ -11,16 +11,19 @@ async function messageSidebarPluginContent(forceRender = false) {
         var settings = await getPluginSettings(element.id);
         if (settings[element.id + "---isActive"] === true && (element?.messageSidebarContent?.onRender && (!element?.messageSidebarContent?.static || forceRender == true))) {
             activeness = true;
-            var div = document.getElementById("cpiHelper_messageSidebar_pluginArea_" + element.id)
-            if (!div) {
-                div = document.createElement("fieldset");
-                div.id = "cpiHelper_messageSidebar_pluginArea_" + element.id;
-                div.classList = "ui fluid segment";
+            const pluginRender = element.messageSidebarContent.onRender(cpiData, settings)
+            if (pluginRender) {
+                var div = document.getElementById("cpiHelper_messageSidebar_pluginArea_" + element.id)
+                if (!div) {
+                    div = document.createElement("fieldset");
+                    div.id = "cpiHelper_messageSidebar_pluginArea_" + element.id;
+                    div.classList = "ui fluid segment";
+                }
+                div.innerHTML = ""
+                div.appendChild(createElementFromHTML("<div class='ui tiny header'>" + element.name + "</div>"));
+                div.appendChild(pluginRender);
+                document.querySelector('#cpiHelper_messageSidebar_pluginArea').appendChild(div);
             }
-            div.innerHTML = ""
-            div.appendChild(createElementFromHTML("<div class='ui tiny header'>" + element.name + "</div>"));
-            div.appendChild(element.messageSidebarContent.onRender(cpiData, settings));
-            document.querySelector('#cpiHelper_messageSidebar_pluginArea').appendChild(div);
         }
     }
     const ctxbtnclose = document.querySelector('#cpiHelper_contentheader')
@@ -210,9 +213,11 @@ async function createPluginPopupUI(plugin) {
 
                 if (plugin.settings[key].type == "textinput") {
                     var outerDiv = document.createElement('div');
+                    outerDiv.classList = "inputbox-spacing";
                     var text = document.createElement('input');
                     text.id = `cpiHelper_popup_plugins-${plugin.id}-${key}`;
                     text.key = `${getStoragePath(plugin.id, key, plugin.settings[key].scope)}`
+                    text.placeholder = `${(plugin.settings[key].placeholder == undefined ? plugin.settings[key].text : plugin.settings[key].placeholder)}`;
                     text.type = 'text';
                     text.value = await getStorageValue(plugin.id, key, plugin.settings[key].scope);
 
@@ -223,8 +228,8 @@ async function createPluginPopupUI(plugin) {
                     });
                     var div = document.createElement('div');
                     div.classList = "ui fluid input"
-                    div.appendChild(text);
                     div.appendChild(createElementFromHTML(`<div class="ui basic label" for="cpiHelper_popup_plugins-${plugin.id}-${key}"> ${plugin.settings[key].text}</div>`));
+                    div.appendChild(text);
                     outerDiv.appendChild(div);
                     subcontainer.appendChild(outerDiv);
                 }
@@ -234,7 +239,7 @@ async function createPluginPopupUI(plugin) {
                     label.innerText = plugin.settings[key].text;
 
                     var div = document.createElement('div');
-                    div.classList = "ui label"
+                    div.classList = "ui pointing below label"
                     div.appendChild(label);
                     subcontainer.appendChild(div);
 

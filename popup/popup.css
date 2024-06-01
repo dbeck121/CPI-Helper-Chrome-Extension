@@ -2,13 +2,14 @@
     /* colors */
     --cpi-brand-color: #354a5f;
     --cpi-background: #fff;
-    --cpi-custom-color: #354a5f;
+    --cpi-custom-color: #ffffff;
     --cpi-dark-green: #008000;
     --cpi-green: #c7ffce;
     --cpi-grey: #e3e3e3;
     --cpi-blue: #c7c7ff;
     --cpi-red: #ffc7c7;
     --cpi-color: #000;
+    --cpi-text-color:#000;
     --cpi-hover: #ff5722;
     /* Fonts */
     --cpi-font: 'Arial';
@@ -44,7 +45,7 @@ a[href].item:hover,
 }
 
 #cpiHelper_contentheader>* {
-    color: var(--cpi-background);
+    color: var(--cpi-text-color);
     font-weight: bold;
 }
 

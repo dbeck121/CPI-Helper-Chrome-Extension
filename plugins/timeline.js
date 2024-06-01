@@ -2,16 +2,16 @@ var plugin = {
     metadataVersion: "1.0.0",
     id: "timeline",
     name: "Timeline",
-    version: "1.0.0",
+    version: "1.0.1",
     author: "Gregor Schütz, AGILITA AG",
     website: "https://www.agilita.ch/",
     email: "gregor.schuetz@agilita.ch",
-    description: "Displays the timeline of a message.",
+    description: "<br><b>(Trace not needed)</b></br> Displays the timeline of a message.",
     settings: {
         "icon": { "type": "icon", "src": "/images/plugin_logos/AGILITAAG_Logo.jpg" }
     },
     messageSidebarButton: {
-        "icon": { "type": "icon", "text": "xe088" }, //⏳
+        "icon": { "type": "icon", "text": "xe088" },
         "title": "display timeline",
         "onClick": async (pluginHelper, settings, runInfo, active) => {
             // Data Prep for table
@@ -32,6 +32,9 @@ var plugin = {
 
             // Add content inside of a popup
             pluginHelper.functions.popup(popupContent, "Timeline");
+
+            // Add table sorting
+            $('table').tablesort();
         }
     }
 }
@@ -59,44 +62,24 @@ function formatTimestamp(timestamp) {
 function createContent(data, pluginHelper) {
     // Table columns
     var popupContentPrefix = `
-    <table class="ui celled center aligned table" id='timelinetable'>
+    <table class="ui sortable celled center aligned table" id='timelinetable'>
         <thead>
             <tr class="black">
-                <th class="ui center aligned">Nr.</th>
                 <th>Integration Flow Name</th>
                 <th>Integration Package</th>
                 <th>Status</th>
-                <th>Start Date</th>
-                <th>Start Time</th>
+                <th class="sorted ascending">Start</th>
+                <th>End</th>
             </tr>
         </thead>
         </tbody>`;
 
     // Creating a table entry for every connected artifact
-    data.forEach(function (artifact, index) {
+    data.forEach(function (artifact) {
         // Status coloring for status field
-        var statusColor = artifact.Status;
-        if (statusColor == "PROCESSING") {
-            statusColor = "yellow";
-        }
-        else if (statusColor == "FAILED") {
-            statusColor = "red";
-        }
-        else if (statusColor == "COMPLETED") {
-            statusColor = "green";
-        }
-        else if (statusColor.match(/^(ESCALATED|RETRY)$/)) {
-            statusColor = "orange";
-        }
-        else if (statusColor.match(/^(CANCELLED)$/)) {
-            statusColor = "grey";
-        }
-        else {
-            statusColor = "blue";
-        }
-
-        var date = JSON.parse(formatTimestamp(artifact.LogStart)).date;
-        var time = JSON.parse(formatTimestamp(artifact.LogStart)).time;
+        var statusColor = getStatusColor(artifact.Status);
+        var start = JSON.parse(formatTimestamp(artifact.LogStart));
+        var end = JSON.parse(formatTimestamp(artifact.LogEnd));
         var packageLink = `https://${pluginHelper.tenant}/${pluginHelper.urlExtension}shell/design/contentpackage/${artifact.IntegrationArtifact.PackageId}?section=ARTIFACTS`;
         // Displaying the currently viewed artifact differently than the connected artifacts
         // No link for currently viewed artifact (because we are already viewing it)
@@ -104,15 +87,14 @@ function createContent(data, pluginHelper) {
         var link = `https://${pluginHelper.tenant}/${pluginHelper.urlExtension}shell/design/contentpackage/${artifact.IntegrationArtifact.PackageId}/integrationflows/${artifact.IntegrationArtifact.Id}`;
         popupContentPrefix += `
             <tr class="${statusColor}">
-                <td data-label="Nr." class="ui center aligned">${index + 1}.</td>
                 <td data-label="Integration Flow Name" ${artifact.IntegrationArtifact.Id != pluginHelper.integrationFlowId
                 ? `class="selectable"><a href="${link}" target="_blank">${artifact.IntegrationArtifact.Name}</a>`
-                : `class="selectable yellow">${artifact.IntegrationArtifact.Name} (currently viewing)`}
+                : `class="yellow">${artifact.IntegrationArtifact.Name} (currently viewing)`}
                 </td>
                 <td data-label="Integration Package" class="selectable"><a href="${packageLink}" target="_blank">${artifact.IntegrationArtifact.PackageName}</a></td>
                 <td data-label="Status">${artifact.Status}</td>
-                <td data-label="Start Date">${date}</td>
-                <td data-label="Start Time">${time}</td>
+                <td data-label="Start">${start.date} ${start.time}</td>
+                <td data-label="End">${end.date} ${end.time}</td>
             </tr>`;
     });
 

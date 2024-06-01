@@ -68,7 +68,7 @@ async function getCsrfToken(showInfo = false) {
       };
       xhr.ontimeout = function () {
         log.log("getCsrfToken timeout")
-        showInfo ? showToast("CPI-Helper has run into a timeout while refreshing X-CSRF-Token.", "Please refresh site and try again.", "error") : {};
+        showInfo ? showToast("CPI-Helper has run into a timeout while refreshing X-CSRF-Token.", "Please refresh page and try again.", "error") : {};
         showInfo ? workingIndicator(false) : {};
       }
 
@@ -160,7 +160,7 @@ async function makeCallPromiseXHR(method, url, accept, payload, includeXcsrf, co
       log.log("make call promisexhr timeout")
       log.log("timeout " + new Date().toISOString())
       log.log(e.toString())
-      showInfo ? showToast("CPI-Helper has run into a timeout", "Please refresh site and try again.", "error") : {};
+      showInfo ? showToast("CPI-Helper has run into a timeout", "Please refresh page and try again.", "error") : {};
       showInfo ? workingIndicator(false) : {};
       reject({
         status: 0,
@@ -229,7 +229,7 @@ async function makeCall(type, url, includeXcsrf, payload, callback, contentType,
   xhr.ontimeout = function (e) {
     log.debug("makeCall timeout")
     log.debug(e)
-    showInfo ? showToast("CPI-Helper has run into a timeout!", "Please refresh site and try again.", "error") : {};
+    showInfo ? showToast("CPI-Helper has run into a timeout!", "Please refresh page and try again.", "error") : {};
     showInfo ? workingIndicator(false) : {};
 
   }
@@ -255,6 +255,7 @@ let absolutePath = function (href) {
 }
 
 var formatTrace = function (input, id, traceId) {
+  var tab_size = 2;
   var editorManager;
   var encodeHTML = function (str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '&#010;').replace(/'/g, "&#039;");
@@ -306,6 +307,7 @@ var formatTrace = function (input, id, traceId) {
   }
 
   var prettify = function (input, tab_size) {
+    tab_size = tab_size > 0 ? tab_size : 2;
     try {
       if (input.trim()[0] == "{" || input.trim()[0] == "[") {
         return JSON.stringify(JSON.parse(input), 1, tab_size);
@@ -317,7 +319,7 @@ var formatTrace = function (input, id, traceId) {
         return input
       }
     } catch (error) {
-      log.error(error)
+      showToast(error, "", "error")
       return input;
     }
   }
@@ -350,6 +352,14 @@ var formatTrace = function (input, id, traceId) {
     copyText(text);
   };
 
+  var themeButton = document.createElement("button");
+  themeButton.innerText = "Color Mode";
+  themeButton.onclick = (event) => editorManager.toggleTheme();
+
+  var readonlyButton = document.createElement("button");
+  readonlyButton.innerText = "Edit";
+  readonlyButton.onclick = (event) => { readonlyButton.innerText = editorManager.toggleReadOnly() ? "Edit" : "Read Only"; }
+
   var beautifyButton = document.createElement("button");
   beautifyButton.innerText = "Beautify";
   beautifyButton.onclick = (event) => {
@@ -361,7 +371,7 @@ var formatTrace = function (input, id, traceId) {
     $("#beautifyButton").text(isActive ? "Linearize" : "Beautify");
     if ($formatted.text().trim() === "") {
       editorManager = new EditorManager("cpiHelper_traceText_formatted_" + id, prettify_type(input));
-      editorManager.setContent(prettify(input))
+      editorManager.setContent(prettify(input, tab_size))
     }
   }
 
@@ -375,6 +385,8 @@ var formatTrace = function (input, id, traceId) {
   result.appendChild(copyButton);
   if (traceId) {
     result.appendChild(downloadButton);
+    result.appendChild(themeButton);
+    result.appendChild(readonlyButton);
   }
 
   var textEncoder = new TextEncoder().encode(input)
@@ -519,33 +531,105 @@ async function storageSetPromise(obj) {
   });
 }
 
-class EditorManager {
-  constructor(id, type = 'text', tabSize = 2) {
-    this.tabSize = tabSize;
-    ace.require("ace/ext/searchbox");
-    this.mode = "ace/mode/" + type;
-    this.editor = ace.edit(id, {
-      theme: "ace/theme/textmate",
-      readOnly: true,
-      fontSize: "1.2rem",
-      enableMultiselect: true,
-      mode: this.mode,
-      foldStyle: "markbegin",
-      tabSize: this.tabSize,
-      cursorStyle: "slim",
-      highlightActiveLine: true,
-      wrap: true,
-      showLineNumbers: true,
-      showGutter: true,
-      showPrintMargin: false,
-      highlightSelectedWord: true
-    });
-    this.editor.resize();
+// get from fomantic class to consume in code
+function getStatusColor(status) {
+  switch (status) {
+    case "PROCESSING": return "warning";
+    case "FAILED": return "negative";
+    case "COMPLETED": return "positive";
+    case "ESCALATED":
+    case "RETRY": return "orange";
+    case "CANCELLED": return "grey";
+    default: return "info";
   }
-  setContent(content) {
-    this.editor.setValue(content);
+}
+function getStatusIcon(status) {
+  let Icon;
+  switch (status) {
+    case "PROCESSING": Icon = "angle double right"; break;
+    case "FAILED": Icon = "times"; break;
+    case "COMPLETED": Icon = "check"; break;
+    case "ESCALATED": Icon = "exclamation"; break;
+    case "RETRY": Icon = "redo"; break;
+    case "CANCELLED": Icon = "ban"; break;
+    default: return "";
   }
-  getContent() {
-    return this.editor.getValue();
+  return `<i class="${Icon} icon"></i>`
+}
+
+function adjustColorLimiter(ihex, limit, dim, abovelimit = false) {
+  /**
+   * Adjusts a hex color based on the threshold specified by @abovelimit.
+   * If @abovelimit is true, adjusts the color darker by @dim; if false, adjusts lighter.
+   * @param {string} hexColor - The input hex color (e.g., '#RRGGBB' or '#RGB').
+   * @param {number} limit - The threshold limit for adjusting the color.
+   * @param {number} dim - The amount of lightness to adjust (positive for lighter, negative for darker).Reccomanded to use Flag.
+   * @param {boolean} abovelimit - Indicates whether to adjust the color above or below the limit.
+   * @returns {string} - The adjusted hex color.
+  */
+  let h, s, l, ohex;
+  var list = hexToHsl(ihex, true).split(" ")
+  h = parseInt(list[0]);
+  s = parseInt(list[1]);
+  l = parseInt(list[2]);
+  l = Math.max(0, Math.min((l > limit === abovelimit) ? l + dim * (abovelimit ? -1 : 1) : l, 100));
+  ohex = hslToHex(h, s, l)
+  return ohex
+}
+
+function hslToHex(h, s, l) {
+  h /= 360;
+  s /= 100;
+  l /= 100;
+  let r, g, b;
+  if (s === 0) {
+      r = g = b = l;
+  } else {
+      const hue2rgb = (p, q, t) => {
+          if (t < 0) t += 1;
+          if (t > 1) t -= 1;
+          if (t < 1 / 6) return p + (q - p) * 6 * t;
+          if (t < 1 / 2) return q;
+          if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+          return p;
+      };
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1 / 3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1 / 3);
   }
+  const toHex = x => {
+      const hex = Math.round(x * 255).toString(16);
+      return hex.length === 1 ? '0' + hex : hex;
+  };
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+function hexToHsl(hex, values = false) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  var r = parseInt(result[1], 16);
+  var g = parseInt(result[2], 16);
+  var b = parseInt(result[3], 16);
+  var cssString = '';
+  r /= 255, g /= 255, b /= 255;
+  var max = Math.max(r, g, b), min = Math.min(r, g, b);
+  var h, s, l = (max + min) / 2;
+  if (max == min) {
+      h = s = 0; // achromatic
+  } else {
+      var d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+  }
+  h = Math.round(h * 360);
+  s = Math.round(s * 100);
+  l = Math.round(l * 100);
+  cssString = values ? `${h} ${s} ${l}` : `hsl(${h}deg ${s}% ${l}%)`
+  return cssString
 }

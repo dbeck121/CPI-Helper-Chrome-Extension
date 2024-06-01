@@ -160,6 +160,16 @@ function addTenantSettings() {
         </div>
         <div>
             <div class="ui labeled input">
+                <div class="ui label">Choose an Default Log mode</div>
+                <select name="log" id="log-select" class="ui selection dropdown">
+                    <option value="warn">Warning</option>
+                    <option value="info">Info</option>
+                    <option value="log">Log</option>
+              </select>
+            </div>
+        </div>
+        <div>
+            <div class="ui labeled input">
                 <div class="ui label">Theme Color</div>
                 <input type="color" name="color" id="colorSelect"/>
             </div>
@@ -175,7 +185,6 @@ function addTenantSettings() {
                 <button data-variation="orange" data-tooltip="Orange" class="ui orange button"></button>
                 <button data-variation="yellow" data-tooltip="Yellow" class="ui yellow button"></button>
                 <button data-variation="grey" data-tooltip="Grey" class="ui grey button"></button>
-                <button data-variation="black" data-tooltip="Black" class="ui black button"></button>
             </div>
         </div>
     </div>
@@ -250,6 +259,7 @@ function addTenantSettings() {
                 <p><b>Theme Color:</b> set header color <br />
                     (we recommend that you select a darker color. If color is too light, it will automatically adjust it to a darker shade.) <br />This is to ensure that the text is readable and clear.
                 <div class="ui fitted divider"></div></p>
+                <p><b>Choose log level:</b> set log level <span class="ui green text"> Warning(Default) </span>at tab.</p><div class="ui fitted divider"></div></p>
                 <p><b>Choose icon:</b> set icon at tab.</p><div class="ui fitted divider"></div></p>
                 <p><b>Preset Themes</b> Set predefined theme for host  </p>
             </section>
@@ -273,7 +283,7 @@ function addTenantSettings() {
     </div>
     `;
     document.querySelectorAll('.preset .button').forEach(e => e.addEventListener('click', () => {
-        const preset = { "blue": "#2185d0", "green": "#21ba45", "purple": "#a333c8", "red": "#db2828", "yellow": "#fbbd08", "orange": "#f2711c", "grey": "#767676", "black": "#1b1c1d" }
+        const preset = { "blue": "#2185d0", "green": "#21ba45", "purple": "#a333c8", "red": "#db2828", "yellow": "#fbbd08", "orange": "#f2711c", "grey": "#767676" }
         const tenantColor = document.querySelector('#colorSelect');
         tenantColor.value = preset[e.getAttribute('data-variation')]
         tenantColor.dispatchEvent(new Event("change"));
@@ -302,9 +312,10 @@ function addTenantSettings() {
         document.querySelector('#tenantSettings > div:nth-child(4) > div.ui.segment').classList.toggle("hidden")//#tenantSettings>div>div:has(table)
     });
     //reset color btn
-    document.querySelector('#tenantSettings > div >div > button').addEventListener('click', () => {
+    document.querySelector('#tenantSettings > div >div > button').addEventListener('click', async () => {
         const tenantColor = document.querySelector('#colorSelect');
-        tenantColor.value = '#354a5f';
+        tenantColor.value = await callChromeStoragePromise('CPIhelperThemeInfo') ? '#ffffff' : '#354a5f';
+        console.log(tenantColor.value);
         tenantColor.dispatchEvent(new Event("change"));
     })
     //cozy-compact mode btn
@@ -363,10 +374,14 @@ function addTenantUrls() {
                             <a class="ui button" href="${host + '/shell/monitoring/Variables'}" target="_blank">Variables</a>
                             <a class="ui button" href="${host + '/shell/monitoring/MessageQueues'}" target="_blank">Message Queues</a>
                         </div>
-                        <a class="fluid ui button" href="${host + '/shell/monitoring/NumberRangeObject'}" target="_blank">Number Ranges</a>
+                        <div class="three ui buttons">
+                            <a class="fluid ui button" href="${host + '/shell/monitoring/NumberRangeObject'}" target="_blank">Number Ranges</a>
+                            <a class="fluid ui button" href="${host + '/shell/monitoring/UserRoles'}" target="_blank">User Roles</a>
+                            <a class="fluid ui button" href="${host + '/shell/monitoring/MessageUsage'}" target="_blank">Message Usage</a>                            
+                        </div>
                         <div class="ui fitted divider"></div>
                         <div class="three ui buttons">
-                            <a class="ui button" href="${host + '/shell/monitoring/AuditLog'}" target="_blank">Audit Log</a>
+                            <a class="ui button" href="${host + '/shell/monitoring/SystemLogs'}" target="_blank">System Logs</a>
                             <a class="ui button" href="${host + '/shell/monitoring/Locks'}" target="_blank">Message Locks</a>
                             <a class="ui button" href="${host + '/shell/monitoring/DesigntimeLocks'}" target="_blank">Designtime Artifact Locks</a>
                         </div>
@@ -375,10 +390,9 @@ function addTenantUrls() {
                 <div class='ui menu'>
                     <a class="ui item" href="${host + '/shell/settings'}" target="_blank"><strong>API Management</strong></a>
                     <div class="ui wrapped wrapping buttons fluid">
-                        <a class="ui button" href="${host + '/shell/configure'}" target="_blank">Configure API</a>
-                        <a class="ui button" href="${host + '/shell/develop'}" target="_blank">Design API</a>
-                        <a class="ui button" href="${host + '/shell/testconsole'}" target="_blank">Test API</a>
-                        <a class="ui button" href="${host + '/shell/analytics'}" target="_blank">Analyze API</a> 
+                        <a class="ui button" href="${host + '/shell/configure'}" target="_blank">Configure APIs</a>
+                        <a class="ui button" href="${host + '/shell/testconsole'}" target="_blank">Test APIs</a>
+                        <a class="ui button" href="${host + '/shell/analytics'}" target="_blank">Analyze APIs</a> 
                     </div>
                 </div>
                 <div class='ui menu'>
@@ -390,6 +404,7 @@ function addTenantUrls() {
                         <a class="ui button" href="${host + '/shell/tpm/agreements'}" target="_blank">Agreements</a>                                                
                         <a class="ui button" href="${host + '/shell/tpm/tradingPartners'}" target="_blank">Trading Partners</a>                                                
                         <a class="ui button" href="${host + '/shell/tpm/pdContent'}" target="_blank">Partner Directory Data</a>
+                        <a class="ui button" href="${host + '/shell/tpm/crossActions'}" target="_blank">Cross Actions</a>                        
                     </div>
                 </div>
                 <div class='ui menu'>
@@ -489,6 +504,7 @@ function tenantIdentityChanges() {
         let tenantName = document.querySelector('#tenantName')
         let tenantColor = document.querySelector('#colorSelect')
         let tenantIcon = document.querySelector('#icon-select')
+        let tenantLog = document.querySelector('#log-select')
         let tenantCount = document.querySelector('#setCount')
         let popupcolor = document.querySelector(':root')
         let timeoutId;
@@ -500,9 +516,16 @@ function tenantIdentityChanges() {
             if (response) {
                 tenantName.value = hostData.title = response.title;
                 tenantColor.value = hostData.color = response.color;
-                tenantIcon.value = hostData.icon = response.icon
+                tenantIcon.value = hostData.icon = response.icon;
+                tenantLog.value = hostData.loglevel = response.loglevel;
                 tenantCount.value = hostData.count = response.count
-                popupcolor.style.setProperty('--cpi-custom-color', hostData.color = response.color);
+                chrome.storage.sync.get("CPIhelperThemeInfo", (theme) => {
+                    tenantColor.value = hostData.color = adjustColorLimiter(tenantColor.value, !(theme['CPIhelperThemeInfo']) ? 80 : 20, 25, !(theme['CPIhelperThemeInfo']));
+                    tenantColor.dispatchEvent(new Event("change"));
+                    console.log(tenantColor.value);
+                    popupcolor.style.setProperty('--cpi-text-color', !(theme['CPIhelperThemeInfo']) ? '#ffffff' : '#000000');
+                    popupcolor.style.setProperty('--cpi-custom-color', tenantColor.value);
+                });
             }
         });
 
@@ -529,18 +552,27 @@ function tenantIdentityChanges() {
         })
 
         // Update color on change
-        tenantColor.addEventListener('change', () => {
+        tenantColor.addEventListener('change', async () => {
             // custom filter skip
-            tenantColor.value = adjustColorLimiter(tenantColor.value, 80, 10)
+            let theme = await callChromeStoragePromise("CPIhelperThemeInfo")
+            tenantColor.value = adjustColorLimiter(tenantColor.value, !theme ? 80 : 20, 25, !theme)
             hostData.color = tenantColor.value
             console.log(tenantColor.value)
             // set popup.html header
             popupcolor.style.setProperty('--cpi-custom-color', tenantColor.value);
+            popupcolor.style.setProperty('--cpi-text-color', theme ? '#000000' : '#ffffff');
             chrome.tabs.sendMessage(tab.id, { save: hostData }, (response) => {
                 console.dir(response);
             })
         })
-
+        //Default log change on input
+        tenantLog.addEventListener('input', () => {
+            hostData.loglevel = tenantLog.value
+            console.log(tenantLog.value)
+            chrome.tabs.sendMessage(tab.id, { save: hostData }, (response) => {
+                console.dir(response);
+            })
+        })
         // Update icon on input
         tenantIcon.addEventListener('input', () => {
             hostData.icon = tenantIcon.value
@@ -551,18 +583,26 @@ function tenantIdentityChanges() {
     })
 }
 
-function adjustColorLimiter(ihex, perct, dim, lightness = true) {
-    // color = #hex input only
+function adjustColorLimiter(ihex, limit, dim, abovelimit = false) {
+    /**
+     * Adjusts a hex color based on the threshold specified by @abovelimit.
+     * If @abovelimit is true, adjusts the color darker by @dim; if false, adjusts lighter.
+     * @param {string} hexColor - The input hex color (e.g., '#RRGGBB' or '#RGB').
+     * @param {number} limit - The threshold limit for adjusting the color.
+     * @param {number} dim - The amount of lightness to adjust (positive for lighter, negative for darker).Reccomanded to use Flag.
+     * @param {boolean} abovelimit - Indicates whether to adjust the color above or below the limit.
+     * @returns {string} - The adjusted hex color.
+    */
     let h, s, l, ohex;
     var list = hexToHsl(ihex, true).split(" ")
     h = parseInt(list[0]);
     s = parseInt(list[1]);
     l = parseInt(list[2]);
-    if (lightness) { dim *= -1 }
-    if (l >= perct) { l += dim }
+    l = Math.max(0, Math.min((l > limit === abovelimit) ? l + dim * (abovelimit ? -1 : 1) : l, 100));
     ohex = hslToHex(h, s, l)
     return ohex
 }
+
 function hslToHex(h, s, l) {
     h /= 360;
     s /= 100;
@@ -591,6 +631,7 @@ function hslToHex(h, s, l) {
     };
     return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
+
 function hexToHsl(hex, values = false) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     var r = parseInt(result[1], 16);
@@ -618,6 +659,7 @@ function hexToHsl(hex, values = false) {
     cssString = values ? `${h} ${s} ${l}` : `hsl(${h}deg ${s}% ${l}%)`
     return cssString
 }
+
 async function storageGetPromise(name) {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get([name], function (result) {
@@ -637,6 +679,31 @@ async function statistic(event, value = null, value2 = null) {
         console.log(e)
     }
 }
+
+function callChromeStoragePromise(key) {
+    return new Promise(async function (resolve, reject) {
+        var input = key ? [key] : null;
+        chrome.storage.sync.get(input, function (storage) {
+            if (!key) {
+                resolve(storage);
+                console.log("callChromeStoragePromise response: ", storage)
+            }
+            resolve(storage[key]);
+        });
+    });
+}
+
+// on change chrome storage triggers change of color..
+chrome.storage.onChanged.addListener((changes, namespace) => {
+    for (var key in changes) {
+        console.log(key, changes[key]);
+        if (key === "CPIhelperThemeInfo") {
+            var theme = changes[key];
+            document.querySelector('#colorSelect').dispatchEvent(new Event("change"));
+            document.querySelector(':root').style.setProperty('--cpi-text-color', theme ? '#000000' : '#ffffff');
+        }
+    }
+});
 
 async function main() {
     checkUpdate();

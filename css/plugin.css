@@ -1,3 +1,9 @@
+/* 
+The CSS library is designed for general application across the website and is not dependent on the activation of any specific plugin.
+Its separation from the main CSS script is to facilitate easier debugging.
+Users are encouraged to integrate this library with care to ensure compatibility with their site's existing styles and features.
+*/
+
 /* traceModifer Css */
 .traceModifer .fluid {
     background: #ff8282;
@@ -15,6 +21,30 @@
     text-decoration: none;
 }
 
+#timelinetable th:hover {
+    color: rgba(128, 128, 128, 0.9) !important;
+}
+
 #timelinetable td:has(a):hover {
     background: rgba(0, 0, 0, 0.1) !important
+}
+
+[id $="--iflowPropLayout"] textarea:not([id^='Description']) {
+    min-height: 10vh;
+    resize: vertical;
+    max-height: 70vh;
+}
+
+/* improve labels spacing in plugin stetings */ 
+.ui[class*="pointing below"].label {
+    margin-top: 20px;
+}
+.inputbox-spacing {
+    margin: 10px;
+    margin-bottom: 10px;
+    margin-top: 0px;
+}
+
+.credentialHelperDropdown-item:hover {
+    background-color: rgba(190, 190, 190, 0.9) !important;
 }

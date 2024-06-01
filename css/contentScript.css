@@ -1,7 +1,9 @@
 /*root filter*/
 :root {
-  --cpi-custom-color: #354a5f;
-  --cpi-background-color: #fff;
+  --cpi-custom-color: #2185d0;
+  --cpi-background-color: #ffffff;
+  --cpi-fui-active-color: #00144a; /* constant color  =  Don't overwrite this*/
+  --cpi-text-color:#000000;
 }
 
 /* whats new */
@@ -14,19 +16,14 @@
 
 /* start working indicator */
 #cpiHelper_workingIndicator {
-  visibility: hidden;
   min-width: 10px;
-  margin-left: -125px;
-  color: var(--cpi-background-color);
-  position: fixed;
+  color: var(--cpi-custom-color);
+  position: absolute;
   z-index: 500;
-  right: 10%;
-  bottom: 30px;
-  font-size: 17px;
-}
-
-#cpiHelper_workingIndicator.cpiHelper_workingIndicator_show {
-  visibility: visible;
+  min-height: 10px;
+  font-size: 1.5rem;
+  right: 2%;
+  bottom: 4%;
 }
 
 /* end working indicator */
@@ -81,8 +78,8 @@
 
 .cpiHelper button.cpiHelper_inlineInfo-active,
 .cpiHelper button.cpiHelper_plugin-active {
-  background: var(--cpi-custom-color);
-  color: var(--cpi-background-color);
+  background: var(--cpi-fui-active-color);
+  color: var(--cpi-text-color);
 }
 
 .cpiHelper button:active {
@@ -96,7 +93,7 @@
 .cpiHelper button.cpiHelper_sidebar_iconbutton,
 button.cpiHelper_sidebar_iconbutton span {
   cursor: pointer;
-  background-color: var(--cpi-custom-color);
+  background-color: var(--cpi-fui-active-color);
   color: var(--cpi-background-color) !important;
   outline: none;
 }
@@ -157,18 +154,12 @@ button.cpiHelper_sidebar_iconbutton span {
   border-radius: 0px 0px 5px 5px;
 }
 
-/* show more button arranged vertically / tbd
-  .cpiHelper button#showmore {
-    margin-left: 35px;
-  }
-  */
-
 #cpiHelper_content {
   position: fixed;
   z-index: 400;
   background: var(--cpi-background-color);
-  top: 120px;
-  right: 50px;
+  top: 9rem;
+  right: 5rem;
   width: fit-content;
   border: 0;
   border-radius: 10px;
@@ -192,7 +183,7 @@ button.cpiHelper_sidebar_iconbutton span {
   font-weight: bold;
   z-index: 10;
   background-color: var(--cpi-custom-color);
-  color: var(--cpi-background-color);
+  color: var(--cpi-text-color);
   box-sizing: border-box;
   border-radius: 5px 5px 0px 0px;
   display: flex;
@@ -546,5 +537,13 @@ fieldset {
 
 .ui.modal.active>.header {
   background: var(--cpi-custom-color);
-  color: var(--cpi-background-color);
+  color: var(--cpi-text-color);
+}
+
+.ui.selection.dropdown .menu>.item {
+  min-height: 0 !important;
+}
+
+.ui.modal>.content {
+  color: #000;
 }

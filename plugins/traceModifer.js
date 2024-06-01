@@ -21,13 +21,13 @@ clearalldata = () => {
 var plugin = {
     metadataVersion: "1.0.0",
     id: "traceModifer",
-    name: "Trace Step Modifier (Beta)",
+    name: "Performance stats | Trace Step (Beta)",
     version: "1.5.0",
     author: "Developed by Omkar",
     email: "omk14p@outlook.com",
     website: "https://incpi.github.io",
     description: `New Feature: Performance Statatics checkbox to enable inline trace.<br>The CPI Helper plugin lets developers use trace step modifiers in integration flows.<br/>
-     But be careful: the plugin changes the global variable you set for each flow. it will use global instead if input is blank. <a href="https://incpi.github.io/cpihelper-plugin/">Read More</a>`,
+     But be careful: the plugin changes the global variable you set for each flow. it will use global instead if input is blank. <a href="https://incpi.github.io/cpihelper-plugin/" target='_blank'>Read More</a>`,
     settings: {
         "detail": {
             "type": "text", "class": "ui fluid segment", "text": "Set null which will use global.<br/>Set Global (Scope: browser)<br/>Set flow modifer count (Scope: Iflow)"
@@ -42,6 +42,15 @@ var plugin = {
         "static": true,
         "onRender": (pluginHelper, settings) => {
             var div = document.createElement("div");
+            var stats = document.createElement("div");
+            stats.classList = "traceModifer"
+            stats.innerHTML += `
+            <div class="ui buttons fluid segment">
+                <label class="ui violet mini circular left bottom floating label">MIN</label>
+                <label class="ui red mini circular right bottom floating label">MAX</label>
+            </div>`
+            div.appendChild(stats);
+            div.innerHTML += `<div class="ui divider"></div>`
             var inputtrace = document.createElement("div");
             inputtrace.classList = "ui mini fluid input"
             inputtrace.innerHTML = `<input type="number" id="traceModifer_${pluginHelper.currentArtifactId}" placeholder="Global"  min="0" name="cpi_traceModifer_mode"><br/>`;
@@ -62,17 +71,9 @@ var plugin = {
                 } else {
                     chrome.storage.local.set(JSON.parse(`{ "traceModifer_${pluginHelper.currentArtifactId}":"${data}"}`))
                 }
+                log.debug('set',data)
             })
             div.appendChild(inputtrace)
-            div.innerHTML += `<div class="ui divider"></div>`
-            var stats = document.createElement("div");
-            stats.classList = "traceModifer"
-            stats.innerHTML += `
-            <div class="ui buttons fluid segment">
-                <label class="ui violet mini circular left bottom floating label">MIN</label>
-                <label class="ui red mini circular right bottom floating label">MAX</label>
-            </div>`
-            div.appendChild(stats);
             return div;
         }
     },
@@ -95,7 +96,7 @@ var plugin = {
             }
         },
         "condition": (pluginHelper, settings, runInfo) => {
-            return runInfo.logLevel === "trace";
+            return  runInfo.logLevel === "trace";
         },
     },
 };

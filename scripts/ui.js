@@ -1,25 +1,11 @@
 function workingIndicator(status) {
-  //  log.log(`CPI-Helper show indicator: $status`)
-  //css for snackbar is already there. see initIflowPage()
-
+  // log.log(`CPI-Helper show indicator: $status`)
   //create snackbar div element
-  if (status) {
-    var x = document.getElementById("cpiHelper_workingIndicator");
-    if (!x) {
-      x = document.createElement('div');
-      x.id = "cpiHelper_workingIndicator";
-      document.body.appendChild(x);
-    }
-
-    x.className = "cpiHelper_workingIndicator_show dot-flashing";
-  } else {
-
-    var x = document.getElementById("cpiHelper_workingIndicator");
-    if (x) {
-      x.className = x.className.replace("cpiHelper_workingIndicator_show", "");
-      x.className = x.className.replace("dot-flashing", "");
-    }
+  if (!document.querySelector("#cpiHelper_workingIndicator")) {
+    document.body.appendChild(createElementFromHTML(`<i id='cpiHelper_workingIndicator' class='sync alternate loading icon' hidden></i>`))
   }
+  var x = $("#cpiHelper_workingIndicator");
+  status ? x.removeAttr('hidden') : x.attr('hidden', '');
 }
 
 //snackbar for messages (e.g. trace is on)
@@ -52,7 +38,7 @@ async function showBigPopup(content, header, parameters = { fullscreen: true, ca
 
   var textElement = `
   <div>
-  <i class="close icon" style="color: #fff;"></i>
+  <i class="close icon" style="color:var(--cpi-text-color);"></i>
     <div class="header">
       CPI Helper ${header}
     </div>
