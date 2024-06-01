@@ -520,7 +520,7 @@ function tenantIdentityChanges() {
                 tenantLog.value = hostData.loglevel = response.loglevel;
                 tenantCount.value = hostData.count = response.count
                 chrome.storage.sync.get("CPIhelperThemeInfo", (theme) => {
-                    tenantColor.value = hostData.color = adjustColorLimiter(tenantColor.value, 80, 20, !(theme['CPIhelperThemeInfo']));
+                    tenantColor.value = hostData.color = adjustColorLimiter(tenantColor.value, !(theme['CPIhelperThemeInfo']) ? 80 : 20, 25, !(theme['CPIhelperThemeInfo']));
                     tenantColor.dispatchEvent(new Event("change"));
                     console.log(tenantColor.value);
                     popupcolor.style.setProperty('--cpi-text-color', !(theme['CPIhelperThemeInfo']) ? '#ffffff' : '#000000');
@@ -555,7 +555,7 @@ function tenantIdentityChanges() {
         tenantColor.addEventListener('change', async () => {
             // custom filter skip
             let theme = await callChromeStoragePromise("CPIhelperThemeInfo")
-            tenantColor.value = adjustColorLimiter(tenantColor.value, 80, 20, !theme)
+            tenantColor.value = adjustColorLimiter(tenantColor.value, !theme ? 80 : 20, 25, !theme)
             hostData.color = tenantColor.value
             console.log(tenantColor.value)
             // set popup.html header

@@ -5,7 +5,7 @@
   let observerIntervalId; // used to attach a MutationObserver callback
   var hostData = {
     title: 'Cloud Integration',
-    color: '#ffffff',
+    color: '#354a5f',
     icon: 'default',
     loglevel: 'warn',
     maxcount: 20, //max number fetch
@@ -178,9 +178,10 @@
       header.style.backgroundColor = color
       //sync header with popup header
       const root = document.querySelector(':root');
-      root.style.setProperty('--cpi-custom-color', color);
+      let theme = ($('html').hasClass('sapUiTheme-sap_horizon'))
+      root.style.setProperty('--cpi-custom-color', adjustColorLimiter(color, theme ? 20 : 80, 25, theme));
       chrome.storage.sync.get("CPIhelperThemeInfo", (theme) => {
-        root.style.setProperty('--cpi-text-color', theme['CPIhelperThemeInfo'] ? '#000000' : '#ffffff');
+        root.style.setProperty('--cpi-text-color', !theme['CPIhelperThemeInfo'] ? '#ffffff' : '#000000');
       });
       // Set the theme color meta tag
       let themeColorElement = document.querySelector("meta[name='theme-color']");
