@@ -3,6 +3,7 @@
   --cpi-custom-color: #2185d0;
   --cpi-background-color: #ffffff;
   --cpi-fui-active-color: #00144a; /* constant color  =  Don't overwrite this*/
+  --cpi-text-color:#000000;
 }
 
 /* whats new */
@@ -78,7 +79,7 @@
 .cpiHelper button.cpiHelper_inlineInfo-active,
 .cpiHelper button.cpiHelper_plugin-active {
   background: var(--cpi-fui-active-color);
-  color: var(--cpi-custom-color);
+  color: var(--cpi-text-color);
 }
 
 .cpiHelper button:active {

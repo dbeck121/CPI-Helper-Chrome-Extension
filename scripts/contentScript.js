@@ -1875,7 +1875,7 @@ async function storeVisitedIflowsForPopup() {
           //filter out the current flow
           if (visitedIflows.length > 0) {
             visitedIflows = visitedIflows.filter((element) => {
-              return !(element.name == `${cpiArtifactId} ` && dataRegexp[1] == element.type);
+              return !(element.name == String(cpiArtifactId) && dataRegexp[1] == element.type);
             });
           }
 
@@ -1885,7 +1885,7 @@ async function storeVisitedIflowsForPopup() {
           }
 
           //put the current flow to the last element. last position indicates last visited element
-          visitedIflows.push({ name: `${cpiArtifactId} `, "url": document.location.href + urlext, "favorit": false, "type": `${dataRegexp[1]} ` });
+          visitedIflows.push({ name: `${cpiArtifactId}`, "url": document.location.href + urlext, "favorit": false, "type": `${dataRegexp[1]}` });
 
           //delete the first one when there are more than 10 iflows in visited list
           if (visitedIflows.length > 15) {
