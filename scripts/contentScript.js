@@ -1325,11 +1325,11 @@ var sidebar = {
     this.active = true;
     var elem = document.createElement('div');
     elem.innerHTML = `
-    <div id="cpiHelper_contentheader" style="background-color:${hostData.color}" content="${hostData.count}" >
+    <div id="cpiHelper_contentheader" style="background-color:${hostData.color};color:var(--cpi-text-color)" content="${hostData.count}" >
       <span id='sidebar_modal_minimize' class='cpiHelper_closeButton_sidebar'>CPI Helper</span>
       <span id='sidebar_modal_close' data-sap-ui-icon-content="&#xe03e" class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>
     </div>
-    <div id="outerFrame" style="color: black;">
+    <div id="outerFrame" style="color:black;">
       <div>
         <div id="updatedText" class="contentText"></div>
         <div id="deploymentText" class="contentText">State: </div>
@@ -1483,7 +1483,7 @@ async function popupTable(message) {
 
   if (data.errors.length > 0 || data.property.length > 0) {
     popupHTML += `<tr><td colspan="2" style="height: 10vh; padding: 0;">
-      <div class="ui fluid scrolling segment" style="width: unset;">`;
+      <div class="ui fluid scrolling segment" style="text-wrap: pretty;width: unset;word-break: break-word;">`;
     if (data.property.length > 0) {
       popupHTML += data.property.join('<br>');
     }
@@ -1875,7 +1875,7 @@ async function storeVisitedIflowsForPopup() {
           //filter out the current flow
           if (visitedIflows.length > 0) {
             visitedIflows = visitedIflows.filter((element) => {
-              return !(element.name == `${cpiArtifactId} ` && dataRegexp[1] == element.type);
+              return !(element.name == String(cpiArtifactId) && dataRegexp[1] == element.type);
             });
           }
 
@@ -1885,7 +1885,7 @@ async function storeVisitedIflowsForPopup() {
           }
 
           //put the current flow to the last element. last position indicates last visited element
-          visitedIflows.push({ name: `${cpiArtifactId} `, "url": document.location.href + urlext, "favorit": false, "type": `${dataRegexp[1]} ` });
+          visitedIflows.push({ name: `${cpiArtifactId}`, "url": document.location.href + urlext, "favorit": false, "type": `${dataRegexp[1]}` });
 
           //delete the first one when there are more than 10 iflows in visited list
           if (visitedIflows.length > 15) {
@@ -1944,7 +1944,10 @@ setInterval(async function () {
     buildButtonBar();
     addBreadcrumbs();
   }
-
+  // theme information synchronous storage
+  if (callChromeStoragePromise('CPIhelperThemeInfo') !== ($('html').hasClass('sapUiTheme-sap_horizon'))) {
+    await syncChromeStoragePromise("CPIhelperThemeInfo", ($('html').hasClass('sapUiTheme-sap_horizon')))
+  }
   log.debug("check for button bar");
   try {
     navigationButton()
