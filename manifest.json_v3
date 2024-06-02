@@ -1,21 +1,22 @@
 {
   "name": "SAP CPI Helper",
   "short_name": "CPI Helper",
-  "version": "2.8.1",
+  "version": "3.14.0",
   "description": "Extends the SAP Cloud Platform Integration with some useful features to improve usability.",
   "author": "Dominic Beckbauer",
   "homepage_url": "https://github.com/dbeck121/CPI-Helper-Chrome-Extension",
   "host_permissions": [
     "https://*.hana.ondemand.com/itspaces",
     "https://*.platform.sapcloud.cn/itspaces",
-    "https://*.hana.ondemand.com/shell"
+    "https://*.hana.ondemand.com/shell",
+    "https://*.platform.sapcloud.cn/itspaces"
   ],
   "permissions": [
     "storage",
     "webRequest"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background/background.js"
   },
   "content_scripts": [
     {
@@ -23,61 +24,79 @@
         "https://*.hana.ondemand.com/shell/design/*",
         "https://*.hana.ondemand.com/itspaces/*",
         "https://*.hana.ondemand.com/shell/*",
-        "https://*.platform.sapcloud.cn/itspaces/*"
+        "https://*.platform.sapcloud.cn/itspaces/*",
+        "https://*.platform.sapcloud.cn/shell/*"
+        
       ],
-      "js": [
-        "/lib/prettify/prettify.js",
-        "/lib/prettify/prettify-sql.js",
+       "js": [
+        "/lib/ulog/ulog-full.min.js",
+        "/lib/ace/ace.min.js",
+        "/lib/ace/ext-searchbox.js",
+        "/lib/ace/theme-textmate.js",
+        "/lib/ace/theme-github_dark.js",
+        "/lib/ace/mode-json.js",
+        "/lib/ace/mode-sql.js",
+        "/lib/ace/mode-text.js",
+        "/lib/ace/mode-xml.js",
+        "/lib/ace/ace.js",
         "/lib/jszip/jszip.min.js",
-        "/scripts/identify-tenant.js",
         "/lib/xmlToJson/xmlToJson.js",
         "/lib/jQuery/jquery.min.js",
         "/lib/semanticui/semantic.min.js",
         "/lib/semanticui/tablesort.js",
+        "/common/logging.js",
+        "/common/tools.js",
+        "/scripts/identify-tenant.js",
         "/plugins/run.js",
+        "/plugins/simplenotepad.js",
+        "/plugins/reference.js",
         "/plugins/undeploy.js",
         "/plugins/unlock.js",
         "/plugins/credentialHelper.js",
         "/plugins/cpitransporter.js",
         "/plugins/figaf.js",
         "/plugins/OpenAIServices.js",
+        "/plugins/WHINT_IFD.js",
         "/plugins/settingsPaneResizer.js",
         "/plugins/timeline.js",
+        "/plugins/traceModifer.js",
+        "/plugins/example.js",
         "/scripts/ui.js",
-        "/scripts/tools.js",
         "/scripts/logs.js",
-        "/scripts/whatsNew.js",
+        "/whatsNew/whatsNewLog.js",
+        "/whatsNew/whatsNew.js",
         "/scripts/plugins.js",
+        "/scripts/Mode-Script.js",
         "/scripts/contentScript.js"
       ],
       "css": [
-        "/lib/prettify/prettify.css",
-        "/lib/threeDots/three-dots.min.css",
         "/lib/semanticui/semantic.min.css",
-        "contentScript.css"
+        "/css/contentScript.css",
+        "/css/plugin.css"
       ]
     }
   ],
   "action": {
-    "default_popup": "popup.html",
+    "default_popup": "popup/popup.html",
     "default_icon": {
-      "16": "images/cpi_helper16_full.png",
-      "32": "images/cpi_helper32_full.png",
-      "48": "images/cpi_helper48_full.png",
-      "128": "images/cpi_helper128_full.png"
+      "16": "images/v4/16.png",
+      "32": "images/v4/32.png",
+      "48": "images/v4/48.png",
+      "128": "images/v4/128.png"
     }
   },
   "icons": {
-    "16": "images/cpi_helper16_full.png",
-    "32": "images/cpi_helper32_full.png",
-    "48": "images/cpi_helper48_full.png",
-    "128": "images/cpi_helper128_full.png"
+      "16": "images/v4/16.png",
+      "32": "images/v4/32.png",
+      "48": "images/v4/48.png",
+      "128": "images/v4/128.png"
   },
   "web_accessible_resources": [
     {
       "resources": [
         "images/favicons/*.png",
-        "lib/semanticui/*"
+        "lib/semanticui/*",
+        "images/*"
       ],
       "matches": [
         "https://*.hana.ondemand.com/*",

@@ -1,5 +1,11 @@
 #!/bin/bash
 
+MANIFEST_V3="manifest.json_v3"
+if [ -f "$MANIFEST_V3" ]; then
+    echo "Please make sure we release only manifest v3. Current version is probably not v3."
+    exit 1
+fi
+
 echo "Copy readme to docs..."
 cp README.md docs/readme/README.md
 # copy paste readme root->docs
