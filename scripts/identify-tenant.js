@@ -173,26 +173,22 @@
   }
 
   function setHeaderColor(color) {
-    let header = document.querySelector('#shell--toolHeader')
-    if (header && header.style && header.style.backgroundColor !== color) {
-      header.style.backgroundColor = color
-      //sync header with popup header
-      const root = document.querySelector(':root');
-      let theme = ($('html').hasClass('sapUiTheme-sap_horizon'))
-      root.style.setProperty('--cpi-custom-color', adjustColorLimiter(color, theme ? 20 : 80, 25, theme));
-      chrome.storage.sync.get("CPIhelperThemeInfo", (theme) => {
-        root.style.setProperty('--cpi-text-color', !theme['CPIhelperThemeInfo'] ? '#ffffff' : '#000000');
-      });
-      // Set the theme color meta tag
-      let themeColorElement = document.querySelector("meta[name='theme-color']");
-      if (themeColorElement) {
-        themeColorElement.content = color;
-      } else {
-        let newElement = document.createElement('meta');
-        newElement.name = 'theme-color';
-        newElement.content = color;
-        document.head.appendChild(newElement);
-      }
+    //sync header with popup header
+    const root = document.querySelector(':root');
+    let theme = ($('html').hasClass('sapUiTheme-sap_horizon'))
+    root.style.setProperty('--cpi-custom-color', adjustColorLimiter(color, !theme ? 80 : 20, 25, !theme));
+    chrome.storage.sync.get("CPIhelperThemeInfo", (theme) => {
+      root.style.setProperty('--cpi-text-color', !theme['CPIhelperThemeInfo'] ? '#ffffff' : '#000000');
+    });
+    // Set the theme color meta tag
+    let themeColorElement = document.querySelector("meta[name='theme-color']");
+    if (themeColorElement) {
+      themeColorElement.content = color;
+    } else {
+      let newElement = document.createElement('meta');
+      newElement.name = 'theme-color';
+      newElement.content = color;
+      document.head.appendChild(newElement);
     }
   }
 

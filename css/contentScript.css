@@ -27,6 +27,10 @@
 }
 
 /* end working indicator */
+#shell--toolHeader{
+  background:var(--cpi-custom-color);
+}
+
 .cpiHelper table#messageList {
   border: 0px;
   background: none;
@@ -79,7 +83,7 @@
 .cpiHelper button.cpiHelper_inlineInfo-active,
 .cpiHelper button.cpiHelper_plugin-active {
   background: var(--cpi-fui-active-color);
-  color: var(--cpi-text-color);
+  color: #ffffff;
 }
 
 .cpiHelper button:active {
@@ -188,6 +192,7 @@ button.cpiHelper_sidebar_iconbutton span {
   border-radius: 5px 5px 0px 0px;
   display: flex;
   justify-content: space-between;
+  border : 1px solid black;
 }
 
 .cpiHelper .contentText {
