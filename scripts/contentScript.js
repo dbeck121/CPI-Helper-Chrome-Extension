@@ -1987,7 +1987,7 @@ setInterval(async function () {
 
   //check if trace should be refreshed again
   //check if value in storage exists and time is longer than 9 (overlap) and less than 20 minutes (upper limit in order to not auto-reactivate the trace after a longer break)
-  var objName = `${cpiData.integrationFlowId} _powertraceLastRefresh`
+  var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`
   var timeAsStringOrNull = await storageGetPromise(objName)
   if (timeAsStringOrNull != null && timeAsStringOrNull != undefined) {
     var now = new Date().getTime()
