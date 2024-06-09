@@ -10,7 +10,6 @@ var plugin = {
     settings: {
     },
     heartbeat:  async (pluginHelper, settings) => {
-        console.log("Apache Camel Update Message Remover is running");
         const dialogText = "Apache Camel 3.14 runtime will soon replace the existing 2.24 version.";
         const dialogs = document.querySelectorAll('div[role="dialog"]');
         dialogs.forEach(dialog => {

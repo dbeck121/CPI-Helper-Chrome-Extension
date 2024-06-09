@@ -61,6 +61,7 @@
         "/plugins/timeline.js",
         "/plugins/traceModifer.js",
         "/plugins/example.js",
+        "/plugins/removeApacheUpdateMessage.js",
         "/scripts/ui.js",
         "/scripts/logs.js",
         "/whatsNew/whatsNewLog.js",
