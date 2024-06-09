@@ -1325,7 +1325,7 @@ var sidebar = {
     this.active = true;
     var elem = document.createElement('div');
     elem.innerHTML = `
-    <div id="cpiHelper_contentheader" style="background-color:${hostData.color};color:var(--cpi-text-color)" content="${hostData.count}" >
+    <div id="cpiHelper_contentheader" style="color:var(--cpi-text-color)" content="${hostData.count}" >
       <span id='sidebar_modal_minimize' class='cpiHelper_closeButton_sidebar'>CPI Helper</span>
       <span id='sidebar_modal_close' data-sap-ui-icon-content="&#xe03e" class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>
     </div>
@@ -1336,7 +1336,7 @@ var sidebar = {
         <div><table id="messageList" class="contentText"></table></div>
       </div>
     </div>
-    <div id="cpiHelper_messageSidebar_pluginArea" class="ui vertical fluid menu cpiHelper_hidden"> 
+    <div id="cpiHelper_messageSidebar_pluginArea" class="ui vertical fluid menu cpiHelper_hidden" style="color:#000"> 
       <div class="ui centered header cpiHelper_hidden">
       <div class="content">Plugin Page</div>
       <span data-sap-ui-icon-content="&#xe03e" class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>
@@ -1987,7 +1987,7 @@ setInterval(async function () {
 
   //check if trace should be refreshed again
   //check if value in storage exists and time is longer than 9 (overlap) and less than 20 minutes (upper limit in order to not auto-reactivate the trace after a longer break)
-  var objName = `${cpiData.integrationFlowId} _powertraceLastRefresh`
+  var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`
   var timeAsStringOrNull = await storageGetPromise(objName)
   if (timeAsStringOrNull != null && timeAsStringOrNull != undefined) {
     var now = new Date().getTime()
