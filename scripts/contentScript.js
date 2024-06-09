@@ -2010,4 +2010,8 @@ setInterval(async function () {
   if (sidebar.active == false) {
     nextMessageSidebarRefreshCount = 0;
   }
+
+  //run heartbeat function of plugins
+  runPluginHeartbeat();
+
 }, 3000);

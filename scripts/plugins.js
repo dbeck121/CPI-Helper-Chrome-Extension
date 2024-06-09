@@ -287,6 +287,17 @@ async function createPluginPopupUI(plugin) {
     return container;
 }
 
+async function runPluginHeartbeat() {
+    for (var plugin of pluginList) {
+        var settings = await getPluginSettings(plugin.id);
+        if (settings[plugin.id + "---isActive"] === true) {
+            if (plugin["heartbeat"]) {
+                await plugin["heartbeat"](plugin, settings);
+            }
+        }
+    }
+}
+
 //creates the content for the plugin popup
 async function createContentNodeForPlugins() {
 
