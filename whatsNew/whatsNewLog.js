@@ -38,10 +38,6 @@ const whats_new_log = [
         "description": "Can select default log level at extension page. Special thanks to <a target='_blank' href='https://github.com/incpi'>Omkar Patel</a>",
     },
     {
-        "header": "Plugin",
-        "description": "Apache Camel Update Message Remover - get rid of the annoying update message"
-    },
-    {
         "header": "BugFix",
         "description": "Many general UI and bug fixes"
     }

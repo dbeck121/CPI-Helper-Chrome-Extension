@@ -1,30 +1,22 @@
 {
-  "applications": {
-    "gecko": {
-      "id": "cpi_helper@dbeck121"
-    }
-  },
   "name": "SAP CPI Helper",
   "short_name": "CPI Helper",
   "version": "3.13.1",
   "description": "Extends the SAP Cloud Platform Integration with some useful features to improve usability.",
   "author": "Dominic Beckbauer",
   "homepage_url": "https://github.com/dbeck121/CPI-Helper-Chrome-Extension",
-  "permissions": [
-    "declarativeContent",
-    "storage",
+  "host_permissions": [
     "https://*.hana.ondemand.com/itspaces",
     "https://*.platform.sapcloud.cn/itspaces",
     "https://*.hana.ondemand.com/shell",
-    "https://*.platform.sapcloud.cn/shell",
+    "https://*.platform.sapcloud.cn/itspaces"
+  ],
+  "permissions": [
+    "storage",
     "webRequest"
   ],
   "background": {
-    "scripts": [
-      "background/background.js",
-      "background/hot-reload.js"
-    ],
-    "persistent": true
+    "service_worker": "background/background.js"
   },
   "content_scripts": [
     {
@@ -33,9 +25,10 @@
         "https://*.hana.ondemand.com/itspaces/*",
         "https://*.hana.ondemand.com/shell/*",
         "https://*.platform.sapcloud.cn/itspaces/*",
-        "https://*.platform.sapcloud.cn/shell"
+        "https://*.platform.sapcloud.cn/shell/*"
+        
       ],
-      "js": [
+       "js": [
         "/lib/ulog/ulog-full.min.js",
         "/lib/ace/ace.min.js",
         "/lib/ace/ext-searchbox.js",
@@ -68,7 +61,6 @@
         "/plugins/timeline.js",
         "/plugins/traceModifer.js",
         "/plugins/example.js",
-        "/plugins/removeApacheUpdateMessage.js",
         "/scripts/ui.js",
         "/scripts/logs.js",
         "/whatsNew/whatsNewLog.js",
@@ -84,32 +76,33 @@
       ]
     }
   ],
-  "page_action": {
+  "action": {
     "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "images/v4/16.png",
       "32": "images/v4/32.png",
       "48": "images/v4/48.png",
       "128": "images/v4/128.png"
-    },
-    "show_matches": [
-      "https://*.hana.ondemand.com/shell/design/*",
-      "https://*.hana.ondemand.com/itspaces/*",
-      "https://*.hana.ondemand.com/shell/*",
-      "https://*.platform.sapcloud.cn/itspaces/*",
-      "https://*.platform.sapcloud.cn/shell"
-    ]
+    }
   },
   "icons": {
-    "16": "images/v4/16.png",
-    "32": "images/v4/32.png",
-    "48": "images/v4/48.png",
-    "128": "images/v4/128.png"
+      "16": "images/v4/16.png",
+      "32": "images/v4/32.png",
+      "48": "images/v4/48.png",
+      "128": "images/v4/128.png"
   },
   "web_accessible_resources": [
-    "images/favicons/*.png",
-    "lib/semanticui/*",
-    "images/*"
+    {
+      "resources": [
+        "images/favicons/*.png",
+        "lib/semanticui/*",
+        "images/*"
+      ],
+      "matches": [
+        "https://*.hana.ondemand.com/*",
+        "https://*.platform.sapcloud.cn/*"
+      ]
+    }
   ],
-  "manifest_version": 2
+  "manifest_version": 3
 }
