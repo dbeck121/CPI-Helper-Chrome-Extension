@@ -30,7 +30,7 @@ var plugin = {
                 //unlock artifact if locked
                 if(lock?.ResourceId != undefined){ //undefined means it's not locked
 
-                    //prepare coloring
+                    //calculate lock duration
                     const match = lock.CreatedAt.match(/\/Date\((\d+)\)\//);
                     const timeInMillis = parseInt(match[1], 10);
                     const currentTime = Date.now();
@@ -41,6 +41,19 @@ var plugin = {
                     const remainingHours = Math.floor(diffInHours % 24);
                     const remainingMinutes = Math.floor(diffInMinutes % 60);
 
+                    //prepare lock duration text
+                    var lockDurationText = "This artifact was locked ";
+                    if(diffInDays > 0){
+                        lockDurationText += `${diffInDays}d ${remainingHours}h ${remainingMinutes}min ago.`;
+                    } else if(remainingHours > 0){
+                        lockDurationText += `${remainingHours}h ${remainingMinutes}min ago.`;
+                    } else if(remainingMinutes > 0){
+                        lockDurationText += `${remainingMinutes}min ago.`;
+                    } else {
+                        lockDurationText += `less than a minute ago.`;
+                    }
+
+                    //map status color
                     var statusColor;
                     if (diffInHours >= 12) {
                         statusColor = "green";
@@ -53,34 +66,38 @@ var plugin = {
                     }
 
                     var info = `
-                    <div class="ui list">
-                        <div class="item">
-                            <div class="content">
-                                <a class="header">Integration Flow Name</a>
-                                <div class="description">${lock.ArtifactName}</div>
+                    <div class="ui large list">
+                                <div class="item">
+                                    <div class="content">
+                                        <a class="header">Integration Flow Name</a>
+                                        <div class="description">${lock.ArtifactName}</div>
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <div class="content">
+                                        <a class="header">Integration Package</a>
+                                        <div class="description">${lock.PackageName}</div>
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <div class="content">
+                                        <a class="header">Locked by</a>
+                                        <div class="description">${lock.CreatedBy}</div>
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <div class="content">
+                                        <a class="header">Locked since</a>
+                                        <div class="description">${formatDate(lock.CreatedAt)}</div>
+                                    </div>
+                                </div>
+                            </div>
+                    <div class="ui grid">
+                        <div class="one column centered row">
+                            <div class="ui ${statusColor} tiny center aligned compact message">
+                                <p><i class="info icon"></i> ${lockDurationText}</p>
                             </div>
                         </div>
-                        <div class="item">
-                            <div class="content">
-                                <a class="header">Integration Package</a>
-                                <div class="description">${lock.PackageName}</div>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="content">
-                                <a class="header">Locked by</a>
-                                <div class="description">${lock.CreatedBy}</div>
-                            </div>
-                        </div>
-                        <div class="item">
-                            <div class="content">
-                                <a class="header">Locked since</a>
-                                <div class="description">${formatDate(lock.CreatedAt)}</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="ui mini ${statusColor} compact message">
-                        <p>locked ${diffInDays}d ${remainingHours}h ${remainingMinutes}min ago</p>
                     </div>`;
 
                     $.modal('confirm', 'Lock Details', info, async function(choice){
