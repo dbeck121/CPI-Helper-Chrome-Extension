@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MANIFEST_V3="manifest.json_v3"
+MANIFEST_V3="manifest_v3.json"
 if [ -f "$MANIFEST_V3" ]; then
     echo "Please make sure we release only manifest v3. Current version is probably not v3."
     exit 1
