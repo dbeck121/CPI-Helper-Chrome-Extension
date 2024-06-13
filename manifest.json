@@ -29,6 +29,7 @@
   "content_scripts": [
     {
       "matches": [
+        "https://*.hana.ondemand.com/shell/design/*",
         "https://*.hana.ondemand.com/itspaces/*",
         "https://*.hana.ondemand.com/shell/*",
         "https://*.platform.sapcloud.cn/itspaces/*",
@@ -91,6 +92,7 @@
       "128": "images/v4/128.png"
     },
     "show_matches": [
+      "https://*.hana.ondemand.com/shell/design/*",
       "https://*.hana.ondemand.com/itspaces/*",
       "https://*.hana.ondemand.com/shell/*",
       "https://*.platform.sapcloud.cn/itspaces/*",

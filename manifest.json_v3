@@ -21,12 +21,14 @@
   "content_scripts": [
     {
       "matches": [
+        "https://*.hana.ondemand.com/shell/design/*",
         "https://*.hana.ondemand.com/itspaces/*",
         "https://*.hana.ondemand.com/shell/*",
         "https://*.platform.sapcloud.cn/itspaces/*",
         "https://*.platform.sapcloud.cn/shell/*"
+        
       ],
-      "js": [
+       "js": [
         "/lib/ulog/ulog-full.min.js",
         "/lib/ace/ace.min.js",
         "/lib/ace/ext-searchbox.js",
@@ -84,10 +86,10 @@
     }
   },
   "icons": {
-    "16": "images/v4/16.png",
-    "32": "images/v4/32.png",
-    "48": "images/v4/48.png",
-    "128": "images/v4/128.png"
+      "16": "images/v4/16.png",
+      "32": "images/v4/32.png",
+      "48": "images/v4/48.png",
+      "128": "images/v4/128.png"
   },
   "web_accessible_resources": [
     {

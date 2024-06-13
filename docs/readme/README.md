@@ -529,7 +529,7 @@ We all work in IT and I guess we all know that a message like "My CPI Helper doe
 
 ## Contributing
 
-See [Contribution guidelines for this project](docs/CONTRIBUTING.md) if you want to take part in this project. As I am a beginner myself, beginners are welcome.
+See [Contribution guidelines for this project](docs/readme/contributing.md) if you want to take part in this project. As I am a beginner myself, beginners are welcome.
 
 If you have any ideas, please write a message or comment at the [SAP Community](https://blogs.sap.com/2020/03/05/cpi-chrome-plugin-to-enhance-sap-cloud-platform-integration-usability/#)
 
