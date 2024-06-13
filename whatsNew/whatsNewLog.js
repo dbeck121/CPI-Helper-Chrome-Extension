@@ -4,7 +4,11 @@
 //         "description": "description goes here as HTML",
 //     } ,... //multiple
 // ]
-const whats_new_log = [
+const whats_new_log = [    
+    {
+        "header": "BugFix",
+        "description": "<b>Hotfix 3.13.1</b>: Fix power-trace (trace wasn't automatically set after 10 minutes despite being switched on)"
+    },
     {
         "header": "Plugin",
         "description": "Credential Helper Plugin to add a search help for existing Security Material aliases and Key Store entries. Special thanks to Gregor Schütz from <a target='_blank' href='https://www.agilita.ch/'>AGILITA AG</a>"
