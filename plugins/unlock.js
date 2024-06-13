@@ -67,31 +67,31 @@ var plugin = {
 
                     var info = `
                     <div class="ui large list">
-                                <div class="item">
-                                    <div class="content">
-                                        <a class="header">Integration Flow Name</a>
-                                        <div class="description">${lock.ArtifactName}</div>
-                                    </div>
-                                </div>
-                                <div class="item">
-                                    <div class="content">
-                                        <a class="header">Integration Package</a>
-                                        <div class="description">${lock.PackageName}</div>
-                                    </div>
-                                </div>
-                                <div class="item">
-                                    <div class="content">
-                                        <a class="header">Locked by</a>
-                                        <div class="description">${lock.CreatedBy}</div>
-                                    </div>
-                                </div>
-                                <div class="item">
-                                    <div class="content">
-                                        <a class="header">Locked since</a>
-                                        <div class="description">${formatDate(lock.CreatedAt)}</div>
-                                    </div>
-                                </div>
+                        <div class="item">
+                            <div class="content">
+                                <a class="header">Integration Flow Name</a>
+                                <div class="description">${lock.ArtifactName}</div>
                             </div>
+                        </div>
+                        <div class="item">
+                            <div class="content">
+                                <a class="header">Integration Package</a>
+                                <div class="description">${lock.PackageName}</div>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div class="content">
+                                <a class="header">Locked by</a>
+                                <div class="description">${lock.CreatedBy}</div>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div class="content">
+                                <a class="header">Locked since</a>
+                                <div class="description">${formatDate(lock.CreatedAt)}</div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="ui grid">
                         <div class="one column centered row">
                             <div class="ui ${statusColor} tiny center aligned compact message">
