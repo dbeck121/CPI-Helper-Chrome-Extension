@@ -336,8 +336,13 @@ createPersistLogsContent = async (messageId) => {
 
 createLogsInfo = async (messageId) => {
 
-    var input = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + messageId + "')?$format=json&$expand=CustomHeaderProperties", false)).d;
-
+    try {
+    var input = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + messageId + "')?$format=json&$expand=CustomHeaderProperties", false, null, null,false,null,false)).d;
+    } catch (error) {
+        log.log(error);
+        showToast("Check input data.", "Error while fetching logs. Message ID not found.", "error");
+        throw Error("Message ID not found");
+    }
     valueList = [];
 
     valueList.push({ Name: "MessageGuid", Value: input.MessageGuid });

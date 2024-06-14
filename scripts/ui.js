@@ -38,7 +38,7 @@ async function showBigPopup(content, header, parameters = { fullscreen: true, ca
 
   var textElement = `
   <div>
-  <i class="close icon" style="color:var(--cpi-text-color);"></i>
+  <i class="close icon" style="color:#ffffff"></i>
     <div class="header">
       CPI Helper ${header}
     </div>
