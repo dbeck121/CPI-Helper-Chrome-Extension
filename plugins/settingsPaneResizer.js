@@ -172,7 +172,7 @@ var plugin = {
             function applyHeights(workArea, settingsPane, paneContentVisible, workAreaHeight, paneHeight, delay) {
                 workArea.stop().delay(delay).animate({height: workAreaHeight + 'px'});                                                      
                 settingsPane.css("height", paneHeight + 'px');
-                paneContentVisible.css("height", (paneHeight - 90) + 'px'); 
+                paneContentVisible.css("height", (paneHeight - 110) + 'px'); 
             }
 
             // Resizing function
@@ -214,7 +214,7 @@ var plugin = {
                                 // auto adjust if content is lower than configured height and pause is off
                                 if ( (! dynPause) && dynamicResizing == true && (paneContentHeight + 120) <= newHeightInPx) {                    
                                     //console.log("doResize 1")
-                                    newWorkAreaHeight = viewHeight - (paneContentHeight+120);
+                                    newWorkAreaHeight = viewHeight - (paneContentHeight + 120);
                                     newPaneHeight = (paneContentHeight + 120);
                                 }
 
