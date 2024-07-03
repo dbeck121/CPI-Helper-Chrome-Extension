@@ -1,3 +1,13 @@
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    const data = await response.json(); // Annahme, dass die Antwort JSON ist
+    console.log(data);
+  } catch (error) {
+    console.error("Fehler beim Abrufen der Daten:", error);
+  }
+}
+
 var plugin = {
     metadataVersion: "1.0.0",
     id: "downloadMessageUsage",
@@ -34,7 +44,10 @@ var plugin = {
     messageSidebarContent: {
         "static": true,
         "onRender": (pluginHelper, settings) => {
-            log.log("render");
+            log.log("pluginHelper for Download Message Usage");
+            console.log("pluginHelper for Download Message Usage");
+            console.log(pluginHelper.tenant);
+
             log.log(pluginHelper);
             log.log(settings);
             var div = document.createElement("div");
@@ -68,17 +81,7 @@ var plugin = {
             lastWeekLabel.htmlFor = "lastWeekRadio";
             lastWeekLabel.innerText = "Week";
             lastWeekLabel.style.marginLeft = "5px";
-            //lastWeekLabel.style.display = "inline";
 
-            /*
-            radioGroup.appendChild(lastMonthRadio);
-            radioGroup.appendChild(lastMonthLabel);
-            radioGroup.appendChild(lastWeekRadio);
-            radioGroup.appendChild(lastWeekLabel);
-
-            div.appendChild(radioGroup);
-
-            */
             var radioGroup = document.createElement("div");
             radioGroup.classList.add("radio-group");
 
@@ -122,7 +125,67 @@ var plugin = {
 
             // Hinzufügen des radioGroup Div zum Hauptcontainer (angenommen, es ist 'div')
             div.appendChild(radioGroup);
-            button.onclick = (x) => pluginHelper.functions.popup(popupContent, "Header")
+            //button.onclick = (x) => pluginHelper.functions.popup(popupContent, "Header")
+            //when i click the button i want to call an specific url
+            button.onclick = () => {  
+                //depending in the radio button i want to get the last week or the last monath
+                var timePeriod = document.querySelector('input[name="timePeriod"]:checked').value;
+                console.log(timePeriod);
+                //if it is "Month" it should get the a startDate from the first of the last month and for endDate the last day of the last month
+                //if it is "Week" it should get the a startDate from the first of the last week and for endDate the last day of the last week
+                
+                var today = new Date();
+                var startDate, endDate;
+
+                if (timePeriod === "Month") {
+                    // First day of the last month
+                    var firstDayLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                    startDate = firstDayLastMonth;
+                
+                    // Last day of the last month
+                    var lastDayLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+                    endDate = lastDayLastMonth;
+                } else if (timePeriod === "Week") {
+                    // Clone today's date to avoid modifying the original
+                    var tempDate = new Date(today);
+                    
+                    // Get the last Sunday
+                    var lastSunday = new Date(tempDate);
+                    lastSunday.setDate(tempDate.getDate() - tempDate.getDay());
+                
+                    // Get the first day of the previous week
+                    startDate = new Date(lastSunday);
+                    startDate.setDate(lastSunday.getDate() - 6);
+                
+                    // Set the end date to the last Sunday
+                    endDate = lastSunday;
+                }
+                
+                // Formatting dates for display
+                function formatDate(date) {
+                    var dd = String(date.getDate()).padStart(2, '0');
+                    var mm = String(date.getMonth() + 1).padStart(2, '0'); // January is 0
+                    var yyyy = date.getFullYear();
+                    return yyyy + '-' + mm + '-' + dd;
+                }
+                
+                console.log('Start Date:', formatDate(startDate));
+                console.log('End Date:', formatDate(endDate));
+
+
+                var url = `https://${pluginHelper.tenant}/rest/api/v1/metering/usage/date-range?startDate=2024-05-01&endDate=2024-06-30&runtimeLocationId=cloudintegration`;        
+                //print the url to console
+                console.log(url);
+                
+                var overviewData = fetchData(url);
+                console.log(overviewData);
+
+
+
+            
+            
+            }
+            
             div.appendChild(button)
             return div;
         }
