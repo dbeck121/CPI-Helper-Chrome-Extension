@@ -9,6 +9,38 @@ async function fetchData(url) {
   }
 }
 
+// Funktion zum Konvertieren des Objekts in CSV
+function convertObjectToCSV(obj) {
+    // Die gewünschte Reihenfolge der Felder
+    const headers = ['source_dt', 'iFlowId'];
+    // Füge die restlichen Felder hinzu
+    const restOfHeaders = Object.keys(obj[Object.keys(obj)[0]]).filter(h => !headers.includes(h));
+    const allHeaders = headers.concat(restOfHeaders);
+    
+    const csvRows = [];
+    csvRows.push(allHeaders.join(','));
+
+    for (const key in obj) {
+        const values = allHeaders.map(header => JSON.stringify(obj[key][header] || ''));
+        csvRows.push(values.join(','));
+    }
+
+    return csvRows.join('\n');
+}
+
+// Funktion zum Herunterladen der CSV-Datei
+function downloadCSV(csv, filename) {
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
 var plugin = {
     metadataVersion: "1.0.0",
     id: "downloadMessageUsage",
@@ -187,15 +219,49 @@ var plugin = {
                 //looper the array in overviewData.dateRangeDetails
                 //print the values to console
 
-                overviewData.dateRangeDetails.forEach(entry => {
+                var counter = 0;
+                const entriesMap = {};
+
+                for (const entry of overviewData.dateRangeDetails) {
+                    /* 
                     console.log(`Datum: ${entry.source_dt}`);
                     console.log(`SAP zu SAP Nachrichten: ${entry.sap2sapmsg}`);
                     console.log(`Verrechenbare Nachrichten: ${entry.chargeablemsg}`);
                     console.log(`Gesamtnachrichten: ${entry.totalmsg}`);
+                    */
+                    url = `https://${pluginHelper.tenant}/rest/api/v1/metering/usage/specific-date?date=${entry.source_dt}&download=false&runtimeLocationId=cloudintegration`;        
+                    var dayDetails = await fetchData(url);
+                    console.log(dayDetails);
+                    var detail = dayDetails[0];
+
+                    for (const message of detail.message_details.artifactDetails) {
+                        const uniqueKey = `${entry.source_dt}-${message.iFlowId}`;
+                        console.log(`uniqueKey: ${uniqueKey}`);
+                        if (!entriesMap[uniqueKey]) {
+                            entriesMap[uniqueKey] = {
+                                ...message,
+                                source_dt: entry.source_dt
+                            };
+                            delete entriesMap[uniqueKey].receivers;  // receivers-Feld entfernen
+                            delete entriesMap[uniqueKey].artifactId;  // artifactId-Feld entfernen
+                        } else {
+                            //console.log(`Eintrag bereits vorhanden: ${uniqueKey}`);
+                            entriesMap[uniqueKey].mplCount += message.mplCount;
+                            entriesMap[uniqueKey].totalMsg += message.totalMsg;
+                            entriesMap[uniqueKey].sap2sapMsg += message.sap2sapMsg;
+                            entriesMap[uniqueKey].recordCount += message.recordCount;
+                            entriesMap[uniqueKey].chargeableMsg += message.chargeableMsg;
+                        }
+                    }        
                 }
-                );
-                          
-            
+                
+                console.log(`Total Messages: ${Object.keys(entriesMap).length}`);
+                console.log(entriesMap);
+
+                const csvData = convertObjectToCSV(entriesMap);
+                console.log(csvData);
+                downloadCSV(csvData, 'entries.csv');
+
             }
             
             div.appendChild(button)
