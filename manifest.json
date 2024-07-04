@@ -94,6 +94,7 @@
     },
     "show_matches": [
       "https://*.hana.ondemand.com/shell/design/*",
+     
       "https://*.hana.ondemand.com/itspaces/*",
       "https://*.hana.ondemand.com/shell/*",
       "https://*.platform.sapcloud.cn/itspaces/*",

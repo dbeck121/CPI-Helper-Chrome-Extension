@@ -2,9 +2,10 @@ async function fetchData(url) {
   try {
     const response = await fetch(url);
     const data = await response.json(); // Annahme, dass die Antwort JSON ist
-    console.log(data);
+    return data;
   } catch (error) {
     console.error("Fehler beim Abrufen der Daten:", error);
+    return null;
   }
 }
 
@@ -127,7 +128,7 @@ var plugin = {
             div.appendChild(radioGroup);
             //button.onclick = (x) => pluginHelper.functions.popup(popupContent, "Header")
             //when i click the button i want to call an specific url
-            button.onclick = () => {  
+            button.onclick = async () => {  
                 //depending in the radio button i want to get the last week or the last monath
                 var timePeriod = document.querySelector('input[name="timePeriod"]:checked').value;
                 console.log(timePeriod);
@@ -172,17 +173,28 @@ var plugin = {
                 console.log('Start Date:', formatDate(startDate));
                 console.log('End Date:', formatDate(endDate));
 
+                formatedStartDate = formatDate(startDate);
+                formatedEndDate = formatDate(endDate);
 
-                var url = `https://${pluginHelper.tenant}/rest/api/v1/metering/usage/date-range?startDate=2024-05-01&endDate=2024-06-30&runtimeLocationId=cloudintegration`;        
+
+                var url = `https://${pluginHelper.tenant}/rest/api/v1/metering/usage/date-range?startDate=${formatedStartDate}&endDate=${formatedEndDate}&runtimeLocationId=cloudintegration`;        
                 //print the url to console
                 console.log(url);
                 
-                var overviewData = fetchData(url);
+                var overviewData = await fetchData(url);
                 console.log(overviewData);
 
+                //looper the array in overviewData.dateRangeDetails
+                //print the values to console
 
-
-            
+                overviewData.dateRangeDetails.forEach(entry => {
+                    console.log(`Datum: ${entry.source_dt}`);
+                    console.log(`SAP zu SAP Nachrichten: ${entry.sap2sapmsg}`);
+                    console.log(`Verrechenbare Nachrichten: ${entry.chargeablemsg}`);
+                    console.log(`Gesamtnachrichten: ${entry.totalmsg}`);
+                }
+                );
+                          
             
             }
             
