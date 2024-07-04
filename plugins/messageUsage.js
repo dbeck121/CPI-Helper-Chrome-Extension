@@ -1,3 +1,8 @@
+/**
+ * Fetches data from the specified URL.
+ * @param {string} url - The URL to fetch the data from.
+ * @returns {Promise<any>} - A promise that resolves to the fetched data.
+ */
 async function fetchData(url) {
   try {
     const response = await fetch(url);
@@ -9,36 +14,218 @@ async function fetchData(url) {
   }
 }
 
-// Funktion zum Konvertieren des Objekts in CSV
-function convertObjectToCSV(obj) {
-    // Die gewünschte Reihenfolge der Felder
-    const headers = ['source_dt', 'iFlowId'];
-    // Füge die restlichen Felder hinzu
-    const restOfHeaders = Object.keys(obj[Object.keys(obj)[0]]).filter(h => !headers.includes(h));
-    const allHeaders = headers.concat(restOfHeaders);
-    
+/**
+ * Creates a radio group element with the provided options.
+ *
+ * @param {Array} options - An array of objects representing the radio options.
+ * Each object should have the following properties:
+ *   - value: The value of the radio option.
+ *   - id: The id of the radio option.
+ *   - label: The label text of the radio option.
+ *
+ * @returns {HTMLElement} The created radio group element.
+ */
+function createRadioGroup(options) {
+    const radioGroup = document.createElement("div");
+    radioGroup.classList.add("radio-group");
+    const table = document.createElement("table");
+    const tbody = document.createElement("tbody");
+
+    options.forEach(option => {
+        const tr = document.createElement("tr");
+
+        const radioTd = document.createElement("td");
+        const labelTd = document.createElement("td");
+
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = "timePeriod";
+        radio.value = option.value;
+        radio.id = option.id;
+
+        const label = document.createElement("label");
+        label.htmlFor = option.id;
+        label.innerText = option.label;
+        label.style.marginLeft = "5px";
+        label.style.textAlign = "center";
+
+        radioTd.appendChild(radio);
+        labelTd.appendChild(label);
+
+        tr.appendChild(radioTd);
+        tr.appendChild(labelTd);
+
+        tbody.appendChild(tr);
+    });
+
+    table.appendChild(tbody);
+    radioGroup.appendChild(table);
+
+    return radioGroup;
+}
+
+/**
+ * Handles the download click event.
+ * Retrieves usage data for a specified time period, processes it, and downloads it as a CSV file.
+ *
+ * @param {Object} pluginHelper - The plugin helper object.
+ * @returns {Promise<void>} - A promise that resolves when the download is complete.
+ * @throws {Error} - If an error occurs while handling the download click.
+ */
+async function handleDownloadClick(pluginHelper) {
+    try {
+        const timePeriod = document.querySelector('input[name="timePeriod"]:checked').value;
+        const { startDate, endDate } = getStartAndEndDates(timePeriod);
+
+        console.log('Start Date:', formatDate(startDate));
+        console.log('End Date:', formatDate(endDate));
+
+        const url = `https://${pluginHelper.tenant}/rest/api/v1/metering/usage/date-range?startDate=${formatDate(startDate)}&endDate=${formatDate(endDate)}&runtimeLocationId=cloudintegration`;
+        console.log(url);
+
+        const overviewData = await fetchData(url);
+        console.log(overviewData);
+
+        const entriesMap = await processOverviewData(overviewData, pluginHelper);
+
+        console.log(`Total Messages: ${Object.keys(entriesMap).length}`);
+        console.log(entriesMap);
+
+        const csvData = convertObjectToCSV(entriesMap);
+        console.log(csvData);
+        //tenant name unitl first .
+        const tenantName = pluginHelper.tenant.split('.')[0];
+        const csvFilename = `${formatDate(startDate)}_${formatDate(endDate)}_${tenantName}_usage_message.csv`;
+
+        downloadCSV(csvData, csvFilename);
+    } catch (error) {
+        console.error('Error handling download click:', error);
+    }
+}
+
+/**
+ * Calculates the start and end dates based on the given time period.
+ * @param {string} timePeriod - The time period ("Month" or "Week").
+ * @returns {Object} An object containing the start and end dates.
+ */
+function getStartAndEndDates(timePeriod) {
+    const today = new Date();
+    let startDate, endDate;
+
+    if (timePeriod === "Month") {
+        startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        endDate = new Date(today.getFullYear(), today.getMonth(), 0);
+    } else if (timePeriod === "Week") {
+        const lastSunday = new Date(today);
+        lastSunday.setDate(today.getDate() - today.getDay());
+
+        startDate = new Date(lastSunday);
+        startDate.setDate(lastSunday.getDate() - 6);
+
+        endDate = lastSunday;
+    }
+
+    return { startDate, endDate };
+}
+
+/**
+ * Formats a given date into the format 'YYYY-MM-DD'.
+ *
+ * @param {Date} date - The date to be formatted.
+ * @returns {string} The formatted date string.
+ */
+function formatDate(date) {
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    return `${yyyy}-${mm}-${dd}`;
+}
+
+/**
+ * Processes the overview data and returns a map of entries.
+ *
+ * @param {Object} overviewData - The overview data to process.
+ * @param {Object} pluginHelper - The plugin helper object.
+ * @returns {Object} - A map of entries.
+ */
+async function processOverviewData(overviewData, pluginHelper) {
+    const entriesMap = {};
+
+    const tenantName = pluginHelper.tenant.split('.')[0];
+
+    for (const entry of overviewData.dateRangeDetails) {
+        const url = `https://${pluginHelper.tenant}/rest/api/v1/metering/usage/specific-date?date=${entry.source_dt}&download=false&runtimeLocationId=cloudintegration`;
+        const dayDetails = await fetchData(url);
+        console.log(dayDetails);
+
+        dayDetails[0].message_details.artifactDetails.forEach(message => {
+            const uniqueKey = `${entry.source_dt}-${message.iFlowId}`;
+            if (!entriesMap[uniqueKey]) {
+                entriesMap[uniqueKey] = { ...message, source_dt: entry.source_dt, tenant : tenantName};
+                delete entriesMap[uniqueKey].receivers;
+                delete entriesMap[uniqueKey].artifactId;
+            } else {
+                entriesMap[uniqueKey].mplCount += message.mplCount;
+                entriesMap[uniqueKey].totalMsg += message.totalMsg;
+                entriesMap[uniqueKey].sap2sapMsg += message.sap2sapMsg;
+                entriesMap[uniqueKey].recordCount += message.recordCount;
+                entriesMap[uniqueKey].chargeableMsg += message.chargeableMsg;
+            }
+        });
+    }
+
+    return entriesMap;
+}
+
+/**
+ * Converts an object to a CSV string.
+ *
+ * @param {Object[]} data - The array of objects to convert to CSV.
+ * @returns {string} The CSV string representation of the input data.
+ */
+function convertObjectToCSV(data) {
     const csvRows = [];
+    const headers = ['tenant','source_dt', 'iFlowId', 'chargeableMsg', 'totalMsg', 'mplCount', 'sap2sapMsg', 'recordCount']; // Set the desired order of fields
+    const restOfHeaders = Object.keys(data[Object.keys(data)[0]]).filter(h => !headers.includes(h));
+    const allHeaders = headers.concat(restOfHeaders);
     csvRows.push(allHeaders.join(','));
 
-    for (const key in obj) {
-        const values = allHeaders.map(header => JSON.stringify(obj[key][header] || ''));
+    Object.values(data).forEach(entry => {
+        const values = allHeaders.map(header => entry[header]);
         csvRows.push(values.join(','));
-    }
+    });
 
     return csvRows.join('\n');
 }
 
-// Funktion zum Herunterladen der CSV-Datei
-function downloadCSV(csv, filename) {
-    const blob = new Blob([csv], { type: 'text/csv' });
+/**
+ * Downloads a CSV file with the provided data.
+ *
+ * @param {string} csvData - The CSV data to be downloaded.
+ * @param {string} filename - The name of the file to be downloaded.
+ */
+function downloadCSV(csvData, filename) {
+    const blob = new Blob([csvData], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.style.display = 'none';
-    a.href = url;
-    a.download = filename;
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', filename);
     document.body.appendChild(a);
     a.click();
-    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+}
+
+/**
+ * Fetches data from the specified URL.
+ * @param {string} url - The URL to fetch data from.
+ * @returns {Promise<Object>} - A promise that resolves to the fetched data as a JSON object.
+ * @throws {Error} - If there is an error fetching the data.
+ */
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error fetching data: ${response.statusText}`);
+    return response.json();
 }
 
 var plugin = {
@@ -49,7 +236,7 @@ var plugin = {
     author: "MHP.com",
     email: "florian.kube@mhp.com",
     website: "https://github.com/dbeck121/CPI-Helper-Chrome-Extension",//"https://yourwebsite.com"
-    description: "Download message usage as CSV file.",
+    description: "The plugin downloads message usage information into a CSV file. Users can choose to download data for either the last complete month or the last week.",
     settings: {
        /* 
         "text1": { "text": "This is a plugin", "type": "label" },
@@ -61,7 +248,7 @@ var plugin = {
     },
     messageSidebarButton: {
         "icon": { "text": "E", "type": "text" },
-        "title": "Example Title",
+        "title": "messageSidebarButton Ich bin ein ",
         "onClick": (pluginHelper, settings, runInfo, active) => {
             log.log("clicked");
             log.log(pluginHelper);
@@ -80,191 +267,27 @@ var plugin = {
             log.log("pluginHelper for Download Message Usage");
             console.log("pluginHelper for Download Message Usage");
             console.log(pluginHelper.tenant);
-
+            
             log.log(pluginHelper);
             log.log(settings);
-            var div = document.createElement("div");
+            
+            const div = document.createElement("div");
             div.innerText = "Download Message Usage of last";
-            var button = document.createElement("button")
-            button.innerHTML = "Download"
-            var popupContent = document.createElement("div");
+            const button = document.createElement("button");
+            button.innerHTML = "Download";
+            const popupContent = document.createElement("div");
             popupContent.innerHTML = "<h1>popup content</h1>";
             
-            var radioGroup = document.createElement("div");
-            radioGroup.classList.add("radio-group");
-
-            var lastMonthRadio = document.createElement("input");
-            lastMonthRadio.type = "radio";
-            lastMonthRadio.name = "timePeriod";
-            lastMonthRadio.value = "Month";
-            lastMonthRadio.id = "lastMonthRadio";
-            var lastMonthLabel = document.createElement("label");
-            lastMonthLabel.htmlFor = "lastMonthRadio";
-            lastMonthLabel.innerText = "Month";
-            lastMonthLabel.style.marginLeft = "5px";
-            //lastMonthLabel.style.display = "inline";
-
-
-            var lastWeekRadio = document.createElement("input");
-            lastWeekRadio.type = "radio";
-            lastWeekRadio.name = "timePeriod";
-            lastWeekRadio.value = "Week";
-            lastWeekRadio.id = "lastWeekRadio";
-            var lastWeekLabel = document.createElement("label");
-            lastWeekLabel.htmlFor = "lastWeekRadio";
-            lastWeekLabel.innerText = "Week";
-            lastWeekLabel.style.marginLeft = "5px";
-
-            var radioGroup = document.createElement("div");
-            radioGroup.classList.add("radio-group");
-
-            // Erstellen eines table Elements
-            var table = document.createElement("table");
-            var tbody = document.createElement("tbody");
-
-            // Erste Zeile für den ersten Radiobutton und sein Label
-            var tr1 = document.createElement("tr");
-
-            var td1_1 = document.createElement("td");
-            td1_1.appendChild(lastMonthRadio);
-
-            var td1_2 = document.createElement("td");
-            td1_2.appendChild(lastMonthLabel);
-            td1_2.style.textAlign = "center"; // Zentrieren des Labels
-
-            tr1.appendChild(td1_1);
-            tr1.appendChild(td1_2);
-
-            // Zweite Zeile für den zweiten Radiobutton und sein Label
-            var tr2 = document.createElement("tr");
-
-            var td2_1 = document.createElement("td");
-            td2_1.appendChild(lastWeekRadio);
-
-            var td2_2 = document.createElement("td");
-            td2_2.appendChild(lastWeekLabel);
-            td2_2.style.textAlign = "center"; // Zentrieren des Labels
-
-            tr2.appendChild(td2_1);
-            tr2.appendChild(td2_2);
-
-            // Hinzufügen der Zeilen zum tbody und dann zum table
-            tbody.appendChild(tr1);
-            tbody.appendChild(tr2);
-            table.appendChild(tbody);
-
-            // Hinzufügen des table zum radioGroup Div
-            radioGroup.appendChild(table);
-
-            // Hinzufügen des radioGroup Div zum Hauptcontainer (angenommen, es ist 'div')
-            div.appendChild(radioGroup);
-            //button.onclick = (x) => pluginHelper.functions.popup(popupContent, "Header")
-            //when i click the button i want to call an specific url
-            button.onclick = async () => {  
-                //depending in the radio button i want to get the last week or the last monath
-                var timePeriod = document.querySelector('input[name="timePeriod"]:checked').value;
-                console.log(timePeriod);
-                //if it is "Month" it should get the a startDate from the first of the last month and for endDate the last day of the last month
-                //if it is "Week" it should get the a startDate from the first of the last week and for endDate the last day of the last week
-                
-                var today = new Date();
-                var startDate, endDate;
-
-                if (timePeriod === "Month") {
-                    // First day of the last month
-                    var firstDayLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-                    startDate = firstDayLastMonth;
-                
-                    // Last day of the last month
-                    var lastDayLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-                    endDate = lastDayLastMonth;
-                } else if (timePeriod === "Week") {
-                    // Clone today's date to avoid modifying the original
-                    var tempDate = new Date(today);
-                    
-                    // Get the last Sunday
-                    var lastSunday = new Date(tempDate);
-                    lastSunday.setDate(tempDate.getDate() - tempDate.getDay());
-                
-                    // Get the first day of the previous week
-                    startDate = new Date(lastSunday);
-                    startDate.setDate(lastSunday.getDate() - 6);
-                
-                    // Set the end date to the last Sunday
-                    endDate = lastSunday;
-                }
-                
-                // Formatting dates for display
-                function formatDate(date) {
-                    var dd = String(date.getDate()).padStart(2, '0');
-                    var mm = String(date.getMonth() + 1).padStart(2, '0'); // January is 0
-                    var yyyy = date.getFullYear();
-                    return yyyy + '-' + mm + '-' + dd;
-                }
-                
-                console.log('Start Date:', formatDate(startDate));
-                console.log('End Date:', formatDate(endDate));
-
-                formatedStartDate = formatDate(startDate);
-                formatedEndDate = formatDate(endDate);
-
-
-                var url = `https://${pluginHelper.tenant}/rest/api/v1/metering/usage/date-range?startDate=${formatedStartDate}&endDate=${formatedEndDate}&runtimeLocationId=cloudintegration`;        
-                //print the url to console
-                console.log(url);
-                
-                var overviewData = await fetchData(url);
-                console.log(overviewData);
-
-                //looper the array in overviewData.dateRangeDetails
-                //print the values to console
-
-                var counter = 0;
-                const entriesMap = {};
-
-                for (const entry of overviewData.dateRangeDetails) {
-                    /* 
-                    console.log(`Datum: ${entry.source_dt}`);
-                    console.log(`SAP zu SAP Nachrichten: ${entry.sap2sapmsg}`);
-                    console.log(`Verrechenbare Nachrichten: ${entry.chargeablemsg}`);
-                    console.log(`Gesamtnachrichten: ${entry.totalmsg}`);
-                    */
-                    url = `https://${pluginHelper.tenant}/rest/api/v1/metering/usage/specific-date?date=${entry.source_dt}&download=false&runtimeLocationId=cloudintegration`;        
-                    var dayDetails = await fetchData(url);
-                    console.log(dayDetails);
-                    var detail = dayDetails[0];
-
-                    for (const message of detail.message_details.artifactDetails) {
-                        const uniqueKey = `${entry.source_dt}-${message.iFlowId}`;
-                        console.log(`uniqueKey: ${uniqueKey}`);
-                        if (!entriesMap[uniqueKey]) {
-                            entriesMap[uniqueKey] = {
-                                ...message,
-                                source_dt: entry.source_dt
-                            };
-                            delete entriesMap[uniqueKey].receivers;  // receivers-Feld entfernen
-                            delete entriesMap[uniqueKey].artifactId;  // artifactId-Feld entfernen
-                        } else {
-                            //console.log(`Eintrag bereits vorhanden: ${uniqueKey}`);
-                            entriesMap[uniqueKey].mplCount += message.mplCount;
-                            entriesMap[uniqueKey].totalMsg += message.totalMsg;
-                            entriesMap[uniqueKey].sap2sapMsg += message.sap2sapMsg;
-                            entriesMap[uniqueKey].recordCount += message.recordCount;
-                            entriesMap[uniqueKey].chargeableMsg += message.chargeableMsg;
-                        }
-                    }        
-                }
-                
-                console.log(`Total Messages: ${Object.keys(entriesMap).length}`);
-                console.log(entriesMap);
-
-                const csvData = convertObjectToCSV(entriesMap);
-                console.log(csvData);
-                downloadCSV(csvData, 'entries.csv');
-
-            }
+            const radioGroup = createRadioGroup([
+                { id: "lastMonthRadio", value: "Month", label: "Month" },
+                { id: "lastWeekRadio", value: "Week", label: "Week" }
+            ]);
             
-            div.appendChild(button)
+            div.appendChild(radioGroup);
+            div.appendChild(button);
+            
+            button.onclick = () => handleDownloadClick(pluginHelper);
+            
             return div;
         }
     },
@@ -308,14 +331,14 @@ var plugin = {
         "icon": { "text": "MM", "type": "text" },
         "title": "Example Title MM",
         "onClick": (pluginHelper, settings) => {
-            log.log("clicked");
-            log.log(pluginHelper);
-            log.log(settings);
-            log.log(pluginHelper.currentArtifactId)
-            log.log(pluginHelper.currentArtifactType)
-            log.log(pluginHelper.currentIflowId)
-            log.log(pluginHelper.currentPackageId)
-            log.log(pluginHelper.lastVisitedIflowId)
+            console.log("clicked");
+            console.log(pluginHelper);
+            console.log(settings);
+            console.log(pluginHelper.currentArtifactId)
+            console.log(pluginHelper.currentArtifactType)
+            console.log(pluginHelper.currentIflowId)
+            console.log(pluginHelper.currentPackageId)
+            console.log(pluginHelper.lastVisitedIflowId)
         },
         condition: (pluginHelper, settings) => {
             return true

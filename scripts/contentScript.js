@@ -28,7 +28,11 @@ cpiArtifactURIRegexp = [
   [/\/resources\/script\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Script"],
   [/\/resources\/mapping\/(?<artifactId>[0-9a-zA-Z_\-.]+\.xslt?)/, "XSLT"],
   //packages
-  [/\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)\/?(\?.*)?$/, "Package"]
+  [/\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)\/?(\?.*)?$/, "Package"],
+
+  //message usage
+  [/\/shell\/monitoring\/MessageUsage$/, "MessageUsage"]
+
 ];
 
 var cpiTypeRegexp = /^[^\/]*\.integrationsuite(-trial)?.*/;
