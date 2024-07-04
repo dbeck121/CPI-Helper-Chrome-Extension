@@ -28,7 +28,7 @@ cpiArtifactURIRegexp = [
   [/\/resources\/script\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Script"],
   [/\/resources\/mapping\/(?<artifactId>[0-9a-zA-Z_\-.]+\.xslt?)/, "XSLT"],
   //packages
-  [/\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)\/?(\?.*)?$/, "Package"],
+  [/\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)\/?(\?.*)?$/, "Package"] ,
 
   //message usage
   [/\/shell\/monitoring\/MessageUsage$/, "MessageUsage"]
@@ -1574,6 +1574,9 @@ function newArtifactDetected() {
   for (const dataRegexp of cpiArtifactURIRegexp) {
     if (dataRegexp[0].test(url) === true) {
       groups = url.match(dataRegexp[0]).groups;
+      if (groups == undefined) {    //bug. müsste man fixen
+        continue;
+      }
       result = groups.artifactId;
       artifactType = dataRegexp[1];
     }
@@ -1594,11 +1597,13 @@ function newArtifactDetected() {
     cpiData.integrationFlowId = document.location.pathname.replace("/", "");
     cpiData.currentIflowId = null;
     cpiData.currentArtifactId = null;
-    cpiData.currentArtifactType = null;
+    cpiData.currentArtifactType = null;  //todo es darf auch nicht null als return zurück gegeben werden
 
     log.log("no artifact found", result);
+    console.log("no artifact found", result);
   }
   return result;
+
 }
 
 function getIflowId() {
@@ -1794,7 +1799,11 @@ async function handleUrlChange() {
         }, 1000);
       }
     }
+   else if (cpiData.currentArtifactType == "MessageUsage") {
+    console.log("MessageUsage der richtige Eintrag")
+  }
     else {
+      console.log("Deaktviert")
       //deactivate sidebar if not on iflow page to root
       if (sidebar.active) {
         sidebar.deactivate();
@@ -1802,6 +1811,8 @@ async function handleUrlChange() {
     }
     (xsltCount + scriptCount + scriptCollectionCount !== 0) && sidebar.init();
   } else {
+    console.log("Deaktviert")
+
     setDocumentTitle(hostData.title)
     //deactivate sidebar if not on iflow page to root
     if (sidebar.active) {
@@ -1865,7 +1876,15 @@ async function storeVisitedIflowsForPopup() {
   var name = 'visitedIflows_' + tenant;
 
   for (const dataRegexp of cpiArtifactURIRegexp) {
+    console.log(url, dataRegexp[0])
     if (dataRegexp[0].test(url) === true) {
+      console.log("gefunden :-)")
+      console.log(dataRegexp[1])
+
+      if (dataRegexp[1] == "MessageUsage") {
+        console.log("Return because of iflow message usage")
+        return
+      }
       let groups = url.match(dataRegexp[0]);
       if (groups.length >= 2) {
         let cpiArtifactId = groups.groups.artifactId;
