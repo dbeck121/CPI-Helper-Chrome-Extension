@@ -199,7 +199,7 @@
     let link = document.querySelector("link[rel*='icon']") || document.createElement('link');
     link.type = 'image/x-icon';
     link.rel = 'shortcut icon';
-    link.href = chrome.extension.getURL(`/images/favicons/${icon}.png`);
+    link.href = chrome.runtime.getURL(`/images/favicons/${icon}.png`);
     document.getElementsByTagName('head')[0].appendChild(link);
   }
 

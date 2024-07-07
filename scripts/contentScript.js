@@ -61,7 +61,7 @@ function openInfo(url) {
 //refresh the logs in message window
 var getLogsTimer;
 var activeInlineItem;
-var numberEntries = hostData.maxcount
+var numberEntries = hostData.count || 10;
 
 //fill the message sidebar
 async function renderMessageSidebar() {
@@ -1393,7 +1393,9 @@ var sidebar = {
 
     //refresh messages
     messageSidebarPluginContent(true);
-    renderMessageSidebar();
+    refreshActive = true;
+    renderMessageSidebar().then(() => {refreshActive = false;}).catch(() => {refreshActive = false;});
+  
   }
 };
 
@@ -1796,7 +1798,7 @@ async function handleUrlChange() {
         sidebar.deactivate();
       }
     }
-    (xsltCount + scriptCount + scriptCollectionCount !== 0) && sidebar.init();
+   // (xsltCount + scriptCount + scriptCollectionCount !== 0) && sidebar.init();
   } else {
     setDocumentTitle(hostData.title)
     //deactivate sidebar if not on iflow page to root

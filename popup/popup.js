@@ -6,13 +6,12 @@
 var host = "";
 
 //List a history of visited iflows
-function addLastVisitedIflows() {
+async function addLastVisitedIflows() {
     let name = 'visitedIflows_' + host.split("/")[2].split(".")[0];
     var elements = {}
 
-    chrome.storage.sync.get([name], function (result) {
+    let result = await chrome.storage.sync.get([name])
         var visitedIflows = result[name];
-        console.log("visitedIflows: " +visitedIflows)
         if (!visitedIflows || visitedIflows.length == 0) {
             var lastVisitedIflows = document.getElementById("lastVisitedIflows");
             var html = `<div class="ui horizontal divider header">No artifacts to show.</div>`;
@@ -98,9 +97,7 @@ function addLastVisitedIflows() {
         }
         var lastVisitedIflows = document.getElementById("lastVisitedIflows");
         lastVisitedIflows.innerHTML = html;
-    }, function (error) {
-        console.log("Error: " + error);
-    });
+
         
 }
 
@@ -718,7 +715,7 @@ async function main() {
     addTenantUrls();
     addTenantSettings();
     tenantIdentityChanges();
-    addLastVisitedIflows();
+    await addLastVisitedIflows();
     statistic("popup_open")
 }
 
