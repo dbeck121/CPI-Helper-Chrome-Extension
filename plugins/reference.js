@@ -92,7 +92,7 @@ var plugin = {
                
                     </tbody>
                 </table>
-               
+               <p>More information about build in headers and properties can be found in <a target='_blank' href="https://help.sap.com/docs/cloud-integration/sap-cloud-integration/headers-and-exchange-properties-provided-by-integration-framework?trk=feed-detail_comments-list_comment-text"><b>official help page</b></a>.</p>
                 </div>
                 <div class="ui bottom attached tab segment" data-tab="two">
                 <table class="ui celled striped table">
