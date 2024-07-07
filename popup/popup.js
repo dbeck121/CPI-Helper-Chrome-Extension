@@ -12,8 +12,11 @@ function addLastVisitedIflows() {
 
     chrome.storage.sync.get([name], function (result) {
         var visitedIflows = result[name];
-        console.log(visitedIflows)
+        console.log("visitedIflows: " +visitedIflows)
         if (!visitedIflows || visitedIflows.length == 0) {
+            var lastVisitedIflows = document.getElementById("lastVisitedIflows");
+            var html = `<div class="ui horizontal divider header">No artifacts to show.</div>`;
+            lastVisitedIflows.innerHTML = html;
             return;
         }
         var compact = document.querySelector('#cpi_compact_mode>.active').getAttribute('data') === "true";
@@ -95,7 +98,10 @@ function addLastVisitedIflows() {
         }
         var lastVisitedIflows = document.getElementById("lastVisitedIflows");
         lastVisitedIflows.innerHTML = html;
+    }, function (error) {
+        console.log("Error: " + error);
     });
+        
 }
 
 function getSideBarAlwaysVisible() {
