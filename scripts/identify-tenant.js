@@ -5,7 +5,7 @@
   let observerIntervalId; // used to attach a MutationObserver callback
   var hostData = {
     title: 'Cloud Integration',
-    color: '#354a5f',
+    color: '#2185d0',
     icon: 'default',
     loglevel: 'warn',
     maxcount: 20, //max number fetch
