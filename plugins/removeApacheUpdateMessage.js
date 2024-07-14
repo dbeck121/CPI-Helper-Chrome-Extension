@@ -10,11 +10,11 @@ var plugin = {
     settings: {
     },
     heartbeat:  async (pluginHelper, settings) => {
-        const dialogText = "Apache Camel 3.14 runtime will soon replace the existing 2.24 version.";
+        const dialogText = "Notifications (1)DeclineApache Camel UpgradeApache Camel 3.14 runtime will soon replace the existing 2.24 version.";
         const dialogs = document.querySelectorAll('div[role="dialog"]');
         dialogs.forEach(dialog => {
-            if (dialog.textContent.startsWith(dialogText)) {
-                dialog.remove();
+            if (dialog.textContent.startsWith(dialogText) && dialog.hidden === false) {
+                dialog.hidden = true
             }
         });
     }

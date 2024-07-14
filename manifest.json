@@ -21,11 +21,8 @@
   "content_scripts": [
     {
       "matches": [
-        "https://*.hana.ondemand.com/shell/design/*",
-        "https://*.hana.ondemand.com/itspaces/*",
-        "https://*.hana.ondemand.com/shell/*",
-        "https://*.platform.sapcloud.cn/itspaces/*",
-        "https://*.platform.sapcloud.cn/shell/*"
+        "https://*.hana.ondemand.com/*",
+        "https://*.platform.sapcloud.cn/*"
         
       ],
        "js": [

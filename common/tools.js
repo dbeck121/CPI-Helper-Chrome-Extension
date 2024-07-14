@@ -8,13 +8,13 @@ function callChromeStoragePromise(key) {
   return new Promise(async function (resolve, reject) {
     log.debug("callChromeStoragePromise: ", key)
     var input = key ? [key] : null;
-    chrome.storage.sync.get(input, function (storage) {
+    var storage = await chrome.storage.sync.get(input)
       if (!key) {
         resolve(storage);
         log.debug("callChromeStoragePromise response: ", storage)
       }
       resolve(storage[key]);
-    });
+  
   });
 }
 
@@ -23,9 +23,9 @@ function syncChromeStoragePromise(keyName, value) {
     log.debug("syncChromeStoragePromise: ", keyName, value)
     myobj = {};
     myobj[keyName] = value;
-    chrome.storage.sync.set(myobj, function () {
-      resolve();
-    });
+    await chrome.storage.sync.set(myobj)
+    resolve();
+  
   });
 }
 
