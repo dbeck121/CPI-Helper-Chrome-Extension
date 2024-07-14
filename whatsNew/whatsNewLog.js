@@ -18,7 +18,7 @@ const whats_new_log = [
     {
         "header": "Plugin",
         "description": "Apache Camel Update Message Remover Plugin (Beta). Get rid of annoying Apache Camel update message. This plugin is in beta and may not work in all cases. Please report."
-    }
+    },
     {
         "header": "Improvement",
         "description": "CPI Helper survives login procedure and does not need reload after login (beta)"
