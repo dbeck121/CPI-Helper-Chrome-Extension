@@ -36,14 +36,14 @@ async function whatsNewCheck(showOnlyOnce = true) {
                     <div class="twelve wide column">
                         <div class="ui header">This release is sponsored by Figaf </div>
                         <p>
-                        <b>Pipelines for building solid integration for SAP Integration Suite</b><br />
-Figaf just improved the way you can run and manage the pipelines for SAP.
-<ul><li>One click migration from ICO to all items needed for pipelines</li>
-<li>Partner Directory management to edit and change all values</li></ul>
+                        <b>Live event on SAP PI to Integration Suite migration in Copenhagen!</b><br>
+If you are considering your migration and how to plan it, then Figaf is hosting an event in Copenhagen on September17-18. 
+We will cover everything you need to know to help you plan your migration. 
+You will learn from Figaf, SAP and partners.
                       </p>
                     </div>
                     <div class="sixteen wide column">
-                    Start you journey with Figaf <a href="https://figaf.com/cpihelper14" target="_blank"><u>here</u></a>.
+                    Start you journey with Figaf <a href="https://figaf.com/cpihelper15" target="_blank"><u>here</u></a>.
                     </div>
                 </div>
             </div>
