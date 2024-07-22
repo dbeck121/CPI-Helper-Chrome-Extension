@@ -36,14 +36,17 @@ async function whatsNewCheck(showOnlyOnce = true) {
                     <div class="twelve wide column">
                         <div class="ui header">This release is sponsored by Figaf </div>
                         <p>
-                        <b>Live event on SAP PI to Integration Suite migration in Copenhagen!</b><br>
-If you are considering your migration and how to plan it, then Figaf is hosting an event in Copenhagen on September17-18. 
-We will cover everything you need to know to help you plan your migration. 
-You will learn from Figaf, SAP and partners.
+                        <b>Live Event on SAP PI to Integration Suite Migration in Copenhagen</b><br>
+Considering a migration to the SAP Integration Suite? Figaf is hosting an in-depth event in Copenhagen on September 17-18. This event will equip you with essential knowledge for planning your migration.
                       </p>
                     </div>
-                    <div class="sixteen wide column">
-                    Start you journey with Figaf <a href="https://figaf.com/cpihelper15" target="_blank"><u>here</u></a>.
+                    <div class="sixteen wide column" style="padding-top: 0px;">
+                    <p>
+                        <br>Experts from Figaf, SAP, and partners will provide insights, covering key topics such as migration strategies, tools, and best practices. Attendees will have opportunities to engage in hands-on sessions, network with peers, and gain valuable tips for a smooth transition.
+                      </p>
+                    </div>
+                     <div class="sixteen wide column">
+                    For more details, visit the <a href="https://figaf.com/cpihelper15" target="_blank"><u>event page</u></a>.
                     </div>
                 </div>
             </div>
