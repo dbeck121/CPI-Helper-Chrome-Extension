@@ -8,7 +8,7 @@ const whats_new_log = [
 
     {
         "header": "Plugin",
-        "description": "Fix Settings Pane Resizer Plugin to work with Extension Manifest v3."
+        "description": "Fix 'Settings Pane Resizer' Plugin to work with Extension Manifest v3."
     },
     {
         "header": "Maintenance",
