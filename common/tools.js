@@ -9,12 +9,12 @@ function callChromeStoragePromise(key) {
     log.debug("callChromeStoragePromise: ", key)
     var input = key ? [key] : null;
     var storage = await chrome.storage.sync.get(input)
-      if (!key) {
-        resolve(storage);
-        log.debug("callChromeStoragePromise response: ", storage)
-      }
-      resolve(storage[key]);
-  
+    if (!key) {
+      resolve(storage);
+      log.debug("callChromeStoragePromise response: ", storage)
+    }
+    resolve(storage[key]);
+
   });
 }
 
@@ -25,7 +25,7 @@ function syncChromeStoragePromise(keyName, value) {
     myobj[keyName] = value;
     await chrome.storage.sync.set(myobj)
     resolve();
-  
+
   });
 }
 
@@ -264,6 +264,8 @@ var formatTrace = function (input, id, traceId) {
     return String(str).replace('&amp;', "&").replace('&lt;', "<").replace('&gt;', ">").replace('&quot;', "\"").replace('&#010;', "\n").replace("&#039;", '\'');
   }
   var formatXml = function (sourceXml, tab_size) {
+    var xmlDeclarationmatch = sourceXml.match(/^<\?xml\s+version\s*=\s*(["'])[^\1]+\1\s+encoding\s*=\s*(["'])[^\2]+\2\s*\?>/)
+    var xmlDeclaration = xmlDeclarationmatch ? `${xmlDeclarationmatch[0]}\n` : "";
     //tab_size not implemented yet.
     filterflag = 0;
     var xmlDoc = new DOMParser().parseFromString(`${sourceXml}`, 'application/xml');
@@ -280,7 +282,7 @@ var formatTrace = function (input, id, traceId) {
       '  <xsl:template match="node()|@*">',
       '    <xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy>',
       '  </xsl:template>',
-      '  <xsl:output indent="yes"/>',
+      '  <xsl:output method="xml" indent="yes" omit-xml-declaration="no"/>',
       '</xsl:stylesheet>',
     ].join('\n'), 'application/xml');
 
@@ -289,7 +291,7 @@ var formatTrace = function (input, id, traceId) {
     var resultDoc = xsltProcessor.transformToDocument(xmlDoc);
     var resultXml = new XMLSerializer().serializeToString(resultDoc);
     if (filterflag === 1) { resultXml = resultXml.substring(12, resultXml.length - 13).replaceAll('\n  ', '\n'); }
-    return resultXml
+    return xmlDeclaration + resultXml
   };
   var prettify_type = function (input) {
 
@@ -583,25 +585,25 @@ function hslToHex(h, s, l) {
   l /= 100;
   let r, g, b;
   if (s === 0) {
-      r = g = b = l;
+    r = g = b = l;
   } else {
-      const hue2rgb = (p, q, t) => {
-          if (t < 0) t += 1;
-          if (t > 1) t -= 1;
-          if (t < 1 / 6) return p + (q - p) * 6 * t;
-          if (t < 1 / 2) return q;
-          if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-          return p;
-      };
-      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-      const p = 2 * l - q;
-      r = hue2rgb(p, q, h + 1 / 3);
-      g = hue2rgb(p, q, h);
-      b = hue2rgb(p, q, h - 1 / 3);
+    const hue2rgb = (p, q, t) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    };
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1 / 3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1 / 3);
   }
   const toHex = x => {
-      const hex = Math.round(x * 255).toString(16);
-      return hex.length === 1 ? '0' + hex : hex;
+    const hex = Math.round(x * 255).toString(16);
+    return hex.length === 1 ? '0' + hex : hex;
   };
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
@@ -616,16 +618,16 @@ function hexToHsl(hex, values = false) {
   var max = Math.max(r, g, b), min = Math.min(r, g, b);
   var h, s, l = (max + min) / 2;
   if (max == min) {
-      h = s = 0; // achromatic
+    h = s = 0; // achromatic
   } else {
-      var d = max - min;
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-      switch (max) {
-          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-          case g: h = (b - r) / d + 2; break;
-          case b: h = (r - g) / d + 4; break;
-      }
-      h /= 6;
+    var d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
   }
   h = Math.round(h * 360);
   s = Math.round(s * 100);
