@@ -34,7 +34,7 @@ var plugin = {
             const workArea = $('[id $="iflowSplitter-content-0"]'); // upper split area, work area
             const settingsPane = $('[id $="iflowSplitter-content-1"]'); // lower split area (settings pane) incl. tabs/title bars (has height attr.)
             const paneAllContent = $('[id $="iflowPropertySheetView--iflowPropLayout"]'); // actual settings data container (also invisible part), no height attr.            
-            const paneContentVisible = $('[id $="iflowPropertySheetView--propertySheetPageContainer"]'); // div with visible part of data sheet (has height attr.)
+            const paneContentVisible = $('[id $="iflowPropertySheetView--propertySheetScrollContainer"]'); // div with visible part of data sheet (has height attr.)
 
             // create button/text in messages window
             var div = document.createElement("div");        	
