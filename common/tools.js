@@ -372,7 +372,7 @@ var formatTrace = function (input, id, traceId) {
     $formatted.toggleClass("cpiHelper_traceText_active", isActive);
     $("#beautifyButton").text(isActive ? "Linearize" : "Beautify");
     if ($formatted.text().trim() === "") {
-      editorManager = new EditorManager("cpiHelper_traceText_formatted_" + id, prettify_type(input));
+      editorManager = new EditorManager("cpiHelper_traceText_formatted_" + id, prettify_type(input), $('html.sapUiTheme-sap_horizon_dark') ? "github_dark" : "textmate");
       editorManager.setContent(prettify(input, tab_size))
     }
   }
