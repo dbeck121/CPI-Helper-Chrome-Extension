@@ -48,6 +48,10 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.15.0
+- [Improvement] UI Bugfixes (Dark-mode Darker color for trace, Trace-inline tool editor detect mode you selected by default). Special thanks to [Omkar](https://github.com/incpi).
+- [Improvement] xml declaration added while prettify code is not gonna removed. Special thanks to [Omkar](https://github.com/incpi).
+
 ### 3.14.0
 
 - [Improvement] Update to Manifest V3. This is a major and necessary under the hood update and may cause some issues. Please report any issues.
