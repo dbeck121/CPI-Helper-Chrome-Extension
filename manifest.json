@@ -71,6 +71,7 @@
       "css": [
         "/lib/semanticui/semantic.min.css",
         "/css/contentScript.css",
+        "/css/darkoverwrite.css",
         "/css/plugin.css"
       ]
     }

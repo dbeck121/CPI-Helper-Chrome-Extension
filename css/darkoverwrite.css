@@ -1,0 +1,19 @@
+/* Dark CPI horizon theme overwrites */
+
+[data-cpi-dark="sap_horizon_dark"] {
+  /* everything goes here */
+
+  .cpiHelper_inlineInfo {
+    fill: #18770c !important;
+    stroke: #18770c !important;
+  }
+
+  .cpiHelper_powertrace {
+    color: #ff6b6b !important;
+  }
+
+  .cpiHelper_inlineInfo.cpiHelper_inlineInfo_error {
+    fill: #ff6b6b !important;
+    stroke: #ff6b6b !important;
+  }
+}
