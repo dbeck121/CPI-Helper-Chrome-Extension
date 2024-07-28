@@ -1267,7 +1267,7 @@ async function openIflowInfoPopup() {
     whatsNewButton.innerText = "Whats New?";
     whatsNewButton.addEventListener("click", (a) => {
       whatsNewCheck(false);
-      $("#cpiHelper_semanticui_modal").modal("show");
+      $("#cpiHelper_semanticui_modal").modal({ autoShow: true,detachable: false, blurring: true }).modal("show");
       statistic("info_popup_whatsnew_click");
     });
     x.appendChild(whatsNewButton);
@@ -1283,7 +1283,7 @@ async function openIflowInfoPopup() {
       recrutingButton.innerText = "Werde Berater bei Kangoolutions";
       recrutingButton.addEventListener("click", (a) => {
         recrutingPopup(true);
-        $("#cpiHelper_semanticui_modal").modal("show");
+        $("#cpiHelper_semanticui_modal").modal({ autoShow: true,detachable: false, blurring: true }).modal("show");
         statistic("info_popup_recruting_click");
       });
       x.appendChild(recrutingButton);
@@ -1355,9 +1355,16 @@ var sidebar = {
     elem.id = "cpiHelper_content";
     elem.classList.add("cpiHelper");
     elem.style = "width:max-content;min-width: 14rem";
-    document.body.appendChild(elem);
+    body().appendChild(elem);
     elem.style = "width:max-content;min-width: 14rem";
-
+    // set inital parameters.
+    chrome.storage.sync.get(["set_ch_popup_mouse"], function (result) {
+      popuparea = document.querySelector('#cpiHelper_content')
+      if (result["set_ch_popup_mouse"]) {
+        popuparea.style.left=result["set_ch_popup_mouse"].left
+        popuparea.style.top=result["set_ch_popup_mouse"].top
+      }
+    });
     //plugin area setup popup+join mode
     chrome.storage.sync.get(["openSidebarOnStartup"], function (result) {
       pluginarea = document.querySelector('#cpiHelper_messageSidebar_pluginArea')
@@ -1837,7 +1844,8 @@ function dragElement(elmnt) {
     document.onmousemove = elementDrag;
   }
 
-  function elementDrag(e) {
+let debounceTimeout;
+function elementDrag(e) {
     e = e || window.event;
     e.preventDefault();
     // calculate the new cursor position:
@@ -1845,16 +1853,19 @@ function dragElement(elmnt) {
     pos2 = pos4 - e.clientY;
     pos3 = e.clientX;
     pos4 = e.clientY;
-    // set the element's new position:
-    // set the element's new position:
-    newtop = (elmnt.offsetTop - pos2);
-    newleft = (elmnt.offsetLeft - pos1);
+    // calculate the new top and left positions
+    newtop = elmnt.offsetTop - pos2;
+    newleft = elmnt.offsetLeft - pos1;
     maxheight = window.innerHeight - document.getElementById("cpiHelper_contentheader").offsetHeight;
     maxwidth = window.innerWidth - document.getElementById("cpiHelper_contentheader").offsetWidth;
     // bounding position based on max top and width. making position relative in case of resize.
-    elmnt.style.top = (((newtop < 0 || newtop >= maxheight) ? (((newtop < 0) ? 0 : ((newtop >= maxheight) ? maxheight : newtop))) : newtop) * 100 / window.innerHeight + "%");
-    elmnt.style.left = (((newleft < 0 || newleft >= maxwidth) ? (((newleft < 0) ? 0 : ((newleft >= maxwidth) ? maxwidth : newleft))) : newleft) * 100 / window.innerWidth + "%");
-  }
+    let mouse_top = elmnt.style.top = (((newtop < 0 || newtop >= maxheight) ? (((newtop < 0) ? 0 : ((newtop >= maxheight) ? maxheight : newtop))) : newtop) * 100 / window.innerHeight) + "%";
+    let mouse_left = elmnt.style.left = (((newleft < 0 || newleft >= maxwidth) ? (((newleft < 0) ? 0 : ((newleft >= maxwidth) ? maxwidth : newleft))) : newleft) * 100 / window.innerWidth) + "%";
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+        syncChromeStoragePromise("set_ch_popup_mouse", { top: mouse_top, left: mouse_left });
+    }, 500);
+}
 
   function closeDragElement() {
     /* stop moving when mouse button is released:*/

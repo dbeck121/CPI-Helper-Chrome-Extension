@@ -2,7 +2,11 @@ function workingIndicator(status) {
   // log.log(`CPI-Helper show indicator: $status`)
   //create snackbar div element
   if (!document.querySelector("#cpiHelper_workingIndicator")) {
-    document.body.appendChild(createElementFromHTML(`<i id='cpiHelper_workingIndicator' class='sync alternate loading icon' hidden></i>`))
+    body().appendChild(
+      createElementFromHTML(
+        `<i id='cpiHelper_workingIndicator' class='sync alternate loading icon' hidden></i>`
+      )
+    );
   }
   var x = $("#cpiHelper_workingIndicator");
   status ? x.removeAttr("hidden") : x.attr("hidden", "");
@@ -42,7 +46,7 @@ async function showBigPopup(
   } else {
     header = "";
   }
-  $("#cpiHelper_semanticui_modal").modal({ observeChanges: true, autoShow: true, blurring: true }).modal("show");
+
   var textElement = `
   <div>
   <i class="close icon" style="color:#ffffff"></i>
@@ -83,7 +87,7 @@ async function showBigPopup(
   x.classList.add("modal");
 
   x.id = "cpiHelper_semanticui_modal";
-  document.body.appendChild(x);
+  body().appendChild(x);
   // Add next-prev Button logic start
   function stepdiaplayed(input) {
     $("#cpiHelper_semanticui_modal").modal("hide");
@@ -118,7 +122,9 @@ async function showBigPopup(
     x.classList.remove("fullscreen");
   }
 
-  $("#cpiHelper_semanticui_modal").modal({autoShow:true,blurring:true}).modal("show");
+  $("#cpiHelper_semanticui_modal")
+    .modal({ autoShow: true,detachable: false, blurring: true })
+    .modal("show");
 
   var infocontent = document.getElementById(
     "cpiHelper_bigPopup_content_semanticui"

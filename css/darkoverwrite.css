@@ -45,7 +45,7 @@
 /* editor css - dark mode */
 .ace_dark {
   .ace_scrollbar {
-    background: white;
+    background: slategrey;
   }
 
   .ace_scrollbar-inner {

@@ -103,6 +103,11 @@ button.cpiHelper_sidebar_iconbutton span {
   outline: none;
 }
 
+div#cpiHelper_semanticui_modal {
+  position: absolute;
+  top: 10%;
+}
+
 #cpiHelper_sidebar_popup {
   position: fixed;
   z-index: 390;
