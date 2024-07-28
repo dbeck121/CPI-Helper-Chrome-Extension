@@ -96,7 +96,8 @@
       "resources": [
         "images/favicons/*.png",
         "lib/semanticui/*",
-        "images/*"
+        "images/*", 
+        "plugins/settingsPaneResizer-inject.js"        
       ],
       "matches": [
         "https://*.hana.ondemand.com/*",
