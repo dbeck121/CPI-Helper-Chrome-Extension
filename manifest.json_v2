@@ -35,6 +35,7 @@
         "https://*.platform.sapcloud.cn/shell/*"
       ],
       "js": [
+        "/scripts/init.js",
         "/lib/ulog/ulog-full.min.js",
         "/lib/ace/ace.min.js",
         "/lib/ace/ext-searchbox.js",

@@ -254,6 +254,21 @@ let absolutePath = function (href) {
   return (link.protocol + "//" + link.host + link.pathname + link.search + link.hash);
 }
 
+function downloadFile(fileContent, format, filename) {
+  // Create a Blob with the file content
+  const blob = new Blob([fileContent], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const link = $("<a></a>")
+    .attr({
+      href: url,
+      download: `${filename}.${format=="text"?'txt':format}`,
+    })
+    .appendTo("body");
+  link[0].click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
 var formatTrace = function (input, id, traceId) {
   var tab_size = 2;
   var editorManager;
@@ -337,6 +352,14 @@ var formatTrace = function (input, id, traceId) {
       window.open("data:application/zip;base64," + value);
       showToast("Download complete.");
     };
+    //download body only step
+    var DownloadBodyButton = document.createElement("button");
+    DownloadBodyButton.innerText = "Download Body";
+    DownloadBodyButton.onclick = async (element) => {
+      let typeOfInput=prettify_type(input)
+      downloadFile(input,typeOfInput,`CPI_${traceId}_${id}`)
+      showToast("Download of body is complete.");
+    };
   }
 
   var copyButton = document.createElement("button");
@@ -387,6 +410,7 @@ var formatTrace = function (input, id, traceId) {
   result.appendChild(copyButton);
   if (traceId) {
     result.appendChild(downloadButton);
+    result.appendChild(DownloadBodyButton);
     result.appendChild(themeButton);
     result.appendChild(readonlyButton);
   }
