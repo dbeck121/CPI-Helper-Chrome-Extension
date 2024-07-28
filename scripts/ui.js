@@ -64,10 +64,10 @@ async function showBigPopup(
     <div class="actions">`;
   if (maxcount != 0) {
     if (count != 0) {
-      textElement += `<button class="ui negative button">Prev</button>`;
+      textElement += `<div class="ui negative animated button" tabindex="0"><div class="visible content">Prev</div><div class="hidden content"><i class="angle double left icon"></i>  </div></div>`;
     }
     if (count != maxcount - 1) {
-      textElement += `<button class="ui positive button">Next</button>`;
+      textElement += `<div class="ui positive animated button" tabindex="0"><div class="visible content">Next</div><div class="hidden content"><i class="angle double right icon"></i>  </div></div>`;
     }
   }
   textElement += `<div class="ui black deny button" onclick="$('#cpiHelper_semanticui_modal').modal('hide');">
@@ -105,7 +105,7 @@ async function showBigPopup(
   }
   ["negative", "positive"].forEach((type, index) => {
     const button = document.querySelector(
-      `#cpiHelper_semanticui_modal button.${type}`
+      `#cpiHelper_semanticui_modal .${type}`
     );
     if (button) {
       button.addEventListener("click", () => stepdiaplayed(index));
