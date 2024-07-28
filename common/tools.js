@@ -635,3 +635,42 @@ function hexToHsl(hex, values = false) {
   cssString = values ? `${h} ${s} ${l}` : `hsl(${h}deg ${s}% ${l}%)`
   return cssString
 }
+/**
+ * Finds the nearest previous or next integer in an array relative to a target value.
+ * 
+ * used: @incpi - 
+ * findNearest(array, target); Output: { previous: 3, next: 5 }
+ * findNearest(array, target, 'next'); Output: 5
+ * findNearest(array, target, 'previous'); Output: 3
+ * @param {number[]} array - The array of numbers to search through.
+ * @param {number} target - The target value to find the nearest integers to.
+ * @param {string} [direction='both'] - The direction to search for nearest integer(s). 
+ *                                      'both' returns both previous and next, 
+ *                                      'previous' returns only the previous nearest, 
+ *                                      'next' returns only the next nearest.
+ * @returns {Object|number|null} - The nearest previous and next integers as an object 
+ *                                 if direction is 'both', or a single integer if 
+ *                                 direction is 'previous' or 'next'. Returns null if no 
+ *                                 nearest integer is found in the specified direction.
+ */
+function findNearest(array, target, direction = 'both') {
+  let prev = null;
+  let next = null;
+
+  array.forEach(num => {
+      if (num < target && (prev === null || num > prev)) {
+          prev = num;
+      }
+      if (num > target && (next === null || num < next)) {
+          next = num;
+      }
+  });
+
+  if (direction === 'previous') {
+      return prev;
+  } else if (direction === 'next') {
+      return next;
+  } else {
+      return { previous: prev, next: next };
+  }
+}

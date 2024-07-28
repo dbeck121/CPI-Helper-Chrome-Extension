@@ -241,6 +241,11 @@ button.cpiHelper_sidebar_iconbutton span {
   stroke: #13af00 !important;
 }
 
+.cpiHelper_inlineInfo[ch_inline_active] {
+  fill: #218d76 !important;
+  stroke: #218d76 !important;
+}
+
 .cpiHelper_inlineInfo.cpiHelper_inlineInfo_error {
   fill: #ff6b6b !important;
   stroke: #ff6b6b !important;
