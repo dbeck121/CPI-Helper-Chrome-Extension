@@ -325,6 +325,7 @@ function calculateMessageSidebarTimerTime(lastTabHidden, lastDurationRefresh) {
 var inlineTraceRunning = false;
 async function clickTrace(e) {
   $('[ch_inline_active]').removeAttr('ch_inline_active');
+  showWaitingPopup();
   if (inlineTraceRunning) {
     return;
   }

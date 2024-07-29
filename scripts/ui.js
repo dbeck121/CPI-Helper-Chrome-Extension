@@ -37,7 +37,6 @@ function showWaitingPopup(
       class: classname,
       closeIcon: false,
       blurring: true,
-      autoShow: true,
       content:
         content ||
         `<div class="ui positive  icon message">
