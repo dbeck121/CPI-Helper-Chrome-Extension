@@ -526,11 +526,7 @@ async function clickTrace(e) {
     }
     let childindex = Array.from(document.querySelectorAll("[inline_cpi_child]"), (e) => parseInt(e.getAttribute("inline_cpi_child"), 10)).sort((a, b) => a - b)
     childindex = childindex.indexOf(parseInt(e.target.parentNode.parentNode.getAttribute("inline_cpi_child")))
-    if (runs.length == 1) {
-      showBigPopup( runs[0].content, "Content Before Step", { fullscreen: true, callback: null }, childindex , document.querySelectorAll("[inline_cpi_child]").length);
-    } else {
-      showBigPopup( await createTabHTML(runs, "runstab", 0), "Content Before Step", { fullscreen: true, callback: null }, childindex , document.querySelectorAll("[inline_cpi_child]").length);
-    }
+    showBigPopup(runs.length == 1 ? runs[0].content : await createTabHTML(runs, "runstab", 0),      "Content Before Step", { fullscreen: true, callback: null },childindex, document.querySelectorAll("[inline_cpi_child]").length, String(e.pointerType)    );    
   }
   inlineTraceRunning = false;
 }

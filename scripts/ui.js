@@ -26,105 +26,112 @@ function showToast(message, title, type = "") {
     newestOnTop: true,
   });
 }
-
+function showWaitingPopup(
+  content = undefined,
+  classname = "small",
+  title = "CPI Helper Is thinking"
+) {
+  $("#cpiHelper_waiting_model")
+    .modal({
+      title: title,
+      class: classname,
+      closeIcon: false,
+      blurring: true,
+      autoShow: true,
+      content:
+        content ||
+        `<div class="ui positive  icon message">
+          <i class="notched circle loading icon"></i>
+          <div class="content">
+            <div class="header">
+              Please Wait...
+            </div>
+            <p>We're fetching content for you.</p>
+          </div>
+        </div>`,
+    })
+    .modal("show");
+}
 async function showBigPopup(
   content,
   header,
   parameters = { fullscreen: true, callback: null },
   count = 0,
-  maxcount = 0
+  maxcount = 0,
+  type = "mouse"
 ) {
   //create traceInfo div element
   var x = document.getElementById("cpiHelper_semanticui_modal");
-
-  if (x) {
-    x.remove();
+  $("#cpiHelper_semanticui_modal").modal("hide");
+  if (x && type !== "undefined") {
+    x.classList = "cpiHelper ui modal";
   }
-
-  if (header) {
-    header = "- " + header;
-  } else {
-    header = "";
-  }
-
-  var textElement = `
-  <div>
-  <i class="close icon" style="color:#ffffff"></i>
-    <div class="header" ${maxcount != 0 ? "maxcount=" + maxcount : ""} ${
-    count != 0 ? "count=" + count : ""
+  x.innerHTML = `
+  <i class="close icon" style="color:var(--cpi-text-color)"></i>
+  <div class="header" ${maxcount !== 0 ? `maxcount="${maxcount}"` : ""} ${
+    count !== 0 ? `count="${count}"` : ""
   }>
-      CPI Helper ${header}
-    </div>
-    <div class="scrolling content">
-      
-      <div class="description" id="cpiHelper_bigPopup_content_semanticui" style="min-height: 50vh; transition: all 100ms ease-in-out;">
-        <div class="ui active inverted dimmer">
+    CPI Helper ${header ? "- " + header : ""}
+  </div>
+  <div class="scrolling content">
+    <div class="description" id="cpiHelper_bigPopup_content_semanticui" style="min-height: 50vh; transition: all 100ms ease-in-out;">
+      <div class="ui active inverted dimmer">
         <div class="ui loader"></div>
-
       </div>
     </div>
-
-    </div>
-    <div class="actions">`;
-  if (maxcount != 0) {
-    if (count != 0) {
-      textElement += `<div class="ui negative animated button" tabindex="0"><div class="visible content">Prev</div><div class="hidden content"><i class="angle double left icon"></i>  </div></div>`;
+  </div>
+  <div class="actions">
+    ${
+      maxcount !== 0 && count !== 0
+        ? `<div class="ui negative animated button"><div class="visible content">Prev</div><div class="hidden content"><i class="angle double left icon"></i></div></div>`
+        : ""
     }
-    if (count != maxcount - 1) {
-      textElement += `<div class="ui positive animated button" tabindex="0"><div class="visible content">Next</div><div class="hidden content"><i class="angle double right icon"></i>  </div></div>`;
+    ${
+      maxcount !== 0 && count !== maxcount - 1
+        ? `<div class="ui positive animated button"><div class="visible content">Next</div><div class="hidden content"><i class="angle double right icon"></i></div></div>`
+        : ""
     }
-  }
-  textElement += `<div class="ui black deny button" onclick="$('#cpiHelper_semanticui_modal').modal('hide');">
-        Close
-      </div>
-    </div>
-    </div>
-    `;
+    <div class="ui black deny button">Close</div>
+  </div>
+`;
 
-  x = createElementFromHTML(textElement);
-  x.classList.add("cpiHelper");
-  x.classList.add("ui");
-  x.classList.add("modal");
-
-  x.id = "cpiHelper_semanticui_modal";
-  body().appendChild(x);
   // Add next-prev Button logic start
-  function stepdiaplayed(input) {
-    $("#cpiHelper_semanticui_modal").modal("hide");
-    sortedarray = Array.from(
-      document.querySelectorAll("[inline_cpi_child]"),
-      (e) => parseInt(e.getAttribute("inline_cpi_child"), 10)
-    ).sort((a, b) => a - b);
-    let element = findNearest(
-      sortedarray,
-      sortedarray[$("#cpiHelper_semanticui_modal .header").attr("count")],
-      input === 0 ? "previous" : "next"
-    );
-    $(`[inline_cpi_child=${element}] .cpiHelper_inlineInfo`).trigger("click");
-    showToast(
-      `${
-        input != 0 ? "Next" : "Previous"
-      } Step ${element} will be displayed shortly`
-    );
-  }
+
   ["negative", "positive"].forEach((type, index) => {
     const button = document.querySelector(
       `#cpiHelper_semanticui_modal .${type}`
     );
     if (button) {
-      button.addEventListener("click", () => stepdiaplayed(index));
+      button.addEventListener("click", (index) => {
+        sortedarray = Array.from(
+          document.querySelectorAll("[inline_cpi_child]"),
+          (e) => parseInt(e.getAttribute("inline_cpi_child"), 10)
+        ).sort((a, b) => a - b);
+        let element = findNearest(
+          sortedarray,
+          sortedarray[$("#cpiHelper_semanticui_modal .header").attr("count")],
+          index === 0 ? "previous" : "next"
+        );
+        $(`[inline_cpi_child=${element}] .cpiHelper_inlineInfo`).trigger(
+          "click"
+        );
+        showToast(
+          `${
+            index != 0 ? "Next" : "Previous"
+          } Step ${element} will be displayed shortly`
+        );
+        $("#cpiHelper_semanticui_modal").modal("hide");
+        showWaitingPopup();
+      });
     }
   });
   // Add next-prev Button logic End
-  if (parameters.fullscreen) {
-    x.classList.add("fullscreen");
-  } else {
-    x.classList.remove("fullscreen");
+  $(x).toggleClass("fullscreen", parameters.fullscreen);
+  if (!$("#cpiHelper_semanticui_modal").hasClass("active")) {
+    $("#cpiHelper_semanticui_modal")
+      .modal({ autoShow: true, detachable: false, blurring: true })
+      .modal("show");
   }
-
-  $("#cpiHelper_semanticui_modal")
-    .modal({ autoShow: true,detachable: false, blurring: true })
-    .modal("show");
 
   var infocontent = document.getElementById(
     "cpiHelper_bigPopup_content_semanticui"
