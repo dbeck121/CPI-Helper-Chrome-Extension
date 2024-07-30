@@ -24,6 +24,7 @@ In case of questions, please open an issue in github.
 4. all plugins must be released under same license as CPI-Helper
 5. the filename should not contain special characters or spaces. Be aware that the filename is case sensitiv
 6. please open a ticket and start discussion if you need more than the provided functions and objects
+7. Append any element under global cpihelper element. Must use `body().append` instead of `document.body.append` which directly append it to global tag.
 
 ## Plugin Implemetation metadata v1.0.0
 ### metadata description

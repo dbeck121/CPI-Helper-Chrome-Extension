@@ -440,15 +440,17 @@ div#cpiHelper_semanticui_modal {
   color: #ff0000 !important;
 }
 
-.cpiHelper li.L0,
-.cpiHelper li.L1,
-.cpiHelper li.L2,
-.cpiHelper li.L3,
-.cpiHelper li.L5,
-.cpiHelper li.L6,
-.cpiHelper li.L7,
-.cpiHelper li.L8 {
+.cpiHelper li[class^="L"] {
   list-style-type: decimal !important;
+}
+
+.changeloglist ul {
+  list-style-type: disclosure-closed !important;
+  margin-inline-start: 1.5rem !important;
+}
+
+.changeloglist ul>li {
+  padding-block: 0.2rem !important;
 }
 
 .cpiHelper_logs_left {

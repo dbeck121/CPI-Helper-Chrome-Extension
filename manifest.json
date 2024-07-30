@@ -43,6 +43,7 @@
         "/lib/jQuery/jquery.min.js",
         "/lib/semanticui/semantic.min.js",
         "/lib/semanticui/tablesort.js",
+        "lib/markdownit/markdown-it.min.js",
         "/common/logging.js",
         "/common/tools.js",
         "/scripts/identify-tenant.js",
