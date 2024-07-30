@@ -67,6 +67,7 @@ async function showBigPopup(
 ) {
   //create traceInfo div element
   var x = document.getElementById("cpiHelper_semanticui_modal");
+  $("#cpiHelper_waiting_model").modal("hide");
   $("#cpiHelper_semanticui_modal").modal("hide");
   if (x && type !== "undefined") {
     x.classList = "cpiHelper ui modal";
