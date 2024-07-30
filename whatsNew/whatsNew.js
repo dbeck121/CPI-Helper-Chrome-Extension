@@ -181,6 +181,11 @@ Considering a migration to the SAP Integration Suite? Figaf is hosting an in-dep
 }
 
 async function recrutingPopup(force = false) {
+
+    if(force = false) {
+        return true
+    }
+
     //shows a popup if browser language is German and if timestamp is not set or today is after timestamp in chrome storage
 
     //show only for a fraction of user for testing
