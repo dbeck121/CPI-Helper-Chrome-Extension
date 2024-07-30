@@ -37,6 +37,7 @@ function showWaitingPopup(
       class: classname,
       closeIcon: false,
       blurring: true,
+      time: time,
       content:
         content ||
         `<div class="ui positive  icon message">
@@ -50,6 +51,10 @@ function showWaitingPopup(
         </div>`,
     })
     .modal("show");
+    if (time){
+    setTimeout(() => {
+      $("#cpiHelper_waiting_model").modal("hide");
+    }, time);}
 }
 async function showBigPopup(
   content,
