@@ -34,7 +34,7 @@ var plugin = {
             const workArea = $('[id $="iflowSplitter-content-0"]'); // upper split area, work area
             const settingsPane = $('[id $="iflowSplitter-content-1"]'); // lower split area (settings pane) incl. tabs/title bars (has height attr.)
             const paneAllContent = $('[id $="iflowPropertySheetView--iflowPropLayout"]'); // actual settings data container (also invisible part), no height attr.            
-            const paneContentVisible = $('[id $="iflowPropertySheetView--propertySheetPageContainer"]'); // div with visible part of data sheet (has height attr.)
+            const paneContentVisible = $('[id $="iflowPropertySheetView--propertySheetScrollContainer"]'); // div with visible part of data sheet (has height attr.)
 
             // create button/text in messages window
             var div = document.createElement("div");        	
@@ -98,44 +98,11 @@ var plugin = {
 					newHeightInPct =  configPaneHeightPercent;  
                 }
                 
-                // create inline script to trigger the pane restore button in UI5
-                const scriptElement = document.createElement('script');
-                scriptElement.setAttribute("id", "settingsPaneResizerScript");
-
-                scriptElement.innerHTML = `
-                    function extendSettingsPane() {
-                        // only press button if pane not yet expanded
-                        var minButton = $('[id $="iflowSplitter-bar0-min-btn-img"]');
-                        var pauseButton = $("#pauseButton");                       
-                        if (minButton.length == 0 && !pauseButton.hasClass("cpiHelper_inlineInfo-active") ) {
-                            //console.log("minButton not visible - expanding pane to " + "${newHeightInPct}" + "%");
-                            console.log("Settings Pane expanded by CPI Helper Plugin")
-                            window.sap.ui.getCore().byId( $('[id $="--iflowSplitter-bar0-restore-btn"]').eq(0).attr("id")).firePress();
-                            var s = window.sap.ui.getCore().byId( $('[id^="__xmlview"][id$="-iflowSplitter"]').eq(0).attr("id"));
-                            s.getContentAreas()[0].setLayoutData(new sap.ui.layout.SplitterLayoutData({ size: "${(100-newHeightInPct) + "%"}" }));
-                            s.getContentAreas()[1].setLayoutData(new sap.ui.layout.SplitterLayoutData({ size: "${newHeightInPct + "%"}" }));
-                            //s.invalidate();             
-                        }
-                    }
-
-                    // add trigger of resizer when page content changes (to also catch page updates via 'ajax' instead of just full page reloads)                   
-                    var bodyObserver = new MutationObserver(function(mutations) {                                                                       
-                        mutations.forEach(mutation => {                            
-							//console.log(mutation)
-                            if (mutation.target.id.includes("iflowObjectPageLayout")) {
-                                extendSettingsPane();
-                            }
-                        });
-                    });
-                    var config = { childList: true, subtree: true };
-                    bodyObserver.observe(document.body, config);
-                    
-                    // execute function once without observer (this is triggered on first page load)
-                    extendSettingsPane();                    
-                `;
-
-                document.head.appendChild(scriptElement);  
-        
+                // load andiinject inline script to trigger the pane restore button in UI5 (moved to separate file due to manifest v3 security restrictions)
+               const script = document.createElement('script');
+               script.setAttribute("id", "settingsPaneResizerScript");
+               script.src = chrome.runtime.getURL('plugins/settingsPaneResizer-inject.js');
+               document.head.appendChild(script);        
             }
 
         

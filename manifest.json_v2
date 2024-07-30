@@ -109,7 +109,8 @@
   "web_accessible_resources": [
     "images/favicons/*.png",
     "lib/semanticui/*",
-    "images/*"
+    "images/*", 
+    "plugins/settingsPaneResizer-inject.js"    
   ],
   "manifest_version": 2
 }
