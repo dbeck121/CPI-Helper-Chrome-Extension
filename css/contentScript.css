@@ -444,15 +444,6 @@ div#cpiHelper_semanticui_modal {
   list-style-type: decimal !important;
 }
 
-.changeloglist ul {
-  list-style-type: disclosure-closed !important;
-  margin-inline-start: 1.5rem !important;
-}
-
-.changeloglist ul>li {
-  padding-block: 0.2rem !important;
-}
-
 .cpiHelper_logs_left {
   box-sizing: border-box;
   width: 200px;
@@ -564,4 +555,22 @@ fieldset {
 
 .ui.modal>.content {
   color: #000;
+}
+
+/* whatsnew change log css */
+.changeloglist>.header {
+  margin: .5rem !important;
+}
+
+.changeloglist .sub.header {
+  font-weight: bold !important;
+}
+
+.changeloglist ul {
+  list-style-type: initial !important;
+  margin-inline-start: 1.5rem !important;
+}
+
+.changeloglist ul>li {
+  padding-block: 0.2rem !important;
 }

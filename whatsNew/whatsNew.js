@@ -72,7 +72,7 @@ Considering a migration to the SAP Integration Suite? Figaf is hosting an in-dep
                     What's New?
                 </div>
             </h3>
-            <a class="ui red center right ribbon label">FireFox limited support</a>  
+            <a class="ui red center right ribbon label" style="position: absolute;">FireFox limited support</a>  
             <div class="changeloglist">${
                 Object.entries(
                     whats_new_log.trim().split('\n').reduce((acc, line) => {
@@ -84,9 +84,9 @@ Considering a migration to the SAP Integration Suite? Figaf is hosting an in-dep
                         return acc;
                     }, {})
                 ).sort(([a], [b]) => a.localeCompare(b)).map(([header, descs]) => `
-                    <div class="item">
-                        <div class="header">${header}</div>
-                        <div class="description">
+                    <div class="ui block header">
+                        <div class="ui sub header">${header}</div>
+                        <div class="description" style="font-weight: normal;">
                             <ul class="list">
                                 ${descs.map(desc => `<li>${md.renderInline(desc)}</li>`).join('')}
                             </ul>
