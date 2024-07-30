@@ -6,8 +6,8 @@ function GlobalId(id = "cpihelperglobal") {
       id === "cpihelperglobal"
         ? $(
             `<div id="${id}">
-            <div class="cpiHelper" id="cpiHelper_semanticui_modal"></div>
-            <div class="cpiHelper" id="cpiHelper_waiting_model"></div>
+            <div class="cpiHelper ui modal" id="cpiHelper_semanticui_modal"></div>
+            <div class="cpiHelper ui modal" id="cpiHelper_waiting_model"></div>
             </div>`
           )
         : $(`<div id="${id}"></div>`);

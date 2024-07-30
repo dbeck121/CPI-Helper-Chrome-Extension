@@ -29,26 +29,29 @@ function showToast(message, title, type = "") {
 function showWaitingPopup(
   content = undefined,
   classname = "small",
-  title = "CPI Helper Is thinking", 
+  title = "CPI Helper Is thinking",
   time = undefined
 ) {
-  $("#cpiHelper_waiting_model")
+  $("#cpiHelper_waiting_model").html(`
+    <div class="header">${title}</div>
+    <div class="content">${content ||
+      `<div class="ui positive  icon message">
+        <i class="notched circle loading icon"></i>
+        <div class="content">
+          <div class="header">
+            Please Wait...
+          </div>
+          <p>We're fetching content for you.</p>
+        </div>
+      </div>`}
+    </div>`);
+   $("#cpiHelper_waiting_model")
     .modal({
-      title: title,
       class: classname,
       closeIcon: false,
-      blurring: true,
-      content:
-        content ||
-        `<div class="ui positive  icon message">
-          <i class="notched circle loading icon"></i>
-          <div class="content">
-            <div class="header">
-              Please Wait...
-            </div>
-            <p>We're fetching content for you.</p>
-          </div>
-        </div>`,
+      blurring: true, 
+      closable:true,
+      detachable: false,
     })
     .modal("show");
   if (time) {
