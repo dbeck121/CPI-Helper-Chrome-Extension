@@ -201,47 +201,42 @@ Considering a migration to the SAP Integration Suite? Figaf is hosting an in-dep
 }
 
 async function recrutingPopup(force = false) {
-  //shows a popup if browser language is German and if timestamp is not set or today is after timestamp in chrome storage
+    if(force = false) {
+        return true
+    }
 
-  //show only for a fraction of user for testing
+    //shows a popup if browser language is German and if timestamp is not set or today is after timestamp in chrome storage
 
-  const Kangoolutions_Logo = chrome.runtime.getURL(
-    "images/kangoolutions_icon.png"
-  );
+    //show only for a fraction of user for testing
 
-  var randomGroup = parseInt(
-    await storageGetPromise("recrutingPopupRandomGroup")
-  );
+    const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
 
-  if (!randomGroup) {
-    randomGroup = Math.floor(Math.random() * 100);
-    var obj = {};
-    obj["recrutingPopupRandomGroup"] = randomGroup;
-    await storageSetPromise(obj);
-  }
+    var randomGroup = parseInt(await storageGetPromise("recrutingPopupRandomGroup"));
 
-  var lang = navigator.language || navigator.userLanguage;
-  var timestamp = parseInt(await storageGetPromise("recrutingPopupTimestamp"));
-  var today = +new Date();
+    if (!randomGroup) {
+        randomGroup = Math.floor(Math.random() * 100);
+        var obj = {}
+        obj["recrutingPopupRandomGroup"] = randomGroup
+        await storageSetPromise(obj)
+    }
 
-  if (!timestamp) {
-    var oneweek = +new Date() + 30 * 24 * 60 * 60 * 1000;
+    var lang = navigator.language || navigator.userLanguage;
+    var timestamp = parseInt(await storageGetPromise("recrutingPopupTimestamp"));
+    var today = +new Date();
 
-    var obj = {};
-    obj["recrutingPopupTimestamp"] = oneweek;
-    chrome.storage.local.set(obj, function () {
-      log.log("recruting popup timestamp set to today + " + 7 + " days");
-    });
-  }
+    if (!timestamp) {
+        var oneweek = +new Date() + 30 * 24 * 60 * 60 * 1000;
 
-  if (
-    lang == "de-DE" &&
-    (force ||
-      (!timestamp && randomGroup <= 80) ||
-      (timestamp && timestamp < today))
-  ) {
-    statistic("recrutingPopup", "show");
-    var html = `<div>
+        var obj = {};
+        obj["recrutingPopupTimestamp"] = oneweek;
+        chrome.storage.local.set(obj, function () {
+            log.log("recruting popup timestamp set to today + " + 7 + " days");
+        });
+    }
+
+    if (lang == "de-DE" && (force || (!timestamp && randomGroup <= 80) || (timestamp && timestamp < today))) {
+        statistic("recrutingPopup", "show")
+        var html = `<div>
     <div class="ui message">
         <img class="ui small floated image" src="${Kangoolutions_Logo}">
         <div class="content">
