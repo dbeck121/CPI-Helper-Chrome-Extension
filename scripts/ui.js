@@ -29,7 +29,8 @@ function showToast(message, title, type = "") {
 function showWaitingPopup(
   content = undefined,
   classname = "small",
-  title = "CPI Helper Is thinking"
+  title = "CPI Helper Is thinking", 
+  time = undefined
 ) {
   $("#cpiHelper_waiting_model")
     .modal({
@@ -37,7 +38,6 @@ function showWaitingPopup(
       class: classname,
       closeIcon: false,
       blurring: true,
-      time: time,
       content:
         content ||
         `<div class="ui positive  icon message">
@@ -51,10 +51,11 @@ function showWaitingPopup(
         </div>`,
     })
     .modal("show");
-    if (time){
+  if (time) {
     setTimeout(() => {
       $("#cpiHelper_waiting_model").modal("hide");
-    }, time);}
+    }, time);
+  }
 }
 async function showBigPopup(
   content,
@@ -72,9 +73,8 @@ async function showBigPopup(
   }
   x.innerHTML = `
   <i class="close icon" style="color:var(--cpi-text-color)"></i>
-  <div class="header" ${maxcount !== 0 ? `maxcount="${maxcount}"` : ""} ${
-    count !== 0 ? `count="${count}"` : ""
-  }>
+  <div class="header" ${maxcount !== 0 ? `maxcount="${maxcount}"` : ""} ${count !== 0 ? `count="${count}"` : ""
+    }>
     CPI Helper ${header ? "- " + header : ""}
   </div>
   <div class="scrolling content">
@@ -85,15 +85,13 @@ async function showBigPopup(
     </div>
   </div>
   <div class="actions">
-    ${
-      maxcount !== 0 && count !== 0
-        ? `<div class="ui negative animated button"><div class="visible content">Prev</div><div class="hidden content"><i class="angle double left icon"></i></div></div>`
-        : ""
+    ${maxcount !== 0 && count !== 0
+      ? `<div class="ui negative animated button"><div class="visible content">Prev</div><div class="hidden content"><i class="angle double left icon"></i></div></div>`
+      : ""
     }
-    ${
-      maxcount !== 0 && count !== maxcount - 1
-        ? `<div class="ui positive animated button"><div class="visible content">Next</div><div class="hidden content"><i class="angle double right icon"></i></div></div>`
-        : ""
+    ${maxcount !== 0 && count !== maxcount - 1
+      ? `<div class="ui positive animated button"><div class="visible content">Next</div><div class="hidden content"><i class="angle double right icon"></i></div></div>`
+      : ""
     }
     <div class="ui black deny button">Close</div>
   </div>
@@ -120,8 +118,7 @@ async function showBigPopup(
           "click"
         );
         showToast(
-          `${
-            index != 0 ? "Next" : "Previous"
+          `${index != 0 ? "Next" : "Previous"
           } Step ${element} will be displayed shortly`
         );
         $("#cpiHelper_semanticui_modal").modal("hide");
