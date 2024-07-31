@@ -433,9 +433,11 @@ async function clickTrace(e) {
   var logleveldata = JSON.parse(await makeCallPromise("GET", `/${cpiData.urlExtension}odata/api/v1/MessageProcessingLogs('${messageguid}')?$format=json`, true)).d;
 
   if (logleveldata.LogLevel != 'TRACE') {
+    $("#cpiHelper_waiting_model").modal("hide");
     showToast("Trace is not enabled", "your log level is" + logleveldata.LogLevel, "warning");
   }
   else if (logleveldata.LogLevel == 'TRACE' && new Date(parseInt(logleveldata.LogEnd.replace(/\D/g, '')) + (1.05 * 60 * 60000)) < new Date()) {
+    $("#cpiHelper_waiting_model").modal("hide");
     showToast("Trace is expired", "1 hour is already passed", "warning");
   } else {
     //Trace
