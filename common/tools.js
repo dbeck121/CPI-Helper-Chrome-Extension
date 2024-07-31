@@ -261,7 +261,7 @@ function downloadFile(fileContent, format, filename) {
   const link = $("<a></a>")
     .attr({
       href: url,
-      download: `${filename}.${format=="text"?'txt':format}`,
+      download: `${filename}.${format == "text" ? 'txt' : format}`,
     })
     .appendTo("body");
   link[0].click();
@@ -356,8 +356,8 @@ var formatTrace = function (input, id, traceId) {
     var DownloadBodyButton = document.createElement("button");
     DownloadBodyButton.innerText = "Download Body";
     DownloadBodyButton.onclick = async (element) => {
-      let typeOfInput=prettify_type(input)
-      downloadFile(input,typeOfInput,`CPI_${traceId}_${id}`)
+      let typeOfInput = prettify_type(input)
+      downloadFile(input, typeOfInput, `CPI_${traceId}_${id}`)
       showToast("Download of body is complete.");
     };
   }
@@ -378,8 +378,12 @@ var formatTrace = function (input, id, traceId) {
   };
 
   var themeButton = document.createElement("button");
-  themeButton.innerText = "Color Mode";
-  themeButton.onclick = (event) => editorManager.toggleTheme();
+  themeButton.innerText = `${!$('html').hasClass('sapUiTheme-sap_horizon_dark') ? "Dark" : "Light"} Editor`;
+  themeButton.onclick = (event) => { themeButton.innerText = `${editorManager.toggleTheme() ? "Dark" : "Light"} Editor`; }
+
+  var WrapButton = document.createElement("button");
+  WrapButton.innerText = "No Wrap";
+  WrapButton.onclick = (event) => { WrapButton.innerText = editorManager.toggleWrap() ? "No Wrap" : "Wrap"; }
 
   var readonlyButton = document.createElement("button");
   readonlyButton.innerText = "Edit";
@@ -412,6 +416,7 @@ var formatTrace = function (input, id, traceId) {
     result.appendChild(downloadButton);
     result.appendChild(DownloadBodyButton);
     result.appendChild(themeButton);
+    result.appendChild(WrapButton);
     result.appendChild(readonlyButton);
   }
 
@@ -682,19 +687,19 @@ function findNearest(array, target, direction = 'both') {
   let next = null;
 
   array.forEach(num => {
-      if (num < target && (prev === null || num > prev)) {
-          prev = num;
-      }
-      if (num > target && (next === null || num < next)) {
-          next = num;
-      }
+    if (num < target && (prev === null || num > prev)) {
+      prev = num;
+    }
+    if (num > target && (next === null || num < next)) {
+      next = num;
+    }
   });
 
   if (direction === 'previous') {
-      return prev;
+    return prev;
   } else if (direction === 'next') {
-      return next;
+    return next;
   } else {
-      return { previous: prev, next: next };
+    return { previous: prev, next: next };
   }
 }

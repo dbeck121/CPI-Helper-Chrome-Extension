@@ -85,12 +85,16 @@ async function showBigPopup(content, header, parameters = { fullscreen: true, ca
       if ($button.length) {
         $button.on("click", () => {
           const sortedArray = $(".cpiHelper_onclick[inline_cpi_child]").map((_, e) => parseInt($(e).attr("inline_cpi_child"), 10)).get().sort((a, b) => a - b);
-          console.log(sortedArray, $("#cpiHelper_semanticui_modal .header").attr("count"),sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")], index === 0 ? "previous" : "next")
-          let element = findNearest(sortedArray, sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")], index === 0 ? "previous" : "next");
-          $(`[inline_cpi_child=${element}] .cpiHelper_inlineInfo`).trigger("click");
-          showToast(`${index ? "Next" : "Previous"} Step ${element} will be displayed shortly`);
-          $modal.modal("hide");
-          showWaitingPopup();
+          console.log(sortedArray, $("#cpiHelper_semanticui_modal .header").attr("count"), sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")], index === 0 ? "previous" : "next");
+          if (sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")]) {
+            let element = findNearest(sortedArray, sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")], index === 0 ? "previous" : "next");
+            $(`[inline_cpi_child=${element}] .cpiHelper_inlineInfo`).trigger("click");
+            showToast(`${index ? "Next" : "Previous"} Step ${element} will be displayed shortly`);
+            $modal.modal("hide");
+            showWaitingPopup();
+          }else{
+            showToast(`${index ? "Next" : "Previous"} Step is not found`,"something went wrong","error")
+          }
         });
       }
     });

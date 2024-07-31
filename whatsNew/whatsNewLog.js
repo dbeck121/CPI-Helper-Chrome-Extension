@@ -7,5 +7,6 @@ const whats_new_log = `
 - [Feature] More compatibale with DARK CPI extension dark mode
 - [Feature] position of popup with state aware.
 - [Feature] Download Option for body only with proper extension.
+- [Feature] Text wrap Option and theme of editor has clear information.
 - [Feature] General UI BigFix & backend global element to organize. [read more here with snapshot note](https://github.com/dbeck121/CPI-Helper-Chrome-Extension/pull/194). Special thanks to [Omkar](https://github.com/incpi).
 `

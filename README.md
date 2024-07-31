@@ -56,7 +56,8 @@ It is open source so feel free to check the source code.
 - [Feature] More compatibale with DARK CPI extension dark mode
 - [Feature] position of popup with state aware.
 - [Feature] Download Option for body only with proper extension.
-- [Feature] General UI BigFix & backend global element to organize. [read more here with snapshot note](https://github.com/dbeck121/CPI-Helper-Chrome-Extension/pull/194). Special thanks to [Omkar](https://github.com/incpi).
+- [Feature] Text wrap Option and theme of editor has clear information.
+- [Feature] General UI BigFix & backend global element to organize. [read more here with snapshot notes](https://github.com/dbeck121/CPI-Helper-Chrome-Extension/pull/194). Special thanks to [Omkar](https://github.com/incpi).
 
 ### 3.14.0
 
