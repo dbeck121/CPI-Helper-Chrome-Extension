@@ -40,15 +40,15 @@ function openTrace(MessageGuid) {
   log.debug("MessageGuid");
   //we have to get the RunID first
   makeCall("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$format=json", false, "", (xhr) => {
-      if (xhr.readyState == 4) {
-        var resp = JSON.parse(xhr.responseText);
-        var status = resp.d.results[0].OverallState;
+    if (xhr.readyState == 4) {
+      var resp = JSON.parse(xhr.responseText);
+      var status = resp.d.results[0].OverallState;
       if (resp.d.results.length > 1 && status != "COMPLETED") { var runId = resp.d.results[1].Id; }
       else { var runId = resp.d.results[0].Id; }
 
       let url = '/' + cpiData.urlExtension + 'shell/monitoring/MessageProcessingRun/%7B"parentContext":%7B"MessageMonitor":%7B"artifactKey":"__ALL__MESSAGE_PROVIDER","artifactName":"All%20Artifacts"%7D%7D,"messageProcessingLog":"' + MessageGuid + '","RunId":"' + runId + '"%7D';
       window.open(url, '_blank');
-      }
+    }
   })
 }
 cpiData.functions.openTrace = openTrace;
@@ -223,8 +223,8 @@ async function renderMessageSidebar() {
             let statusicon = createElementFromHTML(
               `<button title='Status Details' class='cpiHelper_inlineInfo-button'><span data-sap-ui-icon-content='&#${statusIcon}' class='${resp[i].MessageGuid}`
               + " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" +
-                `${statusColor}'></span>` +
-                //timeButton here
+              `${statusColor}'></span>` +
+              //timeButton here
               `<span style='color:${statusColor};padding-inline-start:0.3em'>${date.substr(11, 8)}</span></button>`);
 
             statusicon.onclick = async (e) => {
@@ -427,7 +427,7 @@ async function clickTrace(e) {
   var targetElements = inlineTraceElements.filter((element) => {
     return element.StepId == id || element.ModelStepId == id;
   });
-  e.target.setAttribute("ch_inline_active",true)
+  e.target.setAttribute("ch_inline_active", true)
   //trace level check
   var messageguid = document.querySelector('.cpiHelper_inlineInfo-button.cpiHelper_inlineInfo-active').className.replace('flash', "").replace(/cpiHelper_inlineInfo-[A-z]+|\s+/g, '').trim()
   var logleveldata = JSON.parse(await makeCallPromise("GET", `/${cpiData.urlExtension}odata/api/v1/MessageProcessingLogs('${messageguid}')?$format=json`, true)).d;
@@ -449,118 +449,124 @@ async function clickTrace(e) {
 
     //TraceID
     //https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='AF57ga2G45vKDTfn7zqO0zwJ9n93',ChildCount=17)/TraceMessages?$format=json
-    var runs = [];
-    for (var n = targetElements.length - 1; n >= 0; n--) {
-      var childCount = targetElements[n].ChildCount;
-      var runId = targetElements[n].RunId;
-      var branch = targetElements[n].BranchId;
-      try {
-        // var traceId = JSON.parse(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogRunSteps(RunId='" + runId + "',ChildCount=" + childCount + ")/TraceMessages?$format=json", true)).d.results[0].TraceId;
-        var objects = [
-          {
-            label: "Properties",
-            content: getTraceTabContent,
-            active: true,
-            childCount: childCount,
-            runId: runId,
-            traceType: "properties",
-          },
-          {
-            label: "Headers",
-            content: getTraceTabContent,
-            active: false,
-            childCount: childCount,
-            runId: runId,
-            traceType: "headers",
-          },
-          {
-            label: "Body",
-            content: getTraceTabContent,
-            active: false,
-            childCount: childCount,
-            runId: runId,
-            traceType: "trace",
-          },
-          {
-            label: "Log",
-            content: getTraceTabContent,
-            active: false,
-            childCount: childCount,
-            runId: runId,
-            traceType: "logContent",
-          },
-          {
-            label: "Info",
-            content: getTraceTabContent,
-            active: false,
-            childCount: childCount,
-            runId: runId,
-            traceType: "info",
-          },
-        ];
-        if (targetElements[n].Error) {
-          let innerContent = document.createElement("div");
-          innerContent.classList.add("cpiHelper_traceText");
-          innerContent.innerText = targetElements[n].Error;
-          innerContent.style.display = "block";
-          objects.push({
-            label: "Error",
-            content: innerContent,
-            active: false,
-          });
+    async function loginformation() {
+      {
+        var runs = [];
+        for (var n = targetElements.length - 1; n >= 0; n--) {
+          var childCount = targetElements[n].ChildCount;
+          var runId = targetElements[n].RunId;
+          var branch = targetElements[n].BranchId;
+          try {
+            // var traceId = JSON.parse(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogRunSteps(RunId='" + runId + "',ChildCount=" + childCount + ")/TraceMessages?$format=json", true)).d.results[0].TraceId;
+            var objects = [
+              {
+                label: "Properties",
+                content: getTraceTabContent,
+                active: true,
+                childCount: childCount,
+                runId: runId,
+                traceType: "properties",
+              },
+              {
+                label: "Headers",
+                content: getTraceTabContent,
+                active: false,
+                childCount: childCount,
+                runId: runId,
+                traceType: "headers",
+              },
+              {
+                label: "Body",
+                content: getTraceTabContent,
+                active: false,
+                childCount: childCount,
+                runId: runId,
+                traceType: "trace",
+              },
+              {
+                label: "Log",
+                content: getTraceTabContent,
+                active: false,
+                childCount: childCount,
+                runId: runId,
+                traceType: "logContent",
+              },
+              {
+                label: "Info",
+                content: getTraceTabContent,
+                active: false,
+                childCount: childCount,
+                runId: runId,
+                traceType: "info",
+              },
+            ];
+            if (targetElements[n].Error) {
+              let innerContent = document.createElement("div");
+              innerContent.classList.add("cpiHelper_traceText");
+              innerContent.innerText = targetElements[n].Error;
+              innerContent.style.display = "block";
+              objects.push({
+                label: "Error",
+                content: innerContent,
+                active: false,
+              });
+            }
+            let label = "" + branch;
+            let content = await createTabHTML(objects, "tracetab-" + childCount);
+            if (content) {
+              runs.push({
+                label,
+                content,
+              });
+            }
+          } catch (error) {
+            log.log("error catching trace");
+          }
         }
-        let label = "" + branch;
-        let content = await createTabHTML(objects, "tracetab-" + childCount);
-        if (content) {
-          runs.push({
-            label,
-            content,
-          });
+        if (runs.length == 0) {
+          showToast("No Trace Found", "", "warning");
+          return;
         }
-      } catch (error) {
-        log.log("error catching trace");
+        return runs.length == 1 ? runs[0].content : await createTabHTML(runs, "runstab", 0)
       }
     }
-    if (runs.length == 0) {
-      showToast("No Trace Found", "", "warning");
-      return;
-    }
-    let childindex = Array.from(document.querySelectorAll("[inline_cpi_child]"), (e) => parseInt(e.getAttribute("inline_cpi_child"), 10)).sort((a, b) => a - b)
-    childindex = childindex.indexOf(parseInt(e.target.parentNode.parentNode.getAttribute("inline_cpi_child")))
-    showBigPopup(runs.length == 1 ? runs[0].content : await createTabHTML(runs, "runstab", 0),      "Content Before Step", { fullscreen: true, callback: null },childindex, document.querySelectorAll("[inline_cpi_child]").length, String(e.pointerType)    );    
+    let childindex = Array.from(document.querySelectorAll(".cpiHelper_onclick[inline_cpi_child]"), (e) => parseInt(e.getAttribute("inline_cpi_child"), 10)).sort((a, b) => a - b)
+    //console.log(e.target.parentNode.parentNode)
+    childindex = childindex.indexOf(parseInt(e.target.parentNode.parentNode.getAttribute("inline_cpi_child")));
+    showBigPopup(await loginformation, "Content Before Step", { fullscreen: true, callback: null }, childindex, document.querySelectorAll(".cpiHelper_onclick[inline_cpi_child]").length, String(e.pointerType));
   }
   inlineTraceRunning = false;
 }
 
 async function hideInlineTrace() {
-    activeInlineItem = null;
-    $('[ch_inline_active]').removeAttr('ch_inline_active');
-    $('[inline_cpi_child]').removeAttr('inline_cpi_child');
-  
-    var classesToBeDeleted = [
-      ".cpiHelper_inlineInfo", 
-      ".cpiHelper_inlineInfo_error", 
-      ".cpiHelper_avg", 
-      ".cpiHelper_belowavg", 
-      ".cpiHelper_inlineInfo-active", 
-      ".cpiHelper_aboveavg", 
-      ".cpiHelper_max", 
-      ".cpiHelper_min"
-    ];
-  
-    $(onClicKElements).off('click');
-    onClicKElements = [];
-  
-    classesToBeDeleted.forEach(selector => {
-      $(selector).removeClass(selector.substring(1)).off('click');
-    });  
+  activeInlineItem = null;
+  $('[ch_inline_active]').removeAttr('ch_inline_active');
+  $('[inline_cpi_child]').removeAttr('inline_cpi_child');
+
+  var classesToBeDeleted = [
+    ".cpiHelper_inlineInfo",
+    ".cpiHelper_inlineInfo_error",
+    ".cpiHelper_avg",
+    ".cpiHelper_belowavg",
+    ".cpiHelper_inlineInfo-active",
+    ".cpiHelper_aboveavg",
+    ".cpiHelper_max",
+    ".cpiHelper_min"
+  ];
+
+  $(onClicKElements).off('click');
+  onClicKElements = [];
+
+  classesToBeDeleted.forEach(selector => {
+    $(selector).removeClass(selector.substring(1)).off('click');
+  });
 }
 
 function timenodediff(e) {
   return {
     StepId: e.StepId,
     ModelStepId: e.ModelStepId,
-    CH_stats:      parseInt(e.StepStop.match(/\d+/)[0]) -      parseInt(e.StepStart.match(/\d+/)[0]),
+    CH_stats: parseInt(e.StepStop.match(/\d+/)[0]) - parseInt(e.StepStart.match(/\d+/)[0]),
   };
 }
 
@@ -744,14 +750,14 @@ function setLogLevel(logLevel, iflowId) {
 
 
   makeCall("POST", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentSetMplLogLevelCommand", true, '{"artifactSymbolicName":"' + iflowId + '","mplLogLevel":"' + logLevel.toUpperCase() + '","nodeType":"IFLMAP"}', (xhr) => {
-      if (xhr.readyState == 4 && xhr.status == 200) {
-        showToast("Trace is activated");
-        log.log("Trace activated");
-      } else {
-        showToast("Error activating Trace", "", "error");
-        log.log("Error activating trace");
-      }
-    },
+    if (xhr.readyState == 4 && xhr.status == 200) {
+      showToast("Trace is activated");
+      log.log("Trace activated");
+    } else {
+      showToast("Error activating Trace", "", "error");
+      log.log("Error activating trace");
+    }
+  },
     "application/json;charset=UTF-8"
   );
 }
@@ -761,12 +767,12 @@ function undeploy(tenant = null, artifactId = null) {
   tenant ??= cpiData.tenantId;
   artifactId ??= cpiData.artifactId;
   makeCall("POST", "/" + cpiData.urlExtension + "Operations/com.sap.it.nm.commands.deploy.DeleteContentCommand", true, 'artifactIds=' + artifactId + '&tenantId=' + tenant, (xhr) => {
-      if (xhr.readyState == 4 && xhr.status == 200) {
-        showToast("Undeploy triggered");
-      } else {
-        showToast("Error triggering undeploy", "", "error");
-      }
-    },
+    if (xhr.readyState == 4 && xhr.status == 200) {
+      showToast("Undeploy triggered");
+    } else {
+      showToast("Error triggering undeploy", "", "error");
+    }
+  },
     "application/x-www-form-urlencoded; charset=UTF-8"
   );
 }
@@ -920,33 +926,33 @@ async function buildButtonBar() {
 async function getIflowInfo(callback, silent = false) {
   return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", false, null, null, null, null, !silent).then((response) => {
     response = new XmlToJson().parse(response)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
-      var resp = response.artifactInformations;
+    var resp = response.artifactInformations;
 
-      if (resp.length) {
-        resp = resp.find((element) => {
-          return element.symbolicName == cpiData.integrationFlowId;
-        });
-      } else {
-        if (resp.symbolicName != cpiData.integrationFlowId) {
-          resp = null;
-        }
+    if (resp.length) {
+      resp = resp.find((element) => {
+        return element.symbolicName == cpiData.integrationFlowId;
+      });
+    } else {
+      if (resp.symbolicName != cpiData.integrationFlowId) {
+        resp = null;
       }
-      if (!resp) {
-        throw "Integration Flow was not found. Probably it is not deployed.";
-      }
+    }
+    if (!resp) {
+      throw "Integration Flow was not found. Probably it is not deployed.";
+    }
     return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + resp.id, false, 'application/json', null, null, null, !silent);
   }).then((response) => {
-      var resp = JSON.parse(response);
-      cpiData.flowData = resp;
-      cpiData.flowData.lastUpdate = new Date().toISOString();
-      cpiData.tenantId = cpiData?.flowData?.artifactInformation?.tenantId;
-      cpiData.artifactId = cpiData?.flowData?.artifactInformation?.id;
-      cpiData.version = cpiData?.flowData?.artifactInformation?.version;
-      if (callback) {
-        callback();
-      }
-      return;
-    })
+    var resp = JSON.parse(response);
+    cpiData.flowData = resp;
+    cpiData.flowData.lastUpdate = new Date().toISOString();
+    cpiData.tenantId = cpiData?.flowData?.artifactInformation?.tenantId;
+    cpiData.artifactId = cpiData?.flowData?.artifactInformation?.id;
+    cpiData.version = cpiData?.flowData?.artifactInformation?.version;
+    if (callback) {
+      callback();
+    }
+    return;
+  })
     .catch((error) => {
       if (!silent) {
         showToast(JSON.stringify(error));
@@ -1022,9 +1028,9 @@ async function openIflowInfoPopup() {
     async function createTableForVariables() {
       var variableList =
         await makeCallPromise(
-        "GET",
+          "GET",
           "/" + cpiData.urlExtension + "Operations/com.sap.esb.monitoring.datastore.access.command.ListDataStoreEntriesCommand?storeName=sap_global_store&allStores=true&maxNum=100000",
-        false,
+          false,
           "application/json", null, false
 
         )
@@ -1264,7 +1270,7 @@ async function openIflowInfoPopup() {
     whatsNewButton.innerText = "Whats New?";
     whatsNewButton.addEventListener("click", (a) => {
       whatsNewCheck(false);
-      $("#cpiHelper_semanticui_modal").modal({ autoShow: true,detachable: false, blurring: true }).modal("show");
+      $("#cpiHelper_semanticui_modal").modal({ autoShow: true, detachable: false, blurring: true }).modal("show");
       statistic("info_popup_whatsnew_click");
     });
     x.appendChild(whatsNewButton);
@@ -1280,7 +1286,7 @@ async function openIflowInfoPopup() {
       recrutingButton.innerText = "Werde Berater bei Kangoolutions";
       recrutingButton.addEventListener("click", (a) => {
         recrutingPopup(true);
-        $("#cpiHelper_semanticui_modal").modal({ autoShow: true,detachable: false, blurring: true }).modal("show");
+        $("#cpiHelper_semanticui_modal").modal({ autoShow: true, detachable: false, blurring: true }).modal("show");
         statistic("info_popup_recruting_click");
       });
       x.appendChild(recrutingButton);
@@ -1358,8 +1364,8 @@ var sidebar = {
     chrome.storage.sync.get(["set_ch_popup_mouse"], function (result) {
       popuparea = document.querySelector('#cpiHelper_content')
       if (result["set_ch_popup_mouse"]) {
-        popuparea.style.left=result["set_ch_popup_mouse"].left
-        popuparea.style.top=result["set_ch_popup_mouse"].top
+        popuparea.style.left = result["set_ch_popup_mouse"].left
+        popuparea.style.top = result["set_ch_popup_mouse"].top
       }
     });
     //plugin area setup popup+join mode
@@ -1408,8 +1414,8 @@ var sidebar = {
     //refresh messages
     messageSidebarPluginContent(true);
     refreshActive = true;
-    renderMessageSidebar().then(() => {refreshActive = false;}).catch(() => {refreshActive = false;});
-  
+    renderMessageSidebar().then(() => { refreshActive = false; }).catch(() => { refreshActive = false; });
+
   }
 };
 
@@ -1517,7 +1523,7 @@ function apireserror(message) {
   $.toast({
     message: "Please wait while we prepare...",
     position: "bottom right",
-    class:($("html").hasClass("sapUiTheme-sap_horizon_dark") ? " inverted " : ""),
+    class: ($("html").hasClass("sapUiTheme-sap_horizon_dark") ? " inverted " : ""),
     onVisible: async () =>
       popupTable(message)
         .then((message) => {
@@ -1530,7 +1536,7 @@ function apireserror(message) {
             position: "bottom right",
             displayTime: 5000,
             onRemove: () => {
-            document.querySelectorAll('.cpiHelper_sidebar_iconbutton').forEach((i) => i.classList.remove('cpiHelper_sidebar_iconbutton'));
+              document.querySelectorAll('.cpiHelper_sidebar_iconbutton').forEach((i) => i.classList.remove('cpiHelper_sidebar_iconbutton'));
             },
             message: message,
           });
@@ -1562,19 +1568,19 @@ async function getMessageProcessingLogRuns(MessageGuid, store = true) {
   }
   console.log(top_mode_count)
   return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store).then((responseText) => {
-      var resp = JSON.parse(responseText);
-      var status = resp.d.results[0].OverallState;
-      //take the correct run log (last or second last) for displaying the inline trace, depending on message status.
+    var resp = JSON.parse(responseText);
+    var status = resp.d.results[0].OverallState;
+    //take the correct run log (last or second last) for displaying the inline trace, depending on message status.
     if (resp.d.results.length > 1 && (status != "COMPLETED" && status != "ESCALATED")) { return resp.d.results[1].Id; }
     else { return resp.d.results[0].Id; }
   }).then((runId) => {
     return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json" + top_mode_count, store);
   }).then((response) => {
-      return JSON.parse(response).d.results.filter((e) => e.StepStop != null);
+    return JSON.parse(response).d.results.filter((e) => e.StepStop != null);
   }).catch((e) => {
-      log.log(e);
-      return null;
-    });
+    log.log(e);
+    return null;
+  });
 }
 
 //function to get the current artifact name from the URL
@@ -1841,8 +1847,8 @@ function dragElement(elmnt) {
     document.onmousemove = elementDrag;
   }
 
-let debounceTimeout;
-function elementDrag(e) {
+  let debounceTimeout;
+  function elementDrag(e) {
     e = e || window.event;
     e.preventDefault();
     // calculate the new cursor position:
@@ -1860,9 +1866,9 @@ function elementDrag(e) {
     let mouse_left = elmnt.style.left = (((newleft < 0 || newleft >= maxwidth) ? (((newleft < 0) ? 0 : ((newleft >= maxwidth) ? maxwidth : newleft))) : newleft) * 100 / window.innerWidth) + "%";
     clearTimeout(debounceTimeout);
     debounceTimeout = setTimeout(() => {
-        syncChromeStoragePromise("set_ch_popup_mouse", { top: mouse_top, left: mouse_left });
+      syncChromeStoragePromise("set_ch_popup_mouse", { top: mouse_top, left: mouse_left });
     }, 500);
-}
+  }
 
   function closeDragElement() {
     /* stop moving when mouse button is released:*/
@@ -1912,7 +1918,7 @@ async function storeVisitedIflowsForPopup() {
           var obj = {};
           obj[name] = visitedIflows;
 
-          chrome.storage.sync.set(obj, function () {});
+          chrome.storage.sync.set(obj, function () { });
         });
       }
     }
