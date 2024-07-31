@@ -33,17 +33,12 @@ function showWaitingPopup(
   time = undefined
 ) {
   $("#cpiHelper_waiting_model").html(`
-    <div class="header">${title}</div>
-    <div class="content">${content ||
-    `<div class="ui positive  icon message">
-        <i class="notched circle loading icon"></i>
+      <div class="ui positive  icon message">
+        <i class="sync alternate loading icon"></i>
         <div class="content">
-          <div class="header">
-            Please Wait...
-          </div>
-          <p>We're fetching content for you.</p>
+          <div class="header">${title}</div>
+          <p>${content || `Please Wait while we fetch content for you.`}</p>
         </div>
-      </div>`}
     </div>`);
   $("#cpiHelper_waiting_model")
     .modal({
@@ -61,68 +56,72 @@ function showWaitingPopup(
   }
 }
 async function showBigPopup(content, header, parameters = { fullscreen: true, callback: null }, count = 0, maxcount = 0, type = "mouse") {
-  var x = $("#cpiHelper_semanticui_modal")[0];
   $("#cpiHelper_waiting_model, #cpiHelper_semanticui_modal").modal("hide");
-  if (x) {
-    x.classList = "cpiHelper ui modal";
-  }
-  x.innerHTML = `
-    <i class="close icon" style="color:var(--cpi-text-color)"></i>
-    <div class="header" maxcount="${maxcount}" count="${count}">
-      CPI Helper ${header ? "- " + header : ""}
-    </div>
-    <div class="scrolling content">
-      <div class="description" id="cpiHelper_bigPopup_content_semanticui" style="min-height: 50vh; transition: all 100ms ease-in-out;">
-        <div class="ui active inverted dimmer">
-          <div class="ui loader"></div>
-        </div>
-      </div>
-    </div>
-    <div class="actions">
-      ${maxcount && count ? '<div class="ui negative animated button"><div class="visible content">Prev</div><div class="hidden content"><i class="angle double left icon"></i></div></div>' : ""}
-      ${maxcount && count !== maxcount - 1 ? '<div class="ui positive animated button"><div class="visible content">Next</div><div class="hidden content"><i class="angle double right icon"></i></div></div>' : ""}
-      <div class="ui black deny button">Close</div>
-    </div>
-  `;
+  var $modal = $("#cpiHelper_semanticui_modal");
+  if ($modal.length) {
+    $modal.attr("class", "cpiHelper ui modal");
 
-  ["negative", "positive"].forEach((type, index) => {
-    const button = $(`#cpiHelper_semanticui_modal .${type}`);
-    if (button.length) {
-      button.on("click", () => {
-        const sortedArray = $(".cpiHelper_onclick[inline_cpi_child]").map((_, e) => parseInt($(e).attr("inline_cpi_child"), 10)).get().sort((a, b) => a - b);
-        //console.log(sortedArray,$("#cpiHelper_semanticui_modal .header").attr("count"), index === 0 ? "previous" : "next")
-        let element = findNearest(sortedArray, sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")], index === 0 ? "previous" : "next");
-        $(`[inline_cpi_child=${element}] .cpiHelper_inlineInfo`).trigger("click");
-        showToast(`${index ? "Next" : "Previous"} Step ${element} will be displayed shortly`);
-        $("#cpiHelper_semanticui_modal").modal("hide");
-        showWaitingPopup();
-      });
+    $modal.html(`
+          <i class="close icon" style="color:var(--cpi-text-color)"></i>
+          <div class="header" maxcount="${maxcount}" count="${count}">
+            CPI Helper ${header ? "- " + header : ""}
+          </div>
+          <div class="scrolling content">
+            <div class="description" id="cpiHelper_bigPopup_content_semanticui" style="min-height: 50vh; transition: all 100ms ease-in-out;">
+              <div class="ui active inverted dimmer">
+                <div class="ui loader"></div>
+              </div>
+            </div>
+          </div>
+          <div class="actions">
+            ${maxcount && count ? '<div class="ui negative animated button"><div class="visible content">Prev</div><div class="hidden content"><i class="angle double left icon"></i></div></div>' : ""}
+            ${maxcount && count !== maxcount - 1 ? '<div class="ui positive animated button"><div class="visible content">Next</div><div class="hidden content"><i class="angle double right icon"></i></div></div>' : ""}
+            <div class="ui black deny button">Close</div>
+          </div>
+        `);
+
+    ["negative", "positive"].forEach((type, index) => {
+      const $button = $modal.find(`.${type}`);
+      if ($button.length) {
+        $button.on("click", () => {
+          const sortedArray = $(".cpiHelper_onclick[inline_cpi_child]").map((_, e) => parseInt($(e).attr("inline_cpi_child"), 10)).get().sort((a, b) => a - b);
+          console.log(sortedArray, $("#cpiHelper_semanticui_modal .header").attr("count"),sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")], index === 0 ? "previous" : "next")
+          let element = findNearest(sortedArray, sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")], index === 0 ? "previous" : "next");
+          $(`[inline_cpi_child=${element}] .cpiHelper_inlineInfo`).trigger("click");
+          showToast(`${index ? "Next" : "Previous"} Step ${element} will be displayed shortly`);
+          $modal.modal("hide");
+          showWaitingPopup();
+        });
+      }
+    });
+
+    var $infocontent = $("#cpiHelper_bigPopup_content_semanticui");
+
+    if (typeof content === "string") {
+      $infocontent.html(content);
+    } else if (typeof content === "object") {
+      $infocontent.empty().append(content);
+    } else if (typeof content === "function") {
+      const result = await content();
+      $infocontent.empty().append(result);
     }
-  });
 
-  $(x).toggleClass("fullscreen", parameters.fullscreen);
-  $("#cpiHelper_semanticui_modal").modal({ autoShow: true, closable: true, detachable: false, blurring: true }).modal("show");
+    if (parameters.callback) {
+      parameters.callback();
+    }
 
-  var infocontent = document.getElementById(
-    "cpiHelper_bigPopup_content_semanticui"
-  );
-  if (typeof content == "string") {
-    infocontent.innerHTML = content;
-  }
-
-  if (typeof content == "object") {
-    infocontent.innerHTML = "";
-    infocontent.appendChild(content);
-  }
-
-  if (typeof content == "function") {
-    var result = await content();
-    infocontent.innerHTML = "";
-    infocontent.appendChild(result);
-  }
-
-  if (parameters.callback) {
-    parameters.callback();
+    $modal.toggleClass("fullscreen", parameters.fullscreen).modal({
+      detachable: false,
+      blurring: true,
+      autoShow: true,
+      onShow: function () {
+        if (!$modal.parent().is("#cpihelperglobal")) {
+          $('#cpihelperglobal').append($modal);  // Ensuring the modal stays within its parent container
+        }
+      }
+    }).modal("show");
+  } else {
+    showToast("", "Element is missing.. Reload the page", "error")
   }
 }
 
