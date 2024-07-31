@@ -35,7 +35,6 @@
         "https://*.platform.sapcloud.cn/shell/*"
       ],
       "js": [
-        "/scripts/init.js",
         "/lib/ulog/ulog-full.min.js",
         "/lib/ace/ace.min.js",
         "/lib/ace/ext-searchbox.js",
@@ -52,6 +51,7 @@
         "/lib/semanticui/semantic.min.js",
         "/lib/semanticui/tablesort.js",
         "lib/markdownit/markdown-it.min.js",
+        "/scripts/init.js",
         "/common/logging.js",
         "/common/tools.js",
         "/scripts/identify-tenant.js",
