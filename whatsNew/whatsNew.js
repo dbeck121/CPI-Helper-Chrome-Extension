@@ -4,7 +4,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
 
     check = await storageGetPromise("whatsNewV" + manifestVersion);
 
-    silentupdates = ["3.0.3"]
+    silentupdates = ["3.0.3", "3.14.4"]
 
     //const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
     const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo.png");
@@ -182,7 +182,7 @@ Considering a migration to the SAP Integration Suite? Figaf is hosting an in-dep
 
 async function recrutingPopup(force = false) {
 
-    if(force = false) {
+    if(force == false) {
         return true
     }
 
