@@ -72,7 +72,7 @@ function downloadLog() {
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
-    document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+    body().appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
     a.click();
     a.remove();
     logsarray = [];

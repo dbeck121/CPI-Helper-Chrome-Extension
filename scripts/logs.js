@@ -230,7 +230,6 @@ createLogsRightSide = async (runId, leftActive = false) => {
     var objects = null;
     var logs = null;
     if (runId) {
-
         objects = [
             {
                 label: "Info",
@@ -245,17 +244,13 @@ createLogsRightSide = async (runId, leftActive = false) => {
                 label: "Persist",
                 content: await createPersistLogsContent(runId),
                 active: false
-
             }
         ];
-
         logs = await createTabHTML(objects, 'logs-tab');
-
     } else {
         logs = document.createElement('div');
         logs.innerHTML = '<div class="cpiHelper_tabs">Please choose a message to show logs. You can also click the speech bubble icon in Messages Sidebar.</div>';
     }
-
     var right = document.createElement('div');
     right.id = "cpiHelper_logs-right-side";
     if (leftActive) {

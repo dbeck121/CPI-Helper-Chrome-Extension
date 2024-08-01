@@ -21,7 +21,7 @@ clearalldata = () => {
 var plugin = {
     metadataVersion: "1.0.0",
     id: "traceModifer",
-    name: "Performance stats | Trace Step (Beta)",
+    name: "Performance stats",
     version: "1.5.0",
     author: "Developed by Omkar",
     email: "omk14p@outlook.com",
