@@ -384,10 +384,10 @@ createLogsInfo = async (messageId) => {
     valueList.push({ Name: "OriginComponentName", Value: input.OriginComponentName });
 
 
-    result = `<div id="cpiHelper_logsInfo"><table class="ui basic striped selectable compact table">  <thead><tr class="black"><th>Name</th><th>Value</th></tr></thead>
+    result = `<div id="cpiHelper_logsInfo"><table class="ui basic striped selectable compact table">  <thead><tr class="blue"><th>Name</th><th>Value</th></tr></thead>
     <tbody>`
     valueList.forEach(item => {
-        result += `<tr class="${item.Type == 'header' ? 'black' : ''}"><td>${item.Name}</td><td style="word-break: break-all;">${htmlEscape(item.Value)}</td></tr>`
+        result += `<tr class="${item.Type == 'header' ? 'blue' : ''}"><td>${item.Name}</td><td style="word-break: break-all;">${htmlEscape(item.Value)}</td></tr>`
     });
     result += "</tbody></table>";
     return result;

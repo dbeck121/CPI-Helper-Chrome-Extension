@@ -334,7 +334,7 @@ async function clickTrace(e) {
   var formatLogContent = function (inputList) {
     inputList = inputList.sort(function (a, b) { return a.Name.toLowerCase() > b.Name.toLowerCase() ? 1 : -1 });
     result = `<table class='ui basic striped selectable compact table'>
-    <thead><tr class="black"><th>Name</th><th>Value</th></tr></thead>
+    <thead><tr class="blue"><th>Name</th><th>Value</th></tr></thead>
     <tbody>`
     inputList.forEach(item => {
       result += "<tr><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + item.Value + "</td></tr>"
@@ -373,7 +373,7 @@ async function clickTrace(e) {
 
     valueList.push({ Name: "ChildCount", Value: inputList.ChildCount });
 
-    result = `<table class='ui basic striped selectable compact table'><thead><tr class="black"><th>Name</th><th>Value</th></tr></thead>
+    result = `<table class='ui basic striped selectable compact table'><thead><tr class="blue"><th>Name</th><th>Value</th></tr></thead>
     <tbody>`
     valueList.forEach(item => {
       result += "<tr><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + item.Value + "</td></tr>"
@@ -1344,7 +1344,7 @@ var sidebar = {
       <span id='sidebar_modal_minimize' class='cpiHelper_closeButton_sidebar'>CPI Helper</span>
       <span id='sidebar_modal_close' data-sap-ui-icon-content="&#xe03e" class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>
     </div>
-    <div id="outerFrame" style="color:black;">
+    <div id="outerFrame" >
       <div>
         <div id="updatedText" class="contentText"></div>
         <div id="deploymentText" class="contentText">State: </div>

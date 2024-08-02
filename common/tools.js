@@ -348,20 +348,18 @@ var formatTrace = function (input, id, traceId) {
       var response = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.GetTraceArchiveCommand?traceIds=" + traceId, true);
       var value = response.match(/<payload>(.*)<\/payload>/sg)[0];
       value = value.substring(9, value.length - 10)
-
       window.open("data:application/zip;base64," + value);
       showToast("Download complete.");
     };
-    //download body only step
-    var DownloadBodyButton = document.createElement("button");
-    DownloadBodyButton.innerText = "Download Body";
-    DownloadBodyButton.onclick = async (element) => {
-      let typeOfInput = prettify_type(input)
-      downloadFile(input, typeOfInput, `CPI_${traceId}_${id}`)
-      showToast("Download of body is complete.");
-    };
   }
-
+  //download body only step
+  var DownloadBodyButton = document.createElement("button");
+  DownloadBodyButton.innerText = "Download Body";
+  DownloadBodyButton.onclick = async (element) => {
+    let typeOfInput = prettify_type(input)
+    downloadFile(input, typeOfInput, `CPI_${traceId}_${id}`)
+    showToast("Download of body is complete.");
+  };
   var copyButton = document.createElement("button");
   copyButton.innerText = "Copy";
   copyButton.onclick = (input) => {
@@ -412,12 +410,12 @@ var formatTrace = function (input, id, traceId) {
 
   result.appendChild(beautifyButton);
   result.appendChild(copyButton);
+  result.appendChild(DownloadBodyButton);
+  result.appendChild(themeButton);
+  result.appendChild(WrapButton);
+  result.appendChild(readonlyButton);
   if (traceId) {
     result.appendChild(downloadButton);
-    result.appendChild(DownloadBodyButton);
-    result.appendChild(themeButton);
-    result.appendChild(WrapButton);
-    result.appendChild(readonlyButton);
   }
 
   var textEncoder = new TextEncoder().encode(input)
@@ -461,7 +459,7 @@ var formatHeadersAndPropertiesToTable = function (inputList) {
   }
 
   result = `<table class='ui basic striped selectable compact table'>
-  <thead><tr class="black"><th>Name</th><th>Value</th></tr></thead>
+  <thead><tr class="blue"><th>Name</th><th>Value</th></tr></thead>
   <tbody>`
   inputList.forEach(item => {
     result += "<tr><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + htmlEscape(item.Value) + "</td></tr>"

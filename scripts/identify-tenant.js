@@ -177,9 +177,6 @@
     const root = document.querySelector(':root');
     let theme = ($('html').hasClass('sapUiTheme-sap_horizon'))
     root.style.setProperty('--cpi-custom-color', adjustColorLimiter(color, !theme ? 80 : 20, 25, !theme));
-    chrome.storage.sync.get("CPIhelperThemeInfo", (theme) => {
-      root.style.setProperty('--cpi-text-color', !theme['CPIhelperThemeInfo'] ? '#ffffff' : '#000000');
-    });
     // Set the theme color meta tag
     let themeColorElement = document.querySelector("meta[name='theme-color']");
     if (themeColorElement) {
