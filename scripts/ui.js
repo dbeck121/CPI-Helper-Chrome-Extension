@@ -16,7 +16,7 @@ function workingIndicator(status) {
 function showToast(message, title, type = "") {
   //type = success, error, warning
   $.toast({
-    class: type,
+    class: type + ($("html").hasClass("sapUiTheme-sap_horizon_dark") ? " ch_dark " : ""),
     position: "bottom center",
     showProgress: "bottom",
     ...(title ? { title: title } : {}),

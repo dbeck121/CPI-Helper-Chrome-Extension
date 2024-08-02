@@ -166,14 +166,12 @@ updateLogList = async () => {
             }
 
             //statusicon
-            let statusColor = "#008000";
+            let statusColor = getStatusColorCode(response[i].Status);
             let statusIcon = "xe05b";
             if (response[i].Status == "PROCESSING") {
-                statusColor = "#FFC300";
                 statusIcon = "xe047";
             }
             if (response[i].Status == "FAILED") {
-                statusColor = "#C70039";
                 statusIcon = "xe03e";
             }
             statusicon = "<span data-sap-ui-icon-content='&#" + statusIcon + "' class='" + response[i].MessageGuid + " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" + statusColor + ";'> </span>"

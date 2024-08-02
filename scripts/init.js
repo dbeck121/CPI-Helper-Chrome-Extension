@@ -11,10 +11,10 @@ function createGlobalId(id = "cpihelperglobal") {
     console.log("Global element not found. Inserting element...");
     if (id === "cpihelperglobal") {
       $("body").append(`
-        <div class=${$("html").hasClass("sapUiTheme-sap_horizon_dark") ? "ch_dark" : "ch_light"} id="${id}">
+      <div class=${$("html").hasClass("sapUiTheme-sap_horizon_dark") ? "ch_dark" : "ch_light"} id="${id}">
         <div class="cpiHelper ui modal" id="cpiHelper_semanticui_modal"></div>
         <div class="cpiHelper ui modal" id="cpiHelper_waiting_model"></div>
-        </div>`);
+      </div>`);
     } else {
       $("#cpihelperglobal").append(`<div id="${id}"></div>`);
     }

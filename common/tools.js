@@ -568,9 +568,25 @@ function getStatusColor(status) {
     case "COMPLETED": return "positive";
     case "ESCALATED":
     case "RETRY": return "orange";
-    case "CANCELLED": return "grey";
-    default: return "info";
+    case "CANCELLED": return "info";
+    default: return "grey";
   }
+}
+function getStatusColorCode(status, isDarkMode = !$("html").hasClass("sapUiTheme-sap_horizon_dark")) {
+  const colors = {
+    PROCESSING: isDarkMode ? "#e76500" : "#f7bf00",
+    STARTING: isDarkMode ? "#e76500" : "#f7bf00",
+    FAILED: isDarkMode ? "#f53232" : "#fa6161",
+    ESCALATED: isDarkMode ? "#e76500" : "#f7bf00",
+    RETRY: isDarkMode ? "#e76500" : "#f7bf00",
+    CANCELLED: isDarkMode ? "#788fa6" : "#a9b4be",
+    ABANDONED: isDarkMode ? "#788fa6" : "#a9b4be",
+    STORED: isDarkMode ? "#30914c" : "#6dad1f",
+    DEPLOYED: isDarkMode ? "#30914c" : "#6dad1f",
+    COMPLETED: isDarkMode ? "#30914c" : "#6dad1f",
+    default: isDarkMode ? "#788fa6" : "#a9b4be",
+  };
+  return colors[status] || colors.default;
 }
 function getStatusIcon(status) {
   let Icon;
