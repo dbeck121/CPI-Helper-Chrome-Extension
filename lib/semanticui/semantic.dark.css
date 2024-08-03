@@ -3,6 +3,14 @@
     --blacktext: #000;
     --text: #ffffffde;
     --blackcolor: #030d17;
+    --warningbgcolor: #382700;
+    --warningcolor: #f7bf00;
+    --Successbgcolor: #11331a;
+    --Successcolor: #6dad1f;
+    --Errorbgcolor: #350000;
+    --Errorcolor: #fa6161;
+    --Infobgcolor: #00144a;
+    --Infocolor: #0034bf;
 }
 
 .ch_dark {
@@ -143,7 +151,7 @@
     background: #fff;
     color: #000000cc;
     box-shadow: 0 0 0 2px #fff inset;
-    
+
 }
 
 .ch_dark .ui.inverted.button:focus,
@@ -3002,12 +3010,12 @@
 
 .ch_dark .ui.positive.buttons .button,
 .ch_dark .ui.positive.button {
-    background-color: #21ba45;
+    background-color: var(--Successbgcolor);
     color: #fff;
 }
 
 .ch_dark .ui.positive.button {
-    box-shadow: 0 0 0 0 rgba(34, 36, 38, 0.15) inset;
+    box-shadow: 0 0 0 0 var(--Successcolor) inset;
 }
 
 .ch_dark .ui.positive.buttons .button:hover,
@@ -3068,12 +3076,12 @@
 
 .ch_dark .ui.negative.buttons .button,
 .ch_dark .ui.negative.button {
-    background-color: #db2828;
+    background-color: var(--Errorbgcolor);
     color: #fff;
 }
 
 .ch_dark .ui.negative.button {
-    box-shadow: 0 0 0 0 rgba(34, 36, 38, 0.15) inset;
+    box-shadow: 0 0 0 0 var(--Errorcolor) inset;
 }
 
 .ch_dark .ui.negative.buttons .button:hover,
@@ -3936,7 +3944,7 @@
 
 .ch_dark .ui.input.error>input {
     background-color: #0a0000;
-    border-color: #e0b4b4;
+    border-color: var(--Errorcolor);
     color: #9f3a38;
 }
 
@@ -3973,9 +3981,9 @@
 }
 
 .ch_dark .ui.input.info>input {
-    background-color: #f8ffff;
-    border-color: #a9d5de;
-    color: #276f86;
+    background: var(--Infobgcolor);
+    border-color: var(--Infocolor);
+    color: #eaecee;
 }
 
 .ch_dark .ui.input.info>input:-ms-input-placeholder {
@@ -4011,9 +4019,9 @@
 }
 
 .ch_dark .ui.input.success>input {
-    background-color: #fcfff5;
+    background-color: #2c662d;
     border-color: #a3c293;
-    color: #2c662d;
+    color: #fcfff5;
 }
 
 .ch_dark .ui.input.success>input:-ms-input-placeholder {
@@ -4049,9 +4057,9 @@
 }
 
 .ch_dark .ui.input.warning>input {
-    background-color: #fffaf3;
-    border-color: #c9ba9b;
-    color: #573a08;
+    background-color: var(--warningbgcolor);
+    border-color: var(--warningcolor);
+    color: #eaecee;
 }
 
 .ch_dark .ui.input.warning>input:-ms-input-placeholder {
@@ -4118,27 +4126,27 @@
 .ch_dark .ui.form .field.error>.ui.labeled.input:not([class*="corner labeled"])>.ui.label,
 .ch_dark .ui.action.input.error>.ui.button,
 .ch_dark .ui.labeled.input.error:not([class*="corner labeled"])>.ui.label {
-    border-top: 1px solid #e0b4b4;
-    border-bottom: 1px solid #e0b4b4;
+    border-top: 1px solid var(--Errorcolor);
+    border-bottom: 1px solid var(--Errorcolor);
 }
 
 .ch_dark .ui.form .field.error>.ui[class*="left action"].input>.ui.button,
 .ch_dark .ui.form .field.error>.ui.labeled.input:not(.right):not([class*="corner labeled"])>.ui.label,
 .ch_dark .ui[class*="left action"].input.error>.ui.button,
 .ch_dark .ui.labeled.input.error:not(.right):not([class*="corner labeled"])>.ui.label {
-    border-left: 1px solid #e0b4b4;
+    border-left: 1px solid var(--Errorcolor);
 }
 
 .ch_dark .ui.form .field.error>.ui.action.input:not([class*="left action"])>input+.ui.button,
 .ch_dark .ui.form .field.error>.ui.right.labeled.input:not([class*="corner labeled"])>input+.ui.label,
 .ch_dark .ui.action.input.error:not([class*="left action"])>input+.ui.button,
 .ch_dark .ui.right.labeled.input.error:not([class*="corner labeled"])>input+.ui.label {
-    border-right: 1px solid #e0b4b4;
+    border-right: 1px solid var(--Errorcolor);
 }
 
 .ch_dark .ui.form .field.error>.ui.right.labeled.input:not([class*="corner labeled"])>.ui.label:first-child,
 .ch_dark .ui.right.labeled.input.error:not([class*="corner labeled"])>.ui.label:first-child {
-    border-left: 1px solid #e0b4b4;
+    border-left: 1px solid var(--Errorcolor);
 }
 
 .ch_dark .ui.form .field.info>.ui.action.input>.ui.button,
@@ -7714,7 +7722,7 @@
 .ch_dark .ui.input textarea,
 .ch_dark .ui.form textarea {
     -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
-    background: #fff;
+    background: #000000;
     border: 1px solid rgba(34, 36, 38, 0.15);
     color: rgba(255, 255, 255, 0.87);
 }
@@ -7727,7 +7735,7 @@
 
 .ch_dark .ui.form .field .prompt.label {
     background: #fff !important;
-    border: 1px solid #e0b4b4 !important;
+    border: 1px solid var(--Errorcolor) !important;
     color: #9f3a38 !important;
 }
 
@@ -7868,13 +7876,13 @@
 .ch_dark .ui.form .field.error input[type="week"] {
     color: #9f3a38;
     background: #fff6f6;
-    border-color: #e0b4b4;
+    border-color: var(--Errorcolor);
 }
 
 .ch_dark .ui.form:not(.initial) .field input:invalid {
     color: #9f3a38;
     background: #fff6f6;
-    border-color: #e0b4b4;
+    border-color: var(--Errorcolor);
 }
 
 .ch_dark .ui.form .field.error textarea:focus,
@@ -7895,7 +7903,7 @@
 .ch_dark .ui.form .field.error input[type="url"]:focus,
 .ch_dark .ui.form .field.error input[type="week"]:focus {
     background: #fff6f6;
-    border-color: #e0b4b4;
+    border-color: var(--Errorcolor);
     color: #9f3a38;
 }
 
@@ -7909,7 +7917,7 @@
 
 .ch_dark .ui.form .error.error input:-webkit-autofill {
     box-shadow: 0 0 0 100px #fffaf0 inset !important;
-    border-color: #e0b4b4 !important;
+    border-color: var(--Errorcolor) !important;
 }
 
 .ch_dark .ui.form .error :-ms-input-placeholder {
@@ -7956,17 +7964,17 @@
 
 .ch_dark .ui.form .fields.error .field .ui.dropdown,
 .ch_dark .ui.form .field.error .ui.dropdown {
-    border-color: #e0b4b4 !important;
+    border-color: var(--Errorcolor) !important;
 }
 
 .ch_dark .ui.form .fields.error .field .ui.dropdown:hover,
 .ch_dark .ui.form .field.error .ui.dropdown:hover {
-    border-color: #e0b4b4 !important;
+    border-color: var(--Errorcolor) !important;
 }
 
 .ch_dark .ui.form .fields.error .field .ui.dropdown:hover .menu,
 .ch_dark .ui.form .field.error .ui.dropdown:hover .menu {
-    border-color: #e0b4b4;
+    border-color: var(--Errorcolor);
 }
 
 .ch_dark .ui.form .fields.error .field .ui.multiple.selection.dropdown>.label,
@@ -7999,7 +8007,7 @@
 .ch_dark .ui.form .fields.error .field .checkbox:not(.toggle):not(.slider) label::before,
 .ch_dark .ui.form .field.error .checkbox:not(.toggle):not(.slider) label::before {
     background: #fff6f6;
-    border-color: #e0b4b4;
+    border-color: var(--Errorcolor);
 }
 
 .ch_dark .ui.form .fields.error .field .checkbox label::after,
@@ -8078,9 +8086,9 @@
 .ch_dark .ui.form .field.info input[type="file"],
 .ch_dark .ui.form .field.info input[type="url"],
 .ch_dark .ui.form .field.info input[type="week"] {
-    color: #276f86;
-    background: #f8ffff;
-    border-color: #a9d5de;
+    background: var(--Infobgcolor);
+    border-color: var(--Infocolor);
+    color: #eaecee;
 }
 
 .ch_dark .ui.form .field.info textarea:focus,
@@ -8100,9 +8108,9 @@
 .ch_dark .ui.form .field.info input[type="file"]:focus,
 .ch_dark .ui.form .field.info input[type="url"]:focus,
 .ch_dark .ui.form .field.info input[type="week"]:focus {
-    background: #f8ffff;
-    border-color: #a9d5de;
-    color: #276f86;
+    background: var(--Infobgcolor);
+    border-color: var(--Infocolor);
+    color: #eaecee;
 }
 
 /* input State - Transparent **/
@@ -8110,8 +8118,8 @@
 .ch_dark .ui.form .field.info .transparent.input textarea,
 .ch_dark .ui.form .field.info input.transparent,
 .ch_dark .ui.form .field.info textarea.transparent {
-    background-color: #f8ffff !important;
-    color: #276f86 !important;
+    background: var(--Infobgcolor);
+    color: #eaecee;
 }
 
 .ch_dark .ui.form .info.info input:-webkit-autofill {
@@ -8157,8 +8165,8 @@
 .ch_dark .ui.form .field.info .ui.dropdown,
 .ch_dark .ui.form .field.info .ui.dropdown>.text,
 .ch_dark .ui.form .field.info .ui.dropdown .item {
-    background: #f8ffff;
-    color: #276f86;
+    background: var(--Infobgcolor);
+    color: #eaecee;
 }
 
 .ch_dark .ui.form .fields.info .field .ui.dropdown,
@@ -8205,8 +8213,8 @@
 
 .ch_dark .ui.form .fields.info .field .checkbox:not(.toggle):not(.slider) label::before,
 .ch_dark .ui.form .field.info .checkbox:not(.toggle):not(.slider) label::before {
-    background: #f8ffff;
-    border-color: #a9d5de;
+    background: var(--Infobgcolor);
+    border-color: var(--Infocolor);
 }
 
 .ch_dark .ui.form .fields.info .field .checkbox label::after,
@@ -8492,9 +8500,10 @@
 .ch_dark .ui.form .field.warning input[type="file"],
 .ch_dark .ui.form .field.warning input[type="url"],
 .ch_dark .ui.form .field.warning input[type="week"] {
-    color: #573a08;
-    background: #fffaf3;
-    border-color: #c9ba9b;
+    color: #eaecee;
+    ;
+    background: var(--warningbgcolor);
+    border-color: var(--warningcolor);
 }
 
 .ch_dark .ui.form .field.warning textarea:focus,
@@ -8514,9 +8523,9 @@
 .ch_dark .ui.form .field.warning input[type="file"]:focus,
 .ch_dark .ui.form .field.warning input[type="url"]:focus,
 .ch_dark .ui.form .field.warning input[type="week"]:focus {
-    background: #fffaf3;
-    border-color: #c9ba9b;
-    color: #573a08;
+    background: var(--warningbgcolor);
+    border-color: var(--warningcolor);
+    color: #eaecee;
 }
 
 /* input State - Transparent **/
@@ -8524,8 +8533,8 @@
 .ch_dark .ui.form .field.warning .transparent.input textarea,
 .ch_dark .ui.form .field.warning input.transparent,
 .ch_dark .ui.form .field.warning textarea.transparent {
-    background-color: #fffaf3 !important;
-    color: #573a08 !important;
+    background-color: var(--warningbgcolor) !important;
+    color: #eaecee !important;
 }
 
 .ch_dark .ui.form .warning.warning input:-webkit-autofill {
@@ -8571,8 +8580,8 @@
 .ch_dark .ui.form .field.warning .ui.dropdown,
 .ch_dark .ui.form .field.warning .ui.dropdown>.text,
 .ch_dark .ui.form .field.warning .ui.dropdown .item {
-    background: #fffaf3;
-    color: #573a08;
+    background: var(--warningbgcolor);
+    color: #eaecee;
 }
 
 .ch_dark .ui.form .fields.warning .field .ui.dropdown,
@@ -8619,8 +8628,8 @@
 
 .ch_dark .ui.form .fields.warning .field .checkbox:not(.toggle):not(.slider) label::before,
 .ch_dark .ui.form .field.warning .checkbox:not(.toggle):not(.slider) label::before {
-    background: #fffaf3;
-    border-color: #c9ba9b;
+    background: var(--warningbgcolor);
+    border-color: var(--warningcolor);
 }
 
 .ch_dark .ui.form .fields.warning .field .checkbox label::after,
@@ -8994,7 +9003,7 @@
 
 .ch_dark .ui.tabular.menu .active.item {
     background: none #000;
-    color: rgba(0, 0, 0, 0.95);
+    color: rgba(255, 255, 255, 0.95);
     border-color: #d4d4d5;
 }
 
@@ -9725,11 +9734,11 @@
 
 .ch_dark .ui.negative.message,
 .ch_dark .ui.attached.negative.message {
-    box-shadow: 0 0 0 1px #e0b4b4 inset, 0 0 0 0 rgba(0, 0, 0, 0);
+    box-shadow: 0 0 0 1px var(--Errorcolor) inset, 0 0 0 0 rgba(0, 0, 0, 0);
 }
 
 .ch_dark .ui.floating.negative.message {
-    box-shadow: 0 0 0 1px #e0b4b4 inset, 0 2px 4px 0 rgba(34, 36, 38, 0.12), 0 2px 10px 0 rgba(34, 36, 38, 0.15);
+    box-shadow: 0 0 0 1px var(--Errorcolor) inset, 0 2px 4px 0 rgba(34, 36, 38, 0.12), 0 2px 10px 0 rgba(34, 36, 38, 0.15);
 }
 
 .ch_dark .ui.negative.message .header {
@@ -9738,7 +9747,7 @@
 
 .ch_dark .ui.inverted.negative.message,
 .ch_dark .ui.inverted.negative.message .header {
-    color: #e0b4b4;
+    color: var(--Errorcolor);
 }
 
 .ch_dark .ui.error.message {
@@ -9748,11 +9757,11 @@
 
 .ch_dark .ui.error.message,
 .ch_dark .ui.attached.error.message {
-    box-shadow: 0 0 0 1px #e0b4b4 inset, 0 0 0 0 rgba(0, 0, 0, 0);
+    box-shadow: 0 0 0 1px var(--Errorcolor) inset, 0 0 0 0 rgba(0, 0, 0, 0);
 }
 
 .ch_dark .ui.floating.error.message {
-    box-shadow: 0 0 0 1px #e0b4b4 inset, 0 2px 4px 0 rgba(34, 36, 38, 0.12), 0 2px 10px 0 rgba(34, 36, 38, 0.15);
+    box-shadow: 0 0 0 1px var(--Errorcolor) inset, 0 2px 4px 0 rgba(34, 36, 38, 0.12), 0 2px 10px 0 rgba(34, 36, 38, 0.15);
 }
 
 .ch_dark .ui.error.message .header {
@@ -9765,8 +9774,8 @@
 }
 
 .ch_dark .ui.info.message {
-    background-color: #f8ffff;
-    color: #276f86;
+    background-color: var(--Infobgcolor);
+    color:#eaecee;
 }
 
 .ch_dark .ui.info.message,
@@ -9811,8 +9820,8 @@
 }
 
 .ch_dark .ui.warning.message {
-    background-color: #fffaf3;
-    color: #573a08;
+    background: var(--warningbgcolor);
+    color: #eaecee;
 }
 
 .ch_dark .ui.warning.message,
@@ -10501,35 +10510,35 @@
 
 .ch_dark .ui.ui.ui.ui.table tr.negative,
 .ch_dark .ui.ui.table td.negative {
-    box-shadow: 0 0 0 #e0b4b4 inset;
+    box-shadow: 0 0 0 var(--Errorcolor) inset;
     background: #fff6f6;
     color: #9f3a38;
 }
 
 .ch_dark .ui.ui.ui.ui.inverted.table tr.negative,
 .ch_dark .ui.ui.inverted.table td.negative {
-    background: #e0b4b4;
+    background: var(--Errorcolor);
     color: #9f3a38;
 }
 
 .ch_dark .ui.ui.ui.ui.table tr.error,
 .ch_dark .ui.ui.table td.error {
-    box-shadow: 0 0 0 #e0b4b4 inset;
+    box-shadow: 0 0 0 var(--Errorcolor) inset;
     background: #fff6f6;
     color: #9f3a38;
 }
 
 .ch_dark .ui.ui.ui.ui.inverted.table tr.error,
 .ch_dark .ui.ui.inverted.table td.error {
-    background: #e0b4b4;
+    background: var(--Errorcolor);
     color: #9f3a38;
 }
 
 .ch_dark .ui.ui.ui.ui.table tr.warning,
 .ch_dark .ui.ui.table td.warning {
-    box-shadow: 0 0 0 #c9ba9b inset;
-    background: #fffaf3;
-    color: #573a08;
+    box-shadow: 0 0 0 var(--warningcolor) inset;
+    background: var(--warningbgcolor);
+    color: #eaecee;
 }
 
 .ch_dark .ui.ui.ui.ui.inverted.table tr.warning,
@@ -15661,7 +15670,7 @@
 
 .ch_dark .ui.dropdown.selected,
 .ch_dark .ui.dropdown .menu .selected.item {
-    background: #f7f7f7;
+    background: rgba(128, 135, 139, 0.8);
     color: rgba(255, 255, 255, 0.95);
 }
 
@@ -15673,20 +15682,20 @@
 
 .ch_dark .ui.selection.dropdown.error {
     background: #fff6f6;
-    border-color: #e0b4b4;
+    border-color: var(--Errorcolor);
 }
 
 .ch_dark .ui.selection.dropdown.error:hover {
-    border-color: #e0b4b4;
+    border-color: var(--Errorcolor);
 }
 
 .ch_dark .ui.multiple.selection.error.dropdown>.label {
-    border-color: #e0b4b4;
+    border-color: var(--Errorcolor);
 }
 
 .ch_dark .ui.dropdown.error>.menu,
 .ch_dark .ui.dropdown.error>.menu .menu {
-    border-color: #e0b4b4;
+    border-color: var(--Errorcolor);
 }
 
 .ch_dark .ui.dropdown.error>.menu>.item {
@@ -15708,8 +15717,8 @@
 }
 
 .ch_dark .ui.selection.dropdown.info {
-    background: #f8ffff;
-    border-color: #a9d5de;
+    background: var(--Infobgcolor);
+    border-color: var(--Infocolor);
 }
 
 .ch_dark .ui.selection.dropdown.info:hover {
@@ -15780,8 +15789,8 @@
 }
 
 .ch_dark .ui.selection.dropdown.warning {
-    background: #fffaf3;
-    border-color: #c9ba9b;
+    background: var(--warningbgcolor);
+    border-color: var(--warningcolor);
 }
 
 .ch_dark .ui.selection.dropdown.warning:hover {

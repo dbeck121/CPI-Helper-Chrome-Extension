@@ -5,17 +5,12 @@
   --cpi-fui-active-color: #00144a;
   /* constant color  =  Don't overwrite this*/
   --cpi-text-color: #000000;
-  --status-color:#008000;
 }
 
 .ch_dark {
   --cpi-text-color: #ffffff;
   --cpi-fui-active-color: #0039d4;
   --cpi-background-color: #020203;
-  --status-color:#70b470;
-}
-#messageList > tr > td:nth-child(1) > button > span {
-  color: var(--status-color);
 }
 /* whats new */
 button {
@@ -31,12 +26,12 @@ button {
 #cpiHelper_workingIndicator {
   min-width: 10px;
   color: var(--cpi-custom-color);
-  position: absolute;
+  position: fixed;
   z-index: 500;
   min-height: 10px;
-  font-size: 1.5rem;
-  right: 2%;
-  bottom: 4%;
+  font-size: 2rem;
+  right: 2rem;
+  bottom: 2rem;
 }
 
 /* end working indicator */

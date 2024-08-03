@@ -87,8 +87,7 @@ async function renderMessageSidebar() {
     let deploymentText = document.getElementById("deploymentText");
     if (deploymentText) {
       let statusColor = getStatusColorCode(cpiData?.flowData?.artifactInformation?.deployState)
-      document.documentElement.style.setProperty('--status-color', statusColor);
-      deploymentText.innerHTML = "State: <span>" + cpiData?.flowData?.artifactInformation?.deployState + "</span>";
+      deploymentText.innerHTML = `State: <span style="color:${statusColor}">${cpiData?.flowData?.artifactInformation?.deployState}</span>`
     }
   }, true);
 
