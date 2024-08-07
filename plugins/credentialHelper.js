@@ -129,7 +129,7 @@ var plugin = {
                 });
         
                 //append the dropdown to the body to ensure it is absolutely positioned
-                document.body.appendChild(dropdown);
+                body().appendChild(dropdown);
                 dropdown.style.display = 'block';
 
                 //add a scroll event listener to close the dropdown if scrolling is happening except for the dropdown

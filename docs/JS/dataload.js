@@ -22,9 +22,7 @@ async function users_details() {
         document.getElementById('contributor').append(div)
     });
 }
-async function carousel(){
-// Create carousel inner container
-
+async function carousel() {
     const carouselInner = document.querySelector("#carouselhome > div");
 
     // Add prev_feature dynamically

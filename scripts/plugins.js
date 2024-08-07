@@ -174,7 +174,7 @@ async function createPluginScriptButtons() {
 async function createPluginPopupUI(plugin) {
 
     var container = document.createElement('div');
-    container.classList.add("card");
+    container.className = "ui card";
     container.appendChild(createElementFromHTML(`<div class="extra content">
         <img class="right floated mini ui image" src=${plugin.settings["icon"] ? chrome.runtime.getURL(plugin.settings["icon"].src) : ""}>
         <div class="header">${plugin.name}</div>
@@ -303,7 +303,7 @@ async function createContentNodeForPlugins() {
 
     var pluginUIList = document.createElement("div")
     pluginUIList.id = "cpiHelper_popup_plugins";
-    pluginUIList.classList = 'ui cards'
+    pluginUIList.className = 'ui cards'
     for (var element of pluginList.sort((x, y) => {return x.id.toLowerCase() > y.id.toLowerCase() ? 1 : -1})) {
         pluginUIList.appendChild(await createPluginPopupUI(element));
     }

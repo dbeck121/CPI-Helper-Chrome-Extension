@@ -166,14 +166,12 @@ updateLogList = async () => {
             }
 
             //statusicon
-            let statusColor = "#008000";
+            let statusColor = getStatusColorCode(response[i].Status);
             let statusIcon = "xe05b";
             if (response[i].Status == "PROCESSING") {
-                statusColor = "#FFC300";
                 statusIcon = "xe047";
             }
             if (response[i].Status == "FAILED") {
-                statusColor = "#C70039";
                 statusIcon = "xe03e";
             }
             statusicon = "<span data-sap-ui-icon-content='&#" + statusIcon + "' class='" + response[i].MessageGuid + " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" + statusColor + ";'> </span>"
@@ -230,7 +228,6 @@ createLogsRightSide = async (runId, leftActive = false) => {
     var objects = null;
     var logs = null;
     if (runId) {
-
         objects = [
             {
                 label: "Info",
@@ -245,17 +242,13 @@ createLogsRightSide = async (runId, leftActive = false) => {
                 label: "Persist",
                 content: await createPersistLogsContent(runId),
                 active: false
-
             }
         ];
-
         logs = await createTabHTML(objects, 'logs-tab');
-
     } else {
         logs = document.createElement('div');
         logs.innerHTML = '<div class="cpiHelper_tabs">Please choose a message to show logs. You can also click the speech bubble icon in Messages Sidebar.</div>';
     }
-
     var right = document.createElement('div');
     right.id = "cpiHelper_logs-right-side";
     if (leftActive) {
@@ -389,10 +382,10 @@ createLogsInfo = async (messageId) => {
     valueList.push({ Name: "OriginComponentName", Value: input.OriginComponentName });
 
 
-    result = `<div id="cpiHelper_logsInfo"><table class="ui basic striped selectable compact table">  <thead><tr class="black"><th>Name</th><th>Value</th></tr></thead>
+    result = `<div id="cpiHelper_logsInfo"><table class="ui basic striped selectable compact table">  <thead><tr class="blue"><th>Name</th><th>Value</th></tr></thead>
     <tbody>`
     valueList.forEach(item => {
-        result += `<tr class="${item.Type == 'header' ? 'black' : ''}"><td>${item.Name}</td><td style="word-break: break-all;">${htmlEscape(item.Value)}</td></tr>`
+        result += `<tr class="${item.Type == 'header' ? 'blue' : ''}"><td>${item.Name}</td><td style="word-break: break-all;">${htmlEscape(item.Value)}</td></tr>`
     });
     result += "</tbody></table>";
     return result;

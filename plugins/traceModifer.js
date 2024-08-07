@@ -7,11 +7,11 @@ clearalldata = () => {
                     for (i of Object.keys(items)) {
                         if (i.startsWith("traceModifer_")) {
                             chrome.storage.local.remove([i], () => { var error = chrome.runtime.lastError; if (error) { console.error(error); } })
-                            $.toast({ displayTime: 2000, title: 'Trace Modifer', message: i.replace('traceModifer_', "") + ' is removed', showProgress: 'bottom', classProgress: 'red' })
+                            $.toast({ displayTime: 2000, title: 'Trace Modifer', message: i.replace('traceModifer_', "") + ' is removed', showProgress: 'bottom', classProgress: 'red',class: ($("html").hasClass("sapUiTheme-sap_horizon_dark") ? " ch_dark " : ""), })
                         }
                     }
                 });
-                $.toast({ displayTime: 2000, title: 'Trace Modifer', message: 'All data cleared', showProgress: 'bottom', classProgress: 'green' })
+                $.toast({ displayTime: 2000, title: 'Trace Modifer', message: 'All data cleared', showProgress: 'bottom', classProgress: 'green',class: ($("html").hasClass("sapUiTheme-sap_horizon_dark") ? " ch_dark " : ""), })
             }
         }
     });
@@ -21,7 +21,7 @@ clearalldata = () => {
 var plugin = {
     metadataVersion: "1.0.0",
     id: "traceModifer",
-    name: "Performance stats | Trace Step (Beta)",
+    name: "Performance stats",
     version: "1.5.0",
     author: "Developed by Omkar",
     email: "omk14p@outlook.com",
