@@ -1,6 +1,6 @@
 # CPI-Helper Chrome-Extension
 
-| [Plugin Dev](/docs/readme/pluginREADME.md) | [Contribution](/docs/readme/contributing.md) | [Code of conduct](/docs/readme/code_of_conduct.md) | [License](/docs/LICENSE) |
+| [Plugin Dev](/docs/readme/{luginREADME.md) | [Contribution](/docs/readme/contributing.md) | [Code of conduct](/docs/readme/code_of_conduct.md) | [License](/docs/LICENSE) |
 | ------------------------------------------ | -------------------------------------------- | -------------------------------------------------- | ------------------------ |
 
 This Browser Plugin extends the SAP Cloud Platform Integration with some useful features.
