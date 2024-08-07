@@ -552,13 +552,9 @@ See [Contribution guidelines for this project](docs/readme/contributing.md) if y
 If you have any ideas, please write a message or comment at the [SAP Community](https://blogs.sap.com/2020/03/05/cpi-chrome-plugin-to-enhance-sap-cloud-platform-integration-usability/#)
 
 ### Contributors
-
-> - [Dominic Beckbauer](https://github.com/dbeck121): Main work
-> - [Nick Yang](https://github.com/SAPNickYang): Bug fixes and UI improvements
-> - [Raffael Herrmann](https://github.com/codebude): Speed up handling of large XML structures in beautifier.
-> - [Ivo Vermeer](https://github.com/IvoVermeer): Change icon, text and tenant color
-> - [bdais](https://github.com/bdbais/): filter discarded entries
-> - [Robert Fels](https://github.com/robertfels)
+<a href="https://github.com/incpi/Cpi-helper/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=incpi/Cpi-helper&columns=8" />
+</a>
 
 ## License
 
