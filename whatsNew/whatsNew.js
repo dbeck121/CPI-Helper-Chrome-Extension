@@ -1,21 +1,16 @@
 async function whatsNewCheck(showOnlyOnce = true) {
-  var manifestVersion = chrome.runtime.getManifest().version;
-
-  check = await storageGetPromise("whatsNewV" + manifestVersion);
-
-  silentupdates = ["3.0.3"];
-
-  //const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
-  const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo.png");
-  const Kangoolutions_Logo = chrome.runtime.getURL(
-    "images/kangoolutions_icon.png"
-  );
-  const md = window.markdownit();
-  if (
-    (!check && !silentupdates.includes(manifestVersion)) ||
-    showOnlyOnce == false
-  ) {
-    html = `<div class="ui message">
+    var manifestVersion = chrome.runtime.getManifest().version;
+  
+    check = await storageGetPromise("whatsNewV" + manifestVersion);
+  
+    silentupdates = ["3.0.3", "3.14.4"]
+  
+    //const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
+    const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo.png");
+    const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
+    const md = window.markdownit();
+    if (!check && !silentupdates.includes(manifestVersion) || showOnlyOnce == false) {
+        html = `<div class="ui message">
         <img class="ui small floated image" src="${Kangoolutions_Logo}">
         <div class="content">
             <div class="header"> You updated successfully to version ${manifestVersion} </div>
