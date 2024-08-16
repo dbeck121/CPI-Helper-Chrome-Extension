@@ -1869,7 +1869,7 @@ function dragElement(elmnt) {
     clearTimeout(debounceTimeout);
     debounceTimeout = setTimeout(() => {
       syncChromeStoragePromise("set_ch_popup_mouse", { top: mouse_top, left: mouse_left });
-    }, 500);
+    }, 5000);
   }
 
   function closeDragElement() {
