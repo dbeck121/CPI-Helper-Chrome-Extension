@@ -376,7 +376,7 @@ var formatTrace = function (input, id, traceId) {
   };
 
   var themeButton = document.createElement("button");
-  themeButton.innerText = `${!$('html').hasClass('sapUiTheme-sap_horizon_dark') ? "Dark" : "Light"} Editor`;
+  themeButton.innerText = `${$("#cpihelperglobal").hasClass('ch_dark') ? "Dark" : "Light"} Editor`;
   themeButton.onclick = (event) => { themeButton.innerText = `${editorManager.toggleTheme() ? "Dark" : "Light"} Editor`; }
 
   var WrapButton = document.createElement("button");
@@ -397,7 +397,7 @@ var formatTrace = function (input, id, traceId) {
     $formatted.toggleClass("cpiHelper_traceText_active", isActive);
     $("#beautifyButton").text(isActive ? "Linearize" : "Beautify");
     if ($formatted.text().trim() === "") {
-      editorManager = new EditorManager("cpiHelper_traceText_formatted_" + id, prettify_type(input), $('html').hasClass('sapUiTheme-sap_horizon_dark') ? "github_dark" : "textmate");
+      editorManager = new EditorManager("cpiHelper_traceText_formatted_" + id, prettify_type(input), $("#cpihelperglobal").hasClass('ch_dark') ? "github_dark" : "textmate");
       editorManager.setContent(prettify(input, tab_size))
     }
   }

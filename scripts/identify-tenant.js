@@ -40,6 +40,9 @@
           // Update the page
           setData(hostData);
         }
+        if (key === 'darkmodeOnStartup') {
+          $("#cpihelperglobal").removeClass("ch_dark ch_light").addClass(!changes[key].newValue ? "ch_dark" : "ch_light");
+        }
       }
     });
   }

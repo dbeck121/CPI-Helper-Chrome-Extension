@@ -1,12 +1,26 @@
 async function Themesync() {
-  if (callChromeStoragePromise('CPIhelperThemeInfo') !== ($('html').hasClass('sapUiTheme-sap_horizon'))) {
-    await syncChromeStoragePromise("CPIhelperThemeInfo", ($('html').hasClass('sapUiTheme-sap_horizon')))
+  if (await callChromeStoragePromise('CPIhelperThemeInfo') === ($('html').hasClass('sapUiTheme-sap_horizon'))) {
+    let theme = await callchromestoragepromise('darkmodeonstartup')
+    $("#cpihelperglobal").removeClass("ch_dark ch_light").addClass(theme ? "ch_dark" : "ch_light");
   }
+  await syncChromeStoragePromise("CPIhelperThemeInfo", ($('html').hasClass('sapUiTheme-sap_horizon')))
 }
 
 function createGlobalId(id = "cpihelperglobal") {
   let global = $(`#${id}`);
-  const toggleDarkMode = () => $("#cpihelperglobal").attr("class", $("html").hasClass("sapUiTheme-sap_horizon_dark") ? "ch_dark" : "ch_light");
+  const toggleDarkMode = () => {
+    $("#cpihelperglobal").attr("class", $("html").hasClass("sapUiTheme-sap_horizon_dark") ? "ch_dark" : "ch_light");
+    chrome.storage.sync.get("CPIhelperThemeInfo", (theme) => {
+      chrome.storage.sync.get("darkmodeOnStartup", (local) => {
+        let isDarkmode = !(theme['CPIhelperThemeInfo'])
+        if (!isDarkmode) {
+          isDarkmode = !(local['darkmodeOnStartup'])
+        }
+        $("#cpihelperglobal").attr('class', (isDarkmode ? "ch_dark" : "ch_light"))
+      });
+
+    });
+  }
   if (global.length === 0) {
     console.log("Global element not found. Inserting element...");
     if (id === "cpihelperglobal") {
@@ -41,7 +55,7 @@ const body = (id = "cpihelperglobal") => {
 };
 
 function runGlobalIdForOneMinute() {
-  const interval = 500;
+  const interval = 800;
   const duration = 60 * 1000;
 
   let intervalId = setInterval(() => {
@@ -56,4 +70,3 @@ function runGlobalIdForOneMinute() {
 
 // Start the function
 runGlobalIdForOneMinute();
-

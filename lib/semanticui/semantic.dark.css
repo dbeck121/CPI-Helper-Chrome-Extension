@@ -333,7 +333,7 @@
 /** Variations **/
 .ch_dark .ui.basic.buttons .button,
 .ch_dark .ui.basic.button {
-    color: rgba(0, 0, 0, 0.6);
+    color: var(--text);
     box-shadow: 0 0 0 1px rgba(34, 36, 38, 0.15) inset;
 }
 
@@ -9775,7 +9775,7 @@
 
 .ch_dark .ui.info.message {
     background-color: var(--Infobgcolor);
-    color:#eaecee;
+    color: #eaecee;
 }
 
 .ch_dark .ui.info.message,
