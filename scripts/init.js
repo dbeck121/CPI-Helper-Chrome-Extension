@@ -1,9 +1,8 @@
 async function Themesync() {
-  if (await callChromeStoragePromise('CPIhelperThemeInfo') === ($('html').hasClass('sapUiTheme-sap_horizon'))) {
-    let theme = await callchromestoragepromise('darkmodeonstartup')
-    $("#cpihelperglobal").removeClass("ch_dark ch_light").addClass(theme ? "ch_dark" : "ch_light");
-  }
-  await syncChromeStoragePromise("CPIhelperThemeInfo", ($('html').hasClass('sapUiTheme-sap_horizon')))
+  const { darkmodeonstartup } = await chrome.storage.sync.get('darkmodeonstartup');
+  const isDarkTheme = $('html').hasClass('sapUiTheme-sap_horizon');
+  $("#cpihelperglobal").removeClass("ch_dark ch_light").addClass(darkmodeonstartup ? "ch_dark" : "ch_light");
+  await chrome.storage.sync.set({ "CPIhelperThemeInfo": isDarkTheme });
 }
 
 function createGlobalId(id = "cpihelperglobal") {
