@@ -32,7 +32,7 @@
 			style="background-color: transparent !important;" class="right item cpihelper_version"></a>
 	</div>
 	<div class="ui bottom m0 attached active tab segment" id="lastVisitedIflows" data-tab="one">
-		<div class="ui error message" style="margin: 0;">Please visit a SAP Cloud Integration page to see last visited artifacts.</div>
+		<div class="ui error message">Please visit a SAP Cloud Integration page to see last visited artifacts.</div>
 	</div>
 	<div class="ui bottom m0 attached tab segment" data-tab="two">
 		<div id="tenantUrls"></div>
@@ -51,7 +51,8 @@
 				Groovy IDE</a>
 			<a class="ui primary tertiary button" target="_blank" href="https://kangoolutions.com/blog/">
 				CPI Helper Blog</a>
-			<a class="ui primary tertiary button" target="_blank" href="https://help.sap.com/docs/cloud-integration/sap-cloud-integration/headers-and-exchange-properties-provided-by-integration-framework?trk=feed-detail_comments-list_comment-text">
+			<a class="ui primary tertiary button" target="_blank"
+				href="https://help.sap.com/docs/cloud-integration/sap-cloud-integration/headers-and-exchange-properties-provided-by-integration-framework?trk=feed-detail_comments-list_comment-text">
 				List of Internal Headers and Properties</a>
 			</a>
 		</div>
@@ -66,13 +67,17 @@
 		</p>
 	</div>
 	<div class="ui bottom m0 attached tab segment" data-tab="three">
-		<div id="tenantSettings">Please visit a SAP Cloud Integration page to see tenant settings.</div>
+		<div id="tenantSettings">
+			<div class="ui error message">Please visit a SAP Cloud Integration page to see tenant settings.</div>
+		</div>
 	</div>
 	<div class="ui bottom m0 attached tab segment" data-tab="four">
-		<p class="ui horizontal divider header">Current version: <i class="cpihelper_version"></i></p>
-		<p>License: <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU GPL v3</a>
-		</p>
-		<p>*we are not responsible for the content of external links</p>
+		<div class="ui message">
+			<div class="mini header">
+				License: <a href="https://www.gnu.org/licenses/gpl-3.0.en.html#license-text" target="_blank">GNU GPL v3</a>
+			</div>
+			<p>*we are not responsible for the content of external links</p>
+		</div>
 	</div>
 	<script src="popup.js"></script>
 </body>

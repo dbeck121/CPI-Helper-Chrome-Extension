@@ -92,11 +92,6 @@ a>p {
     margin: 0;
 }
 
-/* max height for tab 2 */
-.tab[data-tab=two] {
-    height: 600px;
-}
-
 .tab {
     overflow-y: scroll;
     max-height: 600px;

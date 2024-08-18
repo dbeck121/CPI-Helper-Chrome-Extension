@@ -11,6 +11,7 @@
     --Errorcolor: #fa6161;
     --Infobgcolor: #00144a;
     --Infocolor: #0034bf;
+    --hoverbackground: #3b3b3b;
 }
 
 .ch_dark {
@@ -86,7 +87,7 @@
 }
 
 .ch_dark .ui.button {
-    background: #252627 none;
+    background: var(--hoverbackground) none;
     color: #d4d4d5;
     box-shadow: 0 0 0 1px transparent inset, 0 0 0 0 #22242626 inset;
 }
@@ -3879,7 +3880,7 @@
 
 .ch_dark .ui.input>input {
     -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
-    background: #000;
+    background: var(--hoverbackground);
     border: 1px solid rgba(34, 36, 38, 0.15);
     color: rgba(255, 255, 255, 0.87);
 }
@@ -12950,7 +12951,7 @@
 .ch_dark .ui.link.cards .card:not(.icon):hover,
 .ch_dark .ui.card:hover,
 .ch_dark .ui.link.card:hover {
-    background: #fff;
+    background: var(--blackbackground);
     box-shadow: 0 1px 3px 0 #bcbdbd, 0 0 0 1px #d4d4d5;
 }
 
@@ -15558,7 +15559,7 @@
 }
 
 .ch_dark .ui.selection.dropdown {
-    background: var(--blackbackground);
+    background: var(--hoverbackground);
     color: rgba(255, 255, 255, 0.87);
     border: 1px solid rgba(34, 36, 38, 0.15);
 }
