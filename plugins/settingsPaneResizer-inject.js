@@ -1,8 +1,7 @@
 function extendSettingsPane() {
     // only press button if pane not yet expanded
-    var minButton = $('[id $="iflowSplitter-bar0-min-btn-img"]');
-    var pauseButton = $("#pauseButton");                       
-    if (minButton.length == 0 && !pauseButton.hasClass("cpiHelper_inlineInfo-active") ) {
+    var minButton = $('[id $="iflowSplitter-bar0-min-btn-img"]');                         
+    if (minButton.length == 0) {
         //console.log("minButton not visible - expanding pane to " + "${newHeightInPct}" + "%");
         console.log("Settings Pane expanded by CPI Helper Plugin")
         window.sap.ui.getCore().byId( $('[id $="--iflowSplitter-bar0-restore-btn"]').eq(0).attr("id")).firePress();
