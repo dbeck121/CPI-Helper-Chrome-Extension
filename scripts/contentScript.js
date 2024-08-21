@@ -303,11 +303,15 @@ function calculateMessageSidebarTimerTime(lastTabHidden, lastDurationRefresh) {
 var inlineTraceRunning = false;
 async function clickTrace(e) {
   $('[ch_inline_active]').removeAttr('ch_inline_active');
-  showWaitingPopup();
   if (inlineTraceRunning) {
     return;
   }
+  if ($(".cpiHelper_inlineInfo").length === 0) {
+    showToast("Inline trace has been turned off")
+    return;
+  }
   inlineTraceRunning = true;
+  showWaitingPopup();
 
   var formatLogContent = function (inputList) {
     inputList = inputList.sort(function (a, b) { return a.Name.toLowerCase() > b.Name.toLowerCase() ? 1 : -1 });
@@ -533,12 +537,19 @@ async function hideInlineTrace() {
     ".cpiHelper_max",
     ".cpiHelper_min"
   ];
-
-  $(onClicKElements).off('click');
+  onClicKElements.forEach(element => element.onclick = null);
   onClicKElements = [];
-
+  const elementsToProcess = new Set();
   classesToBeDeleted.forEach(selector => {
-    $(selector).removeClass(selector.substring(1)).off('click');
+    document.querySelectorAll(selector).forEach(element => {
+      elementsToProcess.add(element);
+    });
+  });
+  elementsToProcess.forEach(element => {
+    element.onclick = null;
+    classesToBeDeleted.forEach(selector => {
+      element.classList.remove(selector.substring(1));
+    });
   });
 }
 
