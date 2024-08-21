@@ -1359,6 +1359,7 @@ var sidebar = {
     `;
     elem.id = "cpiHelper_content";
     elem.classList.add("cpiHelper");
+    elem.setAttribute("hidden", true);
     elem.style = "width:max-content;min-width: 14rem";
     body().appendChild(elem);
     elem.style = "width:max-content;min-width: 14rem";
@@ -1412,7 +1413,7 @@ var sidebar = {
 
     //lastMessageHashList must be empty when message sidebar is created
     cpiData.messageSidebar.lastMessageHashList = [];
-
+    setTimeout(() => document.getElementById("cpiHelper_content").removeAttribute("hidden"), 200)
     //refresh messages
     messageSidebarPluginContent(true);
     refreshActive = true;
@@ -1868,8 +1869,9 @@ function dragElement(elmnt) {
     let mouse_left = elmnt.style.left = (((newleft < 0 || newleft >= maxwidth) ? (((newleft < 0) ? 0 : ((newleft >= maxwidth) ? maxwidth : newleft))) : newleft) * 100 / window.innerWidth) + "%";
     clearTimeout(debounceTimeout);
     debounceTimeout = setTimeout(() => {
-      syncChromeStoragePromise("set_ch_popup_mouse", { top: mouse_top, left: mouse_left });
-    }, 500);
+      syncChromeStoragePromise("set_ch_popup_mouse", { top: mouse_top, left: mouse_left })
+      log.log("popup location is stored!!")
+    }, 3000);
   }
 
   function closeDragElement() {
