@@ -196,7 +196,8 @@ Considering a migration to the SAP Integration Suite? Figaf is hosting an in-dep
 }
 
 async function recrutingPopup(force = false) {
-    if(force = false) {
+   
+    if(force == false) {
         return true
     }
 
