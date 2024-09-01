@@ -7,8 +7,15 @@
   --cpi-text-color: #000000;
 }
 
+.ch_dark {
+  --cpi-text-color: #ffffff;
+  --cpi-fui-active-color: #0039d4;
+  --cpi-background-color: #020203;
+}
 /* whats new */
-
+button {
+  color: var(--cpi-text-color);
+}
 #cpiHelper_WhatsNew {
   padding: 25px;
   box-sizing: border-box;
@@ -19,12 +26,12 @@
 #cpiHelper_workingIndicator {
   min-width: 10px;
   color: var(--cpi-custom-color);
-  position: absolute;
+  position: fixed;
   z-index: 500;
   min-height: 10px;
-  font-size: 1.5rem;
-  right: 2%;
-  bottom: 4%;
+  font-size: 2rem;
+  right: 2rem;
+  bottom: 2rem;
 }
 
 /* end working indicator */
@@ -50,15 +57,11 @@
   border: solid var(--cpi-width) var(--cpi-background-color);
 }
 
-#messageList>tr:nth-child(n + 2):has(td:only-child) {
-  border-block-start: lightgrey var(--cpi-width) solid !important;
-}
-
-#messageList>tr:nth-child(n + 2)>td:only-child {
+#messageList > tr:nth-child(n + 2) > td:only-child {
   padding-block: 0.75em 0.25em;
 }
 
-#messageList>tr:nth-child(1)>td:only-child {
+#messageList > tr:nth-child(1) > td:only-child {
   padding-block: 0 0.25em;
 }
 
@@ -159,6 +162,7 @@ div#cpiHelper_semanticui_modal {
 .cpiHelper #outerFrame {
   border: solid 1px var(--cpi-background-color);
   background: var(--cpi-background-color);
+  color: var(--cpi-text-color);
   padding: 10px;
   box-sizing: border-box;
   border-radius: 0px 0px 5px 5px;
@@ -178,7 +182,7 @@ div#cpiHelper_semanticui_modal {
   opacity: 1 !important;
 }
 
-#cpiHelper_content button>span.sapUiIcon {
+#cpiHelper_content button > span.sapUiIcon {
   pointer-events: none;
 }
 
@@ -376,17 +380,21 @@ div#cpiHelper_semanticui_modal {
   color: #000;
 }
 
-.cpiHelper_tabs_input:focus+.cpiHelper_tabs_label {
+.cpiHelper_tabs_input:focus + .cpiHelper_tabs_label {
   z-index: 1;
 }
 
-.cpiHelper_tabs_input:checked+.cpiHelper_tabs_label {
+.cpiHelper_tabs_input:checked + .cpiHelper_tabs_label {
   color: #000;
   border-block-end: 2px solid black;
 }
 
+.ch_dark .cpiHelper_tabs_input:checked + .cpiHelper_tabs_label {
+  color: #6495ed;
+}
+
 .cpiHelper_tabs_label:hover,
-.cpiHelper_tabs_input:checked+.cpiHelper_tabs_label:hover {
+.cpiHelper_tabs_input:checked + .cpiHelper_tabs_label:hover {
   color: #ff5722;
   background: var(--cpi-custom-color);
   border-radius: 0.2857rem;
@@ -405,7 +413,7 @@ div#cpiHelper_semanticui_modal {
   }
 }
 
-.cpiHelper_tabs_input:checked+.cpiHelper_tabs_label+.cpiHelper_tabs_panel {
+.cpiHelper_tabs_input:checked + .cpiHelper_tabs_label + .cpiHelper_tabs_panel {
   display: block;
 }
 
@@ -495,8 +503,12 @@ div#cpiHelper_messageSidebar_pluginArea {
   height: auto !important;
 }
 
-#cpiHelper_popup_plugins .card>.extra.content:first-child {
+#cpiHelper_popup_plugins .card > .extra.content:first-child {
   background: #eee !important;
+}
+
+.ch_dark #cpiHelper_popup_plugins .card > .extra.content:first-child {
+  background: #121212 !important;
 }
 
 .card {
@@ -510,7 +522,7 @@ div#cpiHelper_messageSidebar_pluginArea {
 }
 
 /* .card .extra.content:has(input)>label, */
-.card .extra.content>label {
+.card .extra.content > label {
   display: flex;
   width: 100%;
   height: 100%;
@@ -521,21 +533,25 @@ div#cpiHelper_messageSidebar_pluginArea {
   padding: 0.5em;
 }
 
-.ui.fluid.input>input {
+.ch_dark .card .extra.content > label {
+  color: #fff;
+}
+
+.ui.fluid.input > input {
   width: 5em !important;
 }
 
 /* .card .extra.content:has(input:checked)>label, */
-.card .extra.content.checked>label {
+.card .extra.content.checked > label {
   background: #bbffb3 !important;
 }
 
 /* .card .extra.content:has(input:checked)>label::after, */
-.card .extra.content.checked>label::after {
+.card .extra.content.checked > label::after {
   content: "d";
 }
 
-.card .extra.content>label:hover {
+.card .extra.content > label:hover {
   color: var(--cpi-custom-color);
   background: #ffb3b3;
 }
@@ -544,22 +560,22 @@ fieldset {
   margin-block: 0 !important;
 }
 
-.ui.modal.active>.header {
+.ui.modal.active > .header {
   background: var(--cpi-custom-color);
   color: var(--cpi-text-color);
 }
 
-.ui.selection.dropdown .menu>.item {
+.ui.selection.dropdown .menu > .item {
   min-height: 0 !important;
 }
 
-.ui.modal>.content {
+.ui.modal > .content {
   color: #000;
 }
 
 /* whatsnew change log css */
-.changeloglist>.header {
-  margin: .5rem !important;
+.changeloglist > .header {
+  margin: 0.5rem !important;
 }
 
 .changeloglist .sub.header {
@@ -571,6 +587,6 @@ fieldset {
   margin-inline-start: 1.5rem !important;
 }
 
-.changeloglist ul>li {
+.changeloglist ul > li {
   padding-block: 0.2rem !important;
 }

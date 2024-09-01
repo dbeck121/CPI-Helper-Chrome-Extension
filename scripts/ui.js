@@ -16,9 +16,7 @@ function workingIndicator(status) {
 function showToast(message, title, type = "") {
   //type = success, error, warning
   $.toast({
-    class:
-      ($("html").hasClass("sapUiTheme-sap_horizon_dark") ? " inverted " : "") +
-      type,
+    class: type + ($("html").hasClass("sapUiTheme-sap_horizon_dark") ? " ch_dark " : ""),
     position: "bottom center",
     showProgress: "bottom",
     ...(title ? { title: title } : {}),
@@ -92,8 +90,8 @@ async function showBigPopup(content, header, parameters = { fullscreen: true, ca
             showToast(`${index ? "Next" : "Previous"} Step ${element} will be displayed shortly`);
             $modal.modal("hide");
             showWaitingPopup();
-          }else{
-            showToast(`${index ? "Next" : "Previous"} Step is not found`,"something went wrong","error")
+          } else {
+            showToast(`${index ? "Next" : "Previous"} Step is not found`, "something went wrong", "error")
           }
         });
       }

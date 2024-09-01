@@ -348,20 +348,18 @@ var formatTrace = function (input, id, traceId) {
       var response = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.GetTraceArchiveCommand?traceIds=" + traceId, true);
       var value = response.match(/<payload>(.*)<\/payload>/sg)[0];
       value = value.substring(9, value.length - 10)
-
       window.open("data:application/zip;base64," + value);
       showToast("Download complete.");
     };
-    //download body only step
-    var DownloadBodyButton = document.createElement("button");
-    DownloadBodyButton.innerText = "Download Body";
-    DownloadBodyButton.onclick = async (element) => {
-      let typeOfInput = prettify_type(input)
-      downloadFile(input, typeOfInput, `CPI_${traceId}_${id}`)
-      showToast("Download of body is complete.");
-    };
   }
-
+  //download body only step
+  var DownloadBodyButton = document.createElement("button");
+  DownloadBodyButton.innerText = "Download Body";
+  DownloadBodyButton.onclick = async (element) => {
+    let typeOfInput = prettify_type(input)
+    downloadFile(input, typeOfInput, `CPI_${traceId}_${id}`)
+    showToast("Download of body is complete.");
+  };
   var copyButton = document.createElement("button");
   copyButton.innerText = "Copy";
   copyButton.onclick = (input) => {
@@ -378,7 +376,7 @@ var formatTrace = function (input, id, traceId) {
   };
 
   var themeButton = document.createElement("button");
-  themeButton.innerText = `${!$('html').hasClass('sapUiTheme-sap_horizon_dark') ? "Dark" : "Light"} Editor`;
+  themeButton.innerText = `${$("#cpihelperglobal").hasClass('ch_dark') ? "Dark" : "Light"} Editor`;
   themeButton.onclick = (event) => { themeButton.innerText = `${editorManager.toggleTheme() ? "Dark" : "Light"} Editor`; }
 
   var WrapButton = document.createElement("button");
@@ -399,7 +397,7 @@ var formatTrace = function (input, id, traceId) {
     $formatted.toggleClass("cpiHelper_traceText_active", isActive);
     $("#beautifyButton").text(isActive ? "Linearize" : "Beautify");
     if ($formatted.text().trim() === "") {
-      editorManager = new EditorManager("cpiHelper_traceText_formatted_" + id, prettify_type(input), $('html').hasClass('sapUiTheme-sap_horizon_dark') ? "github_dark" : "textmate");
+      editorManager = new EditorManager("cpiHelper_traceText_formatted_" + id, prettify_type(input), $("#cpihelperglobal").hasClass('ch_dark') ? "github_dark" : "textmate");
       editorManager.setContent(prettify(input, tab_size))
     }
   }
@@ -412,12 +410,12 @@ var formatTrace = function (input, id, traceId) {
 
   result.appendChild(beautifyButton);
   result.appendChild(copyButton);
+  result.appendChild(DownloadBodyButton);
+  result.appendChild(themeButton);
+  result.appendChild(WrapButton);
+  result.appendChild(readonlyButton);
   if (traceId) {
     result.appendChild(downloadButton);
-    result.appendChild(DownloadBodyButton);
-    result.appendChild(themeButton);
-    result.appendChild(WrapButton);
-    result.appendChild(readonlyButton);
   }
 
   var textEncoder = new TextEncoder().encode(input)
@@ -461,7 +459,7 @@ var formatHeadersAndPropertiesToTable = function (inputList) {
   }
 
   result = `<table class='ui basic striped selectable compact table'>
-  <thead><tr class="black"><th>Name</th><th>Value</th></tr></thead>
+  <thead><tr class="blue"><th>Name</th><th>Value</th></tr></thead>
   <tbody>`
   inputList.forEach(item => {
     result += "<tr><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + htmlEscape(item.Value) + "</td></tr>"
@@ -570,9 +568,25 @@ function getStatusColor(status) {
     case "COMPLETED": return "positive";
     case "ESCALATED":
     case "RETRY": return "orange";
-    case "CANCELLED": return "grey";
-    default: return "info";
+    case "CANCELLED": return "info";
+    default: return "grey";
   }
+}
+function getStatusColorCode(status, isDarkMode = !$("html").hasClass("sapUiTheme-sap_horizon_dark")) {
+  const colors = {
+    PROCESSING: isDarkMode ? "#e76500" : "#f7bf00",
+    STARTING: isDarkMode ? "#e76500" : "#f7bf00",
+    FAILED: isDarkMode ? "#f53232" : "#fa6161",
+    ESCALATED: isDarkMode ? "#e76500" : "#f7bf00",
+    RETRY: isDarkMode ? "#e76500" : "#f7bf00",
+    CANCELLED: isDarkMode ? "#788fa6" : "#a9b4be",
+    ABANDONED: isDarkMode ? "#788fa6" : "#a9b4be",
+    STORED: isDarkMode ? "#30914c" : "#6dad1f",
+    DEPLOYED: isDarkMode ? "#30914c" : "#6dad1f",
+    COMPLETED: isDarkMode ? "#30914c" : "#6dad1f",
+    default: isDarkMode ? "#788fa6" : "#a9b4be",
+  };
+  return colors[status] || colors.default;
 }
 function getStatusIcon(status) {
   let Icon;

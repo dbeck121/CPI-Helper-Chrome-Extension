@@ -42,6 +42,9 @@
     fill: #6969d1 !important;
   }
 }
+.ace_scrollbar {
+  background: whitelightslategray;
+}
 /* editor css - dark mode */
 .ace_dark {
   .ace_scrollbar {

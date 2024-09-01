@@ -86,26 +86,8 @@ async function renderMessageSidebar() {
   await getIflowInfo((data) => {
     let deploymentText = document.getElementById("deploymentText");
     if (deploymentText) {
-      let statusColor = "#000";
-
-      if (cpiData?.flowData?.artifactInformation?.deployState == "DEPLOYED") {
-        statusColor = "#008000";
-      }
-
-      if (cpiData?.flowData?.artifactInformation?.deployState == "STARTING") {
-        statusColor = "#FFC300";
-        trace;
-      }
-
-      if (cpiData?.flowData?.artifactInformation?.deployState == "STORED") {
-        statusColor = "#FFC300";
-      }
-
-      if (cpiData?.flowData?.artifactInformation?.deployState == "FAILED") {
-        statusColor = "#FF0000";
-      }
-
-      deploymentText.innerHTML = "State: <span style='color: " + statusColor + "'>" + cpiData?.flowData?.artifactInformation?.deployState + "</span>";
+      let statusColor = getStatusColorCode(cpiData?.flowData?.artifactInformation?.deployState)
+      deploymentText.innerHTML = `State: <span style="color:${statusColor}">${cpiData?.flowData?.artifactInformation?.deployState}</span>`
     }
   }, true);
 
@@ -197,22 +179,18 @@ async function renderMessageSidebar() {
 
             //let listItem = document.createElement("div");
             //listItem.classList.add("cpiHelper_messageListItem")
-            let statusColor = "#008000";
+            let statusColor = getStatusColorCode(resp[i].Status);
             let statusIcon = "xe05b";
             if (resp[i].Status == "PROCESSING") {
-              statusColor = "#FFC300";
               statusIcon = "xe047";
             }
             if (resp[i].Status == "FAILED") {
-              statusColor = "#C70039";
               statusIcon = "xe03e";
             }
             if (resp[i].Status.match(/^(ESCALATED|RETRY)$/)) {
-              statusColor = "#ff8300";
               statusIcon = "xe201";
             }
             if (resp[i].Status.match(/^(CANCELLED|ABANDONED)$/)) {
-              statusColor = "#7f7f7f";
               statusIcon = "xe23e";
             }
 
@@ -325,16 +303,20 @@ function calculateMessageSidebarTimerTime(lastTabHidden, lastDurationRefresh) {
 var inlineTraceRunning = false;
 async function clickTrace(e) {
   $('[ch_inline_active]').removeAttr('ch_inline_active');
-  showWaitingPopup();
   if (inlineTraceRunning) {
     return;
   }
+  if ($(".cpiHelper_inlineInfo").length === 0) {
+    showToast("Inline trace has been turned off")
+    return;
+  }
   inlineTraceRunning = true;
+  showWaitingPopup();
 
   var formatLogContent = function (inputList) {
     inputList = inputList.sort(function (a, b) { return a.Name.toLowerCase() > b.Name.toLowerCase() ? 1 : -1 });
     result = `<table class='ui basic striped selectable compact table'>
-    <thead><tr class="black"><th>Name</th><th>Value</th></tr></thead>
+    <thead><tr class="blue"><th>Name</th><th>Value</th></tr></thead>
     <tbody>`
     inputList.forEach(item => {
       result += "<tr><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + item.Value + "</td></tr>"
@@ -373,7 +355,7 @@ async function clickTrace(e) {
 
     valueList.push({ Name: "ChildCount", Value: inputList.ChildCount });
 
-    result = `<table class='ui basic striped selectable compact table'><thead><tr class="black"><th>Name</th><th>Value</th></tr></thead>
+    result = `<table class='ui basic striped selectable compact table'><thead><tr class="blue"><th>Name</th><th>Value</th></tr></thead>
     <tbody>`
     valueList.forEach(item => {
       result += "<tr><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + item.Value + "</td></tr>"
@@ -555,12 +537,19 @@ async function hideInlineTrace() {
     ".cpiHelper_max",
     ".cpiHelper_min"
   ];
-
-  $(onClicKElements).off('click');
+  onClicKElements.forEach(element => element.onclick = null);
   onClicKElements = [];
-
+  const elementsToProcess = new Set();
   classesToBeDeleted.forEach(selector => {
-    $(selector).removeClass(selector.substring(1)).off('click');
+    document.querySelectorAll(selector).forEach(element => {
+      elementsToProcess.add(element);
+    });
+  });
+  elementsToProcess.forEach(element => {
+    element.onclick = null;
+    classesToBeDeleted.forEach(selector => {
+      element.classList.remove(selector.substring(1));
+    });
   });
 }
 
@@ -883,7 +872,6 @@ async function buildButtonBar() {
     });
     infobutton.addEventListener("click", (btn) => {
       statistic("headerbar_btn_info_click");
-
       openIflowInfoPopup();
     });
     logsbutton.addEventListener("click", async (btn) => {
@@ -957,7 +945,7 @@ async function getIflowInfo(callback, silent = false) {
   })
     .catch((error) => {
       if (!silent) {
-        showToast(JSON.stringify(error));
+        showToast("Error: " + JSON.stringify(error));
       }
     });
 }
@@ -1344,7 +1332,7 @@ var sidebar = {
       <span id='sidebar_modal_minimize' class='cpiHelper_closeButton_sidebar'>CPI Helper</span>
       <span id='sidebar_modal_close' data-sap-ui-icon-content="&#xe03e" class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>
     </div>
-    <div id="outerFrame" style="color:black;">
+    <div id="outerFrame" >
       <div>
         <div id="updatedText" class="contentText"></div>
         <div id="deploymentText" class="contentText">State: </div>
@@ -1526,7 +1514,8 @@ function apireserror(message) {
   $.toast({
     message: "Please wait while we prepare...",
     position: "bottom right",
-    class: ($("html").hasClass("sapUiTheme-sap_horizon_dark") ? " inverted " : ""),
+    showProgress: "bottom",
+    class: ($("html").hasClass("sapUiTheme-sap_horizon_dark") ? " ch_dark " : ""),
     onVisible: async () =>
       popupTable(message)
         .then((message) => {
@@ -1537,6 +1526,7 @@ function apireserror(message) {
             classProgress: "blue",
             progressUp: true,
             position: "bottom right",
+            class: ($("html").hasClass("sapUiTheme-sap_horizon_dark") ? " ch_dark " : ""),
             displayTime: 5000,
             onRemove: () => {
               document.querySelectorAll('.cpiHelper_sidebar_iconbutton').forEach((i) => i.classList.remove('cpiHelper_sidebar_iconbutton'));
