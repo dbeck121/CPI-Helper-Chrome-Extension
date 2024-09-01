@@ -887,6 +887,7 @@ async function buildButtonBar() {
       // the logs popup opens and it shows the sidebar. the sidebar elements are updated
       showBigPopup(await createContentNodeForPlugins(), "Plugins");
     });
+
     log.debug("Artifect from checks for sidebar", cpiData.currentArtifactType)
     if ((sidebar.active == null || sidebar.active == false) && cpiData.currentArtifactType) {
       chrome.storage.sync.get(["openMessageSidebarOnStartup"], function (result) {
@@ -1577,7 +1578,7 @@ async function getMessageProcessingLogRuns(MessageGuid, store = true) {
 }
 
 //function to get the current artifact name from the URL
-function newArtifactDetected() {
+function collectDataOfCurrentArtifact() {
   var url = window.location.href;
   var result;
   var artifactType;
@@ -1685,20 +1686,17 @@ async function handleUrlChange() {
   getPackageId();
   getIflowId();
 
-  if (newArtifactDetected()) {
+  collectDataOfCurrentArtifact()
+
+
     //init
     var xsltCount = 0;
     var scriptCount = 0;
     var scriptCollectionCount = 0;
     setDocumentTitle(hostData.title);
-    Allowedlist = ["IFlow"];
-    //deactivate sidebar if not on iflow page to root
-    if (sidebar.active && !Allowedlist.includes(cpiData.currentArtifactType)) {
-      sidebar.deactivate();
-    }
+
     if (cpiData.currentArtifactType == "IFlow") {
-      //if iflow found, inject buttons
-      setDocumentTitle(hostData.title);
+
 
       //check type of tenant
       if (!document.location.host.match(cpiTypeRegexp)) {
@@ -1802,20 +1800,7 @@ async function handleUrlChange() {
           }
         }, 1000);
       }
-    } else {
-      //deactivate sidebar if not on iflow page to root
-      if (sidebar.active) {
-        sidebar.deactivate();
-      }
-    }
-    // (xsltCount + scriptCount + scriptCollectionCount !== 0) && sidebar.init();
-  } else {
-    setDocumentTitle(hostData.title);
-    //deactivate sidebar if not on iflow page to root
-    if (sidebar.active) {
-      sidebar.deactivate();
-    }
-  }
+    } 
 }
 
 //function that handles the dragging
@@ -1955,7 +1940,16 @@ var refreshActive = false;
 
 //CPI Helper Heartbeat
 setInterval(async function () {
-  if (document.querySelector('[id^="svgBackgroundPointerPanelLayer-"]') && document.getElementsByClassName("spcHeaderActionButton")) {
+  await checkURLchange(window.location.href);
+
+  //check if sidebar should be deactivated because we are not on a suitable page
+
+  if(cpiData.currentArtifactType != "IFlow" && sidebar.active) {
+    sidebar.deactivate();
+  }
+
+  //add button bar and breadcrumbs if page rendered 
+  if (cpiData.currentArtifactType == "IFlow" && document.querySelector('[id^="svgBackgroundPointerPanelLayer-"]') && document.getElementsByClassName("spcHeaderActionButton")) {
     buildButtonBar();
     addBreadcrumbs();
   }
@@ -1969,7 +1963,7 @@ setInterval(async function () {
   } catch (error) {
     log.error(error);
   }
-  await checkURLchange(window.location.href);
+
 
   //new update message sidebar
   if (!refreshActive) {
@@ -1979,6 +1973,7 @@ setInterval(async function () {
     log.log("refresh active. Will not refresh message sidebar");
   }
 
+  //check if message sidebar should be refreshed
   if (!refreshActive && sidebar.active && ((nextMessageSidebarRefreshCount) <= 0 || lastTabHidden > 0 && document.hidden == false)) {
 
     log.debug("refresh message sidebar");
