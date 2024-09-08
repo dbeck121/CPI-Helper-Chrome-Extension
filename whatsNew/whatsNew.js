@@ -8,6 +8,8 @@ async function whatsNewCheck(showOnlyOnce = true) {
     //const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
     const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo.png");
     const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
+    const devtoberfestPicture = chrome.runtime.getURL("images/devtoberfestPicture.png");
+    const devtoberfestInvite = chrome.runtime.getURL("images/Devtoberfest_CPIHelper.ics");
     const md = window.markdownit();
     if (!check && !silentupdates.includes(manifestVersion) || showOnlyOnce == false) {
         html = `<div class="ui message">
@@ -175,10 +177,63 @@ Considering a migration to the SAP Integration Suite? Figaf is hosting an in-dep
             <div>Created by: Dominic Beckbauer and Kangoolutions.com</div>
         </div>
     </div>`;
+
+    var devtoberfest = `
+    <div class="ui segment">
+         <h3 class="ui header">
+                <i class="bell icon"></i>
+                <div class="content">
+                  Meet us at SAP Devtoberfest on 25th of September at 11am CEST
+                </div>
+            </h3>
+
+  <h4>Another popup? Ok, let's keep it short:</h4>
+
+
+  <div style="margin-top: 0.1rem">📅 Meet us at SAP Devtoberfest on 25th of September at 11am CEST (click event for your local timezone)
+</div>
+   <div style="text-align: center; margin: 20px;">
+    <a href="https://community.sap.com/t5/devtoberfest/speed-up-your-sap-cloud-integration-development-with-cpi-helper/ev-p/13802891" target="_blank" style="color: darkblue; text-decoration: none;"
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Community Link</a> --- 
+    <a href="https://www.youtube.com/watch?v=uSwSQbc_ULU" target="_blank" style="color: darkblue; text-decoration: none;" 
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Youtube</a> --- 
+    <a href="https://www.linkedin.com/events/speedupyoursapcloudintegrationd7237127761532764163/" target="_blank" style="color: darkblue; text-decoration: none;" 
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">LinkedIn Event</a> --- 
+    <a href="${devtoberfestInvite}" target="_blank" style="color: darkblue; text-decoration: none;" 
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Add to Calendar</a>
+  </div>
+
+
+ <div class="ui segment cpihelper83782">
+          <a href="https://community.sap.com/t5/devtoberfest/speed-up-your-sap-cloud-integration-development-with-cpi-helper/ev-p/13802891" target="_blank"><img
+                                class="ui center image" src="${devtoberfestPicture}"></a>
+      <div class="ui flowing popup top left transition hidden">
+       
+    </div>
+
+    `
+    
     await showBigPopup(html, "Your SAP CI Toolbox since 1963", {
       fullscreen: false,
       callback: () => {
         $(".menu .item").tab();
+        $('.cpihelper83782')
+  .popup({
+    inline     : true,
+    hoverable  : true,
+    position   : 'bottom left',
+    delay: {
+      show: 300,
+      hide: 800
+    }
+  })
+;    
+    
+    },
+      onclose: () => {
+        showBigPopup(devtoberfest, "Your SAP CI Toolbox since 1963", {
+            fullscreen: false, }
+        );
       },
     });
 
