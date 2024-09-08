@@ -53,7 +53,7 @@ function showWaitingPopup(
     }, time);
   }
 }
-async function showBigPopup(content, header, parameters = { fullscreen: true, callback: null }, count = 0, maxcount = 0, type = "mouse") {
+async function showBigPopup(content, header, parameters = { fullscreen: true, callback: null, onclose: null }, count = 0, maxcount = 0, type = "mouse") {
   $("#cpiHelper_waiting_model, #cpiHelper_semanticui_modal").modal("hide");
   var $modal = $("#cpiHelper_semanticui_modal");
   if ($modal.length) {
@@ -120,8 +120,14 @@ async function showBigPopup(content, header, parameters = { fullscreen: true, ca
         if (!$modal.parent().is("#cpihelperglobal")) {
           $('#cpihelperglobal').append($modal);  // Ensuring the modal stays within its parent container
         }
+      },
+      onHidden: function () {
+        if (parameters.onclose  && parameters.onclose instanceof Function) {
+          parameters.onclose();
+        }
       }
     }).modal("show");
+    
   } else {
     showToast("", "Element is missing.. Reload the page", "error")
   }
