@@ -1,9 +1,12 @@
+
+
 async function whatsNewCheck(showOnlyOnce = true) {
     var manifestVersion = chrome.runtime.getManifest().version;
   
     check = await storageGetPromise("whatsNewV" + manifestVersion);
   
     silentupdates = ["3.0.3", "3.14.4"]
+
   
     //const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
     const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo.png");
@@ -11,6 +14,49 @@ async function whatsNewCheck(showOnlyOnce = true) {
     const devtoberfestPicture = chrome.runtime.getURL("images/devtoberfestPicture.png");
     const devtoberfestInvite = chrome.runtime.getURL("images/Devtoberfest_CPIHelper.ics");
     const md = window.markdownit();
+   
+   
+   
+    var devtoberfest = `
+    <div class="ui segment">
+         <h3 class="ui header">
+                <i class="bell icon"></i>
+                <div class="content">
+                  Meet us at SAP Devtoberfest on 25th of September at 11am CEST
+                </div>
+            </h3>
+    
+    <h4>Another popup? Ok, let's keep it short:</h4>
+    
+    
+    <div style="margin-top: 0.1rem">📅 Meet us at SAP Devtoberfest on 25th of September at 11am CEST (click event for your local timezone)
+    </div>
+    <div style="text-align: center; margin: 20px;">
+    <a href="https://community.sap.com/t5/devtoberfest/speed-up-your-sap-cloud-integration-development-with-cpi-helper/ev-p/13802891" target="_blank" style="color: darkblue; text-decoration: none;"
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Community Link</a> --- 
+    <a href="https://www.youtube.com/watch?v=uSwSQbc_ULU" target="_blank" style="color: darkblue; text-decoration: none;" 
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Youtube</a> --- 
+    <a href="https://www.linkedin.com/events/speedupyoursapcloudintegrationd7237127761532764163/" target="_blank" style="color: darkblue; text-decoration: none;" 
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">LinkedIn Event</a> --- 
+    <a href="${devtoberfestInvite}" target="_blank" style="color: darkblue; text-decoration: none;" 
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Add to Calendar</a>
+    </div>
+    
+    
+        <div class="ui segment cpihelper83782">
+            <a href="https://community.sap.com/t5/devtoberfest/speed-up-your-sap-cloud-integration-development-with-cpi-helper/ev-p/13802891" target="_blank"><img
+                                    class="ui center image" src="${devtoberfestPicture}"></a>
+        
+        </div>
+    </div>
+    
+    `
+   
+   
+   
+   
+   
+   
     if (!check && !silentupdates.includes(manifestVersion) || showOnlyOnce == false) {
         html = `<div class="ui message">
         <img class="ui small floated image" src="${Kangoolutions_Logo}">
@@ -26,6 +72,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
             <a class="item active" data-tab="one">News</a>
             <a class="item" data-tab="two">Features</a>
             <a class="item" data-tab="three">About</a>
+            <a class="item" data-tab="four">Devtoberfest</a>
         </div>
         <div class="ui bottom attached tab segment" data-tab="one">
             <div class="ui segment">
@@ -37,32 +84,14 @@ async function whatsNewCheck(showOnlyOnce = true) {
                     <div class="twelve wide column">
                         <div class="ui header">This release is sponsored by Figaf </div>
                         <p>
-                        <b>Live Event on SAP PI to Integration Suite Migration in Copenhagen</b><br>
-Considering a migration to the SAP Integration Suite? Figaf is hosting an in-depth event in Copenhagen on September 17-18. This event will equip you with essential knowledge for planning your migration.
-                      </p>
-                    </div>
-                    <div class="sixteen wide column" style="padding-top: 0px;">
-                    <p>
-                        <br>Experts from Figaf, SAP, and partners will provide insights, covering key topics such as migration strategies, tools, and best practices. Attendees will have opportunities to engage in hands-on sessions, network with peers, and gain valuable tips for a smooth transition.
+If you are planning or working on a migration to Integration Suite, then Figaf has a lot to offer for the entire process. From planning and overview, migration of ICO and Receiver Determinations, to testing and go-live. You can get started quickly.
                       </p>
                     </div>
                      <div class="sixteen wide column">
-                    For more details, visit the <a href="https://figaf.com/cpihelper15" target="_blank"><u>event page</u></a>.
+                    For more details, visit the <a href="https://figaf.com/cpihelper16" target="_blank"><u>details page</u></a>.
                     </div>
                 </div>
             </div>
-            <h3 class="ui header">
-                <i class="bell icon"></i>
-                <div class="content">
-                   New Release
-                </div>
-            </h3>
-            <p>
-                CPI Helper is free and open source, so perhaps you would like to assist us in contributing new features and
-                bug fixes. Our community is expanding, and we would like to give a special thanks to Daniel Graversen and
-                his amazing Figaf Tools, which have helped me dedicate more time to developing the CPI Helper.<br />
-            </p>
-            </h3>
             <h3 class="ui header">
                 <i class="bell icon"></i>
                 <div class="content">
@@ -176,42 +205,12 @@ Considering a migration to the SAP Integration Suite? Figaf is hosting an in-dep
             </div>
             <div>Created by: Dominic Beckbauer and Kangoolutions.com</div>
         </div>
+        <div class="ui bottom attached tab segment active" data-tab="four">
+            ${devtoberfest}
+        </div>
     </div>`;
 
-    var devtoberfest = `
-    <div class="ui segment">
-         <h3 class="ui header">
-                <i class="bell icon"></i>
-                <div class="content">
-                  Meet us at SAP Devtoberfest on 25th of September at 11am CEST
-                </div>
-            </h3>
-
-  <h4>Another popup? Ok, let's keep it short:</h4>
-
-
-  <div style="margin-top: 0.1rem">📅 Meet us at SAP Devtoberfest on 25th of September at 11am CEST (click event for your local timezone)
-</div>
-   <div style="text-align: center; margin: 20px;">
-    <a href="https://community.sap.com/t5/devtoberfest/speed-up-your-sap-cloud-integration-development-with-cpi-helper/ev-p/13802891" target="_blank" style="color: darkblue; text-decoration: none;"
-    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Community Link</a> --- 
-    <a href="https://www.youtube.com/watch?v=uSwSQbc_ULU" target="_blank" style="color: darkblue; text-decoration: none;" 
-    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Youtube</a> --- 
-    <a href="https://www.linkedin.com/events/speedupyoursapcloudintegrationd7237127761532764163/" target="_blank" style="color: darkblue; text-decoration: none;" 
-    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">LinkedIn Event</a> --- 
-    <a href="${devtoberfestInvite}" target="_blank" style="color: darkblue; text-decoration: none;" 
-    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Add to Calendar</a>
-  </div>
-
-
- <div class="ui segment cpihelper83782">
-          <a href="https://community.sap.com/t5/devtoberfest/speed-up-your-sap-cloud-integration-development-with-cpi-helper/ev-p/13802891" target="_blank"><img
-                                class="ui center image" src="${devtoberfestPicture}"></a>
-      <div class="ui flowing popup top left transition hidden">
-       
-    </div>
-
-    `
+  
     
     await showBigPopup(html, "Your SAP CI Toolbox since 1963", {
       fullscreen: false,
