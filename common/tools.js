@@ -42,10 +42,9 @@ async function getCsrfToken(showInfo = false) {
       var xhr = new XMLHttpRequest();
       xhr.withCredentials = true;
       log.log("getCsrfToken")
-      xhr.open("GET", "/api/1.0/user");
 
+      xhr.open("GET", absolutePath("/api/1.0/user"));
       xhr.setRequestHeader("X-CSRF-Token", "Fetch");
-
 
       xhr.onload = function () {
         if (this.status >= 200 && this.status < 300) {

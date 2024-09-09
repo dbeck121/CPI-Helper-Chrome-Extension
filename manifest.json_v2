@@ -6,7 +6,7 @@
   },
   "name": "SAP CPI Helper",
   "short_name": "CPI Helper",
-  "version": "3.15.0",
+  "version": "3.15.1",
   "description": "Extends the SAP Cloud Platform Integration with some useful features to improve usability.",
   "author": "Dominic Beckbauer",
   "homepage_url": "https://github.com/dbeck121/CPI-Helper-Chrome-Extension",
@@ -29,6 +29,7 @@
   "content_scripts": [
     {
       "matches": [
+        "https://*.hana.ondemand.com/shell/design/*",
         "https://*.hana.ondemand.com/itspaces/*",
         "https://*.hana.ondemand.com/shell/*",
         "https://*.platform.sapcloud.cn/itspaces/*",
@@ -50,8 +51,6 @@
         "/lib/jQuery/jquery.min.js",
         "/lib/semanticui/semantic.min.js",
         "/lib/semanticui/tablesort.js",
-        "lib/markdownit/markdown-it.min.js",
-        "/scripts/init.js",
         "/common/logging.js",
         "/common/tools.js",
         "/scripts/identify-tenant.js",
@@ -80,9 +79,7 @@
       ],
       "css": [
         "/lib/semanticui/semantic.min.css",
-        "/lib/semanticui/semantic.dark.css",
         "/css/contentScript.css",
-        "/css/darkoverwrite.css",
         "/css/plugin.css"
       ]
     }
@@ -96,6 +93,7 @@
       "128": "images/v4/128.png"
     },
     "show_matches": [
+      "https://*.hana.ondemand.com/shell/design/*",
       "https://*.hana.ondemand.com/itspaces/*",
       "https://*.hana.ondemand.com/shell/*",
       "https://*.platform.sapcloud.cn/itspaces/*",
@@ -111,8 +109,7 @@
   "web_accessible_resources": [
     "images/favicons/*.png",
     "lib/semanticui/*",
-    "images/*", 
-    "plugins/settingsPaneResizer-inject.js"    
+    "images/*"
   ],
   "manifest_version": 2
 }
