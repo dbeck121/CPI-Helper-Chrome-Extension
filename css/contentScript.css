@@ -1,6 +1,6 @@
 /*root filter*/
 :root {
-  --cpi-custom-color: #2185d0;
+  --cpi-custom-color: #fff;
   --cpi-background-color: #ffffff;
   --cpi-fui-active-color: #00144a;
   /* constant color  =  Don't overwrite this*/
