@@ -1,27 +1,13 @@
-// template = [
-//     {
-//         "header": "your header as HTML",
-//         "description": "description goes here as HTML",
-//     } ,... //multiple
-// ]
-const whats_new_log = [    
-
-    
-    {
-        "header": "Maintenance",
-        "description": "Update to Manifest V3. This is a major and necessary under the hood update and may cause some issues. Please report any issues."
-    },
-    {
-        "header": "Plugin",
-        "description": "Get Message ID logs Plugin to get logs from message ID in message sidebar."
-    },
-    {
-        "header": "Plugin",
-        "description": "Apache Camel Update Message Remover Plugin (Beta). Get rid of annoying Apache Camel update message. This plugin is in beta and may not work in all cases. Please report."
-    },
-    {
-        "header": "Improvement",
-        "description": "CPI Helper survives login procedure and does not need reload after login (beta)"
-    }
- 
-]
+// template = - [header :your header as HTML] [description": "description goes here as HTML] ,... //multiple
+const whats_new_log = `   
+- [Improvement] UI Bugfixes (Dark-mode Darker color for trace, Trace-inline tool editor detect mode you selected by default).
+- [Improvement] XML declaration preserved by code beautify function.
+- [Plugin] Performance stats plugin has better color for dark mode.
+- [Plugin] Settings Pane Resizer plugin opens settings pane on page load even if Pause mode is active.
+- [Feature] Color mode detected a theme and applied by default (in case of dark mode).
+- [Feature] More compatibale with DARK CPI extension dark mode.
+- [Feature] Position of popup is now state aware.
+- [Feature] Body download option now with proper extension.
+- [Feature] Text wrap option and theme of editor has clear information.
+- [Feature] General UI Bugfix & backend global element to organize. [Read more here with snapshot note](https://github.com/dbeck121/CPI-Helper-Chrome-Extension/pull/194). Special thanks to [Omkar](https://github.com/incpi).
+`

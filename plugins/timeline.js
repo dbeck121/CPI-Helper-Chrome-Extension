@@ -64,7 +64,7 @@ function createContent(data, pluginHelper) {
     var popupContentPrefix = `
     <table class="ui sortable celled center aligned table" id='timelinetable'>
         <thead>
-            <tr class="black">
+            <tr class="blue">
                 <th>Integration Flow Name</th>
                 <th>Integration Package</th>
                 <th>Status</th>

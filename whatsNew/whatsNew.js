@@ -1,15 +1,62 @@
+
+
 async function whatsNewCheck(showOnlyOnce = true) {
-
     var manifestVersion = chrome.runtime.getManifest().version;
-
+  
     check = await storageGetPromise("whatsNewV" + manifestVersion);
+  
+    silentupdates = ["3.0.3", "3.14.4"]
 
-    silentupdates = ["3.0.3"]
-
+  
     //const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
     const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo.png");
     const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
-
+    const devtoberfestPicture = chrome.runtime.getURL("images/devtoberfestPicture.png");
+    const devtoberfestInvite = chrome.runtime.getURL("images/Devtoberfest_CPIHelper.ics");
+    const md = window.markdownit();
+   
+   
+   
+    var devtoberfest = `
+    <div class="ui segment">
+         <h3 class="ui header">
+                <i class="bell icon"></i>
+                <div class="content">
+                  Meet us at SAP Devtoberfest on 25th of September at 11am CEST
+                </div>
+            </h3>
+    
+    <h4>Another popup? Ok, let's keep it short:</h4>
+    
+    
+    <div style="margin-top: 0.1rem">📅 Meet us at SAP Devtoberfest on 25th of September at 11am CEST (click event for your local timezone)
+    </div>
+    <div style="text-align: center; margin: 20px;">
+    <a href="https://community.sap.com/t5/devtoberfest/speed-up-your-sap-cloud-integration-development-with-cpi-helper/ev-p/13802891" target="_blank" style="color: green; text-decoration: none;"
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Community Link</a> --- 
+    <a href="https://www.youtube.com/watch?v=uSwSQbc_ULU" target="_blank" style="color: green; text-decoration: none;" 
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Youtube</a> --- 
+    <a href="https://www.linkedin.com/events/speedupyoursapcloudintegrationd7237127761532764163/" target="_blank" style="color: green; text-decoration: none;" 
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">LinkedIn Event</a> --- 
+    <a href="${devtoberfestInvite}" target="_blank" style="color: green; text-decoration: none;" 
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Add to Calendar</a>
+    </div>
+    
+    
+        <div class="ui segment cpihelper83782">
+            <a href="https://community.sap.com/t5/devtoberfest/speed-up-your-sap-cloud-integration-development-with-cpi-helper/ev-p/13802891" target="_blank"><img
+                                    class="ui center image" src="${devtoberfestPicture}"></a>
+        
+        </div>
+    </div>
+    
+    `
+   
+   
+   
+   
+   
+   
     if (!check && !silentupdates.includes(manifestVersion) || showOnlyOnce == false) {
         html = `<div class="ui message">
         <img class="ui small floated image" src="${Kangoolutions_Logo}">
@@ -25,6 +72,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
             <a class="item active" data-tab="one">News</a>
             <a class="item" data-tab="two">Features</a>
             <a class="item" data-tab="three">About</a>
+            <a class="item" data-tab="four">Devtoberfest</a>
         </div>
         <div class="ui bottom attached tab segment" data-tab="one">
             <div class="ui segment">
@@ -36,47 +84,40 @@ async function whatsNewCheck(showOnlyOnce = true) {
                     <div class="twelve wide column">
                         <div class="ui header">This release is sponsored by Figaf </div>
                         <p>
-                        <b>Live Event on SAP PI to Integration Suite Migration in Copenhagen</b><br>
-Considering a migration to the SAP Integration Suite? Figaf is hosting an in-depth event in Copenhagen on September 17-18. This event will equip you with essential knowledge for planning your migration.
-                      </p>
-                    </div>
-                    <div class="sixteen wide column" style="padding-top: 0px;">
-                    <p>
-                        <br>Experts from Figaf, SAP, and partners will provide insights, covering key topics such as migration strategies, tools, and best practices. Attendees will have opportunities to engage in hands-on sessions, network with peers, and gain valuable tips for a smooth transition.
+If you are planning or working on a migration to Integration Suite, then Figaf has a lot to offer for the entire process. From planning and overview, migration of ICO and Receiver Determinations, to testing and go-live. You can get started quickly.
                       </p>
                     </div>
                      <div class="sixteen wide column">
-                    For more details, visit the <a href="https://figaf.com/cpihelper15" target="_blank"><u>event page</u></a>.
+                    For more details, visit the <a href="https://figaf.com/cpihelper16" target="_blank"><u>details page</u></a>.
                     </div>
                 </div>
             </div>
-            <h3 class="ui header">
-                <i class="bell icon"></i>
-                <div class="content">
-                   New Release
-                </div>
-            </h3>
-            <p>
-                CPI Helper is free and open source, so perhaps you would like to assist us in contributing new features and
-                bug fixes. Our community is expanding, and we would like to give a special thanks to Daniel Graversen and
-                his amazing Figaf Tools, which have helped me dedicate more time to developing the CPI Helper.<br />
-            </p>
-            </h3>
             <h3 class="ui header">
                 <i class="bell icon"></i>
                 <div class="content">
                     What's New?
                 </div>
             </h3>
-            <a class="ui red center right ribbon label">FireFox limited support</a>  
-            <div class="ui middle aligned list">
-                 ${String(whats_new_log.map((e) => `<div class="item"><i class="right triangle icon"></i>
-                    <div class="content">
-                        <div class="header">${e.header}</div>
-                        <div class="description">${e.description}</div>
-                    </div>
-                </div>`)).replaceAll(",", "")}
-            </div>
+            <a class="ui red center right ribbon label" style="position: absolute;">FireFox limited support</a>  
+            <div class="changeloglist">${
+                Object.entries(
+                    whats_new_log.trim().split('\n').reduce((acc, line) => {
+                        const match = line.match(/\[([^\]]+)\](.*)/);
+                        if (match) {
+                            const [_, header, description] = match;
+                            (acc[header.trim()] = acc[header.trim()] || []).push(description.trim());
+                        }
+                        return acc;
+                    }, {})
+                ).sort(([a], [b]) => a.localeCompare(b)).map(([header, descs]) => `
+                    <div class="ui block header">
+                        <div class="ui sub header">${header}</div>
+                        <div class="description" style="font-weight: normal;">
+                            <ul class="list">
+                                ${descs.map(desc => `<li>${md.renderInline(desc)}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>`).join('')}</div>
             <div class="ui list">
                 <h3 class="ui header">
                     <a href="https://www.linkedin.com/company/kangoolutions" target="_blank"><i class="linkedin icon"></i></a>
@@ -164,23 +205,56 @@ Considering a migration to the SAP Integration Suite? Figaf is hosting an in-dep
             </div>
             <div>Created by: Dominic Beckbauer and Kangoolutions.com</div>
         </div>
+        <div class="ui bottom attached tab segment active" data-tab="four">
+            ${devtoberfest}
+        </div>
     </div>`;
-        await showBigPopup(html, "Your SAP CI Toolbox since 1963", { "fullscreen": false, callback: () => { $('.menu .item').tab(); } });
 
-        var obj = {};
-        obj["whatsNewV" + manifestVersion] = "show";
-        chrome.storage.local.set(obj, function () {
-            log.log("whats new displayed and saved");
-        });
-
-        return true
+  
+    
+    await showBigPopup(html, "Your SAP CI Toolbox since 1963", {
+      fullscreen: false,
+      callback: () => {
+        $(".menu .item").tab();
+        $('.cpihelper83782')
+  .popup({
+    inline     : true,
+    hoverable  : true,
+    position   : 'bottom left',
+    delay: {
+      show: 300,
+      hide: 800
     }
-    return false
+  })
+;    
+    
+    },
+      onclose: () => {
+        showBigPopup(devtoberfest, "Your SAP CI Toolbox since 1963", {
+            fullscreen: false, }
+        );
+      },
+    });
 
-    //persist so that the popup does not appear again
+    var obj = {};
+    obj["whatsNewV" + manifestVersion] = "show";
+    chrome.storage.local.set(obj, function () {
+      log.log("whats new displayed and saved");
+    });
+
+    return true;
+  }
+  return false;
+
+  //persist so that the popup does not appear again
 }
 
 async function recrutingPopup(force = false) {
+   
+    if(force == false) {
+        return true
+    }
+
     //shows a popup if browser language is German and if timestamp is not set or today is after timestamp in chrome storage
 
     //show only for a fraction of user for testing
@@ -244,67 +318,72 @@ async function recrutingPopup(force = false) {
     </div>
     </div>`;
 
-        var popup = createElementFromHTML(html);
+    var popup = createElementFromHTML(html);
 
-        var createRemindButtopn = function (text, days, color = "teal") {
-            var button = document.createElement("button");
-            button.className = "ui " + color + " right labled icon button";
-            var icon = document.createElement("i");
-            icon.className = "right bell icon";
-            button.textContent = text;
-            button.appendChild(icon);
+    var createRemindButtopn = function (text, days, color = "teal") {
+      var button = document.createElement("button");
+      button.className = "ui " + color + " right labled icon button";
+      var icon = document.createElement("i");
+      icon.className = "right bell icon";
+      button.textContent = text;
+      button.appendChild(icon);
 
-            button.style.marginBottom = "10px";
+      button.style.marginBottom = "10px";
 
-            button.onclick = async function () {
-                statistic("recrutingPopup", "remind", days)
+      button.onclick = async function () {
+        statistic("recrutingPopup", "remind", days);
 
-                //get unix timestamp for tomorrow
-                var tomorrow = +new Date() + days * 24 * 60 * 60 * 1000;
+        //get unix timestamp for tomorrow
+        var tomorrow = +new Date() + days * 24 * 60 * 60 * 1000;
 
-                var obj = {};
-                obj["recrutingPopupTimestamp"] = tomorrow;
-                chrome.storage.local.set(obj, function () {
-                    log.log("recruting popup timestamp set to today + " + days + " days");
-                });
+        var obj = {};
+        obj["recrutingPopupTimestamp"] = tomorrow;
+        chrome.storage.local.set(obj, function () {
+          log.log("recruting popup timestamp set to today + " + days + " days");
+        });
 
-                $('#cpiHelper_semanticui_modal').modal('hide');
-            }
-            return button
-        }
+        $("#cpiHelper_semanticui_modal").modal("hide");
+      };
+      return button;
+    };
 
-        var nextStepButtion = document.createElement("button");
-        nextStepButtion.className = "ui teal right labled icon button";
-        var icon = document.createElement("i");
-        icon.className = "right arrow icon";
+    var nextStepButtion = document.createElement("button");
+    nextStepButtion.className = "ui teal right labled icon button";
+    var icon = document.createElement("i");
+    icon.className = "right arrow icon";
 
-        nextStepButtion.textContent = "Jau! Ich will mehr wissen.";
-        nextStepButtion.appendChild(icon);
-        nextStepButtion.onclick = async function () {
-            statistic("recrutingPopup", "nextStep")
-            window.open("https://ich-will-zur.kangoolutions.com/", "_blank");
-            $('#cpiHelper_semanticui_modal').modal('hide');
-        }
+    nextStepButtion.textContent = "Jau! Ich will mehr wissen.";
+    nextStepButtion.appendChild(icon);
+    nextStepButtion.onclick = async function () {
+      statistic("recrutingPopup", "nextStep");
+      window.open("https://ich-will-zur.kangoolutions.com/", "_blank");
+      $("#cpiHelper_semanticui_modal").modal("hide");
+    };
 
-        //create br
-        var br = document.createElement("br");
-        var span = document.createElement("span");
-        span.textContent = "Erinnere mich: ";
-        popup.appendChild(br);
+    //create br
+    var br = document.createElement("br");
+    var span = document.createElement("span");
+    span.textContent = "Erinnere mich: ";
+    popup.appendChild(br);
 
-        popup.appendChild(nextStepButtion)
-        popup.appendChild(br);
-        popup.appendChild(createRemindButtopn("Schon ok... Erinnere mich nicht mehr", 9999, "violet"))
+    popup.appendChild(nextStepButtion);
+    popup.appendChild(br);
+    popup.appendChild(
+      createRemindButtopn(
+        "Schon ok... Erinnere mich nicht mehr",
+        9999,
+        "violet"
+      )
+    );
 
-        popup.appendChild(br);
-        popup.appendChild(span)
-        popup.appendChild(createRemindButtopn("Morgen", 1))
+    popup.appendChild(br);
+    popup.appendChild(span);
+    popup.appendChild(createRemindButtopn("Morgen", 1));
 
-        popup.appendChild(createRemindButtopn("In einer Woche", 7))
+    popup.appendChild(createRemindButtopn("In einer Woche", 7));
 
+    popup.appendChild(createRemindButtopn("In einem halben Jahr", 190));
 
-        popup.appendChild(createRemindButtopn("In einem halben Jahr", 190))
-
-        await showBigPopup(popup, "Wir suchen Verstärkung!", { "fullscreen": false });
-    }
+    await showBigPopup(popup, "Wir suchen Verstärkung!", { fullscreen: false });
+  }
 }

@@ -9,12 +9,12 @@ function callChromeStoragePromise(key) {
     log.debug("callChromeStoragePromise: ", key)
     var input = key ? [key] : null;
     var storage = await chrome.storage.sync.get(input)
-      if (!key) {
-        resolve(storage);
-        log.debug("callChromeStoragePromise response: ", storage)
-      }
-      resolve(storage[key]);
-  
+    if (!key) {
+      resolve(storage);
+      log.debug("callChromeStoragePromise response: ", storage)
+    }
+    resolve(storage[key]);
+
   });
 }
 
@@ -25,7 +25,7 @@ function syncChromeStoragePromise(keyName, value) {
     myobj[keyName] = value;
     await chrome.storage.sync.set(myobj)
     resolve();
-  
+
   });
 }
 
@@ -42,10 +42,9 @@ async function getCsrfToken(showInfo = false) {
       var xhr = new XMLHttpRequest();
       xhr.withCredentials = true;
       log.log("getCsrfToken")
-      xhr.open("GET", "/api/1.0/user");
 
+      xhr.open("GET", absolutePath("/api/1.0/user"));
       xhr.setRequestHeader("X-CSRF-Token", "Fetch");
-
 
       xhr.onload = function () {
         if (this.status >= 200 && this.status < 300) {
@@ -254,6 +253,21 @@ let absolutePath = function (href) {
   return (link.protocol + "//" + link.host + link.pathname + link.search + link.hash);
 }
 
+function downloadFile(fileContent, format, filename) {
+  // Create a Blob with the file content
+  const blob = new Blob([fileContent], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const link = $("<a></a>")
+    .attr({
+      href: url,
+      download: `${filename}.${format == "text" ? 'txt' : format}`,
+    })
+    .appendTo("body");
+  link[0].click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
 var formatTrace = function (input, id, traceId) {
   var tab_size = 2;
   var editorManager;
@@ -264,6 +278,8 @@ var formatTrace = function (input, id, traceId) {
     return String(str).replace('&amp;', "&").replace('&lt;', "<").replace('&gt;', ">").replace('&quot;', "\"").replace('&#010;', "\n").replace("&#039;", '\'');
   }
   var formatXml = function (sourceXml, tab_size) {
+    var xmlDeclarationmatch = sourceXml.match(/^<\?xml\s+version\s*=\s*(["'])[^\1]+\1\s+encoding\s*=\s*(["'])[^\2]+\2\s*\?>/)
+    var xmlDeclaration = xmlDeclarationmatch ? `${xmlDeclarationmatch[0]}\n` : "";
     //tab_size not implemented yet.
     filterflag = 0;
     var xmlDoc = new DOMParser().parseFromString(`${sourceXml}`, 'application/xml');
@@ -280,7 +296,7 @@ var formatTrace = function (input, id, traceId) {
       '  <xsl:template match="node()|@*">',
       '    <xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy>',
       '  </xsl:template>',
-      '  <xsl:output indent="yes"/>',
+      '  <xsl:output method="xml" indent="yes" omit-xml-declaration="no"/>',
       '</xsl:stylesheet>',
     ].join('\n'), 'application/xml');
 
@@ -289,7 +305,7 @@ var formatTrace = function (input, id, traceId) {
     var resultDoc = xsltProcessor.transformToDocument(xmlDoc);
     var resultXml = new XMLSerializer().serializeToString(resultDoc);
     if (filterflag === 1) { resultXml = resultXml.substring(12, resultXml.length - 13).replaceAll('\n  ', '\n'); }
-    return resultXml
+    return xmlDeclaration + resultXml
   };
   var prettify_type = function (input) {
 
@@ -331,12 +347,18 @@ var formatTrace = function (input, id, traceId) {
       var response = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.GetTraceArchiveCommand?traceIds=" + traceId, true);
       var value = response.match(/<payload>(.*)<\/payload>/sg)[0];
       value = value.substring(9, value.length - 10)
-
       window.open("data:application/zip;base64," + value);
       showToast("Download complete.");
     };
   }
-
+  //download body only step
+  var DownloadBodyButton = document.createElement("button");
+  DownloadBodyButton.innerText = "Download Body";
+  DownloadBodyButton.onclick = async (element) => {
+    let typeOfInput = prettify_type(input)
+    downloadFile(input, typeOfInput, `CPI_${traceId}_${id}`)
+    showToast("Download of body is complete.");
+  };
   var copyButton = document.createElement("button");
   copyButton.innerText = "Copy";
   copyButton.onclick = (input) => {
@@ -353,8 +375,12 @@ var formatTrace = function (input, id, traceId) {
   };
 
   var themeButton = document.createElement("button");
-  themeButton.innerText = "Color Mode";
-  themeButton.onclick = (event) => editorManager.toggleTheme();
+  themeButton.innerText = `${$("#cpihelperglobal").hasClass('ch_dark') ? "Dark" : "Light"} Editor`;
+  themeButton.onclick = (event) => { themeButton.innerText = `${editorManager.toggleTheme() ? "Dark" : "Light"} Editor`; }
+
+  var WrapButton = document.createElement("button");
+  WrapButton.innerText = "No Wrap";
+  WrapButton.onclick = (event) => { WrapButton.innerText = editorManager.toggleWrap() ? "No Wrap" : "Wrap"; }
 
   var readonlyButton = document.createElement("button");
   readonlyButton.innerText = "Edit";
@@ -370,7 +396,7 @@ var formatTrace = function (input, id, traceId) {
     $formatted.toggleClass("cpiHelper_traceText_active", isActive);
     $("#beautifyButton").text(isActive ? "Linearize" : "Beautify");
     if ($formatted.text().trim() === "") {
-      editorManager = new EditorManager("cpiHelper_traceText_formatted_" + id, prettify_type(input));
+      editorManager = new EditorManager("cpiHelper_traceText_formatted_" + id, prettify_type(input), $("#cpihelperglobal").hasClass('ch_dark') ? "github_dark" : "textmate");
       editorManager.setContent(prettify(input, tab_size))
     }
   }
@@ -383,10 +409,12 @@ var formatTrace = function (input, id, traceId) {
 
   result.appendChild(beautifyButton);
   result.appendChild(copyButton);
+  result.appendChild(DownloadBodyButton);
+  result.appendChild(themeButton);
+  result.appendChild(WrapButton);
+  result.appendChild(readonlyButton);
   if (traceId) {
     result.appendChild(downloadButton);
-    result.appendChild(themeButton);
-    result.appendChild(readonlyButton);
   }
 
   var textEncoder = new TextEncoder().encode(input)
@@ -430,7 +458,7 @@ var formatHeadersAndPropertiesToTable = function (inputList) {
   }
 
   result = `<table class='ui basic striped selectable compact table'>
-  <thead><tr class="black"><th>Name</th><th>Value</th></tr></thead>
+  <thead><tr class="blue"><th>Name</th><th>Value</th></tr></thead>
   <tbody>`
   inputList.forEach(item => {
     result += "<tr><td>" + item.Name + "</td><td style=\"word-break: break-all;\">" + htmlEscape(item.Value) + "</td></tr>"
@@ -539,9 +567,25 @@ function getStatusColor(status) {
     case "COMPLETED": return "positive";
     case "ESCALATED":
     case "RETRY": return "orange";
-    case "CANCELLED": return "grey";
-    default: return "info";
+    case "CANCELLED": return "info";
+    default: return "grey";
   }
+}
+function getStatusColorCode(status, isDarkMode = !$("html").hasClass("sapUiTheme-sap_horizon_dark")) {
+  const colors = {
+    PROCESSING: isDarkMode ? "#e76500" : "#f7bf00",
+    STARTING: isDarkMode ? "#e76500" : "#f7bf00",
+    FAILED: isDarkMode ? "#f53232" : "#fa6161",
+    ESCALATED: isDarkMode ? "#e76500" : "#f7bf00",
+    RETRY: isDarkMode ? "#e76500" : "#f7bf00",
+    CANCELLED: isDarkMode ? "#788fa6" : "#a9b4be",
+    ABANDONED: isDarkMode ? "#788fa6" : "#a9b4be",
+    STORED: isDarkMode ? "#30914c" : "#6dad1f",
+    DEPLOYED: isDarkMode ? "#30914c" : "#6dad1f",
+    COMPLETED: isDarkMode ? "#30914c" : "#6dad1f",
+    default: isDarkMode ? "#788fa6" : "#a9b4be",
+  };
+  return colors[status] || colors.default;
 }
 function getStatusIcon(status) {
   let Icon;
@@ -583,25 +627,25 @@ function hslToHex(h, s, l) {
   l /= 100;
   let r, g, b;
   if (s === 0) {
-      r = g = b = l;
+    r = g = b = l;
   } else {
-      const hue2rgb = (p, q, t) => {
-          if (t < 0) t += 1;
-          if (t > 1) t -= 1;
-          if (t < 1 / 6) return p + (q - p) * 6 * t;
-          if (t < 1 / 2) return q;
-          if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-          return p;
-      };
-      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-      const p = 2 * l - q;
-      r = hue2rgb(p, q, h + 1 / 3);
-      g = hue2rgb(p, q, h);
-      b = hue2rgb(p, q, h - 1 / 3);
+    const hue2rgb = (p, q, t) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    };
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1 / 3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1 / 3);
   }
   const toHex = x => {
-      const hex = Math.round(x * 255).toString(16);
-      return hex.length === 1 ? '0' + hex : hex;
+    const hex = Math.round(x * 255).toString(16);
+    return hex.length === 1 ? '0' + hex : hex;
   };
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
@@ -616,20 +660,59 @@ function hexToHsl(hex, values = false) {
   var max = Math.max(r, g, b), min = Math.min(r, g, b);
   var h, s, l = (max + min) / 2;
   if (max == min) {
-      h = s = 0; // achromatic
+    h = s = 0; // achromatic
   } else {
-      var d = max - min;
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-      switch (max) {
-          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-          case g: h = (b - r) / d + 2; break;
-          case b: h = (r - g) / d + 4; break;
-      }
-      h /= 6;
+    var d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
   }
   h = Math.round(h * 360);
   s = Math.round(s * 100);
   l = Math.round(l * 100);
   cssString = values ? `${h} ${s} ${l}` : `hsl(${h}deg ${s}% ${l}%)`
   return cssString
+}
+/**
+ * Finds the nearest previous or next integer in an array relative to a target value.
+ * 
+ * used: @incpi - 
+ * findNearest(array, target); Output: { previous: 3, next: 5 }
+ * findNearest(array, target, 'next'); Output: 5
+ * findNearest(array, target, 'previous'); Output: 3
+ * @param {number[]} array - The array of numbers to search through.
+ * @param {number} target - The target value to find the nearest integers to.
+ * @param {string} [direction='both'] - The direction to search for nearest integer(s). 
+ *                                      'both' returns both previous and next, 
+ *                                      'previous' returns only the previous nearest, 
+ *                                      'next' returns only the next nearest.
+ * @returns {Object|number|null} - The nearest previous and next integers as an object 
+ *                                 if direction is 'both', or a single integer if 
+ *                                 direction is 'previous' or 'next'. Returns null if no 
+ *                                 nearest integer is found in the specified direction.
+ */
+function findNearest(array, target, direction = 'both') {
+  let prev = null;
+  let next = null;
+
+  array.forEach(num => {
+    if (num < target && (prev === null || num > prev)) {
+      prev = num;
+    }
+    if (num > target && (next === null || num < next)) {
+      next = num;
+    }
+  });
+
+  if (direction === 'previous') {
+    return prev;
+  } else if (direction === 'next') {
+    return next;
+  } else {
+    return { previous: prev, next: next };
+  }
 }

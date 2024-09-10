@@ -35,7 +35,7 @@ Users are encouraged to integrate this library with care to ensure compatibility
     max-height: 70vh;
 }
 
-/* improve labels spacing in plugin stetings */ 
+/* improve labels spacing in plugin stetings */
 .ui[class*="pointing below"].label {
     margin-top: 20px;
 }

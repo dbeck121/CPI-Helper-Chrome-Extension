@@ -1,6 +1,6 @@
 # CPI-Helper Chrome-Extension
 
-| [Plugin Dev](/docs/readme/pluginREADME.md) | [Contribution](/docs/readme/contributing.md) | [Code of conduct](/docs/readme/code_of_conduct.md) | [License](/docs/LICENSE) |
+| [Plugin Dev](/docs/readme/PluginREADME.md) | [Contribution](/docs/readme/contributing.md) | [Code of conduct](/docs/readme/code_of_conduct.md) | [License](/docs/LICENSE) |
 | ------------------------------------------ | -------------------------------------------- | -------------------------------------------------- | ------------------------ |
 
 This Browser Plugin extends the SAP Cloud Platform Integration with some useful features.
@@ -48,6 +48,17 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.15.0
+- [Improvement] UI Bugfixes (Dark-mode Darker color for trace, Trace-inline tool editor detect mode you selected by default).
+- [Improvement] xml declaration added while prettify code is not gonna removed.
+- [Plugin] Performance stats plugin has better color for dark mode.
+- [Feature] Color mode detected a theme and applied by default (in case of dark mode)
+- [Feature] More compatibale with DARK CPI extension dark mode
+- [Feature] position of popup with state aware.
+- [Feature] Download Option for body only with proper extension.
+- [Feature] Text wrap Option and theme of editor has clear information.
+- [Feature] General UI BigFix & backend global element to organize. [read more here with snapshot notes](https://github.com/dbeck121/CPI-Helper-Chrome-Extension/pull/194). Special thanks to [Omkar](https://github.com/incpi).
+
 ### 3.14.0
 
 - [Improvement] Update to Manifest V3. This is a major and necessary under the hood update and may cause some issues. Please report any issues.
@@ -60,16 +71,16 @@ It is open source so feel free to check the source code.
 - [Plugin] "Credential Helper" Plugin to add a search help for existing Security Material aliases and Key Store entries. Special thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/)
 - [Plugin] "Unlock" Plugin to unlock integration flows directly from design screen. Special thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/).
 - [Plugin] "Timeline" Plugin now with sorting options. Again special thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/).
-- [Improvement] Filter to remove extra Empty Steps from Trace & Tool is now more compact.Special thanks to [Omkar Patel](https://github.com/incpi).
-- [Feature] The CPi helper extension now includes compatibility with the Dark CPI extension. For **Dark Theme Users** Special thanks to [Omkar Patel](https://github.com/incpi).
-- [Feature] New global Button for all Logging & Security Materials search with All category supported. Special thanks to [Omkar Patel](https://github.com/incpi).
+- [Improvement] Filter to remove extra Empty Steps from Trace & Tool is now more compact.Special thanks to [Omkar](https://github.com/incpi).
+- [Feature] The CPi helper extension now includes compatibility with the Dark CPI extension. For **Dark Theme Users** Special thanks to [Omkar](https://github.com/incpi).
+- [Feature] New global Button for all Logging & Security Materials search with All category supported. Special thanks to [Omkar](https://github.com/incpi).
 - [Feature] Debug Logging button UI as well as by parameters.
-- [Feature] Can select default log level at extension page. Special thanks to [Omkar Patel](https://github.com/incpi).
+- [Feature] Can select default log level at extension page. Special thanks to [Omkar](https://github.com/incpi).
 - [BugFix] Many UI and Bug fixes (adaptations to new SAP Horizon theme)
 
 ### 3.12.1
 
-- [Improvement] Better payload viewer & Update payload directly in trace Body panel. Special thanks to [Omkar Patel](https://github.com/incpi).
+- [Improvement] Better payload viewer & Update payload directly in trace Body panel. Special thanks to [Omkar](https://github.com/incpi).
 - [Improvement] Once trace expired, no popup will be shown instead warning will be given.
 - [Improvement] UI Icon are changed + UI Bugfixes
 - [Feature] Resize Body from Content modifier.
@@ -80,19 +91,19 @@ It is open source so feel free to check the source code.
 ### 3.11.0
 
 - [Feature] Plugin: New Timeline Plugin: Get overview about message flow. Thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/)
-- [Improvement] Create a project webpage on Github with improved structure and design. Special thanks to [Omkar Patel](https://github.com/incpi)
+- [Improvement] Create a project webpage on Github with improved structure and design. Special thanks to [Omkar](https://github.com/incpi)
 - [Bugfix] Some ui fixes
 - [Improvement] Improved stability
 
 ### 3.10.0
 
-- [Feature]Plugin: Trace Step Modifier (Beta) - Performance stats in trace. Thanks to [Omkar Patel](https://github.com/incpi)
+- [Feature]Plugin: Trace Step Modifier (Beta) - Performance stats in trace. Thanks to [Omkar](https://github.com/incpi)
 - [Bugfix] Some ui fixes
 - [Improvement] Improved stability
 
 ### 3.9.0
 
-- [Improvement] Hundreds of ui improvements. Thanks to [Omkar Patel](https://github.com/incpi) for the great contribution
+- [Improvement] Hundreds of ui improvements. Thanks to [Omkar](https://github.com/incpi) for the great contribution
 - UI 3.8.1 fix
 - New Plugin: "Trace Modifier"
   - Trace step uppper limit [Over write Global host variable with iflow variable] [read more](https://incpi.github.io/cpihelper-plugin/)
@@ -111,8 +122,8 @@ It is open source so feel free to check the source code.
 
 ### 3.8.0
 
-- [Improvement] Improved "flying error dialog". No mouse over but you need to klick now. Thanks to [Omkar Patel](https://github.com/incpi)
-- [Improvement] Many more ui improvements. Thanks to [Omkar Patel](https://github.com/incpi)
+- [Improvement] Improved "flying error dialog". No mouse over but you need to klick now. Thanks to [Omkar](https://github.com/incpi)
+- [Improvement] Many more ui improvements. Thanks to [Omkar](https://github.com/incpi)
 - [Feature] Trace survives page reload
 - [Improvement] Logs now sorted
 - [Bugfix] Many small fixes
@@ -155,7 +166,7 @@ It is open source so feel free to check the source code.
 ### 3.4.0
 
 - [Feature] New plugin "Settings Pane Resizer" and many bugfixes. Thanks to [Philippe Addor](https://github.com/fippu82) and BMT Business meets Technology AG
-- [Bugfix] Improved handling of message popup. Thanks to [Omkar Patel](https://github.com/incpi)
+- [Bugfix] Improved handling of message popup. Thanks to [Omkar](https://github.com/incpi)
 
 ### 3.3.2
 
@@ -541,13 +552,9 @@ See [Contribution guidelines for this project](docs/readme/contributing.md) if y
 If you have any ideas, please write a message or comment at the [SAP Community](https://blogs.sap.com/2020/03/05/cpi-chrome-plugin-to-enhance-sap-cloud-platform-integration-usability/#)
 
 ### Contributors
-
-> - [Dominic Beckbauer](https://github.com/dbeck121): Main work
-> - [Nick Yang](https://github.com/SAPNickYang): Bug fixes and UI improvements
-> - [Raffael Herrmann](https://github.com/codebude): Speed up handling of large XML structures in beautifier.
-> - [Ivo Vermeer](https://github.com/IvoVermeer): Change icon, text and tenant color
-> - [bdais](https://github.com/bdbais/): filter discarded entries
-> - [Robert Fels](https://github.com/robertfels)
+<a href="https://github.com/incpi/Cpi-helper/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=incpi/Cpi-helper&columns=8" />
+</a>
 
 ## License
 

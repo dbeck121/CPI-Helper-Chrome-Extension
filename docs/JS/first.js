@@ -83,8 +83,8 @@ $(document).ready(() => {
         path.style.strokeDasharray = length;
         path.style.strokeDashoffset = length;
         path.getBoundingClientRect();
-        path.style.animation ='2s linear 0s 1 forwards svganimationstroke';
-    }); 
+        path.style.animation = '2s linear 0s 1 forwards svganimationstroke';
+    });
     // Show loader when page starts loading
     $(window).on('load', () => {
         setTimeout(() => {
