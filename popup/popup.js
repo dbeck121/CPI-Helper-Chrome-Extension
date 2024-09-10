@@ -104,6 +104,9 @@ function getSideBarAlwaysVisible() {
         //Light theme
         if (res["CPIhelperThemeInfo"]) {
             chrome.storage.sync.get(["darkmodeOnStartup"], function (result) {
+                if(result["darkmodeOnStartup"] === undefined){
+                    result["darkmodeOnStartup"] = false;
+                }
                 document.querySelectorAll('#darkmodeOnStartup>.button')[result["darkmodeOnStartup"] ? 1 : 0].classList.add('active')
                 $('html').attr('class', (!result["darkmodeOnStartup"] ? "ch_dark" : "ch_light"))
                 document.querySelector('#darkmodeOnStartup').addEventListener('click', () => {
@@ -547,10 +550,13 @@ function tenantIdentityChanges() {
                 tenantCount.value = hostData.count = response.count
                 chrome.storage.sync.get("CPIhelperThemeInfo", (theme) => {
                     chrome.storage.sync.get("darkmodeOnStartup", (local) => {
-                        let isDarkmode = !(theme['CPIhelperThemeInfo'])
-                        if (!isDarkmode) {
-                            isDarkmode = !(local['darkmodeOnStartup'])
+                        if(local["darkmodeOnStartup"] === undefined){
+                            local["darkmodeOnStartup"] = false;
                         }
+                        let isDarkmode = false //!(theme['CPIhelperThemeInfo'])
+                     //   if (!isDarkmode) {
+                            isDarkmode = local['darkmodeOnStartup']
+                       // }
                         $('html').attr('class', (isDarkmode ? "ch_dark" : "ch_light"))
                         tenantColor.value = hostData.color = adjustColorLimiter(tenantColor.value, isDarkmode ? 80 : 20, 25, !(theme['CPIhelperThemeInfo']));
                         tenantColor.dispatchEvent(new Event("change"));

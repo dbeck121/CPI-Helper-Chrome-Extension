@@ -32,13 +32,13 @@ async function whatsNewCheck(showOnlyOnce = true) {
     <div style="margin-top: 0.1rem">📅 Meet us at SAP Devtoberfest on 25th of September at 11am CEST (click event for your local timezone)
     </div>
     <div style="text-align: center; margin: 20px;">
-    <a href="https://community.sap.com/t5/devtoberfest/speed-up-your-sap-cloud-integration-development-with-cpi-helper/ev-p/13802891" target="_blank" style="color: darkblue; text-decoration: none;"
+    <a href="https://community.sap.com/t5/devtoberfest/speed-up-your-sap-cloud-integration-development-with-cpi-helper/ev-p/13802891" target="_blank" style="color: green; text-decoration: none;"
     onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Community Link</a> --- 
-    <a href="https://www.youtube.com/watch?v=uSwSQbc_ULU" target="_blank" style="color: darkblue; text-decoration: none;" 
+    <a href="https://www.youtube.com/watch?v=uSwSQbc_ULU" target="_blank" style="color: green; text-decoration: none;" 
     onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Youtube</a> --- 
-    <a href="https://www.linkedin.com/events/speedupyoursapcloudintegrationd7237127761532764163/" target="_blank" style="color: darkblue; text-decoration: none;" 
+    <a href="https://www.linkedin.com/events/speedupyoursapcloudintegrationd7237127761532764163/" target="_blank" style="color: green; text-decoration: none;" 
     onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">LinkedIn Event</a> --- 
-    <a href="${devtoberfestInvite}" target="_blank" style="color: darkblue; text-decoration: none;" 
+    <a href="${devtoberfestInvite}" target="_blank" style="color: green; text-decoration: none;" 
     onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Add to Calendar</a>
     </div>
     
