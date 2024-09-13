@@ -100,29 +100,26 @@ async function addLastVisitedIflows() {
 }
 
 function getSideBarAlwaysVisible() {
-    chrome.storage.sync.get(["CPIhelperThemeInfo"], function (res) {
-        //Light theme
-        if (res["CPIhelperThemeInfo"]) {
-            chrome.storage.sync.get(["darkmodeOnStartup"], function (result) {
-                if(result["darkmodeOnStartup"] === undefined){
-                    result["darkmodeOnStartup"] = false;
-                }
-                document.querySelectorAll('#darkmodeOnStartup>.button')[result["darkmodeOnStartup"] ? 1 : 0].classList.add('active')
-                $('html').attr('class', (!result["darkmodeOnStartup"] ? "ch_dark" : "ch_light"))
-                document.querySelector('#darkmodeOnStartup').addEventListener('click', () => {
-                    document.querySelectorAll('#darkmodeOnStartup>.button').forEach(e => e.classList.toggle('active'))
-                    let ctnx = document.querySelector('#darkmodeOnStartup>.active').getAttribute('data') === 'true';
-                    console.log("dark : ", ctnx)
-                    chrome.storage.sync.set({ "darkmodeOnStartup": !ctnx });
-                });
-            });
-        }
-        //dark theme - darkmode is stuck to dark only
-        else {
-            document.querySelectorAll('#darkmodeOnStartup>.button')[1].classList.add('active')
-            document.querySelectorAll('#darkmodeOnStartup>.button').forEach(e => e.classList.toggle('active'))
-        }
-    });
+    // chrome.storage.sync.get(["CPIhelperThemeInfo"], function (res) {
+    //     //Light theme
+    //     if (res["CPIhelperThemeInfo"]) {
+    //         chrome.storage.sync.get(["darkmodeOnStartup"], function (result) {
+    //             document.querySelectorAll('#darkmodeOnStartup>.button')[result["darkmodeOnStartup"] ? 1 : 0].classList.add('active')
+    //             $('html').attr('class', (result["darkmodeOnStartup"] ? "ch_dark" : "ch_light"))
+    //             document.querySelector('#darkmodeOnStartup').addEventListener('click', () => {
+    //                 document.querySelectorAll('#darkmodeOnStartup>.button').forEach(e => e.classList.toggle('active'))
+    //                 let ctnx = document.querySelector('#darkmodeOnStartup>.active').getAttribute('data') === 'true';
+    //                 console.log("dark : ", ctnx)
+    //                 chrome.storage.sync.set({ "darkmodeOnStartup": !ctnx });
+    //             });
+    //         });
+    //     }
+    //     //dark theme - darkmode is stuck to dark only
+    //     else {
+    //         document.querySelectorAll('#darkmodeOnStartup>.button')[1].classList.add('active')
+    //         document.querySelectorAll('#darkmodeOnStartup>.button').forEach(e => e.classList.toggle('active'))
+    //     }
+    // });
     chrome.storage.sync.get(["openMessageSidebarOnStartup"], function (result) {
         document.querySelectorAll('#openMessageSidebarOnStartup>.button')[result["openMessageSidebarOnStartup"] ? 0 : 1].classList.add('active')
         document.querySelector('#openMessageSidebarOnStartup').addEventListener('click', () => {
@@ -239,11 +236,6 @@ function addTenantSettings() {
                 </select>
             </div>
         </div><br/>
-        <div  id="darkmodeOnStartup" class="ui label buttons">
-            <div class="ui label">Dark Mode?</div>
-            <div data=true class="ui toggle basic button">Yes</div>
-            <div data=false class="ui toggle basic button">No</div>
-        </div><br/>
         <div  id="openMessageSidebarOnStartup" class="ui label buttons">
             <div class="ui label">Open Message Sidebar on start?</div>
             <div data=true class="ui toggle basic button">Yes</div>
@@ -296,7 +288,6 @@ function addTenantSettings() {
             <div class="ui medium header" style="color:var(--cpi-dark-green)">CPI Helper Settings</div>
             <p><b>Choose Tab</b>:Set active tab on start <span class="ui green text"> Last visited(Default)</span><div class="ui fitted divider"></div></p>
             <p><b>Open Message Sidebar on start?</b>: yes /<span class="ui green text"> No(Default)</span><div class="ui fitted divider"></div></p>
-            <p><b>Dark mode?</b>: yes/<span class="ui green text"> No(Default)</span><div class="ui fitted divider"></div></p>
             <p><b>Plugin-page as Sidebar (Separate)?</b>: yes(Separate & Closed) /<span class="ui green text"> No(Default)(Joint & Open)</span><div class="ui fitted divider"></div></p>
             <p><b>Set Zoom Level:</b> This value will change zoom level of current page only.<br /> Min: 60% | Max: 120% | <span class="ui green text">Default: 85%</span><div class="ui fitted divider"></div></p>
             <p>
@@ -549,22 +540,18 @@ function tenantIdentityChanges() {
                 tenantLog.value = hostData.loglevel = response.loglevel;
                 tenantCount.value = hostData.count = response.count
                 chrome.storage.sync.get("CPIhelperThemeInfo", (theme) => {
-                    chrome.storage.sync.get("darkmodeOnStartup", (local) => {
-                        if(local["darkmodeOnStartup"] === undefined){
-                            local["darkmodeOnStartup"] = false;
-                        }
-                        let isDarkmode = false //!(theme['CPIhelperThemeInfo'])
-                     //   if (!isDarkmode) {
-                            isDarkmode = local['darkmodeOnStartup']
-                       // }
+                    // chrome.storage.sync.get("darkmodeOnStartup", (local) => {
+                        let isDarkmode = !(theme['CPIhelperThemeInfo'])
+                        // if (!isDarkmode) {
+                        //     isDarkmode = (local['darkmodeOnStartup'])
+                        // }
                         $('html').attr('class', (isDarkmode ? "ch_dark" : "ch_light"))
                         tenantColor.value = hostData.color = adjustColorLimiter(tenantColor.value, isDarkmode ? 80 : 20, 25, !(theme['CPIhelperThemeInfo']));
                         tenantColor.dispatchEvent(new Event("change"));
                         console.log(tenantColor.value);
                         popupcolor.style.setProperty('--cpi-text-color', isDarkmode ? '#ffffff' : '#000000');
                         popupcolor.style.setProperty('--cpi-custom-color', tenantColor.value);
-                    });
-
+                    // });
                 });
             }
         });
@@ -595,9 +582,9 @@ function tenantIdentityChanges() {
         tenantColor.addEventListener('change', async () => {
             // custom filter skip
             let theme = await callChromeStoragePromise("CPIhelperThemeInfo")
-            if (theme) {
-                let theme = await callChromeStoragePromise("darkmodeOnStartup")
-            }
+            // if (theme) {
+            //     let theme = await callChromeStoragePromise("darkmodeOnStartup")
+            // }
             tenantColor.value = adjustColorLimiter(tenantColor.value, !theme ? 80 : 20, 25, !theme)
             hostData.color = tenantColor.value
             // set popup.html header
@@ -739,7 +726,7 @@ function callChromeStoragePromise(key) {
 chrome.storage.onChanged.addListener((changes, namespace) => {
     for (var key in changes) {
         console.log(key, changes[key]);
-        if (key === "CPIhelperThemeInfo" || key === "darkmodeOnStartup") {
+        if (key === "CPIhelperThemeInfo" ) { //|| key === "darkmodeOnStartup"
             var theme = changes[key];
             $('html').attr('class', (!theme.newValue ? "ch_dark" : "ch_light"))
             document.querySelector('#colorSelect').dispatchEvent(new Event("change"));

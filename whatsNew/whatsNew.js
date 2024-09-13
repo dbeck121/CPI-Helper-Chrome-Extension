@@ -25,7 +25,6 @@ async function whatsNewCheck(showOnlyOnce = true) {
                   Meet us at SAP Devtoberfest on 25th of September at 11am CEST
                 </div>
             </h3>
-    
     <h4>Another popup? Ok, let's keep it short:</h4>
     
     
@@ -98,7 +97,7 @@ If you are planning or working on a migration to Integration Suite, then Figaf h
                     What's New?
                 </div>
             </h3>
-            <a class="ui red center right ribbon label" style="position: absolute;">FireFox limited support</a>  
+            <a class="ui red top right ribbon label" style="position: absolute;">FireFox limited support</a>  
             <div class="changeloglist">${
                 Object.entries(
                     whats_new_log.trim().split('\n').reduce((acc, line) => {
