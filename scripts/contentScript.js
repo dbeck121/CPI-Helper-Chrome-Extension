@@ -61,10 +61,11 @@ function openInfo(url) {
 //refresh the logs in message window
 var getLogsTimer;
 var activeInlineItem;
-var numberEntries = hostData.count || 10;
+
 
 //fill the message sidebar
 async function renderMessageSidebar() {
+  var numberEntries = hostData.count || 10;
   var createRow = function (elements, trClass) {
     var tr = document.createElement("tr");
     tr.className = trClass;
