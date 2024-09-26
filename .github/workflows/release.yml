@@ -1,0 +1,70 @@
+# Name: Create Release from Manifest
+# Developer: incpi
+# Description: 
+# This workflow creates a GitHub release based on the version extracted from 'manifest.json'.
+# The zip file is located in the 'bin' directory, renamed according to the naming convention, and attached to the release.
+# Version extracted from 'manifest.json' will be used for both the tag and release name.
+#__________________________________________________________________________________________________________________________
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "bin/**" 
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+
+      # This step uses jq to extract the version field from the manifest.json file
+      - name: Extract version from manifest.json
+        id: get_version
+        run: |
+          VERSION=$(jq -r '.version' manifest.json)
+          echo "Extracted version: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      # Looks for the zip file within the bin folder
+      - name: Find the zip file in bin
+        id: find_zip
+        run: |
+          ZIP_FILE=$(find ./bin -type f -name "*.zip")
+          ZIP_BASENAME=$(basename "$ZIP_FILE")
+          echo "Found zip file: $ZIP_FILE"
+          echo "ZIP_FILE=$ZIP_FILE" >> $GITHUB_ENV
+          echo "ZIP_BASENAME=$ZIP_BASENAME" >> $GITHUB_ENV
+
+      # Utilizes softprops/action-gh-release@v1 to create a release with the version as the tag and release name
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.VERSION }} # Tag for release
+          name: Version ${{ env.VERSION }} # Release name
+          body: "Release created with version ${{ env.VERSION }}"
+
+      # Ensures that the zip file is uploaded with the correct name and content type
+      - name: Attach zip file with clean name to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.ZIP_FILE }} # Full path to zip file
+          asset_name: ${{ env.ZIP_BASENAME }} # Clean zip file name without the path
+          asset_content_type: application/zip
