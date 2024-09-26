@@ -1,39 +1,15 @@
 #!/bin/bash
 
-#MANIFEST_V3="manifest.json_v3"
-#if [ -f "$MANIFEST_V3" ]; then
-#    echo "Please make sure we release only manifest v3. Current version is probably not v3."
-#    exit 1
-#fi
-
-echo "Copy readme to docs..."
-cp README.md docs/readme/README.md
-# copy paste readme root->docs
 
 echo "Remove old zip file..."
 rm -f ./bin/*.zip
 
-# create a dynamic name + zip files as per manifest.json name and version field
-name=""
-version=""
-while IFS='' read -r line || [[ -n "$line" ]]; do
-    if [[ "$line" == *"\"name\":"* ]]; then
-        name=$(echo "$line" | awk -F'"' '{print $4}')
-    elif [[ "$line" == *"\"version\":"* ]]; then
-        version=$(echo "$line" | awk -F'"' '{print $4}' | tr -d ',')
-    fi
-done < manifest.json
+./createBin.sh
 
-# replace comma , space with underscore.
-name="${name//,/}"
-name="${name// /_}"
+./switch_manifest.sh
+sleep 2
 
-exclusions=("./docs/*" "./node_modules" "./images/v[1-3]/*" "./.*")
+./createBin.sh
 
-exclude_args=()
-for pattern in "${exclusions[@]}"; do
-    exclude_args+=( -o -path "$pattern" )
-done
-exclude_args=( "${exclude_args[@]:1}" )
-
-find . -type f ! \( "${exclude_args[@]}" \) -exec zip -r "bin/${name}_${version}.zip" {} +
+./switch_manifest.sh
+sleep 1
