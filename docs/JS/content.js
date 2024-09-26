@@ -86,7 +86,7 @@ const prev_feature = [
     { "caption": "Useful Links in Browser Bar Popup", "description": "Access relevant links directly from the browser bar popup for enhanced navigation and productivity.", "image": "chrome3.png" },
     { "caption": "Last Visited iFlows", "description": "Keep track of your last visited integration flows for quick reference and easy access.", "image": "" }]
 const stats_cards = [
-    { "color": "bg-primary", "count": 24572, "icon": "fa fa-download", "rating": 4.7, "label": "Total weekly Users", "link": "javascript:void(0);" },
+    { "color": "bg-primary", "count": 24572, "icon": "fa fa-download", "rating": 5, "label": "Total weekly Users", "link": "javascript:void(0);" },
     { "color": "bg-danger", "count": 19642, "icon": "fab fa-chrome", "rating": 4.97, "label": "Chrome Users", "link": "https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb" },
     { "color": "bg-warning", "count": 4700, "icon": "fab fa-edge", "rating": 5, "label": "Edge Users", "link": "https://microsoftedge.microsoft.com/addons/detail/sap-cpi-helper/chnohkopccdfgpglplooonoaigfgfkda" },
     { "color": "bg-info", "count": 230, "icon": "fab fa-firefox", "rating": 5, "label": "FireFox Users", "link": "https://addons.mozilla.org/de/firefox/addon/cpi-helper/" }]
