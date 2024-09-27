@@ -1,6 +1,6 @@
 # Name: Create Release from Manifest
 # Developer: incpi
-# Description: 
+# Description:
 # Automation: The workflow automates file generation, commits changes, and creates a GitHub release from manifest.json.
 # Trigger: It triggers on pushes to the main branch, running a script to generate and commit files.
 # -----------------------------------------If above fails below will not execute ---------------------------------------------
@@ -12,7 +12,7 @@ name: Create Release from Manifest
 on:
   push:
     branches:
-      - dev  # Change this to your default branch
+      - main # Change this to your default branch
 
 jobs:
   generate_and_commit:
@@ -66,7 +66,7 @@ jobs:
         id: get_version
         run: |
           VERSION=$(jq -r '.version' manifest.json)
-          
+
           # Check if the version is already in the format 1.1.1
           if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             CLEAN_VERSION="$VERSION"  # Use the version as is
@@ -85,18 +85,7 @@ jobs:
           echo "Found zip files: $ZIP_FILES"
           echo "ZIP_FILES=$ZIP_FILES" >> $GITHUB_ENV
 
-        # Utilizes softprops/action-gh-release@v1 to create a release with the version as the tag and release name
-      - name: Create GitHub Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: "Version ${{ env.CLEAN_VERSION }}"
-          name: "Extension @${{ env.CLEAN_VERSION }}" # Release name
-          body: "Release created with version ${{ env.VERSION }}"
-
-      # Ensures that the zip file is uploaded with the correct name and content type
+        # Ensures that the zip file is uploaded with the correct name and content type
       - name: Attach zip files to release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -107,3 +96,14 @@ jobs:
             echo "Attaching $ZIP_BASENAME"
             gh release upload "Version_${{ env.CLEAN_VERSION }}" "$ZIP_FILE" --clobber 
           done
+
+        # Utilizes softprops/action-gh-release@v1 to create a release with the version as the tag and release name
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "Version ${{ env.CLEAN_VERSION }}"
+          name: "Extension @${{ env.CLEAN_VERSION }}" # Release name
+          body: "Release created with version ${{ env.VERSION }}"

@@ -8,9 +8,12 @@ set -e
 #    exit 1
 #fi
 
+
 MANIFEST="manifest.json"
 MANIFEST_V2="manifest.json_v2"
 MANIFEST_V3="manifest.json_v3"
+
+BIN_DIR="./bin"
 
 log_message() {
     local message="$1"
@@ -25,17 +28,22 @@ cp README.md docs/readme/README.md
 log_message "----------------------"
 log_message "Starting zip creation process"
 
-if [ ! -d "./bin" ]; then
+if [ ! -d "$BIN_DIR" ]; then
     log_message "Creating bin directory..."
-    mkdir -p "./bin"
+    mkdir -p "$BIN_DIR"
+fi
+
+
+if [ -d "$BIN_DIR" ]; then
+  # Löschen aller Dateien und Unterverzeichnisse im Verzeichnis
+  rm -rf "$BIN_DIR"/*
 fi
 
 create_zip() {
     local manifest_file="$1"
-    local version_name="$2"
-    local output_zip="$3"
+    local output_zip="$2"
 
-    log_message "Creating ZIP for $version_name using $manifest_file..."
+    log_message "Creating ZIP using $manifest_file..."
 
     name=""
     version=""
@@ -59,8 +67,6 @@ create_zip() {
     done
     exclude_args=( "${exclude_args[@]:1}" )
 
-    rm -f "./bin/$output_zip"
-
     files_to_zip=$(find . -type f ! \( "${exclude_args[@]}" \))
     
     if [ -z "$files_to_zip" ]; then
@@ -68,9 +74,9 @@ create_zip() {
         exit 1
     fi
 
-    echo "$files_to_zip" | zip -@ "bin/$output_zip"
+    echo "$files_to_zip" | zip -@ "$BIN_DIR/$output_zip"
 
-    log_message "ZIP file created: bin/$output_zip"
+    log_message "ZIP file created: $BIN_DIR/$output_zip"
 }
 
 switch_manifest_version() {
@@ -78,39 +84,30 @@ switch_manifest_version() {
         log_message "Switching to manifest_v2 (Firefox)..."
         mv "$MANIFEST" "$MANIFEST_V3"
         mv "$MANIFEST_V2" "$MANIFEST"
-        create_zip "$MANIFEST" "Firefox" "CPI_Helper_Extension_v2.zip"
-        
-        mv "$MANIFEST" "$MANIFEST_V2"
-        mv "$MANIFEST_V3" "$MANIFEST"
-        log_message "Switched back to manifest_v3."
+
     elif [ -f "$MANIFEST_V3" ]; then
         log_message "Switching to manifest_v3 (Chrome)..."
         mv "$MANIFEST" "$MANIFEST_V2"
         mv "$MANIFEST_V3" "$MANIFEST"
-        create_zip "$MANIFEST" "Chrome" "CPI_Helper_Extension_v3.zip"
-        
-        mv "$MANIFEST" "$MANIFEST_V3"
-        mv "$MANIFEST_V2" "$MANIFEST"
-        log_message "Switched back to manifest_v2."
+
     else
         log_message "No alternate manifest files found (manifest.json_v2 or manifest.json_v3)"
         exit 1
     fi
 }
 
-manifest_version=$(grep -oP '"manifest_version":\s*\K\d+' "$MANIFEST")
+manifest_version=$(jq -r '.manifest_version' manifest.json)
+version=$(jq -r '.version' manifest.json)
+echo "Manifest version is: $manifest_version"
 
-if [ "$manifest_version" == "3" ]; then
-    log_message "Manifest version 3 detected (Chrome)"
-    create_zip "$MANIFEST" "Chrome" "CPI_Helper_Extension_v3.zip"
-elif [ "$manifest_version" == "2" ]; then
-    log_message "Manifest version 2 detected (Firefox)"
-    create_zip "$MANIFEST" "Firefox" "CPI_Helper_Extension_v2.zip"
-else
-    log_message "Unknown or unsupported manifest version!"
-    exit 1
-fi
+create_zip "$MANIFEST" "CPI_Helper_Extension_manifestv${manifest_version}_$version.zip"
 
 switch_manifest_version
+sleep 2
+manifest_version=$(jq -r '.manifest_version' manifest.json)
+version=$(jq -r '.version' manifest.json)
+
+create_zip "$MANIFEST" "CPI_Helper_Extension_manifestv${manifest_version}_$version.zip"
+
 
 log_message "Both CPI_Helper_Extension_v3.zip and CPI_Helper_Extension_v2.zip created and moved to bin."
