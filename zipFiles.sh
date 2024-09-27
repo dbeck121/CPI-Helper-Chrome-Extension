@@ -109,5 +109,7 @@ version=$(jq -r '.version' manifest.json)
 
 create_zip "$MANIFEST" "CPI_Helper_Extension_manifestv${manifest_version}_$version.zip"
 
+switch_manifest_version
+sleep 2
 
 log_message "Both CPI_Helper_Extension_v3.zip and CPI_Helper_Extension_v2.zip created and moved to bin."
