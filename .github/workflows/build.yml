@@ -1,5 +1,5 @@
 # Name: Create Release from Manifest
-# Developer: incpi
+# Developer: incpi & dbeck121
 # Description:
 # Automation: The workflow automates file generation, commits changes, and creates a GitHub release from manifest.json.
 # Trigger: It triggers on pushes to the main branch, running a script to generate and commit files.
@@ -7,7 +7,7 @@
 # Release: It extracts the version, finds ZIP files in the bin directory, and attaches them to the release, streamlining the process.
 #__________________________________________________________________________________________________________________________
 
-name: Create Release from Manifest
+name: Create Zip file from Dev
 
 on:
   push:
