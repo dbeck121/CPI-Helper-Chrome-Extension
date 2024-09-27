@@ -35,7 +35,8 @@ fi
 
 
 if [ -d "$BIN_DIR" ]; then
-  # Löschen aller Dateien und Unterverzeichnisse im Verzeichnis
+  # delete all files and subdirectories in the directory
+  log_message "deleting zip files from bin directory..."
   rm -rf "$BIN_DIR"/*
 fi
 
