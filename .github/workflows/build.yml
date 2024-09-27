@@ -7,7 +7,7 @@
 # Release: It extracts the version, finds ZIP files in the bin directory, and attaches them to the release, streamlining the process.
 #__________________________________________________________________________________________________________________________
 
-name: Create Release from Manifest
+name: Create Zip file from Dev
 
 on:
   push:
