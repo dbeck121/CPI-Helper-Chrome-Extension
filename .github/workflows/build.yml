@@ -29,6 +29,11 @@ jobs:
           chmod +x ./zipFiles.sh
           ./zipFiles.sh
 
+      - name: Set up Git user
+        run: |
+          git config --global user.email "bot@github.com"
+          git config --global user.name "Git Bot"
+
       - name: Commit and push changes if there are any
         run: |
           if git diff --quiet; then
