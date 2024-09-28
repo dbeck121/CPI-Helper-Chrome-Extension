@@ -9,16 +9,16 @@
     --cpi-blue: #c7c7ff;
     --cpi-red: #ffc7c7;
     --cpi-color: #000;
-    --cpi-text-color:#000;
+    --cpi-text-color: #000;
     --cpi-hover: #ff5722;
     /* Fonts */
-    --cpi-font: 'Arial';
+    --cpi-font: "Arial";
 }
 
 /* general css */
 html {
     width: 800px;
-    height:auto
+    height: auto;
 }
 
 body {
@@ -39,12 +39,12 @@ a[href].item:hover,
 
 /* header */
 #cpiHelper_contentheader {
-    padding: .5rem;
+    padding: 0.5rem;
     z-index: 10;
     background-color: var(--cpi-custom-color);
 }
 
-#cpiHelper_contentheader>* {
+#cpiHelper_contentheader > * {
     color: var(--cpi-text-color);
     font-weight: bold;
 }
@@ -69,8 +69,8 @@ a[href].item:hover,
     margin: 0 !important;
 }
 
-#tenantSettings>div>div:not([class]) {
-    margin-block: .5rem;
+#tenantSettings > div > div:not([class]) {
+    margin-block: 0.5rem;
 }
 
 #tenantSettings table {
@@ -84,11 +84,11 @@ a[href].item:hover,
 }
 
 .hidden {
-    display: none
+    display: none;
 }
 
-a>p {
-    padding-inline-end: .5rem;
+a > p {
+    padding-inline-end: 0.5rem;
     margin: 0;
 }
 
@@ -124,8 +124,8 @@ input[type="color"] {
 .l-black,
 .l-green {
     color: var(--cpi-color) !important;
-    border: .25em solid var(--_cpi-dclass) !important;
-    background-color: var(--_cpi-dclass) !important
+    border: 0.25em solid var(--_cpi-dclass) !important;
+    background-color: var(--_cpi-dclass) !important;
 }
 
 .l-blue:hover,
@@ -133,9 +133,9 @@ input[type="color"] {
 .l-black:hover,
 .l-green:hover {
     color: var(--_cpi-dclass) !important;
-    border: .25em solid var(--_cpi-dclass) !important;
+    border: 0.25em solid var(--_cpi-dclass) !important;
 }
 
-.preset>button.ui.button {
+.preset > button.ui.button {
     margin-block: 0 !important;
 }

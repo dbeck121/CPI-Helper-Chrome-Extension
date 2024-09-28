@@ -9,7 +9,7 @@ var plugin = {
     description: "Adds an undeploy button to the message sidebar.",
     settings: {},
     messageSidebarContent: {
-        "onRender": (pluginHelper, settings) => {
+        onRender: (pluginHelper, settings) => {
             var button = document.createElement("button");
             button.innerText = "Undeploy";
             button.addEventListener("click", () => {
@@ -19,7 +19,6 @@ var plugin = {
             return button;
         }
     }
-
-}
+};
 
 pluginList.push(plugin);

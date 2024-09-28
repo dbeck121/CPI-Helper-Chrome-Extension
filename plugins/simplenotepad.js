@@ -6,10 +6,15 @@ var plugin = {
     author: "Kangoolutions",
     email: "cpihelper@kangoolutions.com",
     website: "https://kangoolutions.com",
-    description: "This plugin adds a button to the message sidebar, which opens a notepad for storing data in the browser. The data is only visible to you and can be used to store information like custom property names or external URLs. It is not visible to other developers and is just for your convenience. If you tick the checkbox 'Encrypt when saving data', the entered data will be encrypted, providing an extra layer of protection.",
+    description:
+        "This plugin adds a button to the message sidebar, which opens a notepad for storing data in the browser. The data is only visible to you and can be used to store information like custom property names or external URLs. It is not visible to other developers and is just for your convenience. If you tick the checkbox 'Encrypt when saving data', the entered data will be encrypted, providing an extra layer of protection.",
 
     settings: {
-        "chkBox1": { "text": "Encrypt when saving data.", "type": "checkbox", scope: "browser" }
+        chkBox1: {
+            text: "Encrypt when saving data.",
+            type: "checkbox",
+            scope: "browser"
+        }
     },
 
     messageSidebarContent: {
@@ -71,7 +76,10 @@ var plugin = {
                 const dec = new TextDecoder("utf-8");
                 const element = createElementFromHTML(textElement);
 
-                const strToUnit8ArrayFunction = function stringToUint8Array(s, length) {
+                const strToUnit8ArrayFunction = function stringToUint8Array(
+                    s,
+                    length
+                ) {
                     var arr = new Uint8Array(length);
                     for (var i = 0, j = s.length; i < j; ++i)
                         arr[i] = s.charCodeAt(i);
@@ -89,26 +97,27 @@ var plugin = {
                         );
                         let secretKey = await window.crypto.subtle.deriveKey(
                             {
-                                "name": "PBKDF2",
-                                "salt": strToUnit8ArrayFunction(keyPass, 16),
-                                "iterations": 100000,
-                                "hash": "SHA-256"
+                                name: "PBKDF2",
+                                salt: strToUnit8ArrayFunction(keyPass, 16),
+                                iterations: 100000,
+                                hash: "SHA-256"
                             },
                             keyMaterial,
-                            { "name": "AES-GCM", "length": 256 },
+                            { name: "AES-GCM", length: 256 },
                             true,
                             ["encrypt", "decrypt"]
                         );
                         let encodedContent = enc.encode(rawContent);
                         let myIv = strToUnit8ArrayFunction(keyPass, 12);
-                        let encryptedContent = await window.crypto.subtle.encrypt(
-                            {
-                                name: "AES-GCM",
-                                iv: myIv
-                            },
-                            secretKey,
-                            encodedContent
-                        );
+                        let encryptedContent =
+                            await window.crypto.subtle.encrypt(
+                                {
+                                    name: "AES-GCM",
+                                    iv: myIv
+                                },
+                                secretKey,
+                                encodedContent
+                            );
 
                         return btoa(new Uint8Array(encryptedContent));
                     } catch (ex) {
@@ -116,7 +125,10 @@ var plugin = {
                     }
                 };
 
-                const handleDecryptContent = async (keyPass, encryptedContent) => {
+                const handleDecryptContent = async (
+                    keyPass,
+                    encryptedContent
+                ) => {
                     try {
                         let keyMaterial = await window.crypto.subtle.importKey(
                             "raw",
@@ -127,25 +139,29 @@ var plugin = {
                         );
                         let secretKey = await window.crypto.subtle.deriveKey(
                             {
-                                "name": "PBKDF2",
-                                "salt": strToUnit8ArrayFunction(keyPass, 16),
-                                "iterations": 100000,
-                                "hash": "SHA-256"
+                                name: "PBKDF2",
+                                salt: strToUnit8ArrayFunction(keyPass, 16),
+                                iterations: 100000,
+                                hash: "SHA-256"
                             },
                             keyMaterial,
-                            { "name": "AES-GCM", "length": 256 },
+                            { name: "AES-GCM", length: 256 },
                             true,
                             ["encrypt", "decrypt"]
                         );
                         let myIv = strToUnit8ArrayFunction(keyPass, 12);
-                        let decryptedContent = await window.crypto.subtle.decrypt(
-                            {
-                                name: "AES-GCM",
-                                iv: myIv
-                            },
-                            secretKey,
-                            Uint8Array.from(atob(encryptedContent).split(","), c => c)
-                        );
+                        let decryptedContent =
+                            await window.crypto.subtle.decrypt(
+                                {
+                                    name: "AES-GCM",
+                                    iv: myIv
+                                },
+                                secretKey,
+                                Uint8Array.from(
+                                    atob(encryptedContent).split(","),
+                                    (c) => c
+                                )
+                            );
                         return dec.decode(decryptedContent);
                     } catch (ex) {
                         showToast("Decrypt content failed!");
@@ -158,11 +174,23 @@ var plugin = {
                         content = "";
                     }
 
-                    if (settings["simplenotepad---chkBox1"] == true && content != "") {
-                        keyPass = !keyPass ? prompt("Please enter password to decrypt your content.") : keyPass;
+                    if (
+                        settings["simplenotepad---chkBox1"] == true &&
+                        content != ""
+                    ) {
+                        keyPass = !keyPass
+                            ? prompt(
+                                  "Please enter password to decrypt your content."
+                              )
+                            : keyPass;
                         if (keyPass != null) {
-                            let decryptedContent = await handleDecryptContent(keyPass, content);
-                            content = decryptedContent ? decryptedContent : content;
+                            let decryptedContent = await handleDecryptContent(
+                                keyPass,
+                                content
+                            );
+                            content = decryptedContent
+                                ? decryptedContent
+                                : content;
                         }
                     }
 
@@ -171,10 +199,18 @@ var plugin = {
 
                 const handleTextboxSave = async (storageKey, textboxId) => {
                     let content = document.getElementById(textboxId).value;
-                    if (settings["simplenotepad---chkBox1"] == true && content) {
-                        let keyPass = prompt("Please enter password to encrypt your content.");
+                    if (
+                        settings["simplenotepad---chkBox1"] == true &&
+                        content
+                    ) {
+                        let keyPass = prompt(
+                            "Please enter password to encrypt your content."
+                        );
                         if (keyPass != null) {
-                            content = await handleEncryptContent(keyPass, content);
+                            content = await handleEncryptContent(
+                                keyPass,
+                                content
+                            );
                         }
                     }
 
@@ -185,24 +221,69 @@ var plugin = {
                 pluginHelper.functions.popup(element, "Notepad", {
                     fullscreen: false,
                     callback: async () => {
-                        $('.tabular.menu .item').tab();
+                        $(".tabular.menu .item").tab();
 
-                        await handleTextboxRefresh(`cpiHelper_notepad_plugin_local_${pluginHelper.tenant}_${pluginHelper.integrationFlowId}`, "cpiHelper_local_textbox");
-                        document.getElementById("cpiHelper_local_textbox_refresh").onclick = async () => await handleTextboxRefresh(`cpiHelper_notepad_plugin_local_${pluginHelper.tenant}_${pluginHelper.integrationFlowId}`, "cpiHelper_local_textbox");
-                        document.getElementById("cpiHelper_local_textbox_save").onclick = async () => await handleTextboxSave(`cpiHelper_notepad_plugin_local_${pluginHelper.tenant}_${pluginHelper.integrationFlowId}`, "cpiHelper_local_textbox");
+                        await handleTextboxRefresh(
+                            `cpiHelper_notepad_plugin_local_${pluginHelper.tenant}_${pluginHelper.integrationFlowId}`,
+                            "cpiHelper_local_textbox"
+                        );
+                        document.getElementById(
+                            "cpiHelper_local_textbox_refresh"
+                        ).onclick = async () =>
+                            await handleTextboxRefresh(
+                                `cpiHelper_notepad_plugin_local_${pluginHelper.tenant}_${pluginHelper.integrationFlowId}`,
+                                "cpiHelper_local_textbox"
+                            );
+                        document.getElementById(
+                            "cpiHelper_local_textbox_save"
+                        ).onclick = async () =>
+                            await handleTextboxSave(
+                                `cpiHelper_notepad_plugin_local_${pluginHelper.tenant}_${pluginHelper.integrationFlowId}`,
+                                "cpiHelper_local_textbox"
+                            );
 
-                        await handleTextboxRefresh(`cpiHelper_notepad_plugin_tenant_${pluginHelper.tenant}`, "cpiHelper_tenant_textbox");
-                        document.getElementById("cpiHelper_tenant_textbox_refresh").onclick = async () => await handleTextboxRefresh(`cpiHelper_notepad_plugin_tenant_${pluginHelper.tenant}`, "cpiHelper_tenant_textbox");
-                        document.getElementById("cpiHelper_tenant_textbox_save").onclick = async () => await handleTextboxSave(`cpiHelper_notepad_plugin_tenant_${pluginHelper.tenant}`, "cpiHelper_tenant_textbox");
+                        await handleTextboxRefresh(
+                            `cpiHelper_notepad_plugin_tenant_${pluginHelper.tenant}`,
+                            "cpiHelper_tenant_textbox"
+                        );
+                        document.getElementById(
+                            "cpiHelper_tenant_textbox_refresh"
+                        ).onclick = async () =>
+                            await handleTextboxRefresh(
+                                `cpiHelper_notepad_plugin_tenant_${pluginHelper.tenant}`,
+                                "cpiHelper_tenant_textbox"
+                            );
+                        document.getElementById(
+                            "cpiHelper_tenant_textbox_save"
+                        ).onclick = async () =>
+                            await handleTextboxSave(
+                                `cpiHelper_notepad_plugin_tenant_${pluginHelper.tenant}`,
+                                "cpiHelper_tenant_textbox"
+                            );
 
-                        await handleTextboxRefresh("cpiHelper_notepad_plugin_global", "cpiHelper_global_textbox");
-                        document.getElementById("cpiHelper_global_textbox_refresh").onclick = async () => await handleTextboxRefresh("cpiHelper_notepad_plugin_global", "cpiHelper_global_textbox");
-                        document.getElementById("cpiHelper_global_textbox_save").onclick = async () => await handleTextboxSave("cpiHelper_notepad_plugin_global", "cpiHelper_global_textbox");
-                    },
+                        await handleTextboxRefresh(
+                            "cpiHelper_notepad_plugin_global",
+                            "cpiHelper_global_textbox"
+                        );
+                        document.getElementById(
+                            "cpiHelper_global_textbox_refresh"
+                        ).onclick = async () =>
+                            await handleTextboxRefresh(
+                                "cpiHelper_notepad_plugin_global",
+                                "cpiHelper_global_textbox"
+                            );
+                        document.getElementById(
+                            "cpiHelper_global_textbox_save"
+                        ).onclick = async () =>
+                            await handleTextboxSave(
+                                "cpiHelper_notepad_plugin_global",
+                                "cpiHelper_global_textbox"
+                            );
+                    }
                 });
             });
             return button;
         }
     }
-}
+};
 pluginList.push(plugin);

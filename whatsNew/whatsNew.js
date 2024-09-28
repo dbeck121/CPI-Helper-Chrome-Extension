@@ -1,22 +1,23 @@
-
-
 async function whatsNewCheck(showOnlyOnce = true) {
     var manifestVersion = chrome.runtime.getManifest().version;
-  
-    check = await storageGetPromise("whatsNewV" + manifestVersion);
-  
-    silentupdates = ["3.0.3", "3.14.4"]
 
-  
+    check = await storageGetPromise("whatsNewV" + manifestVersion);
+
+    silentupdates = ["3.0.3", "3.14.4"];
+
     //const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
     const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo.png");
-    const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
-    const devtoberfestPicture = chrome.runtime.getURL("images/devtoberfestPicture.png");
-    const devtoberfestInvite = chrome.runtime.getURL("images/Devtoberfest_CPIHelper.ics");
+    const Kangoolutions_Logo = chrome.runtime.getURL(
+        "images/kangoolutions_icon.png"
+    );
+    const devtoberfestPicture = chrome.runtime.getURL(
+        "images/devtoberfestPicture.png"
+    );
+    const devtoberfestInvite = chrome.runtime.getURL(
+        "images/Devtoberfest_CPIHelper.ics"
+    );
     const md = window.markdownit();
-   
-   
-   
+
     var devtoberfest = `
     <div class="ui segment">
          <h3 class="ui header">
@@ -49,14 +50,12 @@ async function whatsNewCheck(showOnlyOnce = true) {
         </div>
     </div>
     
-    `
-   
-   
-   
-   
-   
-   
-    if (!check && !silentupdates.includes(manifestVersion) || showOnlyOnce == false) {
+    `;
+
+    if (
+        (!check && !silentupdates.includes(manifestVersion)) ||
+        showOnlyOnce == false
+    ) {
         html = `<div class="ui message">
         <img class="ui small floated image" src="${Kangoolutions_Logo}">
         <div class="content">
@@ -98,25 +97,40 @@ If you are planning or working on a migration to Integration Suite, then Figaf h
                 </div>
             </h3>
             <a class="ui red top right ribbon label" style="position: absolute;">FireFox limited support</a>  
-            <div class="changeloglist">${
-                Object.entries(
-                    whats_new_log.trim().split('\n').reduce((acc, line) => {
+            <div class="changeloglist">${Object.entries(
+                whats_new_log
+                    .trim()
+                    .split("\n")
+                    .reduce((acc, line) => {
                         const match = line.match(/\[([^\]]+)\](.*)/);
                         if (match) {
                             const [_, header, description] = match;
-                            (acc[header.trim()] = acc[header.trim()] || []).push(description.trim());
+                            (acc[header.trim()] =
+                                acc[header.trim()] || []).push(
+                                description.trim()
+                            );
                         }
                         return acc;
                     }, {})
-                ).sort(([a], [b]) => a.localeCompare(b)).map(([header, descs]) => `
+            )
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(
+                    ([header, descs]) => `
                     <div class="ui block header">
                         <div class="ui sub header">${header}</div>
                         <div class="description" style="font-weight: normal;">
                             <ul class="list">
-                                ${descs.map(desc => `<li>${md.renderInline(desc)}</li>`).join('')}
+                                ${descs
+                                    .map(
+                                        (desc) =>
+                                            `<li>${md.renderInline(desc)}</li>`
+                                    )
+                                    .join("")}
                             </ul>
                         </div>
-                    </div>`).join('')}</div>
+                    </div>`
+                )
+                .join("")}</div>
             <div class="ui list">
                 <h3 class="ui header">
                     <a href="https://www.linkedin.com/company/kangoolutions" target="_blank"><i class="linkedin icon"></i></a>
@@ -209,68 +223,68 @@ If you are planning or working on a migration to Integration Suite, then Figaf h
         </div>
     </div>`;
 
-  
-    
-    await showBigPopup(html, "Your SAP CI Toolbox since 1963", {
-      fullscreen: false,
-      callback: () => {
-        $(".menu .item").tab();
-        $('.cpihelper83782')
-  .popup({
-    inline     : true,
-    hoverable  : true,
-    position   : 'bottom left',
-    delay: {
-      show: 300,
-      hide: 800
+        await showBigPopup(html, "Your SAP CI Toolbox since 1963", {
+            fullscreen: false,
+            callback: () => {
+                $(".menu .item").tab();
+                $(".cpihelper83782").popup({
+                    inline: true,
+                    hoverable: true,
+                    position: "bottom left",
+                    delay: {
+                        show: 300,
+                        hide: 800
+                    }
+                });
+            },
+            onclose: () => {
+                showBigPopup(devtoberfest, "Your SAP CI Toolbox since 1963", {
+                    fullscreen: false
+                });
+            }
+        });
+
+        var obj = {};
+        obj["whatsNewV" + manifestVersion] = "show";
+        chrome.storage.local.set(obj, function () {
+            log.log("whats new displayed and saved");
+        });
+
+        return true;
     }
-  })
-;    
-    
-    },
-      onclose: () => {
-        showBigPopup(devtoberfest, "Your SAP CI Toolbox since 1963", {
-            fullscreen: false, }
-        );
-      },
-    });
+    return false;
 
-    var obj = {};
-    obj["whatsNewV" + manifestVersion] = "show";
-    chrome.storage.local.set(obj, function () {
-      log.log("whats new displayed and saved");
-    });
-
-    return true;
-  }
-  return false;
-
-  //persist so that the popup does not appear again
+    //persist so that the popup does not appear again
 }
 
 async function recrutingPopup(force = false) {
-   
-    if(force == false) {
-        return true
+    if (force == false) {
+        return true;
     }
 
     //shows a popup if browser language is German and if timestamp is not set or today is after timestamp in chrome storage
 
     //show only for a fraction of user for testing
 
-    const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
+    const Kangoolutions_Logo = chrome.runtime.getURL(
+        "images/kangoolutions_icon.png"
+    );
 
-    var randomGroup = parseInt(await storageGetPromise("recrutingPopupRandomGroup"));
+    var randomGroup = parseInt(
+        await storageGetPromise("recrutingPopupRandomGroup")
+    );
 
     if (!randomGroup) {
         randomGroup = Math.floor(Math.random() * 100);
-        var obj = {}
-        obj["recrutingPopupRandomGroup"] = randomGroup
-        await storageSetPromise(obj)
+        var obj = {};
+        obj["recrutingPopupRandomGroup"] = randomGroup;
+        await storageSetPromise(obj);
     }
 
     var lang = navigator.language || navigator.userLanguage;
-    var timestamp = parseInt(await storageGetPromise("recrutingPopupTimestamp"));
+    var timestamp = parseInt(
+        await storageGetPromise("recrutingPopupTimestamp")
+    );
     var today = +new Date();
 
     if (!timestamp) {
@@ -283,8 +297,13 @@ async function recrutingPopup(force = false) {
         });
     }
 
-    if (lang == "de-DE" && (force || (!timestamp && randomGroup <= 80) || (timestamp && timestamp < today))) {
-        statistic("recrutingPopup", "show")
+    if (
+        lang == "de-DE" &&
+        (force ||
+            (!timestamp && randomGroup <= 80) ||
+            (timestamp && timestamp < today))
+    ) {
+        statistic("recrutingPopup", "show");
         var html = `<div>
     <div class="ui message">
         <img class="ui small floated image" src="${Kangoolutions_Logo}">
@@ -317,72 +336,78 @@ async function recrutingPopup(force = false) {
     </div>
     </div>`;
 
-    var popup = createElementFromHTML(html);
+        var popup = createElementFromHTML(html);
 
-    var createRemindButtopn = function (text, days, color = "teal") {
-      var button = document.createElement("button");
-      button.className = "ui " + color + " right labled icon button";
-      var icon = document.createElement("i");
-      icon.className = "right bell icon";
-      button.textContent = text;
-      button.appendChild(icon);
+        var createRemindButtopn = function (text, days, color = "teal") {
+            var button = document.createElement("button");
+            button.className = "ui " + color + " right labled icon button";
+            var icon = document.createElement("i");
+            icon.className = "right bell icon";
+            button.textContent = text;
+            button.appendChild(icon);
 
-      button.style.marginBottom = "10px";
+            button.style.marginBottom = "10px";
 
-      button.onclick = async function () {
-        statistic("recrutingPopup", "remind", days);
+            button.onclick = async function () {
+                statistic("recrutingPopup", "remind", days);
 
-        //get unix timestamp for tomorrow
-        var tomorrow = +new Date() + days * 24 * 60 * 60 * 1000;
+                //get unix timestamp for tomorrow
+                var tomorrow = +new Date() + days * 24 * 60 * 60 * 1000;
 
-        var obj = {};
-        obj["recrutingPopupTimestamp"] = tomorrow;
-        chrome.storage.local.set(obj, function () {
-          log.log("recruting popup timestamp set to today + " + days + " days");
+                var obj = {};
+                obj["recrutingPopupTimestamp"] = tomorrow;
+                chrome.storage.local.set(obj, function () {
+                    log.log(
+                        "recruting popup timestamp set to today + " +
+                            days +
+                            " days"
+                    );
+                });
+
+                $("#cpiHelper_semanticui_modal").modal("hide");
+            };
+            return button;
+        };
+
+        var nextStepButtion = document.createElement("button");
+        nextStepButtion.className = "ui teal right labled icon button";
+        var icon = document.createElement("i");
+        icon.className = "right arrow icon";
+
+        nextStepButtion.textContent = "Jau! Ich will mehr wissen.";
+        nextStepButtion.appendChild(icon);
+        nextStepButtion.onclick = async function () {
+            statistic("recrutingPopup", "nextStep");
+            window.open("https://ich-will-zur.kangoolutions.com/", "_blank");
+            $("#cpiHelper_semanticui_modal").modal("hide");
+        };
+
+        //create br
+        var br = document.createElement("br");
+        var span = document.createElement("span");
+        span.textContent = "Erinnere mich: ";
+        popup.appendChild(br);
+
+        popup.appendChild(nextStepButtion);
+        popup.appendChild(br);
+        popup.appendChild(
+            createRemindButtopn(
+                "Schon ok... Erinnere mich nicht mehr",
+                9999,
+                "violet"
+            )
+        );
+
+        popup.appendChild(br);
+        popup.appendChild(span);
+        popup.appendChild(createRemindButtopn("Morgen", 1));
+
+        popup.appendChild(createRemindButtopn("In einer Woche", 7));
+
+        popup.appendChild(createRemindButtopn("In einem halben Jahr", 190));
+
+        await showBigPopup(popup, "Wir suchen Verstärkung!", {
+            fullscreen: false
         });
-
-        $("#cpiHelper_semanticui_modal").modal("hide");
-      };
-      return button;
-    };
-
-    var nextStepButtion = document.createElement("button");
-    nextStepButtion.className = "ui teal right labled icon button";
-    var icon = document.createElement("i");
-    icon.className = "right arrow icon";
-
-    nextStepButtion.textContent = "Jau! Ich will mehr wissen.";
-    nextStepButtion.appendChild(icon);
-    nextStepButtion.onclick = async function () {
-      statistic("recrutingPopup", "nextStep");
-      window.open("https://ich-will-zur.kangoolutions.com/", "_blank");
-      $("#cpiHelper_semanticui_modal").modal("hide");
-    };
-
-    //create br
-    var br = document.createElement("br");
-    var span = document.createElement("span");
-    span.textContent = "Erinnere mich: ";
-    popup.appendChild(br);
-
-    popup.appendChild(nextStepButtion);
-    popup.appendChild(br);
-    popup.appendChild(
-      createRemindButtopn(
-        "Schon ok... Erinnere mich nicht mehr",
-        9999,
-        "violet"
-      )
-    );
-
-    popup.appendChild(br);
-    popup.appendChild(span);
-    popup.appendChild(createRemindButtopn("Morgen", 1));
-
-    popup.appendChild(createRemindButtopn("In einer Woche", 7));
-
-    popup.appendChild(createRemindButtopn("In einem halben Jahr", 190));
-
-    await showBigPopup(popup, "Wir suchen Verstärkung!", { fullscreen: false });
-  }
+    }
 }

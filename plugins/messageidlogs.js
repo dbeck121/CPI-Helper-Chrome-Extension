@@ -7,13 +7,11 @@ var plugin = {
     email: "cpihelper@kangoolutions.com",
     website: "https://github.com/dbeck121/CPI-Helper-Chrome-Extension",
     description: "Paste a message ID and check logs.",
-    settings: {
-       
-    },
- 
+    settings: {},
+
     messageSidebarContent: {
-        "static": true,
-        "onRender": (pluginHelper, settings) => {
+        static: true,
+        onRender: (pluginHelper, settings) => {
             var div = document.createElement("div");
             //textbogs for id
             var input = document.createElement("input");
@@ -22,14 +20,19 @@ var plugin = {
             input.classList.add("sapMInputBaseInner");
             input.placeholder = "Message ID";
             div.appendChild(input);
-            var button = document.createElement("button")
-            button.innerHTML = "logs"
+            var button = document.createElement("button");
+            button.innerHTML = "logs";
             button.onclick = async (x) => {
                 //get text from input
-                var id = document.getElementById("cpi_helper_runid_plugin_messageId").value;
-                await showBigPopup(await createContentNodeForLogs(id, false), "Logs")
+                var id = document.getElementById(
+                    "cpi_helper_runid_plugin_messageId"
+                ).value;
+                await showBigPopup(
+                    await createContentNodeForLogs(id, false),
+                    "Logs"
+                );
             };
-            div.appendChild(button)
+            div.appendChild(button);
             return div;
         }
     },
@@ -37,8 +40,7 @@ var plugin = {
     scriptButton: null,
     messageMappingButton: null,
     xsltButton: null,
-    heartbeat:  null,
-
+    heartbeat: null
 };
 
 pluginList.push(plugin);

@@ -8,18 +8,24 @@ var plugin = {
     website: "https://cpi-transporter.com",
     description: "[BETA] Open Transport System (cpi-transporter.com)",
     settings: {
-        "text1": { "text": "Option to transport flows within or to another tenant", "type": "text" }
+        text1: {
+            text: "Option to transport flows within or to another tenant",
+            type: "text"
+        }
     },
     messageSidebarContent: {
-        
-        "onRender": (pluginHelper, settings) => {
+        onRender: (pluginHelper, settings) => {
             var button = document.createElement("button");
             button.innerText = "New Transport";
             button.addEventListener("click", () => {
                 var flow = pluginHelper.integrationFlowId;
                 var tenant = pluginHelper.tenant;
-                var url = "https://cpi-transporter.com/api/transport/?system="+tenant+"&artifact="+flow;
-                window.open(url,'_blank');
+                var url =
+                    "https://cpi-transporter.com/api/transport/?system=" +
+                    tenant +
+                    "&artifact=" +
+                    flow;
+                window.open(url, "_blank");
             });
             return button;
         }

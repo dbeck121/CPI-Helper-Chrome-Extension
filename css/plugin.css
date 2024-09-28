@@ -7,7 +7,14 @@ Users are encouraged to integrate this library with care to ensure compatibility
 /* traceModifer Css */
 .traceModifer .fluid {
     background: #ff8282;
-    background: linear-gradient(-90deg, #ff8282 0%, #ffff82 25%, #82ff82 50%, #82ffff 75%, #8282ff 100%) !important;
+    background: linear-gradient(
+        -90deg,
+        #ff8282 0%,
+        #ffff82 25%,
+        #82ff82 50%,
+        #82ffff 75%,
+        #8282ff 100%
+    ) !important;
 }
 
 /* timelinetable */
@@ -26,10 +33,10 @@ Users are encouraged to integrate this library with care to ensure compatibility
 }
 
 #timelinetable td:has(a):hover {
-    background: rgba(0, 0, 0, 0.1) !important
+    background: rgba(0, 0, 0, 0.1) !important;
 }
 
-[id $="--iflowPropLayout"] textarea:not([id^='Description']) {
+[id$="--iflowPropLayout"] textarea:not([id^="Description"]) {
     min-height: 10vh;
     resize: vertical;
     max-height: 70vh;
