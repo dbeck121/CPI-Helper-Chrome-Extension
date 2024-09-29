@@ -5,13 +5,9 @@
 
 This Browser Plugin extends the SAP Cloud Platform Integration with some useful features.
 
-Please check the CPI-Helper [Landing page](https://dbeck121.github.io/CPI-Helper-Chrome-Extension/?page=home)
-More information on our [LinkedIn Page](https://www.linkedin.com/company/kangoolutions)
+Please check the CPI-Helper [Landing page](https://dbeck121.github.io/CPI-Helper-Chrome-Extension/?page=home) More information on our [LinkedIn Page](https://www.linkedin.com/company/kangoolutions)
 
-I recommend reading the readme first but if you know what you are doing, you can add it to your Chrome or Edge Browser directly:
-[Chrome Web Store](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb)
-[Edge Browser](https://microsoftedge.microsoft.com/addons/detail/sap-cpi-helper/chnohkopccdfgpglplooonoaigfgfkda)
-[Firefox](https://addons.mozilla.org/de/firefox/addon/cpi-helper/)
+I recommend reading the readme first but if you know what you are doing, you can add it to your Chrome or Edge Browser directly: [Chrome Web Store](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb) [Edge Browser](https://microsoftedge.microsoft.com/addons/detail/sap-cpi-helper/chnohkopccdfgpglplooonoaigfgfkda) [Firefox](https://addons.mozilla.org/de/firefox/addon/cpi-helper/)
 
 ## Privacy and Data Protection
 
@@ -48,7 +44,14 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.16.0
+
+- [Improvement] Plugin Engine is supports multiple artifact to plugin-devs & enhanced UI button on certain artifacts.
+- [Plugin] New Plugin - Groovy Helper which helps to enhance quick look and producivity.
+- [Feature] Dark-CPI Old-UI will work normally as light theme.
+
 ### 3.15.0
+
 - [Improvement] UI Bugfixes (Dark-mode Darker color for trace, Trace-inline tool editor detect mode you selected by default).
 - [Improvement] xml declaration added while prettify code is not gonna removed.
 - [Plugin] Performance stats plugin has better color for dark mode.
@@ -437,21 +440,17 @@ First public version.
 
 ## Installation
 
-You need Google Chrome to install this plugin. I tested it with version 100. I assume that older versions will work too.
-There are two options to install this plugin:
+You need Google Chrome to install this plugin. I tested it with version 100. I assume that older versions will work too. There are two options to install this plugin:
 
 ### Install directly from Chrome Web Store or Microsoft Store (recommended)
 
-Just add the plugin in the [Chrome Web Store](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb), [Firefox](https://addons.mozilla.org/de/firefox/addon/cpi-helper/) or [Microsoft Store](https://microsoftedge.microsoft.com/addons/detail/sap-cpi-helper/chnohkopccdfgpglplooonoaigfgfkda).
-This is probably the easiest way. Updates will be installed automatically.
-[![Chrome Web Store](https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/YT2Grfi9vEBa2wAPzhWa.png)](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb)
+Just add the plugin in the [Chrome Web Store](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb), [Firefox](https://addons.mozilla.org/de/firefox/addon/cpi-helper/) or [Microsoft Store](https://microsoftedge.microsoft.com/addons/detail/sap-cpi-helper/chnohkopccdfgpglplooonoaigfgfkda). This is probably the easiest way. Updates will be installed automatically. [![Chrome Web Store](https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/YT2Grfi9vEBa2wAPzhWa.png)](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb)
 
 ### Install in Developer Mode from Sources
 
 #### Google Chrome
 
-If you know what you are doing, you can install the plugin directly from sources.
-Clone the repo and add the folder directly to Google Chrome
+If you know what you are doing, you can install the plugin directly from sources. Clone the repo and add the folder directly to Google Chrome
 
 > - Download or clone the repo from github. Unpack if necessary.
 > - In Google Chrome, Navigate to Settings – > Extensions
@@ -464,11 +463,7 @@ Since version 3.2.0 the plugin is also available for Firefox and can be installe
 
 ## Update
 
-Attention: If you installed the plugin from Chrome Store before 21 March 2020, please uninstall and install it again with the link on the top.
-Chrome updates extensions that are installed from the Chrome Web Store automatically.
-If you installed the plugin from sources:
-Please replace the folder with the new version on your disk. After that, you must delete and add the plugin to Chrome Browser.
-If you have cloned the repository, pull new data. Then delete and add the plugin in Chrome. Restart Chrome.
+Attention: If you installed the plugin from Chrome Store before 21 March 2020, please uninstall and install it again with the link on the top. Chrome updates extensions that are installed from the Chrome Web Store automatically. If you installed the plugin from sources: Please replace the folder with the new version on your disk. After that, you must delete and add the plugin to Chrome Browser. If you have cloned the repository, pull new data. Then delete and add the plugin in Chrome. Restart Chrome.
 
 ## Usage
 
@@ -478,8 +473,7 @@ If you open an Integration Flow, the plugin will automatically add a "Messages",
 
 #### Message Button
 
-The "Message" button opens a small draggable sidebar with the last processed messages. You can jump directly to infos and traces of the message run. If you hover over the status icon of message, you will see a pop-up with the error message directly. If you click on the time button, InlineTrace is activated (Only when trace was activated for message). If you click on a color coded integration flow item and trace is available, a pop-up opens with the trace of the message at this point.
-![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome1.png)
+The "Message" button opens a small draggable sidebar with the last processed messages. You can jump directly to infos and traces of the message run. If you hover over the status icon of message, you will see a pop-up with the error message directly. If you click on the time button, InlineTrace is activated (Only when trace was activated for message). If you click on a color coded integration flow item and trace is available, a pop-up opens with the trace of the message at this point. ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome1.png)
 
 ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome4.png)
 
@@ -489,31 +483,24 @@ The "Trace" button sets the loglevel of the current Iflow to trace.
 
 #### Info Button
 
-The "Info" button lets you see detailed information of the deployment state of your Integration Flow.
-![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome2.png)
+The "Info" button lets you see detailed information of the deployment state of your Integration Flow. ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome2.png)
 
 ### Toolbar Popup
 
-The button of the plugin in the toolbar gives you a list of useful links of your current tenant. It includes last visited Integration Flows.
-![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome3.png)
-See also the [SAP Community Blog](https://blogs.sap.com/2020/03/05/cpi-chrome-plugin-to-enhance-sap-cloud-platform-integration-usability/#)
+The button of the plugin in the toolbar gives you a list of useful links of your current tenant. It includes last visited Integration Flows. ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome3.png) See also the [SAP Community Blog](https://blogs.sap.com/2020/03/05/cpi-chrome-plugin-to-enhance-sap-cloud-platform-integration-usability/#)
 
 ### Inline Trace
 
 On the message sidebar, press the time button next to the status icon of a processed message. If run steps exist, the elements of the Integration Flow will change colors accordingly. This will give you a quick overview of the run.
 
 > - Blue elements are successfully processed steps
-> - Red elements are elements with errors.
->   SAP does not provide good information about errors. So when an error at a Splitter-Element occurs, this does not have to mean that the error occurred here. It can also be a catched error from elements after the Splitter.
+> - Red elements are elements with errors. SAP does not provide good information about errors. So when an error at a Splitter-Element occurs, this does not have to mean that the error occurred here. It can also be a catched error from elements after the Splitter.
 
-Run steps exist for processed messages with trace and for a short time in processed messages with errors.
-![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome_inlinetrace.png)
+Run steps exist for processed messages with trace and for a short time in processed messages with errors. ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome_inlinetrace.png)
 
 ### Inline Trace - Show Headers, Properties, Trace, Error and Logs
 
-If you activated the Inline Trace feature, you can get more details. Traces only exist for processed messages with loglevel trace and will be deleted after around about 1 hour by SAP.
-![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome_trace_properties.png)
-![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome_after_beautify.png)
+If you activated the Inline Trace feature, you can get more details. Traces only exist for processed messages with loglevel trace and will be deleted after around about 1 hour by SAP. ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome_trace_properties.png) ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome_after_beautify.png)
 
 ## FAQ
 
@@ -552,8 +539,9 @@ See [Contribution guidelines for this project](docs/readme/contributing.md) if y
 If you have any ideas, please write a message or comment at the [SAP Community](https://blogs.sap.com/2020/03/05/cpi-chrome-plugin-to-enhance-sap-cloud-platform-integration-usability/#)
 
 ### Contributors
-<a href="https://github.com/incpi/Cpi-helper/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=incpi/Cpi-helper&columns=8" />
+
+<a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=dbeck121/CPI-Helper-Chrome-Extension&columns=8" />
 </a>
 
 ## License

@@ -100,9 +100,10 @@ async function createPluginButtons(type) {
         var settings = await getPluginSettings(plugin.id);
         if (settings[plugin.id + "---isActive"] === true) {
             if (plugin[type] && !plugin[type].condition || plugin[type] && plugin[type].condition(cpiData, settings)) {
-                var button = createElementFromHTML(`<button title='${plugin[type].title}' id='cpiHelperPlugin--${plugin.id}' class='cpiHelper_pluginButton_${type} mini ui button cpiHelper_pluginButton'>
-                ${(plugin?.messageSidebarButton?.icon?.type === "icon") ?
-                        `<span data-sap-ui-icon-content="&#${plugin.messageSidebarButton.icon.text}" class="sapUiIcon sapUiIconMirrorInRTL" style="font-family: SAP-icons; font-size: 0.9rem;"></span>` : plugin[type]?.title}</button>`);
+                log.log(plugin[type].icon.class)
+                var button = createElementFromHTML(`<button title='${plugin[type].title}' id='cpiHelperPlugin--${plugin.id}' class='cpiHelper_pluginButton_${type} ${plugin[type].icon.class?plugin[type].icon.class:"mini ui tertiary"} button cpiHelper_pluginButton'>
+                ${(plugin[type]?.icon?.type === "icon") ?
+                        `<span data-sap-ui-icon-content="&#${plugin[type]?.icon.text}" class="sapUiIcon sapUiIconMirrorInRTL ${plugin[type].icon.class?plugin[type].icon.class:""}" style="font-family: SAP-icons; font-size: 0.9rem;"></span>` : plugin[type]?.title}</button>`);
                 button.onclick = async (btn) => {
                     let pluginID = btn.target.id.replace("cpiHelperPlugin--", "")
                     let pluginItem = pluginList.find((element) => element.id == pluginID)
