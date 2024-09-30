@@ -59,7 +59,7 @@
         "/plugins/simplenotepad.js",
         "/plugins/reference.js",
         "/plugins/undeploy.js",
-        "/plugins/groovyhelper.js",
+        "/plugins/groovyref.js",
         "/plugins/unlock.js",
         "/plugins/credentialHelper.js",
         "/plugins/cpitransporter.js",

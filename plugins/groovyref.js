@@ -557,8 +557,8 @@ function copySectionUpdatye() {
 
 var plugin = {
   metadataVersion: "1.0.0",
-  id: "Groovyhelper",
-  name: "Groovy Help",
+  id: "Groovyreference",
+  name: "Groovy Quick",
   version: "1.0.0",
   author: "Omkar",
   email: "omk14p@outlook.com",
@@ -567,8 +567,8 @@ var plugin = {
   settings: {},
 
   scriptCollectionButton: {
-    icon: { text: "Groovy Helper", type: "text", class: "ui mini blue tertiary" },
-    title: "Grovvy Helper",
+    icon: { text: "Groovy reference", type: "text", class: "ui mini blue tertiary" },
+    title: "Grovvy reference",
     onClick: (pluginHelper, settings) => {
       pluginHelper.functions.popup(genratedata(markdownContent), "Reference", {
         fullscreen: true,
@@ -583,8 +583,8 @@ var plugin = {
     },
   },
   scriptButton: {
-    icon: { text: "Groovy Helper", type: "text", class: "ui mini blue tertiary" },
-    title: "Grovvy Helper",
+    icon: { text: "Groovy reference", type: "text", class: "ui mini blue tertiary" },
+    title: "Grovvy reference",
     onClick: (pluginHelper, settings) => {
       pluginHelper.functions.popup(genratedata(markdownContent), "Reference", {
         fullscreen: true,
