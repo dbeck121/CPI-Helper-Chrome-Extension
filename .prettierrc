@@ -13,5 +13,27 @@
   "tabWidth": 2,
   "trailingComma": "es5",
   "useTabs": false,
-  "embeddedLanguageFormatting": "auto"
+  "embeddedLanguageFormatting": "auto",
+  "overrides": [
+    {
+      "files": "*.js",
+      "options": {
+        "semi": false
+      }
+    },
+    {
+      "files": "*.json",
+      "options": {
+        "tabWidth": 2,
+        "printWidth": 120
+      }
+    },
+    {
+      "files": "*.css",
+      "options": {
+        "singleQuote": true,
+        "printWidth": 500
+      }
+    }
+  ]
 }
