@@ -14,7 +14,7 @@
 .Trashes
 .VolumeIcon.icns
 .vscode/launch.json
-.vscode/settings.json
 .env
 
+bin
 node_modules

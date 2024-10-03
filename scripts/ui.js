@@ -2,11 +2,7 @@ function workingIndicator(status) {
   // log.log(`CPI-Helper show indicator: $status`)
   //create snackbar div element
   if (!document.querySelector("#cpiHelper_workingIndicator")) {
-    body().appendChild(
-      createElementFromHTML(
-        `<i id='cpiHelper_workingIndicator' class='sync alternate loading icon' hidden></i>`
-      )
-    );
+    body().appendChild(createElementFromHTML(`<i id='cpiHelper_workingIndicator' class='sync alternate loading icon' hidden></i>`));
   }
   var x = $("#cpiHelper_workingIndicator");
   status ? x.removeAttr("hidden") : x.attr("hidden", "");
@@ -24,12 +20,7 @@ function showToast(message, title, type = "") {
     newestOnTop: true,
   });
 }
-function showWaitingPopup(
-  content = undefined,
-  classname = "small",
-  title = "CPI Helper Is thinking",
-  time = undefined
-) {
+function showWaitingPopup(content = undefined, classname = "small", title = "CPI Helper Is thinking", time = undefined) {
   $("#cpiHelper_waiting_model").html(`
       <div class="ui positive  icon message">
         <i class="sync alternate loading icon"></i>
@@ -82,7 +73,10 @@ async function showBigPopup(content, header, parameters = { fullscreen: true, ca
       const $button = $modal.find(`.${type}`);
       if ($button.length) {
         $button.on("click", () => {
-          const sortedArray = $(".cpiHelper_onclick[inline_cpi_child]").map((_, e) => parseInt($(e).attr("inline_cpi_child"), 10)).get().sort((a, b) => a - b);
+          const sortedArray = $(".cpiHelper_onclick[inline_cpi_child]")
+            .map((_, e) => parseInt($(e).attr("inline_cpi_child"), 10))
+            .get()
+            .sort((a, b) => a - b);
           console.log(sortedArray, $("#cpiHelper_semanticui_modal .header").attr("count"), sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")], index === 0 ? "previous" : "next");
           if (sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")]) {
             let element = findNearest(sortedArray, sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")], index === 0 ? "previous" : "next");
@@ -91,7 +85,7 @@ async function showBigPopup(content, header, parameters = { fullscreen: true, ca
             $modal.modal("hide");
             showWaitingPopup();
           } else {
-            showToast(`${index ? "Next" : "Previous"} Step is not found`, "something went wrong", "error")
+            showToast(`${index ? "Next" : "Previous"} Step is not found`, "something went wrong", "error");
           }
         });
       }
@@ -112,24 +106,26 @@ async function showBigPopup(content, header, parameters = { fullscreen: true, ca
       parameters.callback();
     }
 
-    $modal.toggleClass("fullscreen", parameters.fullscreen).modal({
-      detachable: false,
-      blurring: true,
-      autoShow: true,
-      onShow: function () {
-        if (!$modal.parent().is("#cpihelperglobal")) {
-          $('#cpihelperglobal').append($modal);  // Ensuring the modal stays within its parent container
-        }
-      },
-      onHidden: function () {
-        if (parameters.onclose  && parameters.onclose instanceof Function) {
-          parameters.onclose();
-        }
-      }
-    }).modal("show");
-    
+    $modal
+      .toggleClass("fullscreen", parameters.fullscreen)
+      .modal({
+        detachable: false,
+        blurring: true,
+        autoShow: true,
+        onShow: function () {
+          if (!$modal.parent().is("#cpihelperglobal")) {
+            $("#cpihelperglobal").append($modal); // Ensuring the modal stays within its parent container
+          }
+        },
+        onHidden: function () {
+          if (parameters.onclose && parameters.onclose instanceof Function) {
+            parameters.onclose();
+          }
+        },
+      })
+      .modal("show");
   } else {
-    showToast("", "Element is missing.. Reload the page", "error")
+    showToast("", "Element is missing.. Reload the page", "error");
   }
 }
 
@@ -148,29 +144,17 @@ async function createTabHTML(objects, idPart, overwriteActivePosition) {
     let checked = 'checked=""';
     for (let i = 0; i < objects.length; i++) {
       checked = "";
-      if (
-        (overwriteActivePosition != null && overwriteActivePosition == i) ||
-        (overwriteActivePosition != null &&
-          overwriteActivePosition == objects[i].label) ||
-        (overwriteActivePosition == null && objects[i].active)
-      ) {
+      if ((overwriteActivePosition != null && overwriteActivePosition == i) || (overwriteActivePosition != null && overwriteActivePosition == objects[i].label) || (overwriteActivePosition == null && objects[i].active)) {
         checked = 'checked="checked"';
       }
 
       //input button
-      let input = createElementFromHTML(
-        `<input name="tabs-${idPart}" type="radio" id="tab-${idPart}-${i}" ${checked} class="cpiHelper_tabs_input"/>`
-      );
+      let input = createElementFromHTML(`<input name="tabs-${idPart}" type="radio" id="tab-${idPart}-${i}" ${checked} class="cpiHelper_tabs_input"/>`);
 
       if (typeof objects[i].content == "function") {
         input.onclick = async (event) => {
-          let contentElement = document.getElementById(
-            idPart + "-" + i + "-content"
-          );
-          if (
-            contentElement.innerHTML ==
-            '<div class="cpiHelper_infoPopUp_content">Please Wait...</div>'
-          ) {
+          let contentElement = document.getElementById(idPart + "-" + i + "-content");
+          if (contentElement.innerHTML == '<div class="cpiHelper_infoPopUp_content">Please Wait...</div>') {
             let contentResponse = await objects[i].content(objects[i]);
             if (typeof contentResponse == "object") {
               contentElement.innerHTML = "";
@@ -186,14 +170,10 @@ async function createTabHTML(objects, idPart, overwriteActivePosition) {
         };
       }
 
-      let label = createElementFromHTML(
-        `<label for="tab-${idPart}-${i}" class="cpiHelper_tabs_label">${objects[i].label}</label>`
-      );
+      let label = createElementFromHTML(`<label for="tab-${idPart}-${i}" class="cpiHelper_tabs_label">${objects[i].label}</label>`);
 
       //content of tab
-      let content = createElementFromHTML(
-        ` <div id="${idPart}-${i}-content" class="cpiHelper_tabs_panel"></div>`
-      );
+      let content = createElementFromHTML(` <div id="${idPart}-${i}-content" class="cpiHelper_tabs_panel"></div>`);
 
       if (typeof objects[i].content == "string") {
         content.innerHTML = objects[i].content;
@@ -204,8 +184,7 @@ async function createTabHTML(objects, idPart, overwriteActivePosition) {
       }
 
       if (typeof objects[i].content == "function") {
-        content.innerHTML =
-          '<div class="cpiHelper_infoPopUp_content">Please Wait...</div>';
+        content.innerHTML = '<div class="cpiHelper_infoPopUp_content">Please Wait...</div>';
         if (objects[i].active) {
           let contentResponse = await objects[i].content(objects[i]);
           if (typeof contentResponse == "object") {

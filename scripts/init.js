@@ -33,7 +33,7 @@ function createGlobalId(id = "cpihelperglobal") {
     toggleDarkMode();
     const observer = new MutationObserver(async function (mutationsList) {
       for (const mutation of mutationsList) {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+        if (mutation.type === "attributes" && mutation.attributeName === "class") {
           toggleDarkMode();
           await Themesync();
         }

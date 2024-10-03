@@ -5,24 +5,14 @@
   "description": "Extends the SAP Cloud Platform Integration with some useful features to improve usability.",
   "author": "Dominic Beckbauer",
   "homepage_url": "https://github.com/dbeck121/CPI-Helper-Chrome-Extension",
-  "host_permissions": [
-    "https://*.hana.ondemand.com/itspaces",
-    "https://*.platform.sapcloud.cn/itspaces",
-    "https://*.hana.ondemand.com/shell",
-    "https://*.platform.sapcloud.cn/shell"
-  ],
+  "host_permissions": ["https://*.hana.ondemand.com/itspaces", "https://*.platform.sapcloud.cn/itspaces", "https://*.hana.ondemand.com/shell", "https://*.platform.sapcloud.cn/shell"],
   "permissions": ["storage", "webRequest"],
   "background": {
     "service_worker": "background/background.js"
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://*.hana.ondemand.com/itspaces/*",
-        "https://*.platform.sapcloud.cn/itspaces/*",
-        "https://*.hana.ondemand.com/shell/*",
-        "https://*.platform.sapcloud.cn/shell/*"
-      ],
+      "matches": ["https://*.hana.ondemand.com/itspaces/*", "https://*.platform.sapcloud.cn/itspaces/*", "https://*.hana.ondemand.com/shell/*", "https://*.platform.sapcloud.cn/shell/*"],
       "js": [
         "/lib/ulog/ulog-full.min.js",
         "/lib/ace/ace.min.js",
@@ -68,13 +58,7 @@
         "/scripts/Mode-Script.js",
         "/scripts/contentScript.js"
       ],
-      "css": [
-        "/lib/semanticui/semantic.min.css",
-        "/lib/semanticui/semantic.dark.css",
-        "/css/contentScript.css",
-        "/css/darkoverwrite.css",
-        "/css/plugin.css"
-      ]
+      "css": ["/lib/semanticui/semantic.min.css", "/lib/semanticui/semantic.dark.css", "/css/contentScript.css", "/css/darkoverwrite.css", "/css/plugin.css"]
     }
   ],
   "action": {

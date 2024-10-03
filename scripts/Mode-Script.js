@@ -1,61 +1,67 @@
 function navigationButton() {
   //main Frame
-  if ($('#__cpihelper').length === 0) {
-    log.log('adding navigation for main page');
+  if ($("#__cpihelper").length === 0) {
+    log.log("adding navigation for main page");
     cloudbutton = $(`<button id="__cpihelper" aria-label="CPI Helper" title="CPI Helper" class="sapMBtnBase sapMBtn sapMBarChild">
         <span id="__cpihelper-inner" class="sapMBtnInner sapMBtnHoverable sapMFocusable sapMBtnIconFirst sapMBtnTransparent">
           <span id="__cpihelper-img" data-sap-ui="__cpihelper-img" role="presentation" aria-hidden="true" data-sap-ui-icon-content="&#xe21d" class="sapUiIcon sapMBtnCustomIcon sapMBtnIcon sapMBtnIconLeft" style="font-family: SAP-icons;"></span>
         </span>
         <span id="__cpihelper-tooltip" class="sapUiInvisibleText">CPI Helper</span>
       </button>`);
-    $('#shell--toolHeader').children().eq(3).after(cloudbutton);
-    $('#__cpihelper').on('click', async () => await showBigPopup(`<div class="ui blue secondary pointing centered fluid menu">
+    $("#shell--toolHeader").children().eq(3).after(cloudbutton);
+    $("#__cpihelper").on(
+      "click",
+      async () =>
+        await showBigPopup(
+          `<div class="ui blue secondary pointing centered fluid menu">
     <div class="active item" data-tab="homepage">Search Credentials & Log Mode</div>
     </div>
-    <div data-tab="homepage" class="ui loading tab"><div id="GlobalCH_Tab1"></div></div>`, "", {
-      "fullscreen": true,
-      callback: async () => {
-        $('#cpiHelper_bigPopup_content_semanticui .blue.menu.secondary .item').tab();
-        await fromInitialLoadingTo();
-      }
-    }).then(async (e) => {
-      await defaultdebug();
-    }))
+    <div data-tab="homepage" class="ui loading tab"><div id="GlobalCH_Tab1"></div></div>`,
+          "",
+          {
+            fullscreen: true,
+            callback: async () => {
+              $("#cpiHelper_bigPopup_content_semanticui .blue.menu.secondary .item").tab();
+              await fromInitialLoadingTo();
+            },
+          }
+        ).then(async (e) => {
+          await defaultdebug();
+        })
+    );
   }
 }
 /*const icons = chrome.runtime.getManifest().icons | chrome.runtime.getURL(icons['16'])*/
 async function getSecurityNamelist() {
-  const response = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.km.api.commands.SecurityMaterialsListCommand", false, "application/json")).artifactInformations.filter(e => e.deployState = 'DEPLOYED').reduce((result, obj) => {
-    const credentialKindTag = obj.tags.find(tag => tag.name === "sec:credential.kind");
-    var key = credentialKindTag ? credentialKindTag.value : (
-      obj.type === "TOKEN_CREDENTIAL" ? obj.tags.find(tag => tag.name === "provider").value : null
-    )
-    if (key != null) {
-      if (key === 'oauth2:default') {
-        key = obj.tags.find(tag => tag.name === "sec:grant.type").value;
+  const response = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.km.api.commands.SecurityMaterialsListCommand", false, "application/json"))
+    .artifactInformations.filter((e) => (e.deployState = "DEPLOYED"))
+    .reduce((result, obj) => {
+      const credentialKindTag = obj.tags.find((tag) => tag.name === "sec:credential.kind");
+      var key = credentialKindTag ? credentialKindTag.value : obj.type === "TOKEN_CREDENTIAL" ? obj.tags.find((tag) => tag.name === "provider").value : null;
+      if (key != null) {
+        if (key === "oauth2:default") {
+          key = obj.tags.find((tag) => tag.name === "sec:grant.type").value;
+        }
+        if (key === "OAuth2SAMLBearerAssertion") {
+          key = obj.tags.find((tag) => tag.name === "targetSystemType").value;
+        }
+        result[key] = result[key] || [];
+        result[key].push(String(obj.name));
       }
-      if (key === 'OAuth2SAMLBearerAssertion') {
-        key = obj.tags.find(tag => tag.name === "targetSystemType").value;
-      }
-      result[key] = result[key] || [];
-      result[key].push(String(obj.name));
-    }
-    return result;
-  }, {});
+      return result;
+    }, {});
   const Mat_category = {
-    "CloudFoundry": "OAuth2 SAML Bearer Assertion \n (BTP CF)",
-    "default": "User Credentials",
-    "openconnectors": "User Credentials \n (Open Connectors)",
-    "client_credentials": "OAuth2 Client Credentials",
-    "SuccessFactors": "OAuth2 SAML Bearer Assertion \n (SuccessFactors)",
-    "successfactors": "User Credentials \n (SuccessFactors)",
-    "CloudSystem": "OAuth2 SAML Bearer Assertion \n (BTP Neo)",
-    "Generic": "OAuth2 Authorization Code \n (Generic)",
-    "Microsoft_365": "OAuth2 Authorization Code \n (Microsoft 365)"
-  }
-  return Object.entries(response).flatMap(([key, titles]) =>
-    titles.map(title => ({ title, category: Mat_category[key] }))
-  )
+    CloudFoundry: "OAuth2 SAML Bearer Assertion \n (BTP CF)",
+    default: "User Credentials",
+    openconnectors: "User Credentials \n (Open Connectors)",
+    client_credentials: "OAuth2 Client Credentials",
+    SuccessFactors: "OAuth2 SAML Bearer Assertion \n (SuccessFactors)",
+    successfactors: "User Credentials \n (SuccessFactors)",
+    CloudSystem: "OAuth2 SAML Bearer Assertion \n (BTP Neo)",
+    Generic: "OAuth2 Authorization Code \n (Generic)",
+    Microsoft_365: "OAuth2 Authorization Code \n (Microsoft 365)",
+  };
+  return Object.entries(response).flatMap(([key, titles]) => titles.map((title) => ({ title, category: Mat_category[key] })));
 }
 
 async function fromInitialLoadingTo() {
@@ -104,16 +110,15 @@ async function fromInitialLoadingTo() {
             </ul>
           </div>
       </div>
-    </div>`)
-$("#GlobalCH_Tab1").append(data_content);
-$("#GlobalCH_Tab1").parent().removeClass("loading");
-  $('.ui.search')
-    .search({
-      source: await getSecurityNamelist(),
-      preserveHTML: false,
-      onSelect: (result, resp) => copyText(result.title),
-      searchFields: ['title'],
-      type: 'category',
-      minCharacters: 1,
-    });
+    </div>`);
+  $("#GlobalCH_Tab1").append(data_content);
+  $("#GlobalCH_Tab1").parent().removeClass("loading");
+  $(".ui.search").search({
+    source: await getSecurityNamelist(),
+    preserveHTML: false,
+    onSelect: (result, resp) => copyText(result.title),
+    searchFields: ["title"],
+    type: "category",
+    minCharacters: 1,
+  });
 }

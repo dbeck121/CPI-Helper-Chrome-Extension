@@ -93,24 +93,16 @@
       "48": "images/v4/48.png",
       "128": "images/v4/128.png"
     },
-    "show_matches": [
-      "https://*.hana.ondemand.com/shell/design/*",
-      "https://*.hana.ondemand.com/itspaces/*",
-      "https://*.hana.ondemand.com/shell/*",
-      "https://*.platform.sapcloud.cn/itspaces/*",
-      "https://*.platform.sapcloud.cn/shell/*"
-    ]
-  },
-  "icons": {
-    "16": "images/v4/16.png",
-    "32": "images/v4/32.png",
-    "48": "images/v4/48.png",
-    "128": "images/v4/128.png"
-  },
-  "web_accessible_resources": [
-    "images/favicons/*.png",
-    "lib/semanticui/*",
-    "images/*"
-  ],
-  "manifest_version": 2
+    "icons": {
+        "16": "images/v4/16.png",
+        "32": "images/v4/32.png",
+        "48": "images/v4/48.png",
+        "128": "images/v4/128.png"
+    },
+    "web_accessible_resources": [
+        "images/favicons/*.png",
+        "lib/semanticui/*",
+        "images/*"
+    ],
+    "manifest_version": 2
 }
