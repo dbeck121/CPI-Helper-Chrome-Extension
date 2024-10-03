@@ -3,7 +3,7 @@ name: SonarCheck
 on:
   push:
     branches:
-      - sonar
+      - dev
 
 jobs:
   build:
