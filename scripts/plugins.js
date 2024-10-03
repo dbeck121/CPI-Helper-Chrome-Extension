@@ -94,25 +94,29 @@ async function createPluginButtonsInMessageSidebar(runInfoElement, i, flash) {
 
 //type = scriptCollectionButton, scriptButton, xsltButton
 async function createPluginButtons(type) {
-    var pluginButtons = [];
-    for (var plugin of pluginList) {
-        var settings = await getPluginSettings(plugin.id);
-        if (settings[plugin.id + "---isActive"] === true) {
-            if (plugin[type] && !plugin[type].condition || plugin[type] && plugin[type].condition(cpiData, settings)) {
-                log.log(plugin[type].icon.class)
-                var button = createElementFromHTML(`<button title='${plugin[type].title}' id='cpiHelperPlugin--${plugin.id}' class='cpiHelper_pluginButton_${type} ${plugin[type].icon.class?plugin[type].icon.class:"mini ui tertiary"} button cpiHelper_pluginButton'>
-                ${(plugin[type]?.icon?.type === "icon") ?
-                        `<span data-sap-ui-icon-content="&#${plugin[type]?.icon.text}" class="sapUiIcon sapUiIconMirrorInRTL ${plugin[type].icon.class?plugin[type].icon.class:""}" style="font-family: SAP-icons; font-size: 0.9rem;"></span>` : plugin[type]?.title}</button>`);
-                button.onclick = async (btn) => {
-                    let pluginID = btn.target.id.replace("cpiHelperPlugin--", "")
-                    let pluginItem = pluginList.find((element) => element.id == pluginID)
-                    let pluginsettings = await getPluginSettings(pluginID);
-                    pluginItem[type].onClick(cpiData, pluginsettings);
-                    statistic("messagebar_btn_plugin_click", pluginID)
-                };
-                pluginButtons.push(button);
-            }
-        }
+  var pluginButtons = [];
+  for (var plugin of pluginList) {
+    var settings = await getPluginSettings(plugin.id);
+    if (settings[plugin.id + "---isActive"] === true) {
+      if ((plugin[type] && !plugin[type].condition) || (plugin[type] && plugin[type].condition(cpiData, settings))) {
+        log.log(plugin[type].icon.class);
+        var button = createElementFromHTML(`<button title='${plugin[type].title}' id='cpiHelperPlugin--${plugin.id}' class='cpiHelper_pluginButton_${type} ${
+          plugin[type].icon.class ? plugin[type].icon.class : "mini ui tertiary"
+        } button cpiHelper_pluginButton'>
+                ${
+                  plugin[type]?.icon?.type === "icon"
+                    ? `<span data-sap-ui-icon-content="&#${plugin[type]?.icon.text}" class="sapUiIcon sapUiIconMirrorInRTL ${plugin[type].icon.class ? plugin[type].icon.class : ""}" style="font-family: SAP-icons; font-size: 0.9rem;"></span>`
+                    : plugin[type]?.title
+                }</button>`);
+        button.onclick = async (btn) => {
+          let pluginID = btn.target.id.replace("cpiHelperPlugin--", "");
+          let pluginItem = pluginList.find((element) => element.id == pluginID);
+          let pluginsettings = await getPluginSettings(pluginID);
+          pluginItem[type].onClick(cpiData, pluginsettings);
+          statistic("messagebar_btn_plugin_click", pluginID);
+        };
+        pluginButtons.push(button);
+      }
     }
   }
   return pluginButtons;

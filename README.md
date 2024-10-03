@@ -15,10 +15,10 @@ The plugin does not collect personal data. Nevertheless the stores like Chrome W
 
 I guarantee:
 
--   No personal data is collected
--   No urls, tenant names iflow names etc are collected
--   only statistical data is collected
--   the data does not leave
+- No personal data is collected
+- No urls, tenant names iflow names etc are collected
+- only statistical data is collected
+- the data does not leave
 
 It is open source so feel free to check the source code.
 
@@ -26,21 +26,21 @@ It is open source so feel free to check the source code.
 
 ### Integration Flow Designer Improvements
 
--   Sidebar with processed messages
--   Activate InlineTrace to see message route in integration flow designer
--   Directly see trace messages in integration flow designer
--   Pretty print for trace messages in integration flow designer
--   Button to switch trace
--   Directly go to traces of specific message
--   Directly go to logs and attachments of specific message
--   Pop-up with error-message when hovering message in sidebar
--   Pop-up with deployment info
--   View and delete variables in info pop-up
+- Sidebar with processed messages
+- Activate InlineTrace to see message route in integration flow designer
+- Directly see trace messages in integration flow designer
+- Pretty print for trace messages in integration flow designer
+- Button to switch trace
+- Directly go to traces of specific message
+- Directly go to logs and attachments of specific message
+- Pop-up with error-message when hovering message in sidebar
+- Pop-up with deployment info
+- View and delete variables in info pop-up
 
 ### General CPI Improvements
 
--   Useful links in browser-bar-popup
--   Last visited iflows in browser-bar-popup
+- Useful links in browser-bar-popup
+- Last visited iflows in browser-bar-popup
 
 ## Changelog
 
@@ -52,391 +52,391 @@ It is open source so feel free to check the source code.
 
 ### 3.15.0
 
--   [Improvement] UI Bugfixes (Dark-mode Darker color for trace, Trace-inline tool editor detect mode you selected by default).
--   [Improvement] xml declaration added while prettify code is not gonna removed.
--   [Plugin] Performance stats plugin has better color for dark mode.
--   [Feature] Color mode detected a theme and applied by default (in case of dark mode)
--   [Feature] More compatibale with DARK CPI extension dark mode
--   [Feature] position of popup with state aware.
--   [Feature] Download Option for body only with proper extension.
--   [Feature] Text wrap Option and theme of editor has clear information.
--   [Feature] General UI BigFix & backend global element to organize. [read more here with snapshot notes](https://github.com/dbeck121/CPI-Helper-Chrome-Extension/pull/194). Special thanks to [Omkar](https://github.com/incpi).
+- [Improvement] UI Bugfixes (Dark-mode Darker color for trace, Trace-inline tool editor detect mode you selected by default).
+- [Improvement] xml declaration added while prettify code is not gonna removed.
+- [Plugin] Performance stats plugin has better color for dark mode.
+- [Feature] Color mode detected a theme and applied by default (in case of dark mode)
+- [Feature] More compatibale with DARK CPI extension dark mode
+- [Feature] position of popup with state aware.
+- [Feature] Download Option for body only with proper extension.
+- [Feature] Text wrap Option and theme of editor has clear information.
+- [Feature] General UI BigFix & backend global element to organize. [read more here with snapshot notes](https://github.com/dbeck121/CPI-Helper-Chrome-Extension/pull/194). Special thanks to [Omkar](https://github.com/incpi).
 
 ### 3.14.0
 
--   [Improvement] Update to Manifest V3. This is a major and necessary under the hood update and may cause some issues. Please report any issues.
--   [Plugin] New plugin "Get Message ID logs" to get details for messageid in message Sidebar
--   [Plugin] Apache Camel Update Message Remover Plugin (Beta). Get rid of annoying Apache Camel update message. This plugin is in beta and may not
--   [Improvement] CPI Helper survives login procedure and does not need reload after login (beta)
+- [Improvement] Update to Manifest V3. This is a major and necessary under the hood update and may cause some issues. Please report any issues.
+- [Plugin] New plugin "Get Message ID logs" to get details for messageid in message Sidebar
+- [Plugin] Apache Camel Update Message Remover Plugin (Beta). Get rid of annoying Apache Camel update message. This plugin is in beta and may not
+- [Improvement] CPI Helper survives login procedure and does not need reload after login (beta)
 
 ### 3.13.0
 
--   [Plugin] "Credential Helper" Plugin to add a search help for existing Security Material aliases and Key Store entries. Special thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/)
--   [Plugin] "Unlock" Plugin to unlock integration flows directly from design screen. Special thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/).
--   [Plugin] "Timeline" Plugin now with sorting options. Again special thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/).
--   [Improvement] Filter to remove extra Empty Steps from Trace & Tool is now more compact.Special thanks to [Omkar](https://github.com/incpi).
--   [Feature] The CPi helper extension now includes compatibility with the Dark CPI extension. For **Dark Theme Users** Special thanks to [Omkar](https://github.com/incpi).
--   [Feature] New global Button for all Logging & Security Materials search with All category supported. Special thanks to [Omkar](https://github.com/incpi).
--   [Feature] Debug Logging button UI as well as by parameters.
--   [Feature] Can select default log level at extension page. Special thanks to [Omkar](https://github.com/incpi).
--   [BugFix] Many UI and Bug fixes (adaptations to new SAP Horizon theme)
+- [Plugin] "Credential Helper" Plugin to add a search help for existing Security Material aliases and Key Store entries. Special thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/)
+- [Plugin] "Unlock" Plugin to unlock integration flows directly from design screen. Special thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/).
+- [Plugin] "Timeline" Plugin now with sorting options. Again special thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/).
+- [Improvement] Filter to remove extra Empty Steps from Trace & Tool is now more compact.Special thanks to [Omkar](https://github.com/incpi).
+- [Feature] The CPi helper extension now includes compatibility with the Dark CPI extension. For **Dark Theme Users** Special thanks to [Omkar](https://github.com/incpi).
+- [Feature] New global Button for all Logging & Security Materials search with All category supported. Special thanks to [Omkar](https://github.com/incpi).
+- [Feature] Debug Logging button UI as well as by parameters.
+- [Feature] Can select default log level at extension page. Special thanks to [Omkar](https://github.com/incpi).
+- [BugFix] Many UI and Bug fixes (adaptations to new SAP Horizon theme)
 
 ### 3.12.1
 
--   [Improvement] Better payload viewer & Update payload directly in trace Body panel. Special thanks to [Omkar](https://github.com/incpi).
--   [Improvement] Once trace expired, no popup will be shown instead warning will be given.
--   [Improvement] UI Icon are changed + UI Bugfixes
--   [Feature] Resize Body from Content modifier.
--   [Feature] Regex/ find /replace featured added with Ctrl + F (find) in formatted payload(Trace body tab).
--   [Feature] Release of the [webpage](https://dbeck121.github.io/CPI-Helper-Chrome-Extension).
--   [Bugfix] Some general fixes. Shows Content Enricher in Trace now
+- [Improvement] Better payload viewer & Update payload directly in trace Body panel. Special thanks to [Omkar](https://github.com/incpi).
+- [Improvement] Once trace expired, no popup will be shown instead warning will be given.
+- [Improvement] UI Icon are changed + UI Bugfixes
+- [Feature] Resize Body from Content modifier.
+- [Feature] Regex/ find /replace featured added with Ctrl + F (find) in formatted payload(Trace body tab).
+- [Feature] Release of the [webpage](https://dbeck121.github.io/CPI-Helper-Chrome-Extension).
+- [Bugfix] Some general fixes. Shows Content Enricher in Trace now
 
 ### 3.11.0
 
--   [Feature] Plugin: New Timeline Plugin: Get overview about message flow. Thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/)
--   [Improvement] Create a project webpage on Github with improved structure and design. Special thanks to [Omkar](https://github.com/incpi)
--   [Bugfix] Some ui fixes
--   [Improvement] Improved stability
+- [Feature] Plugin: New Timeline Plugin: Get overview about message flow. Thanks to Gregor Schütz from [AGILITA AG](https://www.agilita.ch/)
+- [Improvement] Create a project webpage on Github with improved structure and design. Special thanks to [Omkar](https://github.com/incpi)
+- [Bugfix] Some ui fixes
+- [Improvement] Improved stability
 
 ### 3.10.0
 
--   [Feature]Plugin: Trace Step Modifier (Beta) - Performance stats in trace. Thanks to [Omkar](https://github.com/incpi)
--   [Bugfix] Some ui fixes
--   [Improvement] Improved stability
+- [Feature]Plugin: Trace Step Modifier (Beta) - Performance stats in trace. Thanks to [Omkar](https://github.com/incpi)
+- [Bugfix] Some ui fixes
+- [Improvement] Improved stability
 
 ### 3.9.0
 
--   [Improvement] Hundreds of ui improvements. Thanks to [Omkar](https://github.com/incpi) for the great contribution
--   UI 3.8.1 fix
--   New Plugin: "Trace Modifier"
-    -   Trace step uppper limit [Over write Global host variable with iflow variable] [read more](https://incpi.github.io/cpihelper-plugin/)
--   New Configs: (\* FireFox: Limited UI support)
-    -   Preset Themes
-    -   Zoom Level
-    -   Trace step uppper limit [Global Host]
-    -   [feature] auto light color adjuster(if you pick too bright color)
--   For Plugin:
-    -   Popup Mode [Separate / Joint]
-    -   Engine enhanced with new fatures
-    -   Plugin Page UI Changed
--   [Improvement] Many under the hood improvements
--   [Improvement] Updated Fomantic UI to 2.9.3
--   [Bugfix] Many small fixes
+- [Improvement] Hundreds of ui improvements. Thanks to [Omkar](https://github.com/incpi) for the great contribution
+- UI 3.8.1 fix
+- New Plugin: "Trace Modifier"
+  - Trace step uppper limit [Over write Global host variable with iflow variable] [read more](https://incpi.github.io/cpihelper-plugin/)
+- New Configs: (\* FireFox: Limited UI support)
+  - Preset Themes
+  - Zoom Level
+  - Trace step uppper limit [Global Host]
+  - [feature] auto light color adjuster(if you pick too bright color)
+- For Plugin:
+  - Popup Mode [Separate / Joint]
+  - Engine enhanced with new fatures
+  - Plugin Page UI Changed
+- [Improvement] Many under the hood improvements
+- [Improvement] Updated Fomantic UI to 2.9.3
+- [Bugfix] Many small fixes
 
 ### 3.8.0
 
--   [Improvement] Improved "flying error dialog". No mouse over but you need to klick now. Thanks to [Omkar](https://github.com/incpi)
--   [Improvement] Many more ui improvements. Thanks to [Omkar](https://github.com/incpi)
--   [Feature] Trace survives page reload
--   [Improvement] Logs now sorted
--   [Bugfix] Many small fixes
+- [Improvement] Improved "flying error dialog". No mouse over but you need to klick now. Thanks to [Omkar](https://github.com/incpi)
+- [Improvement] Many more ui improvements. Thanks to [Omkar](https://github.com/incpi)
+- [Feature] Trace survives page reload
+- [Improvement] Logs now sorted
+- [Bugfix] Many small fixes
 
 ### 3.7.1
 
--   [Bugfix] Problem with trace and x-csrf token
+- [Bugfix] Problem with trace and x-csrf token
 
 ### 3.7.0
 
--   [Plugin] Improved Figaf Plugin with link to editor in scripts, and xslt
--   [Improvement] Use of theme-color tag to improve color scheme.
--   [Bugfix] Fix error with timeout
--   [Bugfix] Fix ui bug with buttons
+- [Plugin] Improved Figaf Plugin with link to editor in scripts, and xslt
+- [Improvement] Use of theme-color tag to improve color scheme.
+- [Bugfix] Fix error with timeout
+- [Bugfix] Fix ui bug with buttons
 
 ### 3.6.1
 
--   [Bugfix] Fix error in logs
+- [Bugfix] Fix error in logs
 
 ### 3.6.1
 
--   [Bugfix] Fix error in inline debug
+- [Bugfix] Fix error in inline debug
 
 ### 3.6.0
 
--   [Feature] Added TPM/IA links to "Tenant URLs"
--   [Feature] Added debug mode
--   [Feature] Added option to add buttons in Script editor for plugins
--   [Improvement] Better management and timing of api calls to reduce load to SAP server
--   [Improvement] "Lazy Mode" activated for Extension window (no need to click)
--   [Bugfix] Bugfix for "Settings Pane Resizer" Plugin
--   [Update] JSZip dependency to 3.10.x
+- [Feature] Added TPM/IA links to "Tenant URLs"
+- [Feature] Added debug mode
+- [Feature] Added option to add buttons in Script editor for plugins
+- [Improvement] Better management and timing of api calls to reduce load to SAP server
+- [Improvement] "Lazy Mode" activated for Extension window (no need to click)
+- [Bugfix] Bugfix for "Settings Pane Resizer" Plugin
+- [Update] JSZip dependency to 3.10.x
 
 ### 3.5.3
 
--   [Improvement] "WHINT Interface Documentation" plugin updated
--   [Improvement] "Settings Pane Resizer" plugin updated
--   [Bugfix] Many bugfixes
+- [Improvement] "WHINT Interface Documentation" plugin updated
+- [Improvement] "Settings Pane Resizer" plugin updated
+- [Bugfix] Many bugfixes
 
 ### 3.4.0
 
--   [Feature] New plugin "Settings Pane Resizer" and many bugfixes. Thanks to [Philippe Addor](https://github.com/fippu82) and BMT Business meets Technology AG
--   [Bugfix] Improved handling of message popup. Thanks to [Omkar](https://github.com/incpi)
+- [Feature] New plugin "Settings Pane Resizer" and many bugfixes. Thanks to [Philippe Addor](https://github.com/fippu82) and BMT Business meets Technology AG
+- [Bugfix] Improved handling of message popup. Thanks to [Omkar](https://github.com/incpi)
 
 ### 3.3.2
 
--   [Bugfix] Fix bug when using Chinese as browser default language
+- [Bugfix] Fix bug when using Chinese as browser default language
 
 ### 3.3.0
 
--   [Feature] Improved Firefox version
--   [Feature] UI improvements in message popup
--   [Bugfix] Some bugfixes
+- [Feature] Improved Firefox version
+- [Feature] UI improvements in message popup
+- [Bugfix] Some bugfixes
 
 ### 3.2.0
 
--   [Feature] Porting to Firefox. Thanks to [Andrea Pagliarani](https://github.com/archetypon)
--   [Feature] Improved plugin: "Simple Notepad (Beta)" now with optional encryption. Thanks to [Nick Yang](https://github.com/SAPNickYang)
--   [Bugfix] Some bugfixes
+- [Feature] Porting to Firefox. Thanks to [Andrea Pagliarani](https://github.com/archetypon)
+- [Feature] Improved plugin: "Simple Notepad (Beta)" now with optional encryption. Thanks to [Nick Yang](https://github.com/SAPNickYang)
+- [Bugfix] Some bugfixes
 
 ### 3.1.0
 
--   [Feature] New plugin "WHINT IFD".
--   [Feature] New plugin "Simple Notepad".
--   [Feature] New plugin "Reference".
+- [Feature] New plugin "WHINT IFD".
+- [Feature] New plugin "Simple Notepad".
+- [Feature] New plugin "Reference".
 
 ### 3.0.7
 
--   [Bugfix] Logs now sorted with LogEnd attribute instead LogStart
--   [Bugfix] Some UI fixes
--   [Bugfix] Fixes in Plugin Engine
--   [Bugfix] Log button
+- [Bugfix] Logs now sorted with LogEnd attribute instead LogStart
+- [Bugfix] Some UI fixes
+- [Bugfix] Fixes in Plugin Engine
+- [Bugfix] Log button
 
 ### 3.0.x
 
--   [Design] New design
--   [Feature] New plugin "My AI Coding Buddy". More details [here](https://blogs.sap.com/2022/12/13/how-i-use-ai-models-from-openai-in-my-sap-ci-is-development/). Thanks to [Nick Yang](https://github.com/SAPNickYang)
--   [Feature] Better popup window with last visited artifacts. Now better structured.
+- [Design] New design
+- [Feature] New plugin "My AI Coding Buddy". More details [here](https://blogs.sap.com/2022/12/13/how-i-use-ai-models-from-openai-in-my-sap-ci-is-development/). Thanks to [Nick Yang](https://github.com/SAPNickYang)
+- [Feature] Better popup window with last visited artifacts. Now better structured.
 
 ### 2.7.0
 
--   [Feature] Better popup window with last visited artifacts. Now includes packages.
+- [Feature] Better popup window with last visited artifacts. Now includes packages.
 
 ### 2.6.3
 
--   [Bugfix] Trial account of Integration Suite is working again
+- [Bugfix] Trial account of Integration Suite is working again
 
 ### 2.6.2
 
--   [Bugfix] Some bugfixes
+- [Bugfix] Some bugfixes
 
 ### 2.6.1
 
--   [Bugfix] Some bugfixes
+- [Bugfix] Some bugfixes
 
 ### 2.6.0
 
--   [Feature] Support for new SAP Integration Suite version.
--   [Feature] Support for Chinese CI tenant
--   [Bugfix] Some bugfixes
+- [Feature] Support for new SAP Integration Suite version.
+- [Feature] Support for Chinese CI tenant
+- [Bugfix] Some bugfixes
 
 ### 2.5.0
 
--   [Feature] Download option for message step in trace mode. [See Issue #29](https://github.com/dbeck121/CPI-Helper-Chrome-Extension/issues/29). Thanks to [Nick Yang](https://github.com/SAPNickYang)
--   [Bugfix] Longer Timeouts for API calls to CI-Tenant
+- [Feature] Download option for message step in trace mode. [See Issue #29](https://github.com/dbeck121/CPI-Helper-Chrome-Extension/issues/29). Thanks to [Nick Yang](https://github.com/SAPNickYang)
+- [Bugfix] Longer Timeouts for API calls to CI-Tenant
 
 ### 2.4.1
 
--   [Bugfix] MessageList is now ordered by LogEnd not LogStart.
+- [Bugfix] MessageList is now ordered by LogEnd not LogStart.
 
 ### 2.4.0
 
--   [Feature] More information in message sidebar like CustomHeaderProperties and duration on mouse hover.
+- [Feature] More information in message sidebar like CustomHeaderProperties and duration on mouse hover.
 
 ### 2.3.0
 
--   [Feature] "Last Visited" now includes all types of Artifacts. Thanks to [Nick Yang](https://github.com/SAPNickYang)
--   [Feature] Works now with "Rest API" and "SOAP API" IFlow Type. Thanks to [Nick Yang](https://github.com/SAPNickYang)
+- [Feature] "Last Visited" now includes all types of Artifacts. Thanks to [Nick Yang](https://github.com/SAPNickYang)
+- [Feature] Works now with "Rest API" and "SOAP API" IFlow Type. Thanks to [Nick Yang](https://github.com/SAPNickYang)
 
 ### 2.2.0
 
--   [Feature] First third-party plugins are shipped with CPI-Helper like the [figaf plugin](https://figaf.com/cpihelper/)
+- [Feature] First third-party plugins are shipped with CPI-Helper like the [figaf plugin](https://figaf.com/cpihelper/)
 
 ### 2.1.2
 
--   [Improvement] Enhanced logs popup. Thanks to [Nick Yang](https://github.com/SAPNickYang)
--   [Bugfix] Fixed timezone in logs popup. Thanks to [Nick Yang](https://github.com/SAPNickYang)
+- [Improvement] Enhanced logs popup. Thanks to [Nick Yang](https://github.com/SAPNickYang)
+- [Bugfix] Fixed timezone in logs popup. Thanks to [Nick Yang](https://github.com/SAPNickYang)
 
 ### 2.1.1
 
--   [Improvement] More features for plugins
--   [Bugfix] Some bugs fixed in plugin engine
+- [Improvement] More features for plugins
+- [Bugfix] Some bugs fixed in plugin engine
 
 ### 2.1.0
 
--   [Feature] There is a very limited plugin engine that you can use to add features to CPI-Helper. (see [plugin readme](plugins/README.md))
--   [Feature] Syntax highlighting for SQL in Payloads
--   [Improvement] Shows size of payload in inline trace body viewer
--   [Improvement] Info tab has more info in inline trace
+- [Feature] There is a very limited plugin engine that you can use to add features to CPI-Helper. (see [plugin readme](plugins/README.md))
+- [Feature] Syntax highlighting for SQL in Payloads
+- [Improvement] Shows size of payload in inline trace body viewer
+- [Improvement] Info tab has more info in inline trace
 
 ### 2.0.2
 
--   [Improvement] Some UI improvements. Thx to [Robert Fels](https://github.com/robertfels)
--   [Bugfix] Recently visited IFlows are back again
+- [Improvement] Some UI improvements. Thx to [Robert Fels](https://github.com/robertfels)
+- [Bugfix] Recently visited IFlows are back again
 
 ### 2.0.1
 
--   [Improvement] Some UI improvements
+- [Improvement] Some UI improvements
 
 ### 2.0.0
 
--   [Feature] One can now view XML in properties view of logs and InlineTrace
--   [Feature] Option to open Message Sidebar at start of the Integration Flow Designer
--   [Feature] Info tab in logs popup to see Custom Header Logs and more
--   [Feature] Info tab in InlineTrace popup with some step information
+- [Feature] One can now view XML in properties view of logs and InlineTrace
+- [Feature] Option to open Message Sidebar at start of the Integration Flow Designer
+- [Feature] Info tab in logs popup to see Custom Header Logs and more
+- [Feature] Info tab in InlineTrace popup with some step information
 
 ### 1.8.1
 
--   [Bugfix] Button bar sometimes needed a refresh
+- [Bugfix] Button bar sometimes needed a refresh
 
 ### 1.8.0
 
--   [Feature] InlineTrace for Adapters in Beta Mode (Click the colored adapter text)
+- [Feature] InlineTrace for Adapters in Beta Mode (Click the colored adapter text)
 
 ### 1.7.3
 
--   [Feature] Better InlineTrace colors
+- [Feature] Better InlineTrace colors
 
 ### 1.7.2
 
--   [Feature] Added exchange properties to persist log
+- [Feature] Added exchange properties to persist log
 
 ### 1.7.0
 
--   [Feature] New logo, new colors
--   [Feature] Logs viewer in beta mode
+- [Feature] New logo, new colors
+- [Feature] Logs viewer in beta mode
 
 ### 1.6.0
 
--   [Feature] More links in regards to monitoring in pop-up. Thanks to [Nick Yang](https://github.com/SAPNickYang)
--   [Feature] Showing "DeployedVersion" in Info menu. Thanks to [Nick Yang](https://github.com/SAPNickYang)
--   [Feature] Loading indicator.
--   [Feature] Some design improvements.
--   [Bugfix] cpiHelper now works in OData mode. Thanks to [Nick Yang](https://github.com/SAPNickYang)
--   [Bugfix] Minor bugfixes
+- [Feature] More links in regards to monitoring in pop-up. Thanks to [Nick Yang](https://github.com/SAPNickYang)
+- [Feature] Showing "DeployedVersion" in Info menu. Thanks to [Nick Yang](https://github.com/SAPNickYang)
+- [Feature] Loading indicator.
+- [Feature] Some design improvements.
+- [Bugfix] cpiHelper now works in OData mode. Thanks to [Nick Yang](https://github.com/SAPNickYang)
+- [Bugfix] Minor bugfixes
 
 ### 1.5.0
 
--   [Feature] Improved design of the message window. New InlineTrace Button.
--   [Bugfix] Minor bugfixes
+- [Feature] Improved design of the message window. New InlineTrace Button.
+- [Bugfix] Minor bugfixes
 
 ### 1.4.0
 
--   [Bugfix] Now you can show the current integration flow in tab name with $iflow.name in custom name for tab
--   [Bugfix] Minor bugfixes with powertrace
+- [Bugfix] Now you can show the current integration flow in tab name with $iflow.name in custom name for tab
+- [Bugfix] Minor bugfixes with powertrace
 
 ### 1.3.1
 
--   [Bugfix] Fixed a bug that prevented the plugin to run under Ubuntu and other Linux systems
--   [Bugfix] Minor bugfixes
+- [Bugfix] Fixed a bug that prevented the plugin to run under Ubuntu and other Linux systems
+- [Bugfix] Minor bugfixes
 
 ### 1.3.0
 
--   [Feature] Tracebutton will retrigger trace until pressed again
--   [Feature] Deployment state is shown in message sidebar
+- [Feature] Tracebutton will retrigger trace until pressed again
+- [Feature] Deployment state is shown in message sidebar
 
 ### 1.2.3
 
--   [Feature] Discarded Runs will not be shown in message sidebar
--   [Bugfix] Minor bugfixes
+- [Feature] Discarded Runs will not be shown in message sidebar
+- [Bugfix] Minor bugfixes
 
 ### 1.2.2
 
--   [Bugfix] CPIHelper did not load after tenant update v2
+- [Bugfix] CPIHelper did not load after tenant update v2
 
 ### 1.2.1
 
--   [Bugfix] CPIHelper did not load after tenant update
+- [Bugfix] CPIHelper did not load after tenant update
 
 ### 1.2.0
 
--   [Feature] Select tab icon, text and tenant color for your tenants
--   [Bugfix] Improved compatibility with Cloud Foundry
+- [Feature] Select tab icon, text and tenant color for your tenants
+- [Bugfix] Improved compatibility with Cloud Foundry
 
 ### 1.1.1
 
--   [Bugfix] Fixed some css issues
+- [Bugfix] Fixed some css issues
 
 ### 1.1.0
 
--   [Feature] View and delete variables in info pop-up
--   [Feature] What's new screen when updating
+- [Feature] View and delete variables in info pop-up
+- [Feature] What's new screen when updating
 
 ### 1.0.3
 
--   [Improvement] Improved speed beautifier with big xml structures
+- [Improvement] Improved speed beautifier with big xml structures
 
 ### 1.0.2
 
--   [Bugfix] Fixed icon in Chrome Store
+- [Bugfix] Fixed icon in Chrome Store
 
 ### 1.0.1
 
--   [Bugfix] Fixed issue with error pop-up
+- [Bugfix] Fixed issue with error pop-up
 
 ### 1.0.0
 
--   [Feature] Pop up to see trace messages directly in designer
--   [Feature] Added beautifier to trace in designer
--   [Feature] Content logs in trace pop-up
--   [Feature] Show error in InlineTrace PopUp
--   [Improvement] Smaller message sidebar
--   [Improvement] New icon
+- [Feature] Pop up to see trace messages directly in designer
+- [Feature] Added beautifier to trace in designer
+- [Feature] Content logs in trace pop-up
+- [Feature] Show error in InlineTrace PopUp
+- [Improvement] Smaller message sidebar
+- [Improvement] New icon
 
 ### 0.8.0
 
--   [Improvement] Many design improvements
+- [Improvement] Many design improvements
 
 ### 0.7.0
 
--   [Feature] Added inline-trace feature in designer
+- [Feature] Added inline-trace feature in designer
 
 ### 0.5.6
 
--   [Improvement] Improved xcsrf token exchange
+- [Improvement] Improved xcsrf token exchange
 
 ### 0.5.5
 
--   [Bugfix] Fixed not working trace in some cases
+- [Bugfix] Fixed not working trace in some cases
 
 ### 0.5.3
 
--   [Bugfix] Info-popup deployed on time is now in locale time zone
--   [Bugfix] Fixed bug in info-popup
+- [Bugfix] Info-popup deployed on time is now in locale time zone
+- [Bugfix] Fixed bug in info-popup
 
 ### 0.5.0
 
--   [Improvement] Improved design of plugin-popup in browser-bar
--   [Feature] Added last visited IFlows in browser-bar-popup
--   [Feature] Added useful links in browser-bar-popup
--   [Feature] Added undeploy button in info-popup
+- [Improvement] Improved design of plugin-popup in browser-bar
+- [Feature] Added last visited IFlows in browser-bar-popup
+- [Feature] Added useful links in browser-bar-popup
+- [Feature] Added undeploy button in info-popup
 
 ### 0.4.0
 
--   [Feature] Added popup with deployment info
+- [Feature] Added popup with deployment info
 
 ### 0.3.1
 
--   [Bug] Fixed timezone offset in message sidebar
+- [Bug] Fixed timezone offset in message sidebar
 
 ### 0.3.0
 
--   [Improvement] A few design changes
--   [Feature] Processed message error message on hovering over the message date (if exists)
+- [Improvement] A few design changes
+- [Feature] Processed message error message on hovering over the message date (if exists)
 
 ### 0.2.2
 
--   [Improvement] A few design changes
+- [Improvement] A few design changes
 
 ### 0.2.1
 
--   [Improvement] Word-wrap when Integration-Flow name is very long
--   [Improvement] Smaller Message-Sidebar
+- [Improvement] Word-wrap when Integration-Flow name is very long
+- [Improvement] Smaller Message-Sidebar
 
 ### 0.2
 
 First public version.
 
--   [Feature] Message Sidebar
--   [Feature] Trace button
+- [Feature] Message Sidebar
+- [Feature] Trace button
 
 ## Installation
 
@@ -452,10 +452,10 @@ Just add the plugin in the [Chrome Web Store](https://chrome.google.com/webstore
 
 If you know what you are doing, you can install the plugin directly from sources. Clone the repo and add the folder directly to Google Chrome
 
-> -   Download or clone the repo from github. Unpack if necessary.
-> -   In Google Chrome, Navigate to Settings – > Extensions
-> -   Enable Developer Mode (slider on the top-right)
-> -   Click: "Load Unpacked Extension" and select the folder with the plugin data
+> - Download or clone the repo from github. Unpack if necessary.
+> - In Google Chrome, Navigate to Settings – > Extensions
+> - Enable Developer Mode (slider on the top-right)
+> - Click: "Load Unpacked Extension" and select the folder with the plugin data
 
 #### Firefox
 
@@ -493,9 +493,8 @@ The button of the plugin in the toolbar gives you a list of useful links of your
 
 On the message sidebar, press the time button next to the status icon of a processed message. If run steps exist, the elements of the Integration Flow will change colors accordingly. This will give you a quick overview of the run.
 
-> -   Blue elements are successfully processed steps
-> -   Red elements are elements with errors.
->     SAP does not provide good information about errors. So when an error at a Splitter-Element occurs, this does not have to mean that the error occurred here. It can also be a catched error from elements after the Splitter.
+> - Blue elements are successfully processed steps
+> - Red elements are elements with errors. SAP does not provide good information about errors. So when an error at a Splitter-Element occurs, this does not have to mean that the error occurred here. It can also be a catched error from elements after the Splitter.
 
 Run steps exist for processed messages with trace and for a short time in processed messages with errors. ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome_inlinetrace.png)
 
@@ -525,11 +524,11 @@ Example url:
 
 Please send me the debug log and answer the following questions:
 
--   What is the url of the Cloud Integration Tenant?
--   Trial Account?
--   Custom URL?
--   Neo or Multicloud?
--   Does the error occur all the time or only sometimes.
+- What is the url of the Cloud Integration Tenant?
+- Trial Account?
+- Custom URL?
+- Neo or Multicloud?
+- Does the error occur all the time or only sometimes.
 
 We all work in IT and I guess we all know that a message like "My CPI Helper does not work, please help!" will definetely not help you. I need more information.
 

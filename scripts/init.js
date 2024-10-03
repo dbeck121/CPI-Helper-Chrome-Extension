@@ -1,8 +1,10 @@
 async function Themesync() {
   // const { darkmodeonstartup } = await chrome.storage.sync.get('darkmodeonstartup');
-  const isDarkTheme = $('html').hasClass('sapUiTheme-sap_horizon_dark');
-  $("#cpihelperglobal").removeClass("ch_dark ch_light").addClass(isDarkTheme ? "ch_dark" : "ch_light");
-  await chrome.storage.sync.set({ "CPIhelperThemeInfo": !isDarkTheme });
+  const isDarkTheme = $("html").hasClass("sapUiTheme-sap_horizon_dark");
+  $("#cpihelperglobal")
+    .removeClass("ch_dark ch_light")
+    .addClass(isDarkTheme ? "ch_dark" : "ch_light");
+  await chrome.storage.sync.set({ CPIhelperThemeInfo: !isDarkTheme });
 }
 
 function createGlobalId(id = "cpihelperglobal") {

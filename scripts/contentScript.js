@@ -2063,8 +2063,8 @@ setInterval(async function () {
     addBreadcrumbs();
   }
   // theme information synchronous storage
-  if (callChromeStoragePromise('CPIhelperThemeInfo') == ($('html').hasClass('sapUiTheme-sap_horizon_dark'))) {
-    await syncChromeStoragePromise("CPIhelperThemeInfo", ($('html').hasClass('sapUiTheme-sap_horizon_dark')))
+  if (callChromeStoragePromise("CPIhelperThemeInfo") == $("html").hasClass("sapUiTheme-sap_horizon_dark")) {
+    await syncChromeStoragePromise("CPIhelperThemeInfo", $("html").hasClass("sapUiTheme-sap_horizon_dark"));
   }
   log.debug("check for button bar");
   try {
