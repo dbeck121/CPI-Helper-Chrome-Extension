@@ -1,10 +1,17 @@
 {
-    "printWidth": 80,
-    "editor.formatOnSave": true,
-    "tabWidth": 4,
-    "requireConfig": false,
-    "useTabs": false,
-    "trailingComma": "none",
-    "bracketSpacing": true,
-    "semi": true
+  "bracketSpacing": true,
+  "endOfLine": "lf",
+  "htmlWhitespaceSensitivity": "css",
+  "singleAttributePerLine": false,
+  "bracketSameLine": false,
+  "printWidth": 250,
+  "proseWrap": "never",
+  "quoteProps": "as-needed",
+  "requirePragma": false,
+  "semi": true,
+  "singleQuote": false,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "useTabs": false,
+  "embeddedLanguageFormatting": "auto"
 }

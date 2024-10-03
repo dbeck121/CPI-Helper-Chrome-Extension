@@ -1,23 +1,22 @@
 var plugin = {
-    metadataVersion: "1.0.0",
-    id: "simple_reference",
-    name: "Simple Reference (Beta)",
-    version: "0.1.0",
-    author: "Kangoolutions",
-    email: "cpihelper@kangoolutions.com",
-    website: "https://kangoolutions.com",
-    description:
-        "Adds an button to the message sidebar to open a reference guide.",
-    settings: {},
+  metadataVersion: "1.0.0",
+  id: "simple_reference",
+  name: "Simple Reference (Beta)",
+  version: "0.1.0",
+  author: "Kangoolutions",
+  email: "cpihelper@kangoolutions.com",
+  website: "https://kangoolutions.com",
+  description: "Adds an button to the message sidebar to open a reference guide.",
+  settings: {},
 
-    messageSidebarContent: {
-        onRender: (pluginHelper, settings) => {
-            var button = document.createElement("button");
-            button.innerText = "Open Reference";
-            button.addEventListener("click", async () => {
-                console.log("helper plugin clicked");
+  messageSidebarContent: {
+    onRender: (pluginHelper, settings) => {
+      var button = document.createElement("button");
+      button.innerText = "Open Reference";
+      button.addEventListener("click", async () => {
+        console.log("helper plugin clicked");
 
-                var textElement = `
+        var textElement = `
   <div>
        
         <div class="ui segment">
@@ -165,18 +164,18 @@ var plugin = {
         </div>
     `;
 
-                x = createElementFromHTML(textElement);
-                pluginHelper.functions.popup(x, "Reference", {
-                    fullscreen: false,
-                    callback: async () => {
-                        $(".tabular.menu .item").tab();
-                    }
-                });
-            });
+        x = createElementFromHTML(textElement);
+        pluginHelper.functions.popup(x, "Reference", {
+          fullscreen: false,
+          callback: async () => {
+            $(".tabular.menu .item").tab();
+          },
+        });
+      });
 
-            return button;
-        }
-    }
+      return button;
+    },
+  },
 };
 
 pluginList.push(plugin);

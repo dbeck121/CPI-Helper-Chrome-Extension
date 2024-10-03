@@ -1,57 +1,57 @@
 /* Dark CPI horizon theme overwrites */
 
 [data-cpi-dark="sap_horizon_dark"] {
-    /* everything goes here */
+  /* everything goes here */
 
-    .cpiHelper_inlineInfo {
-        fill: #18770c !important;
-        stroke: #18770c !important;
-    }
+  .cpiHelper_inlineInfo {
+    fill: #18770c !important;
+    stroke: #18770c !important;
+  }
 
-    .cpiHelper_inlineInfo[ch_inline_active] {
-        fill: #218d76 !important;
-        stroke: #218d76 !important;
-    }
+  .cpiHelper_inlineInfo[ch_inline_active] {
+    fill: #218d76 !important;
+    stroke: #218d76 !important;
+  }
 
-    .cpiHelper_powertrace {
-        color: #ff6b6b !important;
-    }
+  .cpiHelper_powertrace {
+    color: #ff6b6b !important;
+  }
 
-    .cpiHelper_inlineInfo.cpiHelper_inlineInfo_error {
-        fill: #bb5d5d !important;
-        stroke: #bb5d5d !important;
-    }
+  .cpiHelper_inlineInfo.cpiHelper_inlineInfo_error {
+    fill: #bb5d5d !important;
+    stroke: #bb5d5d !important;
+  }
 
-    .cpiHelper_inlineInfo.cpiHelper_avg {
-        fill: #47a847 !important;
-    }
+  .cpiHelper_inlineInfo.cpiHelper_avg {
+    fill: #47a847 !important;
+  }
 
-    .cpiHelper_inlineInfo.cpiHelper_belowavg {
-        fill: #0a9292 !important;
-    }
+  .cpiHelper_inlineInfo.cpiHelper_belowavg {
+    fill: #0a9292 !important;
+  }
 
-    .cpiHelper_inlineInfo.cpiHelper_aboveavg {
-        fill: #88880f !important;
-    }
+  .cpiHelper_inlineInfo.cpiHelper_aboveavg {
+    fill: #88880f !important;
+  }
 
-    .cpiHelper_inlineInfo.cpiHelper_max {
-        fill: #bd6161 !important;
-    }
+  .cpiHelper_inlineInfo.cpiHelper_max {
+    fill: #bd6161 !important;
+  }
 
-    .cpiHelper_inlineInfo.cpiHelper_min {
-        fill: #6969d1 !important;
-    }
+  .cpiHelper_inlineInfo.cpiHelper_min {
+    fill: #6969d1 !important;
+  }
 }
 .ace_scrollbar {
-    background: whitelightslategray;
+  background: whitelightslategray;
 }
 /* editor css - dark mode */
 .ace_dark {
-    .ace_scrollbar {
-        background: slategrey;
-    }
+  .ace_scrollbar {
+    background: slategrey;
+  }
 
-    .ace_scrollbar-inner {
-        background: black;
-    }
+  .ace_scrollbar-inner {
+    background: black;
+  }
 }

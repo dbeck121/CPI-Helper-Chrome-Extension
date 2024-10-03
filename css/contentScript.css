@@ -1,592 +1,591 @@
 /*root filter*/
 :root {
-    --cpi-custom-color: #fff;
-    --cpi-background-color: #ffffff;
-    --cpi-fui-active-color: #00144a;
-    /* constant color  =  Don't overwrite this*/
-    --cpi-text-color: #000000;
+  --cpi-custom-color: #fff;
+  --cpi-background-color: #ffffff;
+  --cpi-fui-active-color: #00144a;
+  /* constant color  =  Don't overwrite this*/
+  --cpi-text-color: #000000;
 }
 
 .ch_dark {
-    --cpi-text-color: #ffffff;
-    --cpi-fui-active-color: #0039d4;
-    --cpi-background-color: #020203;
+  --cpi-text-color: #ffffff;
+  --cpi-fui-active-color: #0039d4;
+  --cpi-background-color: #020203;
 }
 /* whats new */
 button {
-    color: var(--cpi-text-color);
+  color: var(--cpi-text-color);
 }
 #cpiHelper_WhatsNew {
-    padding: 25px;
-    box-sizing: border-box;
-    border-radius: 5px;
+  padding: 25px;
+  box-sizing: border-box;
+  border-radius: 5px;
 }
 
 /* start working indicator */
 #cpiHelper_workingIndicator {
-    min-width: 10px;
-    color: var(--cpi-custom-color);
-    position: fixed;
-    z-index: 500;
-    min-height: 10px;
-    font-size: 2rem;
-    right: 2rem;
-    bottom: 2rem;
+  min-width: 10px;
+  color: var(--cpi-custom-color);
+  position: fixed;
+  z-index: 500;
+  min-height: 10px;
+  font-size: 2rem;
+  right: 2rem;
+  bottom: 2rem;
 }
 
 /* end working indicator */
 #shell--toolHeader {
-    background: var(--cpi-custom-color);
+  background: var(--cpi-custom-color);
 }
 
 .cpiHelper table#messageList {
-    border: 0px;
-    background: none;
-    width: max-content;
-    border-collapse: collapse;
-    --cpi-width: 2px;
+  border: 0px;
+  background: none;
+  width: max-content;
+  border-collapse: collapse;
+  --cpi-width: 2px;
 }
 
 .cpiHelper table#messageList td {
-    padding: 0px;
-    background: initial;
+  padding: 0px;
+  background: initial;
 }
 
 #messageList button {
-    width: 100%;
-    border: solid var(--cpi-width) var(--cpi-background-color);
+  width: 100%;
+  border: solid var(--cpi-width) var(--cpi-background-color);
 }
 
 #messageList > tr:nth-child(n + 2) > td:only-child {
-    padding-block: 0.75em 0.25em;
+  padding-block: 0.75em 0.25em;
 }
 
 #messageList > tr:nth-child(1) > td:only-child {
-    padding-block: 0 0.25em;
+  padding-block: 0 0.25em;
 }
 
 #messageList button:hover,
 .cpiHelper button:hover {
-    border: solid var(--cpi-width) #3c3c3c;
+  border: solid var(--cpi-width) #3c3c3c;
 }
 
 .cpiHelper button {
-    --cpi-width: 1px;
-    cursor: pointer;
-    border: solid var(--cpi-width) #d2d2d2;
-    border-radius: 4px;
-    background: var(--cpi-background-color);
-    padding-inline: 0.3em;
-    margin-inline: 0.1em;
+  --cpi-width: 1px;
+  cursor: pointer;
+  border: solid var(--cpi-width) #d2d2d2;
+  border-radius: 4px;
+  background: var(--cpi-background-color);
+  padding-inline: 0.3em;
+  margin-inline: 0.1em;
 }
 
 .cpiHelper table button {
-    border: solid var(--cpi-width) var(--cpi-background-color);
+  border: solid var(--cpi-width) var(--cpi-background-color);
 }
 
 .cpiHelper button.cpiHelper_inlineInfo-active,
 .cpiHelper button.cpiHelper_plugin-active {
-    background: var(--cpi-fui-active-color);
-    color: #ffffff;
+  background: var(--cpi-fui-active-color);
+  color: #ffffff;
 }
 
 .cpiHelper button:active {
-    background: var(--cpi-custom-color);
+  background: var(--cpi-custom-color);
 }
 
 .cpiHelper button:focus {
-    outline: none;
+  outline: none;
 }
 
 .cpiHelper button.cpiHelper_sidebar_iconbutton,
 button.cpiHelper_sidebar_iconbutton span {
-    cursor: pointer;
-    background-color: var(--cpi-fui-active-color);
-    color: var(--cpi-background-color) !important;
-    outline: none;
+  cursor: pointer;
+  background-color: var(--cpi-fui-active-color);
+  color: var(--cpi-background-color) !important;
+  outline: none;
 }
 
 div#cpiHelper_semanticui_modal {
-    position: absolute;
-    top: 10% !important;
+  position: absolute;
+  top: 10% !important;
 }
 
 #cpiHelper_sidebar_popup {
-    position: fixed;
-    z-index: 390;
-    max-height: 50vh;
-    overflow: scroll;
-    background: var(--cpi-background-color);
-    bottom: 10%;
-    right: 2%;
-    width: 75%;
-    min-height: 1rem;
-    padding: 1rem;
-    border: solid 1px #e1e1e1;
+  position: fixed;
+  z-index: 390;
+  max-height: 50vh;
+  overflow: scroll;
+  background: var(--cpi-background-color);
+  bottom: 10%;
+  right: 2%;
+  width: 75%;
+  min-height: 1rem;
+  padding: 1rem;
+  border: solid 1px #e1e1e1;
 }
 
 #cpiHelper_sidebar_popup.show {
-    visibility: visible;
-    animation: cpiHelper_sidebar_popup_fadein 0.5s;
+  visibility: visible;
+  animation: cpiHelper_sidebar_popup_fadein 0.5s;
 }
 
 #cpiHelper_sidebar_popup.hide_popup {
-    visibility: hidden;
-    animation: visibility 0s linear 0.5s, cpiHelper_sidebar_popup_fadeout 0.5s;
+  visibility: hidden;
+  animation: visibility 0s linear 0.5s, cpiHelper_sidebar_popup_fadeout 0.5s;
 }
 
 @keyframes cpiHelper_sidebar_popup_fadein {
-    from {
-        bottom: 0;
-        opacity: 0;
-    }
+  from {
+    bottom: 0;
+    opacity: 0;
+  }
 
-    to {
-        bottom: 10%;
-        opacity: 1;
-    }
+  to {
+    bottom: 10%;
+    opacity: 1;
+  }
 }
 
 @keyframes cpiHelper_sidebar_popup_fadeout {
-    from {
-        bottom: 10%;
-        opacity: 1;
-    }
+  from {
+    bottom: 10%;
+    opacity: 1;
+  }
 
-    to {
-        bottom: 0;
-        opacity: 0;
-    }
+  to {
+    bottom: 0;
+    opacity: 0;
+  }
 }
 
 .cpiHelper #outerFrame {
-    border: solid 1px var(--cpi-background-color);
-    background: var(--cpi-background-color);
-    color: var(--cpi-text-color);
-    padding: 10px;
-    box-sizing: border-box;
-    border-radius: 0px 0px 5px 5px;
+  border: solid 1px var(--cpi-background-color);
+  background: var(--cpi-background-color);
+  color: var(--cpi-text-color);
+  padding: 10px;
+  box-sizing: border-box;
+  border-radius: 0px 0px 5px 5px;
 }
 
 #cpiHelper_content {
-    position: fixed;
-    z-index: 400;
-    background: var(--cpi-background-color);
-    top: 25%;
-    right: 0.5rem;
-    width: fit-content;
-    border: 0;
-    border-radius: 10px;
-    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3),
-        0 1px 3px 1px rgba(60, 64, 67, 0.15);
-    opacity: 1 !important;
+  position: fixed;
+  z-index: 400;
+  background: var(--cpi-background-color);
+  top: 25%;
+  right: 0.5rem;
+  width: fit-content;
+  border: 0;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+  opacity: 1 !important;
 }
 
 #cpiHelper_content button > span.sapUiIcon {
-    pointer-events: none;
+  pointer-events: none;
 }
 
 .ui.table .black {
-    background: #000 !important;
-    color: var(--cpi-background-color) !important;
+  background: #000 !important;
+  color: var(--cpi-background-color) !important;
 }
 
 #cpiHelper_contentheader {
-    padding: 10px;
-    cursor: move;
-    align-items: center;
-    font-weight: bold;
-    z-index: 10;
-    background-color: var(--cpi-custom-color);
-    color: var(--cpi-text-color);
-    box-sizing: border-box;
-    border-radius: 5px 5px 0px 0px;
-    display: flex;
-    justify-content: space-between;
-    border: 1px solid black;
+  padding: 10px;
+  cursor: move;
+  align-items: center;
+  font-weight: bold;
+  z-index: 10;
+  background-color: var(--cpi-custom-color);
+  color: var(--cpi-text-color);
+  box-sizing: border-box;
+  border-radius: 5px 5px 0px 0px;
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid black;
 }
 
 .cpiHelper .contentText {
-    padding: 5px;
-    overflow-wrap: break-word;
+  padding: 5px;
+  overflow-wrap: break-word;
 }
 
 .cpiHelper .flash {
-    animation-name: cpiHelper_flash;
-    animation-duration: 2s;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
-    animation-play-state: running;
-    animation-iteration-count: 1;
+  animation-name: cpiHelper_flash;
+  animation-duration: 2s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-play-state: running;
+  animation-iteration-count: 1;
 }
 
 @keyframes cpiHelper_flash {
-    from {
-        background: var(--cpi-custom-color);
-    }
+  from {
+    background: var(--cpi-custom-color);
+  }
 
-    to {
-        background: none;
-    }
+  to {
+    background: none;
+  }
 }
 
 .cpiHelper_infoPopUp_TR_hide {
-    display: none;
+  display: none;
 }
 
 .cpiHelper_infoPopUp_content {
-    padding: 15px;
+  padding: 15px;
 }
 
 .cpiHelper_infoPopUp_items {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 /* Modal Content */
 
 .cpiHelper_inlineInfo {
-    fill: #13af00 !important;
-    stroke: #13af00 !important;
+  fill: #13af00 !important;
+  stroke: #13af00 !important;
 }
 
 .cpiHelper_inlineInfo[ch_inline_active] {
-    fill: #218d76 !important;
-    stroke: #218d76 !important;
+  fill: #218d76 !important;
+  stroke: #218d76 !important;
 }
 
 .cpiHelper_inlineInfo.cpiHelper_inlineInfo_error {
-    fill: #ff6b6b !important;
-    stroke: #ff6b6b !important;
+  fill: #ff6b6b !important;
+  stroke: #ff6b6b !important;
 }
 
 .cpiHelper_inlineInfo.cpiHelper_avg {
-    fill: #82ff82 !important;
+  fill: #82ff82 !important;
 }
 
 .cpiHelper_inlineInfo.cpiHelper_belowavg {
-    fill: #82ffff !important;
+  fill: #82ffff !important;
 }
 
 .cpiHelper_inlineInfo.cpiHelper_aboveavg {
-    fill: #ffff82 !important;
+  fill: #ffff82 !important;
 }
 
 .cpiHelper_inlineInfo.cpiHelper_max {
-    fill: #ff8282 !important;
+  fill: #ff8282 !important;
 }
 
 .cpiHelper_inlineInfo.cpiHelper_min {
-    fill: #8282ff !important;
+  fill: #8282ff !important;
 }
 
 #cpiHelper_bigPopup {
-    display: none;
-    /* Hidden by default */
-    position: fixed;
-    /* Stay in place */
-    z-index: 450;
-    /* Sit on top */
-    width: 100%;
-    /* Full width */
-    height: 100%;
-    /* Full height */
-    left: 0;
-    top: 0;
-    overflow: auto;
-    /* Enable scroll if needed */
-    background-color: #000;
-    /* Fallback color */
-    background-color: rgba(0, 0, 0, 0.4);
-    /* Black w/ opacity */
+  display: none;
+  /* Hidden by default */
+  position: fixed;
+  /* Stay in place */
+  z-index: 450;
+  /* Sit on top */
+  width: 100%;
+  /* Full width */
+  height: 100%;
+  /* Full height */
+  left: 0;
+  top: 0;
+  overflow: auto;
+  /* Enable scroll if needed */
+  background-color: #000;
+  /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4);
+  /* Black w/ opacity */
 }
 
 #cpiHelper_bigPopup_outerFrame {
-    background: var(--cpi-background-color);
-    margin: auto;
-    margin-top: 100px;
-    width: 95%;
-    min-height: 1rem;
-    box-sizing: border-box;
-    border-radius: 5px 5px 5px 5px;
+  background: var(--cpi-background-color);
+  margin: auto;
+  margin-top: 100px;
+  width: 95%;
+  min-height: 1rem;
+  box-sizing: border-box;
+  border-radius: 5px 5px 5px 5px;
 }
 
 #cpiHelper_bigPopup_content {
-    border: solid 0px #e1e1e1;
+  border: solid 0px #e1e1e1;
 }
 
 #cpiHelper_bigPopup_contentheader {
-    font-size: 1.2rem;
-    padding: 10px;
-    z-index: 10;
-    background-color: var(--cpi-custom-color);
-    color: var(--cpi-background-color);
-    box-sizing: border-box;
-    border-radius: 5px 5px 0px 0px;
+  font-size: 1.2rem;
+  padding: 10px;
+  z-index: 10;
+  background-color: var(--cpi-custom-color);
+  color: var(--cpi-background-color);
+  box-sizing: border-box;
+  border-radius: 5px 5px 0px 0px;
 }
 
 /* The Close Button */
 
 .cpiHelper_closeButton_sidebar:hover,
 .cpiHelper_closeButton_sidebar:focus {
-    color: #ff4e4e;
-    text-decoration: none;
-    cursor: pointer;
+  color: #ff4e4e;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .cpiHelper_closeButton_sidebar {
-    float: right;
+  float: right;
 }
 
 /*tabs  */
 
 .cpiHelper_tabs {
-    box-sizing: border-box;
-    display: flex;
-    flex-wrap: wrap;
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .cpiHelper_tabs .cpiHelper_tabs_panel .cpiHelper_tabs {
-    padding: 0px;
-    padding-top: 10px;
+  padding: 0px;
+  padding-top: 10px;
 }
 
 .cpiHelper_tabs_input {
-    position: absolute;
-    opacity: 0;
+  position: absolute;
+  opacity: 0;
 }
 
 .cpiHelper_tabs_label_branch {
-    width: 1.5em;
-    padding: 7px 7px;
-    cursor: pointer;
-    font-weight: bold;
-    color: #7f7f7f;
-    transition: background 0.1s, color 0.1s;
-    text-align: center;
+  width: 1.5em;
+  padding: 7px 7px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #7f7f7f;
+  transition: background 0.1s, color 0.1s;
+  text-align: center;
 }
 
 .cpiHelper_tabs_label {
-    padding: 5px 5px;
-    margin-right: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    color: #7f7f7f;
-    transition: background 0.1s, color 0.1s;
-    text-align: center;
+  padding: 5px 5px;
+  margin-right: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #7f7f7f;
+  transition: background 0.1s, color 0.1s;
+  text-align: center;
 }
 
 .cpiHelper_tabs_label:active {
-    color: #000;
+  color: #000;
 }
 
 .cpiHelper_tabs_input:focus + .cpiHelper_tabs_label {
-    z-index: 1;
+  z-index: 1;
 }
 
 .cpiHelper_tabs_input:checked + .cpiHelper_tabs_label {
-    color: #000;
-    border-block-end: 2px solid black;
+  color: #000;
+  border-block-end: 2px solid black;
 }
 
 .ch_dark .cpiHelper_tabs_input:checked + .cpiHelper_tabs_label {
-    color: #6495ed;
+  color: #6495ed;
 }
 
 .cpiHelper_tabs_label:hover,
 .cpiHelper_tabs_input:checked + .cpiHelper_tabs_label:hover {
-    color: #ff5722;
-    background: var(--cpi-custom-color);
-    border-radius: 0.2857rem;
+  color: #ff5722;
+  background: var(--cpi-custom-color);
+  border-radius: 0.2857rem;
 }
 
 .cpiHelper_tabs_panel {
-    padding: 4px;
-    display: none;
-    width: 100%;
-    background: var(--cpi-background-color);
+  padding: 4px;
+  display: none;
+  width: 100%;
+  background: var(--cpi-background-color);
 }
 
 @media (min-width: 600px) {
-    .cpiHelper_tabs_panel {
-        order: 99;
-    }
+  .cpiHelper_tabs_panel {
+    order: 99;
+  }
 }
 
 .cpiHelper_tabs_input:checked + .cpiHelper_tabs_label + .cpiHelper_tabs_panel {
-    display: block;
+  display: block;
 }
 
 .cpi_padding_blockend {
-    padding-block: 0.2rem;
-    margin-block-end: 0.5rem;
+  padding-block: 0.2rem;
+  margin-block-end: 0.5rem;
 }
 
 .cpiHelper_traceText {
-    white-space: pre-line;
-    word-wrap: break-word;
-    cursor: text;
-    font-family: monospace;
-    font-size: 1.2em;
-    padding: 20px;
-    display: none;
+  white-space: pre-line;
+  word-wrap: break-word;
+  cursor: text;
+  font-family: monospace;
+  font-size: 1.2em;
+  padding: 20px;
+  display: none;
 }
 
 .cpiHelper_traceText.cpiHelper_traceText_active {
-    display: block;
+  display: block;
 }
 
 /* editor */
 .cpi_editor {
-    height: 50dvh;
-    min-height: 30vh;
-    width: 100%;
-    border-radius: 1rem;
+  height: 50dvh;
+  min-height: 30vh;
+  width: 100%;
+  border-radius: 1rem;
 }
 
 .cpiHelper_powertrace {
-    color: #ff0000 !important;
+  color: #ff0000 !important;
 }
 
 .cpiHelper li[class^="L"] {
-    list-style-type: decimal !important;
+  list-style-type: decimal !important;
 }
 
 .cpiHelper_logs_left {
-    box-sizing: border-box;
-    width: 200px;
-    padding: 10px;
+  box-sizing: border-box;
+  width: 200px;
+  padding: 10px;
 }
 
 .cpiHelper_logs_right {
-    box-sizing: border-box;
-    width: 100%;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .cpiHelper_logs_right_small {
-    box-sizing: border-box;
-    width: calc(100% - 200px);
+  box-sizing: border-box;
+  width: calc(100% - 200px);
 }
 
 .cpiHelper_hidden {
-    display: none !important;
+  display: none !important;
 }
 
 .cpiHelper_logs_page {
-    width: 100%;
-    box-sizing: border-box;
-    display: flex;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
 }
 
 .cpiHelper_logs_selected_button {
-    background-color: #add8e6 !important;
+  background-color: #add8e6 !important;
 }
 
 .cpiHelper_logs_table_div {
-    overflow-y: scroll;
-    height: 400px;
+  overflow-y: scroll;
+  height: 400px;
 }
 
 #logs-left-side_cpiHelper {
-    overflow-y: scroll;
-    max-height: 100%;
+  overflow-y: scroll;
+  max-height: 100%;
 }
 
 /* plugin */
 .cpiHelper_pluginButton {
-    float: right;
+  float: right;
 }
 
 div#cpiHelper_messageSidebar_pluginArea {
-    padding: 1em 0.5em;
-    margin: 0;
-    height: auto !important;
+  padding: 1em 0.5em;
+  margin: 0;
+  height: auto !important;
 }
 
 #cpiHelper_popup_plugins .card > .extra.content:first-child {
-    background: #eee !important;
+  background: #eee !important;
 }
 
 .ch_dark #cpiHelper_popup_plugins .card > .extra.content:first-child {
-    background: #121212 !important;
+  background: #121212 !important;
 }
 
 .card {
-    width: calc(33% - 1em) !important;
+  width: calc(33% - 1em) !important;
 }
 
 @media screen and (max-width: 1024px) {
-    .card {
-        width: calc(100% - 1em) !important;
-    }
+  .card {
+    width: calc(100% - 1em) !important;
+  }
 }
 
 /* .card .extra.content:has(input)>label, */
 .card .extra.content > label {
-    display: flex;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    justify-content: center;
-    align-items: center;
-    color: #000;
-    padding: 0.5em;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  color: #000;
+  padding: 0.5em;
 }
 
 .ch_dark .card .extra.content > label {
-    color: #fff;
+  color: #fff;
 }
 
 .ui.fluid.input > input {
-    width: 5em !important;
+  width: 5em !important;
 }
 
 /* .card .extra.content:has(input:checked)>label, */
 .card .extra.content.checked > label {
-    background: #bbffb3 !important;
+  background: #bbffb3 !important;
 }
 
 /* .card .extra.content:has(input:checked)>label::after, */
 .card .extra.content.checked > label::after {
-    content: "d";
+  content: "d";
 }
 
 .card .extra.content > label:hover {
-    color: var(--cpi-custom-color);
-    background: #ffb3b3;
+  color: var(--cpi-custom-color);
+  background: #ffb3b3;
 }
 
 fieldset {
-    margin-block: 0 !important;
+  margin-block: 0 !important;
 }
 
 .ui.modal.active > .header {
-    background: var(--cpi-custom-color);
-    color: var(--cpi-text-color);
+  background: var(--cpi-custom-color);
+  color: var(--cpi-text-color);
 }
 
 .ui.selection.dropdown .menu > .item {
-    min-height: 0 !important;
+  min-height: 0 !important;
 }
 
 .ui.modal > .content {
-    color: #000;
+  color: #000;
 }
 
 /* whatsnew change log css */
 .changeloglist > .header {
-    margin: 0.5rem !important;
+  margin: 0.5rem !important;
 }
 
 .changeloglist .sub.header {
-    font-weight: bold !important;
+  font-weight: bold !important;
 }
 
 .changeloglist ul {
-    list-style-type: initial !important;
-    margin-inline-start: 1.5rem !important;
+  list-style-type: initial !important;
+  margin-inline-start: 1.5rem !important;
 }
 
 .changeloglist ul > li {
-    padding-block: 0.2rem !important;
+  padding-block: 0.2rem !important;
 }
