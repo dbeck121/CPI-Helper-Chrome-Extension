@@ -44,7 +44,20 @@ function showWaitingPopup(content = undefined, classname = "small", title = "CPI
     }, time);
   }
 }
-async function showBigPopup(content, header, parameters = { fullscreen: true, callback: null, onclose: null }, count = 0, maxcount = 0, type = "mouse") {
+async function showBigPopup(
+  content,
+  header,
+  parameters = {
+    fullscreen: true,
+    callback: null,
+    onclose: () => {
+      $("#cpiHelper_waiting_model, #cpiHelper_semanticui_modal").modal("hide");
+    },
+  },
+  count = 0,
+  maxcount = 0,
+  type = "mouse"
+) {
   $("#cpiHelper_waiting_model, #cpiHelper_semanticui_modal").modal("hide");
   var $modal = $("#cpiHelper_semanticui_modal");
   if ($modal.length) {
