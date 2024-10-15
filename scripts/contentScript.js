@@ -741,7 +741,7 @@ function getChild(node, childNames, childClass = null) {
 function setLogLevel(logLevel, iflowId) {
 
 
-  makeCall("POST", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentSetMplLogLevelCommand", true, '{"artifactSymbolicName":"' + iflowId + '","mplLogLevel":"' + logLevel.toUpperCase() + '","nodeType":"IFLMAP"}', (xhr) => {
+  makeCall("POST", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentSetMplLogLevelCommand", true, '{"artifactSymbolicName":"' + iflowId + '","mplLogLevel":"' + logLevel.toUpperCase() + '","nodeType":"IFLMAP", "runtimeLocationId": "'+cpiData.runtimeLocationId+'"}', (xhr) => {
     if (xhr.readyState == 4 && xhr.status == 200) {
       showToast("Trace is activated");
       log.log("Trace activated");
@@ -940,6 +940,7 @@ async function getIflowInfo(callback, silent = false) {
     cpiData.tenantId = cpiData?.flowData?.artifactInformation?.tenantId;
     cpiData.artifactId = cpiData?.flowData?.artifactInformation?.id;
     cpiData.version = cpiData?.flowData?.artifactInformation?.version;
+    cpiData.runtimeLocationId = cpiData?.flowData?.componentInformations[0]?.hostname;
     if (callback) {
       callback();
     }
