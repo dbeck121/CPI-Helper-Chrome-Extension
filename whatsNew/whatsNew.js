@@ -35,12 +35,9 @@ async function whatsNewCheck(showOnlyOnce = true) {
  
     
     
-    <div style="margin-top: 0.1rem">📅 Thanks for an amazing session at SAP Devtoberfest. It was great meeting you. 
-    </div>
-    <div style="text-align: left; margin: 20px;">If you missed the session, you can watch the recording on 
-    <a href="https://www.youtube.com/watch?v=uSwSQbc_ULU" target="_blank" style="color: green; text-decoration: none;" 
-    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Youtube</a>
-    </div>
+        <div style="margin-top: 0.1rem;">📅 Thank you for an amazing session at SAP Devtoberfest. It was wonderful meeting you!</div>
+        <div style="text-align: left; margin: 20px;">If you missed the session, you can watch the recording on <a href="https://www.youtube.com/watch?v=uSwSQbc_ULU" target="_blank" style="color: green; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">YouTube</a>.</div>
+
     
     
         <div class="ui segment cpihelper83782">
@@ -56,11 +53,11 @@ async function whatsNewCheck(showOnlyOnce = true) {
         <img class="ui small floated image" src="${Kangoolutions_Logo}">
         <div class="content">
             <div class="header">${version_text}</div>
-            <p>Developed by a great community and Kangoolutions GmbH from Cologne, Germany! Follow us on <a
+            <p>Created by a dedicated community and Kangoolutions GmbH in Cologne, Germany! Follow us on  <a
                     href="https://www.linkedin.com/company/kangoolutions" target="_blank" style="color: green; text-decoration: none;" 
-    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">LinkedIn</a>, visit <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank" style="color: green; text-decoration: none;" 
-    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">GitHub</a> and check the recording of last Devtoberfest on <a href="https://www.youtube.com/watch?v=uSwSQbc_ULU" target="_blank" style="color: green; text-decoration: none;" 
-    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Youtube</a> to learn more about CPI-Helper.</p>
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">LinkedIn</a>, explore our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank" style="color: green; text-decoration: none;" 
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">GitHub</a> repository, and watch the recording of the recent Devtoberfest on <a href="https://www.youtube.com/watch?v=uSwSQbc_ULU" target="_blank" style="color: green; text-decoration: none;" 
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Youtube</a> to discover more about the CPI-Helper.</p>
         </div>
     </div>
     <div class="ui segment">
@@ -80,11 +77,11 @@ async function whatsNewCheck(showOnlyOnce = true) {
                     <div class="twelve wide column">
                         <div class="ui header">This release is sponsored by Figaf </div>
                         <p>
-If you are planning or working on a migration to Integration Suite, then Figaf has a lot to offer for the entire process. From planning and overview, migration of ICO and Receiver Determinations, to testing and go-live. You can get started quickly.
+Before starting any SAP PI/PO migration, it's important to understand your landscape. Obtain a report worth thousands of euros for free with Figaf's Migration Edition. You can view all your integrations in a simple table, making it easier to analyze them. Learn how to create it today.
                       </p>
                     </div>
                      <div class="sixteen wide column">
-                    For more details, visit the <a href="https://figaf.com/cpihelper16" target="_blank"><u>details page</u></a>.
+                    For more details, visit the <a href="https://figaf.com/cpihelper17" target="_blank"><u>details page</u></a>.
                     </div>
                 </div>
             </div>
@@ -159,13 +156,11 @@ If you are planning or working on a migration to Integration Suite, then Figaf h
                     </div>
                 </a>
             </div>
-            <p>To learn more about CPI Helper features and what's new on our <a
-                    href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">Github
-                    Page</a> and check the recording of last Devtoberfest session on <a href="https://www.youtube.com/watch?v=uSwSQbc_ULU" target="_blank" style="color: green; text-decoration: none;" 
+            <p>Discover more about CPI Helper features and the latest updates on our <a
+                    href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">GitHub
+                    Page</a> and watch the recording of the recent Devtoberfest session on <a href="https://www.youtube.com/watch?v=uSwSQbc_ULU" target="_blank" style="color: green; text-decoration: none;" 
     onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Youtube</a>.</p>
-            <p>Unfortunately, SAP does not work together with us and does not inform us when the APIs change. So be
-                gentle if sth. does not work. We do this in our free time and sometimes it takes a while to adapt to
-                SAP changes.</p>
+          <p>Please be patient if something isn't working perfectly, as SAP doesn't collaborate with us or inform us of API changes. We work on this project in our free time, so adapting to SAP's updates can sometimes take a while.</p>
         </div>
         <div class="ui bottom attached tab segment active" data-tab="three">
             <h3 class="ui header">
@@ -180,23 +175,14 @@ If you are planning or working on a migration to Integration Suite, then Figaf h
                     About us
                 </div>
             </h3>
-            <p>We are a small company of passionate SAP CI developers from Cologne, Germany. If you want to learn
-                more about us, please visit our website <a href="https://kangoolutions.com"
-                    target="_blank">kangoolutions.com</a>. Or maybe you want to become part of the team? Then have a
-                look <a href="https://ich-will-zur.kangoolutions.com/" target="_blank">here</a> (German only).
-                Unfortunately, we can only consider applicants with german residence due to legal reasons.</p>
+         <p>We are a small team of passionate SAP CI developers based in Cologne, Germany. To learn more about us, please visit our website at <a href="https://kangoolutions.com" target="_blank">kangoolutions.com</a>.</p>
             <h3 class="ui header">
                 <i class="comment icon"></i>
                 <div class="content">
                     Take Part
                 </div>
             </h3>
-            <p>The CPI Helper is free and Open Source. If you want to contribute (especially improve overall CPI
-                Helper visual design. We really aren't frontend developers) or you have found any bugs then have a
-                look at our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">GitHub
-                    Page</a> and our <a href="https://kangoolutions.com" target="_blank">Homepage</a>. You can find
-                the main developer Dominic Beckbauer on <a
-                target='_blank' href="https://www.linkedin.com/in/dominic-beckbauer-515894188/">LinkedIn</a></p>
+            <p>The CPI Helper is free and open-source. If you'd like to contribute or if you've discovered any bugs, please visit our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">GitHub page</a> and our <a href="https://kangoolutions.com" target="_blank">homepage</a>. You can also connect with the lead developer, Dominic Beckbauer, on <a href="https://www.linkedin.com/in/dominic-beckbauer-515894188/" target="_blank">LinkedIn</a>.</p>
             <h3 class="ui header">
                 <i class="glasses icon"></i>
                 <div class="content">
@@ -205,7 +191,7 @@ If you are planning or working on a migration to Integration Suite, then Figaf h
             </h3>
             <div>License: <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU GPL v3</a>
             </div>
-            <div>Please also check our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">Github Page</a>.
+            <div>Please also explore our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">Github Page</a>.
             </div>
             <div>Created by: Dominic Beckbauer and Kangoolutions.com</div>
         </div>
