@@ -1,7 +1,20 @@
 async function whatsNewCheck(showOnlyOnce = true) {
   var manifestVersion = chrome.runtime.getManifest().version;
 
-  check = await storageGetPromise("whatsNewV" + manifestVersion);
+  //new version
+  var is_new_version = false;
+
+  var last_version = await storageGetPromise("cpiHelper_Version");
+  var version_text = `You are using version ${manifestVersion}. `;
+
+  if (last_version != manifestVersion) {
+    is_new_version = true;
+    if (!last_version) {
+      version_text = `Welcome new user to CPI-Helper. You are running now on version ${manifestVersion}. `;
+    } else {
+      version_text = `You updated to version ${manifestVersion} from ${last_version}. `;
+    }
+  }
 
   silentupdates = ["3.0.3", "3.14.4"];
 
@@ -13,27 +26,20 @@ async function whatsNewCheck(showOnlyOnce = true) {
   const md = window.markdownit();
 
   var devtoberfest = `
-    <div class="ui segment">
          <h3 class="ui header">
                 <i class="bell icon"></i>
                 <div class="content">
-                  Meet us at SAP Devtoberfest on 25th of September at 11am CEST
+                 SAP Devtoberfest 2024
                 </div>
             </h3>
-    <h4>Another popup? Ok, let's keep it short:</h4>
+ 
     
     
-    <div style="margin-top: 0.1rem">📅 Meet us at SAP Devtoberfest on 25th of September at 11am CEST (click event for your local timezone)
+    <div style="margin-top: 0.1rem">📅 Thanks for an amazing session at SAP Devtoberfest. It was great meeting you. 
     </div>
-    <div style="text-align: center; margin: 20px;">
-    <a href="https://community.sap.com/t5/devtoberfest/speed-up-your-sap-cloud-integration-development-with-cpi-helper/ev-p/13802891" target="_blank" style="color: green; text-decoration: none;"
-    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Community Link</a> --- 
+    <div style="text-align: left; margin: 20px;">If you missed the session, you can watch the recording on 
     <a href="https://www.youtube.com/watch?v=uSwSQbc_ULU" target="_blank" style="color: green; text-decoration: none;" 
-    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Youtube</a> --- 
-    <a href="https://www.linkedin.com/events/speedupyoursapcloudintegrationd7237127761532764163/" target="_blank" style="color: green; text-decoration: none;" 
-    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">LinkedIn Event</a> --- 
-    <a href="${devtoberfestInvite}" target="_blank" style="color: green; text-decoration: none;" 
-    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Add to Calendar</a>
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Youtube</a>
     </div>
     
     
@@ -42,18 +48,19 @@ async function whatsNewCheck(showOnlyOnce = true) {
                                     class="ui center image" src="${devtoberfestPicture}"></a>
         
         </div>
-    </div>
     
     `;
 
-  if ((!check && !silentupdates.includes(manifestVersion)) || showOnlyOnce == false) {
+  if ((is_new_version && !silentupdates.includes(manifestVersion)) || showOnlyOnce == false) {
     html = `<div class="ui message">
         <img class="ui small floated image" src="${Kangoolutions_Logo}">
         <div class="content">
-            <div class="header"> You updated successfully to version ${manifestVersion} </div>
-            <p>Developed by a great community and Kangoolutions GmbH from Cologne, Germany! Follow our <a
-                    href="https://www.linkedin.com/company/kangoolutions" target="_blank">LinkedIn page</a> for
-                updates and news about CPI Helper.</p>
+            <div class="header">${version_text}</div>
+            <p>Developed by a great community and Kangoolutions GmbH from Cologne, Germany! Follow us on <a
+                    href="https://www.linkedin.com/company/kangoolutions" target="_blank" style="color: green; text-decoration: none;" 
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">LinkedIn</a>, visit <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank" style="color: green; text-decoration: none;" 
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">GitHub</a> and check the recording of last Devtoberfest on <a href="https://www.youtube.com/watch?v=uSwSQbc_ULU" target="_blank" style="color: green; text-decoration: none;" 
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Youtube</a> to learn more about CPI-Helper.</p>
         </div>
     </div>
     <div class="ui segment">
@@ -154,7 +161,8 @@ If you are planning or working on a migration to Integration Suite, then Figaf h
             </div>
             <p>To learn more about CPI Helper features and what's new on our <a
                     href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">Github
-                    Page</a>.</p>
+                    Page</a> and check the recording of last Devtoberfest session on <a href="https://www.youtube.com/watch?v=uSwSQbc_ULU" target="_blank" style="color: green; text-decoration: none;" 
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Youtube</a>.</p>
             <p>Unfortunately, SAP does not work together with us and does not inform us when the APIs change. So be
                 gentle if sth. does not work. We do this in our free time and sometimes it takes a while to adapt to
                 SAP changes.</p>
@@ -219,19 +227,17 @@ If you are planning or working on a migration to Integration Suite, then Figaf h
             hide: 800,
           },
         });
-      },
+      } /*
+      Keep this for future use. It opens another popup when the first one is closed
+      ,
       onclose: () => {
         showBigPopup(devtoberfest, "Your SAP CI Toolbox since 1963", {
           fullscreen: false,
         });
-      },
+      },*/,
     });
 
-    var obj = {};
-    obj["whatsNewV" + manifestVersion] = "show";
-    chrome.storage.local.set(obj, function () {
-      log.log("whats new displayed and saved");
-    });
+    await storageSetPromise({ cpiHelper_Version: manifestVersion });
 
     return true;
   }
@@ -241,13 +247,17 @@ If you are planning or working on a migration to Integration Suite, then Figaf h
 }
 
 async function recrutingPopup(force = false) {
-  if (force == false) {
-    return true;
-  }
-
   //shows a popup if browser language is German and if timestamp is not set or today is after timestamp in chrome storage
 
   //show only for a fraction of user for testing
+
+  //remove timestamps for testing
+  //await chrome.storage.local.remove("recrutingPopupTimestamp");
+  //await chrome.storage.local.remove("recrutingPopupRandomGroup");
+  //var ts = 1728995035000;
+  //var obj2 = {};
+  //obj2["recrutingPopupTimestamp"] = ts;
+  //await storageSetPromise(obj2);
 
   const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
 
@@ -265,16 +275,21 @@ async function recrutingPopup(force = false) {
   var today = +new Date();
 
   if (!timestamp) {
-    var oneweek = +new Date() + 30 * 24 * 60 * 60 * 1000;
+    //get random int between 1 and 11
+    var randomTimestamp = Math.floor(Math.random() * 10) + 1;
+
+    var oneweek = +new Date() + randomTimestamp * 24 * 60 * 60 * 1000;
 
     var obj = {};
     obj["recrutingPopupTimestamp"] = oneweek;
-    chrome.storage.local.set(obj, function () {
-      log.log("recruting popup timestamp set to today + " + 7 + " days");
-    });
+    await storageSetPromise(obj);
+    log.log("recruting popup timestamp set to today + " + randomTimestamp + " days");
+  } else {
+    var hrts = new Date(timestamp);
+    log.debug("recruting popup in human readable time: " + hrts);
   }
 
-  if (lang == "de-DE" && (force || (!timestamp && randomGroup <= 80) || (timestamp && timestamp < today))) {
+  if (lang == "de-DE" && (force || (!timestamp && randomGroup <= 90) || (timestamp && timestamp < today))) {
     statistic("recrutingPopup", "show");
     var html = `<div>
     <div class="ui message">
@@ -303,7 +318,8 @@ async function recrutingPopup(force = false) {
             <div class="item">Mitgestaltungsmöglichkeit beim Aufbau unserer Firma</div>
             <div class="item">Summer Event mit der ganzen Firma (2023 auf Sizilien und 2024 auf Kreta).</div>
         </div>
-        <p>Wir haben viel Humor und das vielleicht coolste Team der Welt. Lass uns doch mal plaudern:
+        <p>Wir haben viel Humor und das vielleicht coolste <a href="https://kangoolutions.com/team/" style="color: green; text-decoration: none;" 
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'" target="_blank" >Team</a> der Welt. Lass uns doch mal plaudern:
         </p>
     </div>
     </div>`;
@@ -328,9 +344,8 @@ async function recrutingPopup(force = false) {
 
         var obj = {};
         obj["recrutingPopupTimestamp"] = tomorrow;
-        chrome.storage.local.set(obj, function () {
-          log.log("recruting popup timestamp set to today + " + days + " days");
-        });
+        await storageSetPromise(obj);
+        log.log("recruting popup timestamp set to today + " + days + " days");
 
         $("#cpiHelper_semanticui_modal").modal("hide");
       };
@@ -364,12 +379,21 @@ async function recrutingPopup(force = false) {
     popup.appendChild(span);
     popup.appendChild(createRemindButtopn("Morgen", 1));
 
-    popup.appendChild(createRemindButtopn("In einer Woche", 7));
+    popup.appendChild(createRemindButtopn("In einem Monat", 30));
 
     popup.appendChild(createRemindButtopn("In einem halben Jahr", 190));
 
     await showBigPopup(popup, "Wir suchen Verstärkung!", {
       fullscreen: false,
+      onclose: async () => {
+        if (!force) {
+          //get unix timestamp for in one month
+          var remindIn = +new Date() + 30 * 24 * 60 * 60 * 1000;
+          var obj = {};
+          obj["recrutingPopupTimestamp"] = remindIn;
+          await storageSetPromise(obj);
+        }
+      },
     });
   }
 }
