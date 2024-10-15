@@ -2,324 +2,319 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
-    <title>CPI Helper</title>
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/markdown-it@12.1.0/dist/markdown-it.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@900&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism.min.css" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <title>CPI Helper</title>
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/markdown-it@12.1.0/dist/markdown-it.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@900&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism.min.css" rel="stylesheet">
 </head>
 
 <body class="d-flex flex-column h-100">
-    <div id="loader" class="justify-content-center align-items-center">
-        <div class="text-center">
-            <div id="content" class="container text-center">
-                <span class="d-inline-block align-text-top">
-                    <svg width="2500" height="2500" viewBox="0 0 2500 2500" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd"
-                            d="M867.477 1094C867.477 1066.39 889.862 1044 917.477 1044H1131.48C1169.81 1044 1204.48 1053.83 1235.48 1073.5C1266.81 1092.83 1291.64 1118.83 1309.98 1151.5C1328.31 1183.83 1337.48 1219.33 1337.48 1258C1337.48 1297.33 1327.98 1333.17 1308.98 1365.5C1290.31 1397.83 1265.31 1423.67 1233.98 1443C1202.64 1462.33 1168.48 1472 1131.48 1472H1067.48C1039.86 1472 1017.48 1494.39 1017.48 1522V1821C1017.48 1848.61 1039.86 1871 1067.48 1871H1388.14C1415.75 1871 1438.14 1848.61 1438.14 1821V1238.1C1438.14 1205.22 1469.59 1181.37 1502.44 1182.74C1506.6 1182.91 1510.79 1183 1515 1183C1518.21 1183 1521.41 1182.95 1524.6 1182.85C1557.19 1181.81 1588.14 1205.58 1588.14 1238.19V1821C1588.14 1848.61 1610.53 1871 1638.14 1871H2066C2278.08 1871 2450 1699.08 2450 1487C2450 1290.73 2301.39 1128.68 2111.13 1105.62C2084.99 1102.45 2063.25 1082.31 2059.81 1056.2C2013.4 703.357 1711.51 431 1346 431C1042.78 431 783.346 618.433 677.227 883.758C667.243 908.72 640.41 922.983 613.935 918.314C586.68 913.507 558.633 911 530 911C264.903 911 50 1125.9 50 1391C50 1656.1 264.903 1871 530 1871H817.477C845.091 1871 867.477 1848.61 867.477 1821V1094ZM369.5 1729C411.167 1747.67 455.667 1757 503 1757C559.667 1757 611.833 1743.83 659.5 1717.5C690.119 1700.58 717.367 1680.16 741.247 1656.23C762.531 1634.9 754.579 1600.24 728.119 1585.83L679.641 1559.42C658.871 1548.1 633.398 1553.49 614.724 1568.01C604.489 1575.96 593.414 1582.96 581.5 1589C557.167 1601 531 1607 503 1607C476.333 1607 451.167 1601.5 427.5 1590.5C404.167 1579.17 383.5 1563.83 365.5 1544.5C347.833 1524.83 334 1502.17 324 1476.5C314 1450.83 309 1423.33 309 1394C309 1364.33 314 1336.67 324 1311C334 1285.33 347.833 1262.83 365.5 1243.5C383.5 1223.83 404.167 1208.5 427.5 1197.5C451.167 1186.5 476.333 1181 503 1181C531 1181 557.167 1187 581.5 1199C593.483 1204.91 604.617 1211.79 614.903 1219.64C633.497 1233.83 658.641 1239.13 679.246 1228.06L727.855 1201.94C754.436 1187.66 762.569 1152.97 741.285 1131.58C717.397 1107.57 690.135 1087.21 659.5 1070.5C611.833 1044.17 559.667 1031 503 1031C455.667 1031 411.167 1040.5 369.5 1059.5C327.833 1078.17 291.167 1104.17 259.5 1137.5C228.167 1170.5 203.5 1209 185.5 1253C167.833 1296.67 159 1343.67 159 1394C159 1444 167.833 1491 185.5 1535C203.5 1578.67 228.167 1617.17 259.5 1650.5C291.167 1683.83 327.833 1710 369.5 1729ZM1515 1109C1637.61 1109 1737 1009.61 1737 887C1737 764.393 1637.61 665 1515 665C1392.39 665 1293 764.393 1293 887C1293 1009.61 1392.39 1109 1515 1109Z" />
-                        <path
-                            d="M1017.48 1272C1017.48 1299.61 1039.86 1322 1067.48 1322H1114.48C1127.81 1322 1139.98 1318.67 1150.98 1312C1161.98 1305 1170.81 1295.83 1177.48 1284.5C1184.14 1273.17 1187.48 1260.67 1187.48 1247C1187.48 1233.33 1184.14 1220.83 1177.48 1209.5C1170.81 1198.17 1161.98 1189.17 1150.98 1182.5C1139.98 1175.5 1127.81 1172 1114.48 1172H1067.48C1039.86 1172 1017.48 1194.39 1017.48 1222V1272Z" />
-                        <path
-                            d="M1613 887C1640.61 887 1663.79 910.001 1654.63 936.054C1653.74 938.605 1652.77 941.134 1651.73 943.637C1644.3 961.593 1633.39 977.909 1619.65 991.652C1605.91 1005.39 1589.59 1016.3 1571.64 1023.73C1553.68 1031.17 1534.44 1035 1515 1035C1495.56 1035 1476.32 1031.17 1458.36 1023.73C1440.41 1016.3 1424.09 1005.39 1410.35 991.652C1396.61 977.909 1385.7 961.593 1378.27 943.637C1377.23 941.134 1376.26 938.605 1375.37 936.054C1366.21 910.001 1389.39 887 1417 887H1613Z" />
-                    </svg>
-                </span>
-                <h2 class="fw-semibold m-4">CPI Helper</h2>
-                <div class="col">
-                    <p>If you encounter any issues, please ensure that JavaScript is enabled. JavaScript enhances
-                        the functionality of this website.</p>
-                </div>
-            </div>
+  <div id="loader" class="justify-content-center align-items-center">
+    <div class="text-center">
+      <div id="content" class="container text-center">
+        <span class="d-inline-block align-text-top">
+          <svg width="2500" height="2500" viewBox="0 0 2500 2500" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M867.477 1094C867.477 1066.39 889.862 1044 917.477 1044H1131.48C1169.81 1044 1204.48 1053.83 1235.48 1073.5C1266.81 1092.83 1291.64 1118.83 1309.98 1151.5C1328.31 1183.83 1337.48 1219.33 1337.48 1258C1337.48 1297.33 1327.98 1333.17 1308.98 1365.5C1290.31 1397.83 1265.31 1423.67 1233.98 1443C1202.64 1462.33 1168.48 1472 1131.48 1472H1067.48C1039.86 1472 1017.48 1494.39 1017.48 1522V1821C1017.48 1848.61 1039.86 1871 1067.48 1871H1388.14C1415.75 1871 1438.14 1848.61 1438.14 1821V1238.1C1438.14 1205.22 1469.59 1181.37 1502.44 1182.74C1506.6 1182.91 1510.79 1183 1515 1183C1518.21 1183 1521.41 1182.95 1524.6 1182.85C1557.19 1181.81 1588.14 1205.58 1588.14 1238.19V1821C1588.14 1848.61 1610.53 1871 1638.14 1871H2066C2278.08 1871 2450 1699.08 2450 1487C2450 1290.73 2301.39 1128.68 2111.13 1105.62C2084.99 1102.45 2063.25 1082.31 2059.81 1056.2C2013.4 703.357 1711.51 431 1346 431C1042.78 431 783.346 618.433 677.227 883.758C667.243 908.72 640.41 922.983 613.935 918.314C586.68 913.507 558.633 911 530 911C264.903 911 50 1125.9 50 1391C50 1656.1 264.903 1871 530 1871H817.477C845.091 1871 867.477 1848.61 867.477 1821V1094ZM369.5 1729C411.167 1747.67 455.667 1757 503 1757C559.667 1757 611.833 1743.83 659.5 1717.5C690.119 1700.58 717.367 1680.16 741.247 1656.23C762.531 1634.9 754.579 1600.24 728.119 1585.83L679.641 1559.42C658.871 1548.1 633.398 1553.49 614.724 1568.01C604.489 1575.96 593.414 1582.96 581.5 1589C557.167 1601 531 1607 503 1607C476.333 1607 451.167 1601.5 427.5 1590.5C404.167 1579.17 383.5 1563.83 365.5 1544.5C347.833 1524.83 334 1502.17 324 1476.5C314 1450.83 309 1423.33 309 1394C309 1364.33 314 1336.67 324 1311C334 1285.33 347.833 1262.83 365.5 1243.5C383.5 1223.83 404.167 1208.5 427.5 1197.5C451.167 1186.5 476.333 1181 503 1181C531 1181 557.167 1187 581.5 1199C593.483 1204.91 604.617 1211.79 614.903 1219.64C633.497 1233.83 658.641 1239.13 679.246 1228.06L727.855 1201.94C754.436 1187.66 762.569 1152.97 741.285 1131.58C717.397 1107.57 690.135 1087.21 659.5 1070.5C611.833 1044.17 559.667 1031 503 1031C455.667 1031 411.167 1040.5 369.5 1059.5C327.833 1078.17 291.167 1104.17 259.5 1137.5C228.167 1170.5 203.5 1209 185.5 1253C167.833 1296.67 159 1343.67 159 1394C159 1444 167.833 1491 185.5 1535C203.5 1578.67 228.167 1617.17 259.5 1650.5C291.167 1683.83 327.833 1710 369.5 1729ZM1515 1109C1637.61 1109 1737 1009.61 1737 887C1737 764.393 1637.61 665 1515 665C1392.39 665 1293 764.393 1293 887C1293 1009.61 1392.39 1109 1515 1109Z" />
+            <path
+              d="M1017.48 1272C1017.48 1299.61 1039.86 1322 1067.48 1322H1114.48C1127.81 1322 1139.98 1318.67 1150.98 1312C1161.98 1305 1170.81 1295.83 1177.48 1284.5C1184.14 1273.17 1187.48 1260.67 1187.48 1247C1187.48 1233.33 1184.14 1220.83 1177.48 1209.5C1170.81 1198.17 1161.98 1189.17 1150.98 1182.5C1139.98 1175.5 1127.81 1172 1114.48 1172H1067.48C1039.86 1172 1017.48 1194.39 1017.48 1222V1272Z" />
+            <path
+              d="M1613 887C1640.61 887 1663.79 910.001 1654.63 936.054C1653.74 938.605 1652.77 941.134 1651.73 943.637C1644.3 961.593 1633.39 977.909 1619.65 991.652C1605.91 1005.39 1589.59 1016.3 1571.64 1023.73C1553.68 1031.17 1534.44 1035 1515 1035C1495.56 1035 1476.32 1031.17 1458.36 1023.73C1440.41 1016.3 1424.09 1005.39 1410.35 991.652C1396.61 977.909 1385.7 961.593 1378.27 943.637C1377.23 941.134 1376.26 938.605 1375.37 936.054C1366.21 910.001 1389.39 887 1417 887H1613Z" />
+          </svg>
+        </span>
+        <h2 class="fw-semibold m-4">CPI Helper</h2>
+        <div class="col">
+          <p>If you encounter any issues, please ensure that JavaScript is enabled. JavaScript enhances
+            the functionality of this website.</p>
         </div>
+      </div>
     </div>
+  </div>
 
-    <main class="flex-shrink-0">
-        <!-- Navigation-->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-            <div class="text-wrap container-fluid px-sm-2 px-md-5">
-                <a class="navbar-brand">
-                    <span class="logo" class="d-inline-block align-text-top"></span>
-                    <span class="fw-semibold mx-4">CPI Helper</span>
-                </a>
-                <button id="menuToggle" class="navbar-toggler" type="button" aria-controls="navbarSupportedContent"
-                    data-bs-target="#navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"
-                    data-bs-toggle="collapse">
-                    <span class="fas fa-bars"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item"><a class="nav-link" onclick="tabchange('home')" tab_Id="home">Home</a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" onclick="tabchange('help')" tab_Id="help">Help</a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" onclick="tabchange('development')"
-                                tab_Id="development">Development</a></li>
-                        <li class="nav-item"><a class="nav-link" onclick="tabchange('about')" tab_Id="about">About</a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" onclick="tabchange('conduct')"
-                                tab_Id="conduct">Conduct</a></li>
-                        <li class="nav-item"><a class="nav-link" onclick="tabchange('changelog')"
-                                tab_Id="changelog">Changelog</a></li>
-                        <li class="nav-item"><a class="nav-link" onclick="tabchange('privacy')"
-                                tab_Id="privacy">Privacy</a></li>
-                        <li class="nav-item"><a class="nav-link" onclick="tabchange('plugins')"
-                                tab_Id="plugins">Plugins</a></li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-        <!-- Header-->
-        <section id="home" class="">
-            <header class="bg-dark py-5">
-                <div class="text-wrap container px-5">
-                    <div class="row gx-5 align-items-center justify-content-center">
-                        <div class="col-lg-8 col-xl-7 col-xxl-6">
-                            <div class="my-5 text-center text-xl-start">
-                                <h1 class="display-5 fw-bolder text-white mb-2">The Ultimate Browser Plugin for CPI
-                                    Users
-                                </h1>
-                                <p class="lead fw-normal text-white-50 mb-4">Revolutionize SAP CPI with Browser
-                                    Plugin!
-                                    Trace, access logs, boost productivity effortlessly. Elevate your integration
-                                    game!
-                                </p>
-                                <div class="d-grid gap-3 d-sm-flex justify-content-sm-center justify-content-xl-start">
-                                    <button class="btn btn-primary btn-lg px-4 me-sm-3" onclick="tabchange('help')"
-                                        style="box-shadow: 0 0 10rem var(--bs-primary);">Get Started</button>
-                                    <!-- <a class="btn btn-outline-light btn-lg px-4" href="#!">Learn More</a> -->
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center"><img
-                                class="img-fluid rounded-3 my-5" alt="..." /></div>
-                    </div>
-                </div>
-            </header>
-            <div class="text-wrap container my-5 p-4">
-                <div class="row justify-content-between align-items-center" id="stats"></div>
-                <p class="text-muted mt-3">* Click on icon to download</p>
-            </div>
-            <!-- Features section-->
-            <span class=" m-4 ">
-                <h2 class="fw-bolder text-center">Features</h2>
-                <div class="py-5" id="features">
-                    <div class="container">
-                        <h2 class="fw-bolder text-center"></h2>
-                        <div class="row row-cols-1 row-cols-md-3 gx-5"> </div>
-                    </div>
-                </div>
-                <!-- Features preview section-->
-
-                <div id="carouselhome" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-inner" id="carouselInner"></div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleSlidesOnly"
-                        data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleSlidesOnly"
-                        data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
-                    </button>
-                </div>
-                <!-- Blog preview section-->
-                <div class="py-5">
-                    <div class="container px-5 my-5">
-                        <div class="row gx-5 justify-content-center">
-                            <h2 class="fw-bolder text-center">From our blog</h2>
-                        </div>
-                        <div class="row justify-content-center gx-5">
-                            <div class="col-lg-4 mb-5">
-                                <div class="card h-100 shadow border-0">
-                                    <div class="card-body p-4">
-                                        <div class="badge bg-primary bg-gradient rounded-pill mb-2">News</div>
-                                        <a class="text-decoration-none link-dark stretched-link"
-                                            href="https://community.sap.com/t5/technology-blogs-by-sap/cpi-cpi-helper-chrome-extension-swiss-army-knife-for-integrators/ba-p/13514445">
-                                            <h5 class="card-title mb-3">Chrome Plugin</h5>
-                                        </a>
-                                        <p class="card-text mb-0">Extension to Enhance SAP Cloud Platform
-                                            Integration
-                                            Usability
-                                        </p>
-                                    </div>
-                                    <div class="card-footer p-4 pt-0 bg-transparent border-top-0">
-                                        <div class="d-flex align-items-end justify-content-between">
-                                            <div class="d-flex align-items-center">
-                                                <!-- <img class="rounded-circle me-3" -->
-                                                <!-- src="https://dummyimage.com/40x40/ced4da/6c757d" alt="..." /> -->
-                                                <div class="small">
-                                                    <div class="fw-bold">Dominic</div>
-                                                    <div class="text-muted">May 03, 2020 &middot; 6 min read</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-        </section>
-
-        <section id="about" class="hide">
-            <header class="py-5">
-                <div class="text-wrap container px-5">
-                    <div class="row justify-content-">
-                        <div class="">
-                            <h1 class="fw-bolder mb-3">Our mission</h1>
-                            <h2 class="fw-bolder mb-3"> Enhance productivity through fast and easy development.</h2>
-                            <p class="lead fw-normal text-muted mb-4">Our mission is to deliver a Browser Plugin
-                                that
-                                extends the capabilities of SAP Cloud Platform Integration, offering a suite of
-                                indispensable tools. Through seamless integration and intuitive features, we aim to
-                                simplify
-                                the management of integration flows, enabling users to effortlessly navigate,
-                                monitor, and
-                                optimize their processes. We strive to empower businesses to achieve seamless
-                                integration
-                                and optimize their operations with ease.</p>
-                        </div>
-                    </div>
-                </div>
-            </header>
-            <!-- Contributors section-->
-            <div class="py-5 bg-light">
-                <div class="container px-5 my-5">
-                    <div class="text-center">
-                        <h2 class="fw-bolder">Contributors</h2>
-                        <p class="lead fw-normal text-muted mb-5">Thank you to all of you. To increase quality and
-                            productivity</p>
-                    </div>
-                    <div class="row gx-3 row-cols-1 row-cols-sm-3 row-cols-lg-4 row-cols-xl-5 justify-content-center"
-                        id="contributor">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="conduct" class="hide">
-            <div class="px-5 text-wrap container" id="cocDiv"></div>
-            <div class="px-5 text-wrap container" id="contributionDiv"></div>
-        </section>
-        <section id="development" class="hide">
-            <div class="px-5 text-wrap container">
-                <h2 class="fw-bolder text-center mb-4">Essential Libraries to Utilize Before Commencing Development</h2>
-                <table class="ui selectable celled table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Header</th>
-                            <th scope="col">Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>UI</td>
-                            <td>Fomantic - UI</td>
-                        </tr>
-                        <tr>
-                            <td>Popup folder icons</td>
-                            <td>from Font-awesome icon</td>
-                        </tr>
-                        <tr>
-                            <td>SAP web UI</td>
-                            <td>from SAP UI5 Icon Pack <a target="_blank"
-                                    href="https://ui5.sap.com/test-resources/sap/m/demokit/iconExplorer/webapp/index.html#/overview/SAP-icons/?tab=grid&icon=chain-link&search=link"
-                                    class="href">Link Example (Unicode - for plugin)</a></td>
-                        </tr>
-                        <tr>
-                            <td>Logger</td>
-                            <td>ulog | jQuery</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="px-5 text-wrap container" id="PluginDiv"></div>
-        </section>
-        <section id="help" class="hide">
-            <div class="px-5 text-wrap container" id="readmeDiv"></div>
-        </section>
-        <section id="changelog" class="hide px-5 text-wrap container">
-        </section>
-        <section id="privacy" class="hide px-5 text-wrap container">
-        </section>
-        <section id="plugins" class="hide px-5 text-wrap container">
-            <div class="container">
-                <div class="row row-cols-1 row-cols-md-3 pt-4 gx-4" id="pluginRow"></div>
-            </div>
-        </section>
-    </main>
-    <!-- Footer-->
-    <footer class="bg-dark py-4 mt-auto fixed-bottom">
-        <div class="text-wrap container px-5">
-            <div class="row align-items-center justify-content-between flex-column flex-sm-row">
-                <div class="col-auto">
-                    <div class="small m-0 text-white">Copyright &copy; CPI-Helper 2024.</div>
-                </div>
-                <div class="col-auto">
-                    <a class="link-light" onclick="tabchange('privacy')">Privacy</a>
-                    <span class="text-white mx-1">&middot;</span>
-                    <a class="link-light" target="_blank"
-                        href="https://choosealicense.com/licenses/gpl-3.0/">License</a>
-                    <span class="text-white mx-1">&middot;</span>
-                    <a class="link-light" href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension"
-                        target="_blank"><i class="fab fa-github"></i> GitHub</a>
-                </div>
-                <!-- If you want to remove it. -->
-                <div class="col-auto">
-                    <p class="small m-0 text-white">Made with <i class="fas fa-heart"></i> <a class="link-light small"
-                            href="https://github.com/incpi">By Omkar</a></p>
-                </div>
-            </div>
+  <main class="flex-shrink-0">
+    <!-- Navigation-->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+      <div class="text-wrap container-fluid px-sm-2 px-md-5">
+        <a class="navbar-brand">
+          <span class="logo" class="d-inline-block align-text-top"></span>
+          <span class="fw-semibold mx-4">CPI Helper</span>
+        </a>
+        <button id="menuToggle" class="navbar-toggler" type="button" aria-controls="navbarSupportedContent"
+          data-bs-target="#navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"
+          data-bs-toggle="collapse">
+          <span class="fas fa-bars"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item"><a class="nav-link" onclick="tabchange('home')" tab_Id="home">Home</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" onclick="tabchange('help')" tab_Id="help">Help</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" onclick="tabchange('development')"
+                tab_Id="development">Development</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="tabchange('about')" tab_Id="about">About</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" onclick="tabchange('conduct')" tab_Id="conduct">Conduct</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="tabchange('changelog')" tab_Id="changelog">Changelog</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" onclick="tabchange('privacy')" tab_Id="privacy">Privacy</a></li>
+            <li class="nav-item"><a class="nav-link" onclick="tabchange('plugins')" tab_Id="plugins">Plugins</a></li>
+          </ul>
         </div>
-    </footer>
+      </div>
+    </nav>
+    <!-- Header-->
+    <section id="home" class="">
+      <header class="bg-dark py-5">
+        <div class="text-wrap container px-5">
+          <div class="row gx-5 align-items-center justify-content-center">
+            <div class="col-lg-8 col-xl-7 col-xxl-6">
+              <div class="my-5 text-center text-xl-start">
+                <h1 class="display-5 fw-bolder text-white mb-2">The Ultimate Browser Plugin for CPI
+                  Users
+                </h1>
+                <p class="lead fw-normal text-white-50 mb-4">Revolutionize SAP CPI with Browser
+                  Plugin!
+                  Trace, access logs, boost productivity effortlessly. Elevate your integration
+                  game!
+                </p>
+                <div class="d-grid gap-3 d-sm-flex justify-content-sm-center justify-content-xl-start">
+                  <button class="btn btn-primary btn-lg px-4 me-sm-3" onclick="tabchange('help')"
+                    style="box-shadow: 0 0 10rem var(--bs-primary);">Get Started</button>
+                  <!-- <a class="btn btn-outline-light btn-lg px-4" href="#!">Learn More</a> -->
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-5 col-xxl-6 d-none d-xl-block text-center"><img class="img-fluid rounded-3 my-5"
+                alt="..." /></div>
+          </div>
+        </div>
+      </header>
+      <div class="text-wrap container my-5 p-4">
+        <div class="row justify-content-between align-items-center" id="stats"></div>
+        <p class="text-muted mt-3">* Click on icon to download</p>
+      </div>
+      <!-- Features section-->
+      <span class=" m-4 ">
+        <h2 class="fw-bolder text-center">Features</h2>
+        <div class="py-5" id="features">
+          <div class="container">
+            <h2 class="fw-bolder text-center"></h2>
+            <div class="row row-cols-1 row-cols-md-3 gx-5"> </div>
+          </div>
+        </div>
+        <!-- Features preview section-->
+
+        <div id="carouselhome" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner" id="carouselInner"></div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleSlidesOnly"
+            data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleSlidesOnly"
+            data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        </div>
+        <!-- Blog preview section-->
+        <div class="py-5">
+          <div class="container px-5 my-5">
+            <div class="row gx-5 justify-content-center">
+              <h2 class="fw-bolder text-center">From our blog</h2>
+            </div>
+            <div class="row justify-content-center gx-5">
+              <div class="col-lg-4 mb-5">
+                <div class="card h-100 shadow border-0">
+                  <div class="card-body p-4">
+                    <div class="badge bg-primary bg-gradient rounded-pill mb-2">News</div>
+                    <a class="text-decoration-none link-dark stretched-link"
+                      href="https://community.sap.com/t5/technology-blogs-by-sap/cpi-cpi-helper-chrome-extension-swiss-army-knife-for-integrators/ba-p/13514445">
+                      <h5 class="card-title mb-3">Chrome Plugin</h5>
+                    </a>
+                    <p class="card-text mb-0">Extension to Enhance SAP Cloud Platform
+                      Integration
+                      Usability
+                    </p>
+                  </div>
+                  <div class="card-footer p-4 pt-0 bg-transparent border-top-0">
+                    <div class="d-flex align-items-end justify-content-between">
+                      <div class="d-flex align-items-center">
+                        <!-- <img class="rounded-circle me-3" -->
+                        <!-- src="https://dummyimage.com/40x40/ced4da/6c757d" alt="..." /> -->
+                        <div class="small">
+                          <div class="fw-bold">Dominic</div>
+                          <div class="text-muted">May 03, 2020 &middot; 6 min read</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </section>
+
+    <section id="about" class="hide">
+      <header class="py-5">
+        <div class="text-wrap container px-5">
+          <div class="row justify-content-">
+            <div class="">
+              <h1 class="fw-bolder mb-3">Our mission</h1>
+              <h2 class="fw-bolder mb-3"> Enhance productivity through fast and easy development.</h2>
+              <p class="lead fw-normal text-muted mb-4">Our mission is to deliver a Browser Plugin
+                that
+                extends the capabilities of SAP Cloud Platform Integration, offering a suite of
+                indispensable tools. Through seamless integration and intuitive features, we aim to
+                simplify
+                the management of integration flows, enabling users to effortlessly navigate,
+                monitor, and
+                optimize their processes. We strive to empower businesses to achieve seamless
+                integration
+                and optimize their operations with ease.</p>
+            </div>
+          </div>
+        </div>
+      </header>
+      <!-- Contributors section-->
+      <div class="py-5 bg-light">
+        <div class="container px-5 my-5">
+          <div class="text-center">
+            <h2 class="fw-bolder">Contributors</h2>
+            <p class="lead fw-normal text-muted mb-5">Thank you to all of you. To increase quality and
+              productivity</p>
+          </div>
+          <div class="row gx-3 row-cols-1 row-cols-sm-3 row-cols-lg-4 row-cols-xl-5 justify-content-center"
+            id="contributor">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="conduct" class="hide">
+      <div class="px-5 text-wrap container" id="cocDiv"></div>
+      <div class="px-5 text-wrap container" id="contributionDiv"></div>
+    </section>
+    <section id="development" class="hide">
+      <div class="px-5 text-wrap container">
+        <h2 class="fw-bolder text-center mb-4">Essential Libraries to Utilize Before Commencing Development</h2>
+        <table class="ui selectable celled table">
+          <thead>
+            <tr>
+              <th scope="col">Header</th>
+              <th scope="col">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>UI</td>
+              <td>Fomantic - UI</td>
+            </tr>
+            <tr>
+              <td>Popup folder icons</td>
+              <td>from Font-awesome icon</td>
+            </tr>
+            <tr>
+              <td>SAP web UI</td>
+              <td>from SAP UI5 Icon Pack <a target="_blank"
+                  href="https://ui5.sap.com/test-resources/sap/m/demokit/iconExplorer/webapp/index.html#/overview/SAP-icons/?tab=grid&icon=chain-link&search=link"
+                  class="href">Link Example (Unicode - for plugin)</a></td>
+            </tr>
+            <tr>
+              <td>Logger</td>
+              <td>ulog | jQuery</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="px-5 text-wrap container" id="PluginDiv"></div>
+    </section>
+    <section id="help" class="hide">
+      <div class="px-5 text-wrap container" id="readmeDiv"></div>
+    </section>
+    <section id="changelog" class="hide px-5 text-wrap container">
+    </section>
+    <section id="privacy" class="hide px-5 text-wrap container">
+    </section>
+    <section id="plugins" class="hide px-5 text-wrap container">
+      <div class="container">
+        <div class="row row-cols-1 row-cols-md-3 pt-4 gx-4" id="pluginRow"></div>
+      </div>
+    </section>
+  </main>
+  <!-- Footer-->
+  <footer class="bg-dark py-4 mt-auto fixed-bottom">
+    <div class="text-wrap container px-5">
+      <div class="row align-items-center justify-content-between flex-column flex-sm-row">
+        <div class="col-auto">
+          <div class="small m-0 text-white">Copyright &copy; CPI-Helper 2024.</div>
+        </div>
+        <div class="col-auto">
+          <a class="link-light" onclick="tabchange('privacy')">Privacy</a>
+          <span class="text-white mx-1">&middot;</span>
+          <a class="link-light" target="_blank" href="https://choosealicense.com/licenses/gpl-3.0/">License</a>
+          <span class="text-white mx-1">&middot;</span>
+          <a class="link-light" href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank"><i
+              class="fab fa-github"></i> GitHub</a>
+        </div>
+        <!-- If you want to remove it. -->
+        <div class="col-auto">
+          <p class="small m-0 text-white">Made with <i class="fas fa-heart"></i> <a class="link-light small"
+              href="https://github.com/incpi">By Omkar</a></p>
+        </div>
+      </div>
+    </div>
+  </footer>
 </body>
 <!-- Bootstrap core JS-->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
 <script>
-    const baseUrl = window.location.hostname.match(/^\d/g) == null ? window.location.origin + window.location.pathname : "/docs/";
-    const cssList = ['css/style.css']
+  const baseUrl = window.location.hostname.match(/^\d/g) == null ? window.location.origin + window.location.pathname : "/docs/";
+  const cssList = ['css/style.css']
+  link = document.createElement('link')
+  link.rel = "icon"
+  link.type = "image/x-icon"
+  link.href = baseUrl + "/images/logo.png"
+  document.head.appendChild(link);
+  for (i of cssList) {
     link = document.createElement('link')
-    link.rel = "icon"
-    link.type = "image/x-icon"
-    link.href = baseUrl + "/images/logo.png"
-    document.head.appendChild(link);
-    for (i of cssList) {
-        link = document.createElement('link')
-        link.rel = "stylesheet"
-        link.type = "text/css"
-        link.href = baseUrl + i
-        if (!document.querySelector(`head link[href='${baseUrl + i}']`)) {
-            document.head.appendChild(link);
-        }
+    link.rel = "stylesheet"
+    link.type = "text/css"
+    link.href = baseUrl + i
+    if (!document.querySelector(`head link[href='${baseUrl + i}']`)) {
+      document.head.appendChild(link);
     }
-    const jsnonlist = ['JS/core.js']
-    for (i of jsnonlist) {
-        script = document.createElement('script')
-        script.src = baseUrl + i
-        if (!document.querySelector(`body script[src='${baseUrl + i}']`)) {
-            document.body.appendChild(script);
-        }
+  }
+  const jsnonlist = ['JS/core.js']
+  for (i of jsnonlist) {
+    script = document.createElement('script')
+    script.src = baseUrl + i
+    if (!document.querySelector(`body script[src='${baseUrl + i}']`)) {
+      document.body.appendChild(script);
     }
-    const jsList = ["JS/init.js", "JS/content.js", "JS/script.js", "JS/dataload.js", "JS/first.js"]
-    for (i of jsList) {
-        script = document.createElement('script')
-        script.type = "module";
-        console.log(baseUrl + i)
-        script.src = baseUrl + i
-        if (!document.querySelector(`body script[src='${baseUrl + i}']`)) {
-            document.body.appendChild(script);
-        }
+  }
+  const jsList = ["JS/init.js", "JS/content.js", "JS/script.js", "JS/dataload.js", "JS/first.js"]
+  for (i of jsList) {
+    script = document.createElement('script')
+    script.type = "module";
+    console.log(baseUrl + i)
+    script.src = baseUrl + i
+    if (!document.querySelector(`body script[src='${baseUrl + i}']`)) {
+      document.body.appendChild(script);
     }
+  }
 </script>
 
 </html>
