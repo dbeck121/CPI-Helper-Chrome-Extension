@@ -780,7 +780,7 @@ function getChild(node, childNames, childClass = null) {
 
 //makes a http call to set the log level to trace
 function setLogLevel(logLevel, iflowId) {
-console.log(cpiData)
+
   makeCall(
     "POST",
     "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentSetMplLogLevelCommand",
