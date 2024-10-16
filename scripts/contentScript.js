@@ -780,11 +780,12 @@ function getChild(node, childNames, childClass = null) {
 
 //makes a http call to set the log level to trace
 function setLogLevel(logLevel, iflowId) {
+console.log(cpiData)
   makeCall(
     "POST",
     "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentSetMplLogLevelCommand",
     true,
-    '{"artifactSymbolicName":"' + iflowId + '","mplLogLevel":"' + logLevel.toUpperCase() + '","nodeType":"IFLMAP"}',
+    '{"artifactSymbolicName":"' + iflowId + '","mplLogLevel":"' + logLevel.toUpperCase() + '","nodeType":"IFLMAP" , "runtimeLocationId": "'+cpiData.runtimeLocationId+'"}',
     (xhr) => {
       if (xhr.readyState == 4 && xhr.status == 200) {
         showToast("Trace is activated");
@@ -998,6 +999,9 @@ async function getIflowInfo(callback, silent = false) {
       cpiData.tenantId = cpiData?.flowData?.artifactInformation?.tenantId;
       cpiData.artifactId = cpiData?.flowData?.artifactInformation?.id;
       cpiData.version = cpiData?.flowData?.artifactInformation?.version;
+      cpiData.runtimeLocationId = cpiData?.flowData?.componentInformations[0]?.hostname;
+
+
       if (callback) {
         callback();
       }
