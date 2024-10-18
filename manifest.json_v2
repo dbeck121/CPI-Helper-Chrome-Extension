@@ -6,7 +6,8 @@
   },
   "name": "SAP CPI Helper",
   "short_name": "CPI Helper",
-  "version": "3.15.4",
+  "version": "3.16.0",
+
   "description": "Extends the SAP Cloud Platform Integration with some useful features to improve usability.",
   "author": "Dominic Beckbauer",
   "homepage_url": "https://github.com/dbeck121/CPI-Helper-Chrome-Extension",
@@ -59,6 +60,7 @@
         "/plugins/simplenotepad.js",
         "/plugins/reference.js",
         "/plugins/undeploy.js",
+        "/plugins/groovyref.js",
         "/plugins/unlock.js",
         "/plugins/credentialHelper.js",
         "/plugins/cpitransporter.js",
@@ -69,6 +71,7 @@
         "/plugins/removeApacheUpdateMessage.js",
         "/plugins/messageidlogs.js",
         "/plugins/traceModifer.js",
+        "/plugins/zz_developer_tools.js",
         "/scripts/ui.js",
         "/scripts/logs.js",
         "/whatsNew/whatsNewLog.js",
@@ -92,24 +95,16 @@
       "48": "images/v4/48.png",
       "128": "images/v4/128.png"
     },
-    "show_matches": [
-      "https://*.hana.ondemand.com/shell/design/*",
-      "https://*.hana.ondemand.com/itspaces/*",
-      "https://*.hana.ondemand.com/shell/*",
-      "https://*.platform.sapcloud.cn/itspaces/*",
-      "https://*.platform.sapcloud.cn/shell/*"
-    ]
-  },
-  "icons": {
-    "16": "images/v4/16.png",
-    "32": "images/v4/32.png",
-    "48": "images/v4/48.png",
-    "128": "images/v4/128.png"
-  },
-  "web_accessible_resources": [
-    "images/favicons/*.png",
-    "lib/semanticui/*",
-    "images/*"
-  ],
-  "manifest_version": 2
+    "icons": {
+        "16": "images/v4/16.png",
+        "32": "images/v4/32.png",
+        "48": "images/v4/48.png",
+        "128": "images/v4/128.png"
+    },
+    "web_accessible_resources": [
+        "images/favicons/*.png",
+        "lib/semanticui/*",
+        "images/*"
+    ],
+    "manifest_version": 2
 }
