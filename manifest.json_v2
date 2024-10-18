@@ -70,7 +70,6 @@
         "/plugins/removeApacheUpdateMessage.js",
         "/plugins/messageidlogs.js",
         "/plugins/traceModifer.js",
-        "/plugins/zz_developer_tools.js",
         "/scripts/ui.js",
         "/scripts/logs.js",
         "/whatsNew/whatsNewLog.js",

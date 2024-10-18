@@ -16,4 +16,5 @@
 .vscode/launch.json
 .env
 
+bin
 node_modules
