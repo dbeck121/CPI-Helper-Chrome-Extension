@@ -60,7 +60,7 @@ create_zip() {
     name="${name//,/}"
     name="${name// /_}"
 
-    exclusions=("./docs/*" "./node_modules" "./images/v[1-3]/*" "*.sh" "./bin/*" "*.json_*" "./.*")
+    exclusions=("./docs/*" ".DS_Store" "*.json_*" "./node_modules" "./images/v[1-3]/*" "*.sh" "./bin" "./bin/*" "*.json_*" "./.*")
 
     exclude_args=()
     for pattern in "${exclusions[@]}"; do
@@ -98,17 +98,17 @@ switch_manifest_version() {
 }
 
 manifest_version=$(jq -r '.manifest_version' manifest.json)
-version=$(jq -r '.version' manifest.json)
+# version=$(jq -r '.version' manifest.json)
 echo "Manifest version is: $manifest_version"
 
-create_zip "$MANIFEST" "CPI_Helper_Extension_manifestv${manifest_version}_$version.zip"
+create_zip "$MANIFEST" "CPI_Helper_Extension_manifestv${manifest_version}.zip"
 
 switch_manifest_version
 sleep 2
 manifest_version=$(jq -r '.manifest_version' manifest.json)
 version=$(jq -r '.version' manifest.json)
 
-create_zip "$MANIFEST" "CPI_Helper_Extension_manifestv${manifest_version}_$version.zip"
+create_zip "$MANIFEST" "CPI_Helper_Extension_manifestv${manifest_version}.zip"
 
 switch_manifest_version
 sleep 2
