@@ -106,7 +106,7 @@ create_zip "$MANIFEST" "CPI_Helper_Extension_manifestv${manifest_version}.zip"
 switch_manifest_version
 sleep 2
 manifest_version=$(jq -r '.manifest_version' manifest.json)
-version=$(jq -r '.version' manifest.json)
+# version=$(jq -r '.version' manifest.json)
 
 create_zip "$MANIFEST" "CPI_Helper_Extension_manifestv${manifest_version}.zip"
 
