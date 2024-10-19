@@ -498,6 +498,7 @@ On the message sidebar, press the time button next to the status icon of a proce
 > - Red elements are elements with errors.
 >  SAP does not provide good information about errors. So when an error at a Splitter-Element occurs, this does not have to mean that the error occurred here. It can also be a catched error from elements after the Splitter.
 
+
 Run steps exist for processed messages with trace and for a short time in processed messages with errors. ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome_inlinetrace.png)
 
 ### Inline Trace - Show Headers, Properties, Trace, Error and Logs
