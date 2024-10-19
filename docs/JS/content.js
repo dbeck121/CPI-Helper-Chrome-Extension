@@ -149,6 +149,7 @@ const prev_feature = [
   },
 ];
 const stats_cards = [
+
   {
     color: "bg-primary",
     count: 24572,
@@ -182,6 +183,7 @@ const stats_cards = [
     link: "https://addons.mozilla.org/de/firefox/addon/cpi-helper/",
   },
 ];
+
 const contributors = [
   { name: "Dominic Beckbauer", username: "dbeck121" },
   { name: "Omkar Patel", username: "Incpi" },
