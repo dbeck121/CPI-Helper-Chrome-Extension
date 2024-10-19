@@ -58,7 +58,7 @@ var plugin = {
     `;
 
         x = createElementFromHTML(textElement);
-        pluginHelper.functions.popup(x, "Reference", {
+        pluginHelper.functions.popup(x, "Developer Tools", {
           fullscreen: false,
           callback: async () => {
             var localStorage = await chrome.storage.local.get();
