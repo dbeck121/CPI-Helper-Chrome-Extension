@@ -65,7 +65,7 @@
         "/plugins/credentialHelper.js",
         "/plugins/cpitransporter.js",
         "/plugins/OpenAIServices.js",
-        "/plugins/WHINT_IFD.js",
+        "/plugins/whint.js",
         "/plugins/settingsPaneResizer.js",
         "/plugins/timeline.js",
         "/plugins/removeApacheUpdateMessage.js",
@@ -109,4 +109,3 @@
   },
   "manifest_version": 2
 }
-
