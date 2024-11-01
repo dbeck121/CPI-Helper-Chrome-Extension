@@ -2,7 +2,7 @@ var plugin = {
   metadataVersion: "1.0.0",
   id: "whint",
   name: "WHINT® Interface Documentation",
-  version: "1.1.",
+  version: "1.2.",
   author: "whitepaper.id GmbH",
   email: "support@whitepaper-id.com",
   website: "https://whitepaper-id.com",
