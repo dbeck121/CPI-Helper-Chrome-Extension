@@ -1,6 +1,6 @@
 var plugin = {
   metadataVersion: "1.0.0",
-  id: "whint",
+  id: "WHINT_IFD",
   name: "WHINT® Interface Documentation",
   version: "1.2.",
   author: "whitepaper.id GmbH",
@@ -38,10 +38,10 @@ var plugin = {
       a.setAttribute("target", "_blank");
       a.setAttribute(
         "href",
-        settings[`whint---${pluginHelper.tenant}---spBaseUrl`] +
+        settings[`WHINT_IFD---${pluginHelper.tenant}---spBaseUrl`] +
           "/" +
           path[path.length - 3] +
-          (!settings[`whint---${pluginHelper.tenant}---spOpenFolder`] ? settings[`whint---${pluginHelper.tenant}---spSep`] + pluginHelper.integrationFlowId + "." + settings[`whint---${pluginHelper.tenant}---spSuffix`] : "")
+          (!settings[`WHINT_IFD---${pluginHelper.tenant}---spOpenFolder`] ? settings[`WHINT_IFD---${pluginHelper.tenant}---spSep`] + pluginHelper.integrationFlowId + "." + settings[`WHINT_IFD---${pluginHelper.tenant}---spSuffix`] : "")
       );
       const div = document.createElement("div");
       div.appendChild(a);

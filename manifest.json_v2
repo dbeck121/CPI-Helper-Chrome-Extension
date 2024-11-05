@@ -65,7 +65,7 @@
         "/plugins/credentialHelper.js",
         "/plugins/cpitransporter.js",
         "/plugins/OpenAIServices.js",
-        "/plugins/whint.js",
+        "/plugins/WHINT_IFD.js",
         "/plugins/settingsPaneResizer.js",
         "/plugins/timeline.js",
         "/plugins/removeApacheUpdateMessage.js",
