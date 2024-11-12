@@ -11,4 +11,5 @@ const whats_new_log = `
 - [Feature] Text wrap option and theme of editor has clear information.
 - [Feature] General UI Bugfix & backend global element to organize. [Read more here with snapshot note](https://github.com/dbeck121/CPI-Helper-Chrome-Extension/pull/194). Special thanks to [Omkar](https://github.com/incpi).
 - [Fix] Solved problem with activating trace in situations with multiple runtimes.
+- [Fix] Solved problem with Firefox
 `;

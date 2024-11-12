@@ -347,7 +347,7 @@ async function recrutingPopup(force = false) {
     nextStepButtion.appendChild(icon);
     nextStepButtion.onclick = async function () {
       statistic("recrutingPopup", "nextStep");
-      window.open("https://ich-will-zur.kangoolutions.com/", "_blank");
+      window.open("https://kangoolutions.com/karriere/", "_blank");
       $("#cpiHelper_semanticui_modal").modal("hide");
     };
 
