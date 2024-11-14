@@ -6,7 +6,7 @@
   },
   "name": "SAP CPI Helper",
   "short_name": "CPI Helper",
-  "version": "3.16.0",
+  "version": "3.17.0",
 
   "description": "Extends the SAP Cloud Platform Integration with some useful features to improve usability.",
   "author": "Dominic Beckbauer",
@@ -37,7 +37,7 @@
         "https://*.platform.sapcloud.cn/shell/*"
       ],
       "js": [
-            "/lib/ulog/ulog-full.min.js",
+        "/lib/ulog/ulog-full.min.js",
         "/lib/ace/ace.min.js",
         "/lib/ace/ext-searchbox.js",
         "/lib/ace/theme-textmate.js",

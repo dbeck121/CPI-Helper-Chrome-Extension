@@ -296,12 +296,9 @@ async function recrutingPopup(force = false) {
         <p>
         <div class="ui bulleted list">
             <div class="item">Fordernde und knifflige Aufgabenstellungen</div>
-            <div class="item">Einen sicheren und langfristigen Job</div>
             <div class="item">Arbeiten aus dem Home Office oder ab und zu mal beim Kunden vor Ort</div>
             <div class="item">Minimale Hierarchien </div>
             <div class="item">Eigenverantwortung und Freiraum, statt Formularen und starren Prozessen</div>
-            <div class="item">Eine junge Firma, mit jungen Menschen und feinen Events</div>
-            <div class="item">Mitgestaltungsmöglichkeit beim Aufbau unserer Firma</div>
             <div class="item">Summer Event mit der ganzen Firma (2023 auf Sizilien und 2024 auf Kreta).</div>
         </div>
         <p>Wir haben viel Humor und das vielleicht coolste <a href="https://kangoolutions.com/team/" style="color: green; text-decoration: none;" 
@@ -373,8 +370,8 @@ async function recrutingPopup(force = false) {
       fullscreen: false,
       onclose: async () => {
         if (!force) {
-          //get unix timestamp for in one month
-          var remindIn = +new Date() + 30 * 24 * 60 * 60 * 1000;
+          //get unix timestamp for in 2 month
+          var remindIn = +new Date() + 2 * 30 * 24 * 60 * 60 * 1000;
           var obj = {};
           obj["recrutingPopupTimestamp"] = remindIn;
           await storageSetPromise(obj);
