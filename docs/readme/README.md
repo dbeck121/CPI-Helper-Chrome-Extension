@@ -44,6 +44,21 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.17.0
+
+- [Improvement] UI Bugfixes (Dark-mode Darker color for trace, Trace-inline tool editor detect mode you selected by default).
+- [Improvement] XML declaration preserved by code beautify function.
+- [Plugin] Performance stats plugin has better color for dark mode.
+- [Plugin] Settings Pane Resizer plugin opens settings pane on page load even if Pause mode is active.
+- [Feature] Color mode detected a theme and applied by default (in case of dark mode).
+- [Feature] More compatibale with DARK CPI extension dark mode.
+- [Feature] Position of popup is now state aware.
+- [Feature] Body download option now with proper extension.
+- [Feature] Text wrap option and theme of editor has clear information.
+- [Feature] General UI Bugfix & backend global element to organize. [Read more here with snapshot note](https://github.com/dbeck121/CPI-Helper-Chrome-Extension/pull/194). Special thanks to [Omkar](https://github.com/incpi).
+- [Fix] Solved problem with activating trace in situations with multiple runtimes.
+- [Bugfix] Fix problems with Firefox
+
 ### 3.16.0
 
 - [Improvement] Plugin Engine now supports multiple artifacts, providing plugin developers with more versatility and an improved user interface for specific artifacts.
@@ -495,8 +510,7 @@ The button of the plugin in the toolbar gives you a list of useful links of your
 On the message sidebar, press the time button next to the status icon of a processed message. If run steps exist, the elements of the Integration Flow will change colors accordingly. This will give you a quick overview of the run.
 
 > - Blue elements are successfully processed steps
-> - Red elements are elements with errors.
->  SAP does not provide good information about errors. So when an error at a Splitter-Element occurs, this does not have to mean that the error occurred here. It can also be a catched error from elements after the Splitter.
+> - Red elements are elements with errors. SAP does not provide good information about errors. So when an error at a Splitter-Element occurs, this does not have to mean that the error occurred here. It can also be a catched error from elements after the Splitter.
 
 Run steps exist for processed messages with trace and for a short time in processed messages with errors. ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome_inlinetrace.png)
 
