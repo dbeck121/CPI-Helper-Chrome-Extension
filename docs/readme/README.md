@@ -48,6 +48,7 @@ It is open source so feel free to check the source code.
 
 - [Improvement] UI Bugfixes (Dark-mode Darker color for trace, Trace-inline tool editor detect mode you selected by default).
 - [Improvement] XML declaration preserved by code beautify function.
+- [Plugin] WHINT Interface Documentation Plugin - Update v1.2
 - [Plugin] Performance stats plugin has better color for dark mode.
 - [Plugin] Settings Pane Resizer plugin opens settings pane on page load even if Pause mode is active.
 - [Feature] Color mode detected a theme and applied by default (in case of dark mode).
