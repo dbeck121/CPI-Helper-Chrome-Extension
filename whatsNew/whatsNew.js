@@ -76,12 +76,17 @@ async function whatsNewCheck(showOnlyOnce = true) {
                     </div>
                     <div class="twelve wide column">
                         <div class="ui header">This release is sponsored by Figaf </div>
-                        <p>
-Before starting any SAP PI/PO migration, it's important to understand your landscape. Obtain a report worth thousands of euros for free with Figaf's Migration Edition. You can view all your integrations in a simple table, making it easier to analyze them. Learn how to create it today.
-                      </p>
+  <p>Looking for a better overview of your SAP Cloud Integration? Figaf is proud to introduce a new report that makes it easier to understand the contents of your current Integration Suite system. It provides information such as:</p>
+  <div class="ui bulleted list">
+      <div class="item">iFlow dependencies on scripts and more</div>
+      <div class="item">JMS/Process Direct dependencies</div>
+      <div class="item">Last change information</div>
+      <div class="item">And much more</div>
+  </div>
+  <p>You can generate this report for free with the trial version of Figaf.</p>
                     </div>
                      <div class="sixteen wide column">
-                    For more details, visit the <a href="https://figaf.com/cpihelper17" target="_blank"><u>details page</u></a>.
+                    For more details, visit the <a href="https://figaf.com/cpihelper18" target="_blank"><u>details page</u></a>.
                     </div>
                 </div>
             </div>
