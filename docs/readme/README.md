@@ -511,7 +511,8 @@ The button of the plugin in the toolbar gives you a list of useful links of your
 On the message sidebar, press the time button next to the status icon of a processed message. If run steps exist, the elements of the Integration Flow will change colors accordingly. This will give you a quick overview of the run.
 
 > - Blue elements are successfully processed steps
-> - Red elements are elements with errors. SAP does not provide good information about errors. So when an error at a Splitter-Element occurs, this does not have to mean that the error occurred here. It can also be a catched error from elements after the Splitter.
+> - Red elements are elements with errors.
+>  SAP does not provide good information about errors. So when an error at a Splitter-Element occurs, this does not have to mean that the error occurred here. It can also be a catched error from elements after the Splitter.
 
 Run steps exist for processed messages with trace and for a short time in processed messages with errors. ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome_inlinetrace.png)
 
