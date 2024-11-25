@@ -6,7 +6,7 @@
   },
   "name": "SAP CPI Helper",
   "short_name": "CPI Helper",
-  "version": "3.16.0",
+  "version": "3.17.0",
 
   "description": "Extends the SAP Cloud Platform Integration with some useful features to improve usability.",
   "author": "Dominic Beckbauer",
@@ -52,11 +52,12 @@
         "/lib/jQuery/jquery.min.js",
         "/lib/semanticui/semantic.min.js",
         "/lib/semanticui/tablesort.js",
+        "lib/markdownit/markdown-it.min.js",
+        "/scripts/init.js",
         "/common/logging.js",
         "/common/tools.js",
         "/scripts/identify-tenant.js",
         "/plugins/run.js",
-        "/plugins/figaf.js",
         "/plugins/simplenotepad.js",
         "/plugins/reference.js",
         "/plugins/undeploy.js",
@@ -64,13 +65,14 @@
         "/plugins/unlock.js",
         "/plugins/credentialHelper.js",
         "/plugins/cpitransporter.js",
+        "/plugins/figaf.js",
         "/plugins/OpenAIServices.js",
         "/plugins/WHINT_IFD.js",
         "/plugins/settingsPaneResizer.js",
         "/plugins/timeline.js",
+        "/plugins/traceModifer.js",
         "/plugins/removeApacheUpdateMessage.js",
         "/plugins/messageidlogs.js",
-        "/plugins/traceModifer.js",
         "/plugins/zz_developer_tools.js",
         "/scripts/ui.js",
         "/scripts/logs.js",
@@ -82,7 +84,9 @@
       ],
       "css": [
         "/lib/semanticui/semantic.min.css",
+        "/lib/semanticui/semantic.dark.css",
         "/css/contentScript.css",
+        "/css/darkoverwrite.css",
         "/css/plugin.css"
       ]
     }

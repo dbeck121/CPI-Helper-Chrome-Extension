@@ -76,12 +76,17 @@ async function whatsNewCheck(showOnlyOnce = true) {
                     </div>
                     <div class="twelve wide column">
                         <div class="ui header">This release is sponsored by Figaf </div>
-                        <p>
-Before starting any SAP PI/PO migration, it's important to understand your landscape. Obtain a report worth thousands of euros for free with Figaf's Migration Edition. You can view all your integrations in a simple table, making it easier to analyze them. Learn how to create it today.
-                      </p>
+  <p>Looking for a better overview of your SAP Cloud Integration? Figaf is proud to introduce a new report that makes it easier to understand the contents of your current Integration Suite system. It provides information such as:</p>
+  <div class="ui bulleted list">
+      <div class="item">iFlow dependencies on scripts and more</div>
+      <div class="item">JMS/Process Direct dependencies</div>
+      <div class="item">Last change information</div>
+      <div class="item">And much more</div>
+  </div>
+  <p>You can generate this report for free with the trial version of Figaf.</p>
                     </div>
                      <div class="sixteen wide column">
-                    For more details, visit the <a href="https://figaf.com/cpihelper17" target="_blank"><u>details page</u></a>.
+                    For more details, visit the <a href="https://figaf.com/cpihelper18" target="_blank"><u>details page</u></a>.
                     </div>
                 </div>
             </div>
@@ -296,12 +301,9 @@ async function recrutingPopup(force = false) {
         <p>
         <div class="ui bulleted list">
             <div class="item">Fordernde und knifflige Aufgabenstellungen</div>
-            <div class="item">Einen sicheren und langfristigen Job</div>
             <div class="item">Arbeiten aus dem Home Office oder ab und zu mal beim Kunden vor Ort</div>
             <div class="item">Minimale Hierarchien </div>
             <div class="item">Eigenverantwortung und Freiraum, statt Formularen und starren Prozessen</div>
-            <div class="item">Eine junge Firma, mit jungen Menschen und feinen Events</div>
-            <div class="item">Mitgestaltungsmöglichkeit beim Aufbau unserer Firma</div>
             <div class="item">Summer Event mit der ganzen Firma (2023 auf Sizilien und 2024 auf Kreta).</div>
         </div>
         <p>Wir haben viel Humor und das vielleicht coolste <a href="https://kangoolutions.com/team/" style="color: green; text-decoration: none;" 
@@ -347,7 +349,7 @@ async function recrutingPopup(force = false) {
     nextStepButtion.appendChild(icon);
     nextStepButtion.onclick = async function () {
       statistic("recrutingPopup", "nextStep");
-      window.open("https://ich-will-zur.kangoolutions.com/", "_blank");
+      window.open("https://kangoolutions.com/karriere/", "_blank");
       $("#cpiHelper_semanticui_modal").modal("hide");
     };
 
@@ -373,8 +375,8 @@ async function recrutingPopup(force = false) {
       fullscreen: false,
       onclose: async () => {
         if (!force) {
-          //get unix timestamp for in one month
-          var remindIn = +new Date() + 30 * 24 * 60 * 60 * 1000;
+          //get unix timestamp for in 2 month
+          var remindIn = +new Date() + 2 * 30 * 24 * 60 * 60 * 1000;
           var obj = {};
           obj["recrutingPopupTimestamp"] = remindIn;
           await storageSetPromise(obj);
