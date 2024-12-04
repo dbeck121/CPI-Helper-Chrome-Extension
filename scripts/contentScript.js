@@ -13,6 +13,8 @@ cpiData.urlExtension = "";
 cpiData.classicUrl = false;
 cpiData.functions = {};
 cpiData.functions["popup"] = showBigPopup;
+cpiData.isEdge = false;
+cpiData.runtimeLocationId = "";
 cpiArtifactURIRegexp = [
   //Artifacts
   [/\/integrationflows\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "IFlow"],
@@ -780,7 +782,7 @@ function getChild(node, childNames, childClass = null) {
 
 //makes a http call to set the log level to trace
 function setLogLevel(logLevel, iflowId) {
-  let locID = cpiData.runtimeLocationId ? ', "runtimeLocationId": "' + cpiData.runtimeLocationId + '"' : "";
+  let locID = cpiData.runtimeLocationId && cpiData.isEdge ? ', "runtimeLocationId": "' + cpiData.runtimeLocationId + '"' : "";
   makeCall(
     "POST",
     "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentSetMplLogLevelCommand",
@@ -973,7 +975,20 @@ async function buildButtonBar() {
 
 //Collect Infos to Iflow
 async function getIflowInfo(callback, silent = false) {
-  return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", false, null, null, null, null, !silent)
+  // count list of runtime locations to check if we have edge cell(s)
+  const edgeMenuEntry = document.querySelectorAll("#admincockpit");
+  cpiData.isEdge = edgeMenuEntry != undefined;
+
+  return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.srv.web.cf.RuntimeLocationListCommand", false, null, null, null, null, !silent)
+    .then((response) => {
+      // ---> we also need to pass the locationId in the below call in case the tenant has an Edge cell.
+      response = new XmlToJson().parse(response)["com.sap.it.op.srv.web.cf.RuntimeLocationListResponse"];
+      var edgeId = response.runtimeLocations[1]?.id;
+      cpiData.runtimeLocationId = edgeId;
+      cpiData.isEdge = edgeId != undefined;
+
+      return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", false, null, null, null, null, !silent);
+    })
     .then((response) => {
       response = new XmlToJson().parse(response)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
       var resp = response.artifactInformations;
@@ -987,10 +1002,29 @@ async function getIflowInfo(callback, silent = false) {
           resp = null;
         }
       }
+      if (resp) {
+        cpiData.runtimeLocationId = "cloudintegration"; // if we found current iflow in last request, set location id to "cloudintegration" which is default for non-edge Iflows (only on Edge Cell activated tenants)
+      }
+
+      // If response didn't contain our iflow and it's an Edge cell, make the third call with the locationId
+      if (!resp && cpiData.isEdge) {
+        // Repeat the second call, passing the location ID
+        var locIdParam = cpiData.runtimeLocationId ? "?runtimeLocationId=" + cpiData.runtimeLocationId : "";
+        return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand" + locIdParam, false, null, null, null, null, !silent);
+      }
+
+      // If no valid response was found (either because the flow is missing or because the tenant isn't Edge), throw an error
       if (!resp) {
         throw "Integration Flow was not found. Probably it is not deployed.";
       }
-      return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + resp.id, false, "application/json", null, null, null, !silent);
+
+      return resp;
+    })
+    .then((response) => {
+      if (response) {
+        // If response is valid, proceed with the third call
+        return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + response.id, false, "application/json", null, null, null, !silent);
+      }
     })
     .then((response) => {
       var resp = JSON.parse(response);
@@ -999,7 +1033,6 @@ async function getIflowInfo(callback, silent = false) {
       cpiData.tenantId = cpiData?.flowData?.artifactInformation?.tenantId;
       cpiData.artifactId = cpiData?.flowData?.artifactInformation?.id;
       cpiData.version = cpiData?.flowData?.artifactInformation?.version;
-      cpiData.runtimeLocationId = cpiData?.flowData?.componentInformations[0]?.hostname;
 
       if (callback) {
         callback();
