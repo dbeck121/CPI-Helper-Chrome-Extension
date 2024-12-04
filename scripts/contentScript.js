@@ -981,7 +981,6 @@ async function getIflowInfo(callback, silent = false) {
 
   return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.srv.web.cf.RuntimeLocationListCommand", false, null, null, null, null, !silent)
     .then((response) => {
-      // ---> we also need to pass the locationId in the below call in case the tenant has an Edge cell.
       response = new XmlToJson().parse(response)["com.sap.it.op.srv.web.cf.RuntimeLocationListResponse"];
       var edgeId = response.runtimeLocations[1]?.id;
       cpiData.runtimeLocationId = edgeId;
@@ -1006,14 +1005,15 @@ async function getIflowInfo(callback, silent = false) {
         cpiData.runtimeLocationId = "cloudintegration"; // if we found current iflow in last request, set location id to "cloudintegration" which is default for non-edge Iflows (only on Edge Cell activated tenants)
       }
 
-      // If response didn't contain our iflow and it's an Edge cell, make the third call with the locationId
+      // If response didn't contain our iflow and it's an Edge cell, redo the request with the locationId
+      // ---> we need to pass the locationId in the request in case the tenant has an Edge cell and the IFlow is deployed there.
       if (!resp && cpiData.isEdge) {
-        // Repeat the second call, passing the location ID
+        // Repeat the previous request, passing the location ID
         var locIdParam = cpiData.runtimeLocationId ? "?runtimeLocationId=" + cpiData.runtimeLocationId : "";
         return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand" + locIdParam, false, null, null, null, null, !silent);
       }
 
-      // If no valid response was found (either because the flow is missing or because the tenant isn't Edge), throw an error
+      // If no valid response was found (because the flow is not deployed...), throw an error
       if (!resp) {
         throw "Integration Flow was not found. Probably it is not deployed.";
       }
@@ -1022,7 +1022,6 @@ async function getIflowInfo(callback, silent = false) {
     })
     .then((response) => {
       if (response) {
-        // If response is valid, proceed with the third call
         return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + response.id, false, "application/json", null, null, null, !silent);
       }
     })
