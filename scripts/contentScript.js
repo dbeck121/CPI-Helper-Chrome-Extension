@@ -975,10 +975,7 @@ async function buildButtonBar() {
 
 //Collect Infos to Iflow
 async function getIflowInfo(callback, silent = false) {
-  // count list of runtime locations to check if we have edge cell(s)
-  const edgeMenuEntry = document.querySelectorAll("#admincockpit");
-  cpiData.isEdge = edgeMenuEntry != undefined;
-
+  // first we check if we have an Edge cell connected to the tenant
   return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.srv.web.cf.RuntimeLocationListCommand", false, null, null, null, null, !silent)
     .then((response) => {
       response = new XmlToJson().parse(response)["com.sap.it.op.srv.web.cf.RuntimeLocationListResponse"];
@@ -989,6 +986,7 @@ async function getIflowInfo(callback, silent = false) {
       return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", false, null, null, null, null, !silent);
     })
     .then((response) => {
+      // load all non-Edge iflows and search the currently opened Iflow
       response = new XmlToJson().parse(response)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
       var resp = response.artifactInformations;
 
