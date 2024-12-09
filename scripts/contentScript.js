@@ -15,6 +15,10 @@ cpiData.functions = {};
 cpiData.functions["popup"] = showBigPopup;
 cpiData.isEdge = false;
 cpiData.runtimeLocationId = "";
+let regexGetPlatform = /cfapps/;
+let regexMatch = regexGetPlatform.exec(document.location.host);
+cpiData.cpiPlatform = regexMatch !== null ? "cf" : "neo";
+
 cpiArtifactURIRegexp = [
   //Artifacts
   [/\/integrationflows\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "IFlow"],
@@ -37,6 +41,7 @@ var cpiTypeRegexp = /^[^\/]*\.integrationsuite(-trial)?.*/;
 
 var cpiCollectionURIRegexp = /\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)/;
 var cpiIflowUriRegexp = /\/integrationflows\/(?<artifactId>[0-9a-zA-Z_\-.]+)/;
+
 //opens a new window with the Trace for a MessageGuid
 function openTrace(MessageGuid) {
   log.debug("MessageGuid");
@@ -975,7 +980,15 @@ async function buildButtonBar() {
 
 //Collect Infos to Iflow
 async function getIflowInfo(callback, silent = false) {
-  // first we check if we have an Edge cell connected to the tenant
+  if (cpiData.cpiPlatform == "cf") {
+    return getIflowInfoCf(callback, silent);
+  } else if (cpiData.cpiPlatform == "neo") {
+    return getIflowInfoNeo(callback, silent);
+  }
+}
+
+async function getIflowInfoCf(callback, silent = false) {
+  // first we check if we have an Edge cell connected to the tenant (only on CF - neo unclear how to check)
   return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.srv.web.cf.RuntimeLocationListCommand", false, null, null, null, null, !silent)
     .then((response) => {
       response = new XmlToJson().parse(response)["com.sap.it.op.srv.web.cf.RuntimeLocationListResponse"];
@@ -1009,6 +1022,55 @@ async function getIflowInfo(callback, silent = false) {
         // Repeat the previous request, passing the location ID
         var locIdParam = cpiData.runtimeLocationId ? "?runtimeLocationId=" + cpiData.runtimeLocationId : "";
         return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand" + locIdParam, false, null, null, null, null, !silent);
+      }
+
+      // If no valid response was found (because the flow is not deployed...), throw an error
+      if (!resp) {
+        throw "Integration Flow was not found. Probably it is not deployed.";
+      }
+
+      return resp;
+    })
+    .then((response) => {
+      if (response) {
+        return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + response.id, false, "application/json", null, null, null, !silent);
+      }
+    })
+    .then((response) => {
+      var resp = JSON.parse(response);
+      cpiData.flowData = resp;
+      cpiData.flowData.lastUpdate = new Date().toISOString();
+      cpiData.tenantId = cpiData?.flowData?.artifactInformation?.tenantId;
+      cpiData.artifactId = cpiData?.flowData?.artifactInformation?.id;
+      cpiData.version = cpiData?.flowData?.artifactInformation?.version;
+
+      if (callback) {
+        callback();
+      }
+      return;
+    })
+    .catch((error) => {
+      if (!silent) {
+        showToast("Error: " + JSON.stringify(error));
+      }
+    });
+}
+
+async function getIflowInfoNeo(callback, silent = false) {
+  return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", false, null, null, null, null, !silent)
+    .then((response) => {
+      // load all non-Edge iflows and search the currently opened Iflow
+      response = new XmlToJson().parse(response)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
+      var resp = response.artifactInformations;
+
+      if (resp.length) {
+        resp = resp.find((element) => {
+          return element.symbolicName == cpiData.integrationFlowId;
+        });
+      } else {
+        if (resp.symbolicName != cpiData.integrationFlowId) {
+          resp = null;
+        }
       }
 
       // If no valid response was found (because the flow is not deployed...), throw an error
