@@ -2,7 +2,7 @@
   "name": "SAP CPI Helper",
   "short_name": "CPI Helper",
 
-  "version": "3.17.1",
+  "version": "3.17.2",
 
   "description": "Extends the SAP Cloud Platform Integration with some useful features to improve usability.",
   "author": "Dominic Beckbauer",
