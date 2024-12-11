@@ -25,6 +25,35 @@ async function whatsNewCheck(showOnlyOnce = true) {
   const devtoberfestInvite = chrome.runtime.getURL("images/Devtoberfest_CPIHelper.ics");
   const md = window.markdownit();
 
+  var recentChanges = `
+         <div class="ui segment">
+         <h3 class="ui header">
+                <i class="bell icon"></i>
+                <div class="content">
+                 API Changes
+                </div>
+            </h3>
+ 
+    
+    
+        <div style="margin-top: 0.1rem;">
+        Hi Developers,<br /><br />
+
+It seems that the CPI-Helper is currently experiencing some issues. These are primarily due to recent changes in SAP's APIs. As you may know, we rely on some undocumented API calls, such as those used to activate trace. There have been updates, and the behavior varies between Neo and Cloud Foundry environments. We are in the process of learning and adapting to these changes, but there may still be some bugs that require attention. This is not an official plugin by SAP.</div>
+  
+        <div class="ui segment cpihelper83782">
+          <h3 class="ui header">
+            Known Problems:
+          </h3>
+          <div class="ui bulleted list">
+            <div class="item">Trace is not working sometimes for some Integration Flows. Please undeploy and deploy them if possible. A redeploy might not work.</div>
+            </div>
+        </div>
+        </div>
+    
+    `;
+
+  // old
   var devtoberfest = `
          <h3 class="ui header">
                 <i class="bell icon"></i>
@@ -218,14 +247,12 @@ async function whatsNewCheck(showOnlyOnce = true) {
             hide: 800,
           },
         });
-      } /*
-      Keep this for future use. It opens another popup when the first one is closed
-      ,
+      },
       onclose: () => {
-        showBigPopup(devtoberfest, "Your SAP CI Toolbox since 1963", {
+        showBigPopup(recentChanges, "Your SAP CI Toolbox since 1963", {
           fullscreen: false,
         });
-      },*/,
+      },
     });
 
     await storageSetPromise({ cpiHelper_Version: manifestVersion });
@@ -280,7 +307,7 @@ async function recrutingPopup(force = false) {
     log.debug("recruting popup in human readable time: " + hrts);
   }
 
-  if (lang == "de-DE" && (force || (!timestamp && randomGroup > 70) || (timestamp && timestamp < today))) {
+  if (lang == "de-DE" && (force || (!timestamp && randomGroup > 50) || (timestamp && timestamp < today))) {
     statistic("recrutingPopup", "show");
     var html = `<div>
     <div class="ui message">
