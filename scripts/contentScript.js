@@ -1003,6 +1003,7 @@ async function getIflowInfoCf(callback, silent = false) {
       response = new XmlToJson().parse(response)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
       var resp = response.artifactInformations;
 
+      // search for current iflow in list of artifacts list
       if (resp.length) {
         resp = resp.find((element) => {
           return element.symbolicName == cpiData.integrationFlowId;
@@ -1019,9 +1020,14 @@ async function getIflowInfoCf(callback, silent = false) {
       // If response didn't contain our iflow and it's an Edge cell, redo the request with the locationId
       // ---> we need to pass the locationId in the request in case the tenant has an Edge cell and the IFlow is deployed there.
       if (!resp && cpiData.isEdge) {
-        // Repeat the previous request, passing the location ID
-        var locIdParam = cpiData.runtimeLocationId ? "?runtimeLocationId=" + cpiData.runtimeLocationId : "";
-        return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand" + locIdParam, false, null, null, null, null, !silent);
+        // Set a flag to indicate the retry is triggered
+        return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand" + locIdParam, false, null, null, null, null, !silent).then((retryResponse) => {
+          // Return both the retry response and the flag
+          return { retryResponse, retryPerformed: true };
+        });
+      } else {
+        // Return a dummy response and a flag indicating no retry
+        return Promise.resolve({ retryResponse: resp, retryPerformed: false });
       }
 
       // If no valid response was found (because the flow is not deployed...), throw an error
@@ -1031,10 +1037,24 @@ async function getIflowInfoCf(callback, silent = false) {
 
       return resp;
     })
-    .then((response) => {
-      if (response) {
-        return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + response.id, false, "application/json", null, null, null, !silent);
+    .then(({ retryResponse, retryPerformed }) => {
+      if (!retryPerformed) {
+        // If retry was not performed, skip this block
+        resp = retryResponse;
       }
+
+      if (retryPerformed) {
+        // Process the response from the retry call
+        // search Edge iflow in list
+        if (retryResponse.length) {
+          resp = retryResponse.find((element) => {
+            return element.symbolicName == cpiData.integrationFlowId;
+          });
+        } else if (retryResponse.symbolicName != cpiData.integrationFlowId) {
+          resp = null;
+        }
+      }
+      return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + resp.id, false, "application/json", null, null, null, !silent);
     })
     .then((response) => {
       var resp = JSON.parse(response);
