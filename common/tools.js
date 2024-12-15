@@ -248,6 +248,7 @@ function downloadFile(fileContent, format, filename) {
 }
 
 var formatTrace = function (input, id, traceId) {
+  id = id.replaceAll(":", "_");
   var tab_size = 2;
   var editorManager;
   var encodeHTML = function (str) {
