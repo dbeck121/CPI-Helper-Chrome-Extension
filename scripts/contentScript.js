@@ -1032,8 +1032,10 @@ async function getIflowInfoCf(callback, silent = false) {
       return resp;
     })
     .then((response) => {
-      if (response) {
+      if (response?.id) {
         return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + response.id, false, "application/json", null, null, null, !silent);
+      } else {
+        throw "Integration Flow was not found. Probably it is not deployed.";
       }
     })
     .then((response) => {
