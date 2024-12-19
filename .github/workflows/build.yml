@@ -12,7 +12,7 @@ name: Create Zip file from Dev
 on:
   push:
     branches:
-      - '**' # Change this to your default branch
+      - dev # Change this to your default branch
 
 jobs:
   generate_and_commit:
