@@ -14,9 +14,7 @@
     "https://*.platform.sapcloud.cn/shell"
   ],
   "permissions": ["storage", "webRequest"],
-  "background": {
-    "service_worker": "background/background.js"
-  },
+  "background": {},
   "content_scripts": [
     {
       "matches": [

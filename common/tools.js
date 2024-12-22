@@ -34,54 +34,47 @@ function syncChromeStoragePromise(keyName, value) {
  * @returns {Promise} A promise that resolves with the CSRF token for the current user.
  */
 async function getCsrfToken(showInfo = false) {
-  if (!cpiData.classicUrl) {
-    return new Promise(async function (resolve, reject) {
-      var xhr = new XMLHttpRequest();
-      xhr.withCredentials = true;
-      log.log("getCsrfToken");
+  return new Promise(async function (resolve, reject) {
+    var xhr = new XMLHttpRequest();
+    xhr.withCredentials = true;
+    log.log("getCsrfToken");
 
-      xhr.open("GET", absolutePath("/api/1.0/user"));
-      xhr.setRequestHeader("X-CSRF-Token", "Fetch");
+    xhr.open("GET", absolutePath("/" + cpiData.urlExtension + "api/1.0/user"));
+    xhr.setRequestHeader("X-CSRF-Token", "Fetch");
 
-      xhr.onload = function () {
-        if (this.status >= 200 && this.status < 300) {
-          showInfo ? workingIndicator(false) : {};
-          log.debug("getCsrfToken response status: ", xhr.status);
-          log.debug("getCsrfToken response text: ", xhr.responseText.substring(0, 50));
-          resolve(xhr.getResponseHeader("x-csrf-token"));
-        } else {
-          showInfo ? workingIndicator(false) : {};
-          log.debug("getCsrfToken response status: ", xhr.status);
-          log.debug("getCsrfToken response text: ", xhr.responseText.substring(0, 300));
-          showInfo ? showToast("CPI-Helper has run into a problem while catching X-CSRF-Token.", "", "error") : {};
-
-          reject({
-            status: this.status,
-            statusText: xhr.statusText,
-          });
-        }
-      };
-      xhr.ontimeout = function () {
-        log.log("getCsrfToken timeout");
-        showInfo ? showToast("CPI-Helper has run into a timeout while refreshing X-CSRF-Token.", "Please refresh page and try again.", "error") : {};
+    xhr.onload = function () {
+      if (this.status >= 200 && this.status < 300) {
         showInfo ? workingIndicator(false) : {};
-      };
+        log.debug("getCsrfToken response status: ", xhr.status);
+        log.debug("getCsrfToken response text: ", xhr.responseText.substring(0, 50));
+        resolve(xhr.getResponseHeader("x-csrf-token"));
+      } else {
+        showInfo ? workingIndicator(false) : {};
+        log.debug("getCsrfToken response status: ", xhr.status);
+        log.debug("getCsrfToken response text: ", xhr.responseText.substring(0, 300));
+        showInfo ? showToast("CPI-Helper has run into a problem while catching X-CSRF-Token.", "", "error") : {};
 
-      xhr.onerror = function () {
         reject({
           status: this.status,
           statusText: xhr.statusText,
         });
-      };
-      showInfo ? workingIndicator(true) : {};
-      xhr.send();
-    });
-  } else {
-    var tenant = document.location.href.split("/")[2].split(".")[0];
-    var name = "xcsrf_" + tenant;
-    xcsrf = await storageGetPromise(name);
-    return xcsrf;
-  }
+      }
+    };
+    xhr.ontimeout = function () {
+      log.log("getCsrfToken timeout");
+      showInfo ? showToast("CPI-Helper has run into a timeout while refreshing X-CSRF-Token.", "Please refresh page and try again.", "error") : {};
+      showInfo ? workingIndicator(false) : {};
+    };
+
+    xhr.onerror = function () {
+      reject({
+        status: this.status,
+        statusText: xhr.statusText,
+      });
+    };
+    showInfo ? workingIndicator(true) : {};
+    xhr.send();
+  });
 }
 
 var callCache = new Map();
