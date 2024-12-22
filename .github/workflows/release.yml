@@ -11,7 +11,7 @@ name: Create Release from Manifest
 
 on:
   workflow_run:
-    workflows: [ "Create Zip file from Dev" ]
+    workflows: ["Create Zip file from Dev"]
     types:
       - completed
     branches:
