@@ -77,7 +77,57 @@ async function getCsrfToken(showInfo = false) {
   });
 }
 
-var callCache = new Map();
+/**
+ * Returns a promise that resolves with the value of the specified key in the cache. Used for http calls cache
+ **/
+
+class SimpleCache {
+  constructor() {
+    this.cache = new Map();
+    this.setCounter = 0; // Counter for the number of set calls
+  }
+
+  set(id, data, ttl = 600) {
+    const expireTime = Date.now() + ttl * 1000;
+    this.cache.set(id, { data, expireTime });
+
+    // Increment the counter and perform cleanup every 20th call
+    this.setCounter++;
+    if (this.setCounter >= 20) {
+      this.cleanUp();
+      this.setCounter = 0; // Reset the counter
+    }
+  }
+
+  get(id) {
+    const cachedItem = this.cache.get(id);
+
+    if (!cachedItem) {
+      return null;
+    }
+
+    const currentTime = Date.now();
+
+    if (currentTime >= cachedItem.expireTime) {
+      this.cache.delete(id);
+      return null;
+    }
+
+    return cachedItem.data;
+  }
+
+  // Method to clean up expired entries
+  cleanUp() {
+    const currentTime = Date.now();
+    for (const [id, { expireTime }] of this.cache.entries()) {
+      if (currentTime >= expireTime) {
+        this.cache.delete(id);
+      }
+    }
+  }
+}
+
+const httpCache = new SimpleCache();
 
 /**
  * Returns a promise that resolves with an XMLHttpRequest object for the specified URL.
@@ -90,6 +140,7 @@ var callCache = new Map();
  * @param {boolean} showInfo - Whether to show/hide the working indicator, X-CSRF-Token indicator, and toast messages. Optional.
  * @returns {Promise} A promise that resolves with an XMLHttpRequest object for the specified URL.
  */
+//just an helper class.... do not use
 async function makeCallPromiseXHR(method, url, accept, payload, includeXcsrf, contentType, showInfo = true) {
   return new Promise(async function (resolve, reject) {
     log.debug("makecallpromisexhr " + new Date().toISOString());
@@ -159,10 +210,14 @@ async function makeCallPromiseXHR(method, url, accept, payload, includeXcsrf, co
 
 async function makeCallPromise(method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo = true) {
   log.debug("makeCallPromise: ", method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo);
+
   var cache;
-  if (useCache) {
-    cache = callCache.get(method + url);
+
+  //check if useCache is boolean or number
+  if ((typeof useCache == "boolean" && useCache == true) || (typeof useCache == "number" && useCache > 0)) {
+    cache = httpCache.get(method + url);
   }
+
   if (cache) {
     log.debug("makeCallPromise cache hit");
     return cache;
@@ -171,8 +226,11 @@ async function makeCallPromise(method, url, useCache, accept, payload, includeXc
   var xhr = await makeCallPromiseXHR(method, url, accept, payload, includeXcsrf, contentType, (showInfo = true));
 
   if (xhr.status >= 200 && xhr.status < 300) {
-    if (useCache) {
-      callCache.set(method + url, xhr.responseText);
+    if (useCache && typeof useCache == "boolean") {
+      httpCache.set(method + url, xhr.responseText);
+    }
+    if (useCache && typeof useCache == "number") {
+      httpCache.set(method + url, xhr.responseText, useCache);
     }
     return xhr.responseText;
   }
@@ -181,42 +239,6 @@ async function makeCallPromise(method, url, useCache, accept, payload, includeXc
     status: xhr.status,
     statusText: xhr.statusText,
   };
-}
-
-//function to make http calls
-async function makeCall(type, url, includeXcsrf, payload, callback, contentType, showInfo = true) {
-  log.debug("makeCall", type, url, includeXcsrf, payload, contentType, showInfo);
-  var xhr = new XMLHttpRequest();
-  xhr.withCredentials = true;
-  xhr.open(type, absolutePath(url), true);
-
-  if (contentType) {
-    xhr.setRequestHeader("Content-type", contentType);
-  }
-
-  if (includeXcsrf) {
-    xhr.setRequestHeader("X-CSRF-Token", await getCsrfToken(true));
-  }
-
-  xhr.timeout = 60000; // Set timeout to 60 seconds
-  xhr.ontimeout = function (e) {
-    log.debug("makeCall timeout");
-    log.debug(e);
-    showInfo ? showToast("CPI-Helper has run into a timeout!", "Please refresh page and try again.", "error") : {};
-    showInfo ? workingIndicator(false) : {};
-  };
-
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState == 4) {
-      callback(xhr);
-      showInfo ? workingIndicator(false) : {};
-      log.debug("makeCall response status: ", xhr.status);
-      log.debug("makeCall response text: ", xhr.responseText.substring(0, 100));
-    }
-  };
-
-  showInfo ? workingIndicator(true) : {};
-  xhr.send(payload);
 }
 
 let absolutePath = function (href) {
@@ -244,12 +266,7 @@ var formatTrace = function (input, id, traceId) {
   id = id.replaceAll(":", "_");
   var tab_size = 2;
   var editorManager;
-  var encodeHTML = function (str) {
-    return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/\n/g, "&#010;").replace(/'/g, "&#039;");
-  };
-  var decodeHTML = function (str) {
-    return String(str).replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", '"').replace("&#010;", "\n").replace("&#039;", "'");
-  };
+
   var formatXml = function (sourceXml, tab_size) {
     var xmlDeclarationmatch = sourceXml.match(/^<\?xml\s+version\s*=\s*(["'])[^\1]+\1\s+encoding\s*=\s*(["'])[^\2]+\2\s*\?>/);
     var xmlDeclaration = xmlDeclarationmatch ? `${xmlDeclarationmatch[0]}\n` : "";

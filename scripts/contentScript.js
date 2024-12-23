@@ -46,9 +46,9 @@ var cpiIflowUriRegexp = /\/integrationflows\/(?<artifactId>[0-9a-zA-Z_\-.]+)/;
 function openTrace(MessageGuid) {
   log.debug("MessageGuid");
   //we have to get the RunID first
-  makeCall("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$format=json", false, "", (xhr) => {
-    if (xhr.readyState == 4) {
-      var resp = JSON.parse(xhr.responseText);
+  makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$format=json", false)
+    .then((responseText) => {
+      var resp = JSON.parse(responseText);
       var status = resp.d.results[0].OverallState;
       if (resp.d.results.length > 1 && status != "COMPLETED") {
         var runId = resp.d.results[1].Id;
@@ -65,9 +65,12 @@ function openTrace(MessageGuid) {
         runId +
         '"%7D';
       window.open(url, "_blank");
-    }
-  });
+    })
+    .catch((e) => {
+      log.error("Error while opening Trace: " + e);
+    });
 }
+
 cpiData.functions.openTrace = openTrace;
 
 //open new window for infos
@@ -81,6 +84,10 @@ var activeInlineItem;
 
 //fill the message sidebar
 async function renderMessageSidebar() {
+  if (!sidebar.active) {
+    return;
+  }
+
   var numberEntries = hostData.count || 10;
   var createRow = function (elements, trClass) {
     var tr = document.createElement("tr");
@@ -108,204 +115,191 @@ async function renderMessageSidebar() {
     }
   }, true);
 
-  //get the messagelogs for current iflow
-  //var xhr = await makeCallPromiseXHR("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and Status ne 'RETRY' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogEnd desc", false, null, null, false, "", false)
-  // 18.4.2024, Addor: changed back to include Retry (for JMS based sender adapters it's crucial to see hanging messages in the sidebar)
-  //var xhr = await makeCallPromiseXHR("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + iflowId + "' and Status ne 'DISCARDED'&$top=" + numberEntries + "&$format=json&$orderby=LogEnd desc", false, null, null, false, "", false)
+  var resp = null;
+  try {
+    //24-04-2024, On some tenants there are Retry messages hanging without any LogStart and LogEnd date and SAP is unable to discard them, these msgs stops CPI helper to display messages in popup ,using a timestamp from long back helpsso using date from 1900
+    var responseText = await makeCallPromise(
+      "GET",
+      "/" +
+        cpiData.urlExtension +
+        "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" +
+        iflowId +
+        "' and LogStart gt datetime'1900-01-01T01:02:50' and Status ne 'DISCARDED'&$top=" +
+        numberEntries +
+        "&$format=json&$orderby=LogEnd desc"
+    );
 
-  //24-04-2024, On some tenants there are Retry messages hanging without any LogStart and LogEnd date and SAP is unable to discard them, these msgs stops CPI helper to display messages in popup ,using a timestamp from long back helpsso using date from 1900
-  var xhr = await makeCallPromiseXHR(
-    "GET",
-    "/" +
-      cpiData.urlExtension +
-      "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" +
-      iflowId +
-      "' and LogStart gt datetime'1900-01-01T01:02:50' and Status ne 'DISCARDED'&$top=" +
-      numberEntries +
-      "&$format=json&$orderby=LogEnd desc",
-    false,
-    null,
-    null,
-    false,
-    "",
-    false
-  );
-
-  if (xhr.readyState == 4 && sidebar.active) {
-    var resp = null;
-    try {
-      resp = JSON.parse(xhr.responseText);
-      resp = resp.d.results;
-    } catch (e) {
-      log.error("There was a faulty message from CI-API. CPI Helper will ignore it: " + e);
-    }
-    //    document.getElementById('iflowName').innerText = cpiData.integrationFlowId;
-
-    let updatedText = document.getElementById("updatedText");
-
-    updatedText.innerHTML = "<span>Updated: " + new Date().toLocaleTimeString("de-DE") + "</span>";
-
-    let thisMessageHash = "";
-    if (resp && resp.length != 0) {
-      //stores information for this run to be used with plugin engine
-      var runInfoElement = {};
-      thisMessageHash = resp[0].MessageGuid + resp[0].LogStart + resp[0].LogEnd + resp[0].Status;
-
-      try {
-        if (thisMessageHash != cpiData.messageSidebar.lastMessageHashList[0]) {
-          let thisMessageHashList = [];
-
-          let messageList = document.getElementById("messageList");
-          messageList.innerHTML = "";
-          var lastDay;
-
-          //display few :
-          var count = parseInt(document.querySelector("head > meta[name='cpi-count']") !== null ? document.querySelector("head > meta[name='cpi-count']").content : resp.length);
-
-          for (var i = 0; i < count; i++) {
-            //var logStart = resp[i].LogStart == null ? "-" : resp[i].LogStart;
-            thisMessageHashList.push(resp[i].MessageGuid + resp[i].LogStart + resp[i].LogEnd + resp[i].Status);
-            runInfoElement[thisMessageHash] = {};
-            runInfoElement[thisMessageHash].messageHash = resp[i].MessageGuid + resp[i].LogStart + resp[i].LogEnd + resp[i].Status;
-            runInfoElement[thisMessageHash].messageGuid = resp[i].MessageGuid;
-            runInfoElement[thisMessageHash].logStart = new Date(parseInt(resp[i].LogStart.match(/\d+/)[0]));
-            runInfoElement[thisMessageHash].logEnd = new Date(parseInt(resp[i].LogEnd.match(/\d+/)[0]));
-            runInfoElement[thisMessageHash].status = resp[i].Status;
-            runInfoElement[thisMessageHash].message = resp[i].LogLevel;
-
-            //write date if necessary
-            let date = new Date(parseInt(resp[i].LogEnd.match(/\d+/)[0]));
-
-            //add offset to utc time. The offset is not correct anymore but isostring can be used to show local time
-            date.setTime(date.getTime() - date.getTimezoneOffset() * 60 * 1000);
-            runInfoElement[thisMessageHash].timeZoneOffset = date.getTimezoneOffset();
-            date = date.toISOString();
-
-            if (date.substr(0, 10) != lastDay) {
-              messageList.appendChild(createRow([date.substr(0, 10)]));
-              lastDay = date.substr(0, 10);
-            }
-
-            //flash animation for new elements
-            let flash = "";
-            if (cpiData.messageSidebar.lastMessageHashList.length != 0 && !cpiData.messageSidebar.lastMessageHashList.includes(thisMessageHashList[i])) {
-              flash = " flash";
-            }
-            let loglevel = resp[i].LogLevel.toLowerCase();
-            // logLevel[0] = logLevel[0].toUpperCase();
-            runInfoElement[thisMessageHash].logLevel = loglevel;
-
-            let traceButton = createElementFromHTML(`<button title='jump to trace page' id='trace--${i}' class='${resp[i].MessageGuid} ${flash}'>${loglevel.substr(0, 1).toUpperCase()}</button>`);
-
-            if (loglevel.toLowerCase() === "trace") {
-              var quickInlineTraceButton = createElementFromHTML(
-                `<button title='activate inline trace for debugging'  id='inlinetrace--${i}' class='${resp[i].MessageGuid} ${flash} cpiHelper_inlineInfo-button'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>`
-              );
-            } else {
-              var quickInlineTraceButton = createElementFromHTML("<span />");
-            }
-
-            let infoButton = createElementFromHTML(
-              `<button title='show logs in new tab' id='info--${i}' class='${
-                cpiData.urlExtension && !resp[i].AlternateWebLink.replace("https://", "").match(cpiTypeRegexp) ? resp[i].AlternateWebLink.replace("443/shell", "443/" + cpiData.urlExtension + "shell") : resp[i].AlternateWebLink
-              } ${flash}'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>`
-            );
-            let logButton = createElementFromHTML(
-              `<button title='show log viewer on this page' id='logs--${i}' class='${resp[i].MessageGuid} ${flash}'><span data-sap-ui-icon-content=\"\" class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>`
-            );
-
-            //let listItem = document.createElement("div");
-            //listItem.classList.add("cpiHelper_messageListItem")
-            let statusColor = getStatusColorCode(resp[i].Status);
-            let statusIcon = "xe05b";
-            if (resp[i].Status == "PROCESSING") {
-              statusIcon = "xe047";
-            }
-            if (resp[i].Status == "FAILED") {
-              statusIcon = "xe03e";
-            }
-            if (resp[i].Status.match(/^(ESCALATED|RETRY)$/)) {
-              statusIcon = "xe201";
-            }
-            if (resp[i].Status.match(/^(CANCELLED|ABANDONED)$/)) {
-              statusIcon = "xe23e";
-            }
-
-            //listItem.style["color"] = statusColor;
-
-            activeInlineItem == quickInlineTraceButton.classList[0] && quickInlineTraceButton.classList.add("cpiHelper_inlineInfo-active");
-
-            let statusicon = createElementFromHTML(
-              `<button title='Status Details' class='cpiHelper_inlineInfo-button'><span data-sap-ui-icon-content='&#${statusIcon}' class='${resp[i].MessageGuid}` +
-                " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" +
-                `${statusColor}'></span>` +
-                //timeButton here
-                `<span style='color:${statusColor};padding-inline-start:0.3em'>${date.substr(11, 8)}</span></button>`
-            );
-
-            statusicon.onclick = async (e) => {
-              if (e.currentTarget.classList.contains("cpiHelper_sidebar_iconbutton")) {
-                $(".ui.toast").toast("close");
-                e.currentTarget.classList.remove("cpiHelper_sidebar_iconbutton");
-              } else {
-                document.querySelectorAll(".cpiHelper_sidebar_iconbutton").forEach((i) => i.classList.remove("cpiHelper_sidebar_iconbutton"));
-                apireserror(e.currentTarget.parentNode.parentNode.className);
-                e.currentTarget.classList.add("cpiHelper_sidebar_iconbutton");
-              }
-            };
-
-            quickInlineTraceButton.onmouseup = async (e) => {
-              var mytarget = e.currentTarget;
-              if (activeInlineItem == e.currentTarget.parentNode.parentNode.className) {
-                hideInlineTrace();
-                showToast("Inline-Debugging Deactivated");
-              } else {
-                hideInlineTrace();
-                var inlineTrace = await showInlineTrace(e.currentTarget.parentNode.parentNode.className);
-                if (inlineTrace) {
-                  statistic("messagebar_btn_inlinetrace_click");
-                  showToast("Inline-Debugging Activated");
-                  mytarget.classList.add("cpiHelper_inlineInfo-active");
-                  activeInlineItem = mytarget.parentNode.parentNode.className;
-                } else {
-                  activeInlineItem = null;
-                  showToast("No data found.", "Inline debugging not possible", "warning");
-                }
-              }
-            };
-
-            var pluginButtons = await createPluginButtonsInMessageSidebar(runInfoElement[thisMessageHash], i, flash);
-
-            //timebutton merged in statusicon.
-            messageList.appendChild(createRow([statusicon, logButton, infoButton, traceButton, quickInlineTraceButton, ...pluginButtons], resp[i].MessageGuid));
-            infoButton.addEventListener("click", (a) => {
-              statistic("messagebar_btn_info_click");
-              let url = a.currentTarget.classList[0];
-              if (url.match(cpiTypeRegexp)) {
-                url = url.replace("/itspaces", "");
-              }
-              openInfo(url);
-            });
-
-            logButton.addEventListener("click", async (a) => {
-              statistic("messagebar_btn_logs_click");
-              await showBigPopup(await createContentNodeForLogs(a.currentTarget.classList[0], false), "Logs");
-            });
-
-            traceButton.addEventListener("click", (a) => {
-              statistic("messagebar_btn_trace_click");
-              openTrace(a.currentTarget.classList[0]);
-            });
-
-            cpiData.messageSidebar.lastMessageHashList = thisMessageHashList;
-          }
-        }
-      } catch (e) {
-        log.error("There was an error when processing the log entries. Process aborted. " + e);
-      }
-    }
-    await messageSidebarPluginContent();
+    resp = JSON.parse(responseText);
+    resp = resp.d.results;
+  } catch (e) {
+    log.error("There was a faulty message from CI-API. CPI Helper will ignore it: " + e);
   }
+  //    document.getElementById('iflowName').innerText = cpiData.integrationFlowId;
+
+  let updatedText = document.getElementById("updatedText");
+
+  updatedText.innerHTML = "<span>Updated: " + new Date().toLocaleTimeString("de-DE") + "</span>";
+
+  let thisMessageHash = "";
+  if (resp && resp.length != 0) {
+    //stores information for this run to be used with plugin engine
+    var runInfoElement = {};
+    thisMessageHash = resp[0].MessageGuid + resp[0].LogStart + resp[0].LogEnd + resp[0].Status;
+
+    try {
+      if (thisMessageHash != cpiData.messageSidebar.lastMessageHashList[0]) {
+        let thisMessageHashList = [];
+
+        let messageList = document.getElementById("messageList");
+        messageList.innerHTML = "";
+        var lastDay;
+
+        //display few :
+        var count = parseInt(document.querySelector("head > meta[name='cpi-count']") !== null ? document.querySelector("head > meta[name='cpi-count']").content : resp.length);
+
+        for (var i = 0; i < count; i++) {
+          //var logStart = resp[i].LogStart == null ? "-" : resp[i].LogStart;
+          thisMessageHashList.push(resp[i].MessageGuid + resp[i].LogStart + resp[i].LogEnd + resp[i].Status);
+          runInfoElement[thisMessageHash] = {};
+          runInfoElement[thisMessageHash].messageHash = resp[i].MessageGuid + resp[i].LogStart + resp[i].LogEnd + resp[i].Status;
+          runInfoElement[thisMessageHash].messageGuid = resp[i].MessageGuid;
+          runInfoElement[thisMessageHash].logStart = new Date(parseInt(resp[i].LogStart.match(/\d+/)[0]));
+          runInfoElement[thisMessageHash].logEnd = new Date(parseInt(resp[i].LogEnd.match(/\d+/)[0]));
+          runInfoElement[thisMessageHash].status = resp[i].Status;
+          runInfoElement[thisMessageHash].message = resp[i].LogLevel;
+
+          //write date if necessary
+          let date = new Date(parseInt(resp[i].LogEnd.match(/\d+/)[0]));
+
+          //add offset to utc time. The offset is not correct anymore but isostring can be used to show local time
+          date.setTime(date.getTime() - date.getTimezoneOffset() * 60 * 1000);
+          runInfoElement[thisMessageHash].timeZoneOffset = date.getTimezoneOffset();
+          date = date.toISOString();
+
+          if (date.substr(0, 10) != lastDay) {
+            messageList.appendChild(createRow([date.substr(0, 10)]));
+            lastDay = date.substr(0, 10);
+          }
+
+          //flash animation for new elements
+          let flash = "";
+          if (cpiData.messageSidebar.lastMessageHashList.length != 0 && !cpiData.messageSidebar.lastMessageHashList.includes(thisMessageHashList[i])) {
+            flash = " flash";
+          }
+          let loglevel = resp[i].LogLevel.toLowerCase();
+          // logLevel[0] = logLevel[0].toUpperCase();
+          runInfoElement[thisMessageHash].logLevel = loglevel;
+
+          let traceButton = createElementFromHTML(`<button title='jump to trace page' id='trace--${i}' class='${resp[i].MessageGuid} ${flash}'>${loglevel.substr(0, 1).toUpperCase()}</button>`);
+
+          if (loglevel.toLowerCase() === "trace") {
+            var quickInlineTraceButton = createElementFromHTML(
+              `<button title='activate inline trace for debugging'  id='inlinetrace--${i}' class='${resp[i].MessageGuid} ${flash} cpiHelper_inlineInfo-button'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>`
+            );
+          } else {
+            var quickInlineTraceButton = createElementFromHTML("<span />");
+          }
+
+          let infoButton = createElementFromHTML(
+            `<button title='show logs in new tab' id='info--${i}' class='${
+              cpiData.urlExtension && !resp[i].AlternateWebLink.replace("https://", "").match(cpiTypeRegexp) ? resp[i].AlternateWebLink.replace("443/shell", "443/" + cpiData.urlExtension + "shell") : resp[i].AlternateWebLink
+            } ${flash}'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>`
+          );
+          let logButton = createElementFromHTML(
+            `<button title='show log viewer on this page' id='logs--${i}' class='${resp[i].MessageGuid} ${flash}'><span data-sap-ui-icon-content=\"\" class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>`
+          );
+
+          //let listItem = document.createElement("div");
+          //listItem.classList.add("cpiHelper_messageListItem")
+          let statusColor = getStatusColorCode(resp[i].Status);
+          let statusIcon = "xe05b";
+          if (resp[i].Status == "PROCESSING") {
+            statusIcon = "xe047";
+          }
+          if (resp[i].Status == "FAILED") {
+            statusIcon = "xe03e";
+          }
+          if (resp[i].Status.match(/^(ESCALATED|RETRY)$/)) {
+            statusIcon = "xe201";
+          }
+          if (resp[i].Status.match(/^(CANCELLED|ABANDONED)$/)) {
+            statusIcon = "xe23e";
+          }
+
+          //listItem.style["color"] = statusColor;
+
+          activeInlineItem == quickInlineTraceButton.classList[0] && quickInlineTraceButton.classList.add("cpiHelper_inlineInfo-active");
+
+          let statusicon = createElementFromHTML(
+            `<button title='Status Details' class='cpiHelper_inlineInfo-button'><span data-sap-ui-icon-content='&#${statusIcon}' class='${resp[i].MessageGuid}` +
+              " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" +
+              `${statusColor}'></span>` +
+              //timeButton here
+              `<span style='color:${statusColor};padding-inline-start:0.3em'>${date.substr(11, 8)}</span></button>`
+          );
+
+          statusicon.onclick = async (e) => {
+            if (e.currentTarget.classList.contains("cpiHelper_sidebar_iconbutton")) {
+              $(".ui.toast").toast("close");
+              e.currentTarget.classList.remove("cpiHelper_sidebar_iconbutton");
+            } else {
+              document.querySelectorAll(".cpiHelper_sidebar_iconbutton").forEach((i) => i.classList.remove("cpiHelper_sidebar_iconbutton"));
+              apireserror(e.currentTarget.parentNode.parentNode.className);
+              e.currentTarget.classList.add("cpiHelper_sidebar_iconbutton");
+            }
+          };
+
+          quickInlineTraceButton.onmouseup = async (e) => {
+            var mytarget = e.currentTarget;
+            if (activeInlineItem == e.currentTarget.parentNode.parentNode.className) {
+              hideInlineTrace();
+              showToast("Inline-Debugging Deactivated");
+            } else {
+              hideInlineTrace();
+              var inlineTrace = await showInlineTrace(e.currentTarget.parentNode.parentNode.className);
+              if (inlineTrace) {
+                statistic("messagebar_btn_inlinetrace_click");
+                showToast("Inline-Debugging Activated");
+                mytarget.classList.add("cpiHelper_inlineInfo-active");
+                activeInlineItem = mytarget.parentNode.parentNode.className;
+              } else {
+                activeInlineItem = null;
+                showToast("No data found.", "Inline debugging not possible", "warning");
+              }
+            }
+          };
+
+          var pluginButtons = await createPluginButtonsInMessageSidebar(runInfoElement[thisMessageHash], i, flash);
+
+          //timebutton merged in statusicon.
+          messageList.appendChild(createRow([statusicon, logButton, infoButton, traceButton, quickInlineTraceButton, ...pluginButtons], resp[i].MessageGuid));
+          infoButton.addEventListener("click", (a) => {
+            statistic("messagebar_btn_info_click");
+            let url = a.currentTarget.classList[0];
+            if (url.match(cpiTypeRegexp)) {
+              url = url.replace("/itspaces", "");
+            }
+            openInfo(url);
+          });
+
+          logButton.addEventListener("click", async (a) => {
+            statistic("messagebar_btn_logs_click");
+            await showBigPopup(await createContentNodeForLogs(a.currentTarget.classList[0], false), "Logs");
+          });
+
+          traceButton.addEventListener("click", (a) => {
+            statistic("messagebar_btn_trace_click");
+            openTrace(a.currentTarget.classList[0]);
+          });
+
+          cpiData.messageSidebar.lastMessageHashList = thisMessageHashList;
+        }
+      }
+    } catch (e) {
+      log.error("There was an error when processing the log entries. Process aborted. " + e);
+    }
+  }
+  await messageSidebarPluginContent();
 }
 
 function calculateMessageSidebarTimerTime(lastTabHidden, lastDurationRefresh) {
@@ -323,15 +317,21 @@ function calculateMessageSidebarTimerTime(lastTabHidden, lastDurationRefresh) {
     return messageSidebarTimerTime;
   }
   if (lastDurationRefresh > 1000) {
-    log.debug("Last rendering took more than 1000ms, set timer to 9 seconds");
-    messageSidebarTimerTime = 2;
+    log.debug("Last rendering took more than 1000ms, set timer to 12 seconds");
+    messageSidebarTimerTime = 4;
     return messageSidebarTimerTime;
   }
   if (lastDurationRefresh > 500) {
-    log.debug("Last rendering took more than 500ms, set timer to 6 seconds");
+    log.debug("Last rendering took more than 500ms, set timer to 9 seconds");
+    messageSidebarTimerTime = 3;
+    return messageSidebarTimerTime;
+  }
+  if (lastDurationRefresh > 300) {
+    log.debug("Last rendering took more than 300ms, set timer to 6 seconds");
     messageSidebarTimerTime = 2;
     return messageSidebarTimerTime;
   }
+
   log.debug("Set timer to " + messageSidebarTimerTime + " counts");
   return messageSidebarTimerTime;
 }
@@ -788,42 +788,38 @@ function getChild(node, childNames, childClass = null) {
 //makes a http call to set the log level to trace
 function setLogLevel(logLevel, iflowId) {
   let locID = cpiData.runtimeLocationId && cpiData.isEdge ? ', "runtimeLocationId": "' + cpiData.runtimeLocationId + '"' : "";
-  makeCall(
+  makeCallPromise(
     "POST",
     "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentSetMplLogLevelCommand",
-    true,
+    false,
+    null,
     '{"artifactSymbolicName":"' + iflowId + '","mplLogLevel":"' + logLevel.toUpperCase() + '","nodeType":"IFLMAP"' + locID + "}",
-    (xhr) => {
-      if (xhr.readyState == 4 && xhr.status == 200) {
-        showToast("Trace is activated");
-        log.log("Trace activated");
-      } else {
-        showToast("Error activating Trace", "", "error");
-        log.log("Error activating trace");
-      }
-    },
+    true,
     "application/json;charset=UTF-8"
-  );
+  )
+    .then((res) => {
+      showToast("Trace is activated");
+      log.log("Trace activated");
+    })
+    .catch((e) => {
+      showToast("Error activating Trace", "", "error");
+      log.log("Error activating trace");
+    });
 }
 
 //undeploy IFlow via API call
 function undeploy(tenant = null, artifactId = null) {
   tenant ??= cpiData.tenantId;
   artifactId ??= cpiData.artifactId;
-  makeCall(
-    "POST",
-    "/" + cpiData.urlExtension + "Operations/com.sap.it.nm.commands.deploy.DeleteContentCommand",
-    true,
-    "artifactIds=" + artifactId + "&tenantId=" + tenant,
-    (xhr) => {
-      if (xhr.readyState == 4 && xhr.status == 200) {
-        showToast("Undeploy triggered");
-      } else {
-        showToast("Error triggering undeploy", "", "error");
-      }
-    },
-    "application/x-www-form-urlencoded; charset=UTF-8"
-  );
+  makeCallPromise("POST", "/" + cpiData.urlExtension + "Operations/com.sap.it.nm.commands.deploy.DeleteContentCommand", false, null, "artifactIds=" + artifactId + "&tenantId=" + tenant, true, "application/x-www-form-urlencoded; charset=UTF-8")
+    .then((res) => {
+      showToast("Undeploy triggered");
+      log.log("Undeploy triggered");
+    })
+    .catch((e) => {
+      log.error("Error triggering undeploy");
+      showToast("Error triggering undeploy", "", "error");
+    });
 }
 cpiData.functions.undeploy = undeploy;
 
@@ -994,14 +990,14 @@ async function getIflowInfo(callback, silent = false) {
 
 async function getIflowInfoCf(callback, silent = false) {
   // first we check if we have an Edge cell connected to the tenant (only on CF - neo unclear how to check)
-  return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.srv.web.cf.RuntimeLocationListCommand", false, null, null, null, null, !silent)
+  return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.srv.web.cf.RuntimeLocationListCommand", 120, null, null, null, null, !silent)
     .then((response) => {
       response = new XmlToJson().parse(response)["com.sap.it.op.srv.web.cf.RuntimeLocationListResponse"];
       var edgeId = response.runtimeLocations[1]?.id;
       cpiData.runtimeLocationId = edgeId;
       cpiData.isEdge = edgeId != undefined;
 
-      return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", false, null, null, null, null, !silent);
+      return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", 120, null, null, null, null, !silent);
     })
     .then((response) => {
       // load all non-Edge iflows and search the currently opened Iflow
@@ -1026,7 +1022,7 @@ async function getIflowInfoCf(callback, silent = false) {
       if (!resp && cpiData.isEdge) {
         // Repeat the previous request, passing the location ID
         var locIdParam = cpiData.runtimeLocationId ? "?runtimeLocationId=" + cpiData.runtimeLocationId : "";
-        return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand" + locIdParam, false, null, null, null, null, !silent);
+        return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand" + locIdParam, 120, null, null, null, null, !silent);
       }
 
       // If no valid response was found (because the flow is not deployed...), throw an error
@@ -1038,7 +1034,7 @@ async function getIflowInfoCf(callback, silent = false) {
     })
     .then((response) => {
       if (response?.id) {
-        return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + response.id, false, "application/json", null, null, null, !silent);
+        return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + response.id, 60, "application/json", null, null, null, !silent);
       } else {
         throw "Integration Flow was not found. Probably it is not deployed.";
       }
@@ -1064,7 +1060,7 @@ async function getIflowInfoCf(callback, silent = false) {
 }
 
 async function getIflowInfoNeo(callback, silent = false) {
-  return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", false, null, null, null, null, !silent)
+  return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", 120, null, null, null, null, !silent)
     .then((response) => {
       // load all non-Edge iflows and search the currently opened Iflow
       response = new XmlToJson().parse(response)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
@@ -1089,7 +1085,7 @@ async function getIflowInfoNeo(callback, silent = false) {
     })
     .then((response) => {
       if (response) {
-        return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + response.id, false, "application/json", null, null, null, !silent);
+        return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + response.id, 60, "application/json", null, null, null, !silent);
       }
     })
     .then((response) => {
@@ -1424,7 +1420,7 @@ async function openIflowInfoPopup() {
     textElement2 = `<div class="cpiHelper_infoPopUp_items">
 
   <p>For news and interesting blog posts about SAP CI, <b>please follow our company <a href="https://www.linkedin.com/company/kangoolutions" target="_blank">LinkedIn-Page</a></b>.</p>
-  <div><p>We are a bunch of passionate SAP CI developers from Cologne, Germany. If you want to do a CPI project with us then you can reach us through our website <a href="https://kangoolutions.com" target="_blank">kangoolutions.com</a>. Or maybe you want to become part of the team? Then have a look <a href="https://ich-will-zur.kangoolutions.com/" target="_blank">here</a> (German only). Unfortunately, we can only consider applicants with german residence due to legal reasons.</p></div>
+  <div><p>We are a bunch of passionate SAP CI developers from Cologne, Germany. If you want to work with us then you can reach us through our website <a href="https://kangoolutions.com" target="_blank">kangoolutions.com</a>. Or maybe you want to become part of the team? Then have a look <a href="https://ich-will-zur.kangoolutions.com/" target="_blank">here</a> (German only). Unfortunately, we can only consider applicants with german residence due to legal reasons.</p></div>
   <h4 class="ui horizontal divider left aligned header">
   <i class="envelope icon"></i>
   General Information
