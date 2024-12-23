@@ -851,6 +851,14 @@ function addBreadcrumbs() {
 var powertrace = null;
 var recrutingTimerSet = false;
 async function buildButtonBar() {
+  //check if the header object is ready
+  let area = document.querySelector("[id*='--iflowObjectPageHeader-actions']");
+
+  if (!area) {
+    log.error("header object not ready");
+    return;
+  }
+
   try {
     var headerBar = document.getElementById("__xmlview0--iflowObjectPageHeader-identifierLine");
     headerBar.style.paddingBottom = "0px";
@@ -862,7 +870,8 @@ async function buildButtonBar() {
   var powertraceText = await refreshPowerTrace();
   if (!document.getElementById("__buttonxx")) {
     whatsNewCheck();
-    //timer for recruiting popup in 100 seconds
+
+    //timer for recruiting popup in some seconds
     if (recrutingTimerSet == false) {
       setTimeout(() => {
         recrutingPopup();
@@ -886,24 +895,20 @@ async function buildButtonBar() {
     var pluginbutton = createElementFromHTML(
       ' <button id="__buttonplugin" accesskey="5" data-sap-ui="__buttoninfo" title="plugins Kbd : 5" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; float: right;"><span id="__buttonxy-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button13-content"><bdi id="__button134343-BDI-content">Plugins</bdi></span></span></button>'
     );
-    //append buttons
-    area = document.querySelector("[id*='--iflowObjectPageHeader-actions']");
 
-    if (area) {
-      area.style.textAlign = "right";
-      var breakLine = document.createElement("br");
+    area.style.textAlign = "right";
+    var breakLine = document.createElement("br");
+    document.querySelector("[id*='--searchStep-I']").accessKey = "s";
+    area = document.querySelector("[id*='--iflowObjectPageHeader-actions']");
+    area.addEventListener("click", () => {
       document.querySelector("[id*='--searchStep-I']").accessKey = "s";
-      area = document.querySelector("[id*='--iflowObjectPageHeader-actions']");
-      area.addEventListener("click", () => {
-        document.querySelector("[id*='--searchStep-I']").accessKey = "s";
-      });
-      area.appendChild(breakLine);
-      area.appendChild(pluginbutton);
-      area.appendChild(infobutton);
-      area.appendChild(messagebutton);
-      area.appendChild(tracebutton);
-      area.appendChild(logsbutton);
-    }
+    });
+    area.appendChild(breakLine);
+    area.appendChild(pluginbutton);
+    area.appendChild(infobutton);
+    area.appendChild(messagebutton);
+    area.appendChild(tracebutton);
+    area.appendChild(logsbutton);
 
     tracebutton.addEventListener("click", async () => {
       const btn = document.getElementById("button134345-BDI-content");
