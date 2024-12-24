@@ -6,7 +6,7 @@
       "id": "cpi_helper@dbeck121"
     }
   },
-  "version": "3.17.2.2",
+  "version": "3.17.2.3",
 
   "description": "Extends the SAP Cloud Platform Integration with some useful features to improve usability.",
   "author": "Dominic Beckbauer",
@@ -24,7 +24,16 @@
         "https://*.hana.ondemand.com/itspaces/*",
         "https://*.platform.sapcloud.cn/itspaces/*",
         "https://*.hana.ondemand.com/shell/*",
-        "https://*.platform.sapcloud.cn/shell/*"
+        "https://*.platform.sapcloud.cn/shell/*",
+        "https://*.hana.ondemand.com/*"
+      ],
+      "include_globs": [
+        "https://*.hana.ondemand.com/itspaces/*",
+        "https://*.platform.sapcloud.cn/itspaces/*",
+        "https://*.hana.ondemand.com/shell/*",
+        "https://*.platform.sapcloud.cn/shell/*",
+        "https://*.integrationsuite.cfapps.*.hana.ondemand.com/*",
+        "https://?????-tmn.hci.*.hana.ondemand.com/*"
       ],
       "js": [
         "/lib/ulog/ulog-full.min.js",
@@ -78,7 +87,8 @@
         "/css/contentScript.css",
         "/css/darkoverwrite.css",
         "/css/plugin.css"
-      ]
+      ],
+      "run_at": "document_idle"
     }
   ],
   "action": {

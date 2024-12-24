@@ -46,13 +46,16 @@ It is open source so feel free to check the source code.
 
 ### 3.18.0
 
-- [Improvement] Increase loading performance
-- [Fix] Solved problem with Firefox
+- [Improvement] Might survive login in some cases (experimental).
+- [Improvement] Improved performance of the extension.
+- [Fix] Solved problem with activating trace (on non-Edge Cell and Edge Cell tenants).
+- [Fix] Solved problem with error on not deployed Integration Flows.
+- [Fix] Solved problem with Firefox.
 
 ### 3.17.2
 
 - [Fix] Solved problem with activating trace (on non-Edge Cell and Edge Cell tenants) because of SAP bug.
-- [Fix] Could not beautify logs in some cases
+- [Fix] Could not beautify logs in some cases.
 
 ### 3.17.0
 
