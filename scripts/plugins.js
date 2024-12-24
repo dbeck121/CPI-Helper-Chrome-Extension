@@ -309,9 +309,16 @@ async function createContentNodeForPlugins() {
   var pluginUIList = document.createElement("div");
   pluginUIList.id = "cpiHelper_popup_plugins";
   pluginUIList.className = "ui cards";
-  for (var element of pluginList.sort((x, y) => {
-    return x.id.toLowerCase() > y.id.toLowerCase() ? 1 : -1;
-  })) {
+
+  //sort by alphabet and figaf plugins
+  let sortedList = pluginList
+    .sort((x, y) => {
+      return x.id.toLowerCase() > y.id.toLowerCase() ? 1 : -1;
+    })
+    .sort((x, y) => {
+      return x.id.toLowerCase().includes("figaf") && !y.id.toLowerCase().includes("figaf") ? -1 : 1;
+    });
+  for (var element of sortedList) {
     pluginUIList.appendChild(await createPluginPopupUI(element));
   }
   return pluginUIList;
