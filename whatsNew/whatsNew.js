@@ -46,7 +46,7 @@ It seems that the CPI-Helper is currently experiencing some issues. These are pr
             Known Problems:
           </h3>
           <div class="ui bulleted list">
-            <div class="item">Trace is not working sometimes for some Integration Flows. Please undeploy and deploy them if possible. A redeploy might not work.</div>
+            <div class="item">Trace is not working sometimes for some Integration Flows. Please undeploy, wait a minute and deploy them again if possible. A redeploy might not work.</div>
             </div>
         </div>
         </div>
@@ -105,17 +105,13 @@ It seems that the CPI-Helper is currently experiencing some issues. These are pr
                     </div>
                     <div class="twelve wide column">
                         <div class="ui header">This release is sponsored by Figaf </div>
-  <p>Looking for a better overview of your SAP Cloud Integration? Figaf is proud to introduce a new report that makes it easier to understand the contents of your current Integration Suite system. It provides information such as:</p>
-  <div class="ui bulleted list">
-      <div class="item">iFlow dependencies on scripts and more</div>
-      <div class="item">JMS/Process Direct dependencies</div>
-      <div class="item">Last change information</div>
-      <div class="item">And much more</div>
-  </div>
-  <p>You can generate this report for free with the trial version of Figaf.</p>
+  <p>The <b>Figaf Tool</b> is the intelligent solution for SAP Integration, offering smart features that make integration and migration more manageable. Whether want to run DevOps for your Integration Suite with low effort and high value or planning an SAP Integration Suite migration, Figaf equips you with the tools and guidance to excel.
+<br />
+<br/>
+We have seen a number of customer get started by them themselves in a few hours by following our guides.</p>
                     </div>
                      <div class="sixteen wide column">
-                    For more details, visit the <a href="https://figaf.com/cpihelper18" target="_blank"><u>details page</u></a>.
+                    For more details, visit the <a href="https://figaf.com/cpihelper19" target="_blank"><u>details page</u></a>.
                     </div>
                 </div>
             </div>
