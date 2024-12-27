@@ -49,6 +49,7 @@ async function showBigPopup(
   header,
   parameters = {
     fullscreen: true,
+    large: false,
     callback: null,
     onclose: () => {
       $("#cpiHelper_waiting_model, #cpiHelper_semanticui_modal").modal("hide");
@@ -62,6 +63,9 @@ async function showBigPopup(
   var $modal = $("#cpiHelper_semanticui_modal");
   if ($modal.length) {
     $modal.attr("class", "cpiHelper ui modal");
+    if (parameters.large) {
+      $modal.addClass("large");
+    }
 
     $modal.html(`
           <i class="close icon" style="color:var(--cpi-text-color)"></i>

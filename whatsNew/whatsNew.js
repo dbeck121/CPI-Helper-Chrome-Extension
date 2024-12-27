@@ -85,7 +85,7 @@ It seems that the CPI-Helper is currently experiencing some issues. These are pr
             <p>Created by a dedicated community and Kangoolutions GmbH in Cologne, Germany! Follow us on  <a
                     href="https://www.linkedin.com/company/kangoolutions" target="_blank" style="color: green; text-decoration: none;" 
     onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">LinkedIn</a>, explore our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank" style="color: green; text-decoration: none;" 
-    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">GitHub</a> repository, and watch the recording of the recent Devtoberfest on <a href="https://www.youtube.com/watch?v=uSwSQbc_ULU" target="_blank" style="color: green; text-decoration: none;" 
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">GitHub</a> repository, and watch Devtoberfest 2024 session on <a href="https://www.youtube.com/watch?v=uSwSQbc_ULU" target="_blank" style="color: green; text-decoration: none;" 
     onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Youtube</a> to discover more about the CPI-Helper.</p>
         </div>
     </div>
@@ -105,13 +105,10 @@ It seems that the CPI-Helper is currently experiencing some issues. These are pr
                     </div>
                     <div class="twelve wide column">
                         <div class="ui header">This release is sponsored by Figaf </div>
-  <p>The <b>Figaf Tool</b> is the intelligent solution for SAP Integration, offering smart features that make integration and migration more manageable. Whether want to run DevOps for your Integration Suite with low effort and high value or planning an SAP Integration Suite migration, Figaf equips you with the tools and guidance to excel.
-<br />
-<br/>
-We have seen a number of customer get started by them themselves in a few hours by following our guides.</p>
+  <p>The <b>Figaf Tool</b> is the intelligent solution for SAP Integration, offering smart features that make integration and migration more manageable. Whether want to run DevOps for your Integration Suite with low effort and high value or planning an SAP Integration Suite migration, Figaf equips you with the tools and guidance to excel.</p>
                     </div>
-                     <div class="sixteen wide column">
-                    For more details, visit the <a href="https://figaf.com/cpihelper19" target="_blank"><u>details page</u></a>.
+                     <div class="sixteen wide column" style="paddingTop: '0px'">
+                    We have seen a number of customer get started by them themselves in a few hours by following our <a href="https://figaf.com/cpihelper19" target="_blank"><u>guides</u></a>.
                     </div>
                 </div>
             </div>
@@ -232,6 +229,7 @@ We have seen a number of customer get started by them themselves in a few hours 
 
     await showBigPopup(html, "Your SAP CI Toolbox since 1963", {
       fullscreen: false,
+      large: true,
       callback: () => {
         $(".menu .item").tab();
         $(".cpihelper83782").popup({
