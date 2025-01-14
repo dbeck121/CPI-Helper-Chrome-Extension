@@ -12,10 +12,12 @@
   --cpi-fui-active-color: #0039d4;
   --cpi-background-color: #020203;
 }
+
 /* whats new */
 button {
   color: var(--cpi-text-color);
 }
+
 #cpiHelper_WhatsNew {
   padding: 25px;
   box-sizing: border-box;
@@ -447,7 +449,7 @@ div#cpiHelper_semanticui_modal {
   color: #ff0000 !important;
 }
 
-.cpiHelper li[class^="L"] {
+.cpiHelper li[class^='L'] {
   list-style-type: decimal !important;
 }
 
@@ -500,6 +502,11 @@ div#cpiHelper_messageSidebar_pluginArea {
   padding: 1em 0.5em;
   margin: 0;
   height: auto !important;
+  color: #000000;
+}
+
+.ch_dark #cpiHelper_messageSidebar_pluginArea {
+  color: #ffffff;
 }
 
 #cpiHelper_popup_plugins .card > .extra.content:first-child {
@@ -547,7 +554,7 @@ div#cpiHelper_messageSidebar_pluginArea {
 
 /* .card .extra.content:has(input:checked)>label::after, */
 .card .extra.content.checked > label::after {
-  content: "d";
+  content: 'd';
 }
 
 .card .extra.content > label:hover {
