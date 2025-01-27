@@ -247,8 +247,8 @@ div#cpiHelper_semanticui_modal {
 /* Modal Content */
 
 .cpiHelper_inlineInfo {
-  fill: #13af00 !important;
-  stroke: #13af00 !important;
+  fill: color-mix(in srgb, var(--sapButton_Accept_TextColor), transparent 25%) !important;
+  stroke: var(--sapButton_Accept_TextColor) !important;
 }
 
 .cpiHelper_inlineInfo[ch_inline_active] {
@@ -257,8 +257,8 @@ div#cpiHelper_semanticui_modal {
 }
 
 .cpiHelper_inlineInfo.cpiHelper_inlineInfo_error {
-  fill: #ff6b6b !important;
-  stroke: #ff6b6b !important;
+  fill: color-mix(in srgb, var(--sapButton_Reject_TextColor), white 25%) !important;
+  stroke: var(--sapButton_Reject_TextColor) !important;
 }
 
 .cpiHelper_inlineInfo.cpiHelper_avg {
@@ -446,7 +446,7 @@ div#cpiHelper_semanticui_modal {
 }
 
 .cpiHelper_powertrace {
-  color: #ff0000 !important;
+  color: var(--sapButton_Reject_TextColor) !important;
 }
 
 .cpiHelper li[class^='L'] {

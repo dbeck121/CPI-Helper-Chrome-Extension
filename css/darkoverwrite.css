@@ -1,25 +1,11 @@
 /* Dark CPI horizon theme overwrites */
 
-[data-cpi-dark="sap_horizon_dark"] {
+[data-cpi-dark='sap_horizon_dark'] {
   /* everything goes here */
-
-  .cpiHelper_inlineInfo {
-    fill: #18770c !important;
-    stroke: #18770c !important;
-  }
 
   .cpiHelper_inlineInfo[ch_inline_active] {
     fill: #218d76 !important;
     stroke: #218d76 !important;
-  }
-
-  .cpiHelper_powertrace {
-    color: #ff6b6b !important;
-  }
-
-  .cpiHelper_inlineInfo.cpiHelper_inlineInfo_error {
-    fill: #bb5d5d !important;
-    stroke: #bb5d5d !important;
   }
 
   .cpiHelper_inlineInfo.cpiHelper_avg {
