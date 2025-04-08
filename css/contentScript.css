@@ -510,9 +510,11 @@ div#cpiHelper_messageSidebar_pluginArea {
   background: #121212 !important;
 }
 
+/* problem with event mesh page
 .card {
   width: calc(33% - 1em) !important;
 }
+*/
 
 @media screen and (max-width: 1024px) {
   .card {
