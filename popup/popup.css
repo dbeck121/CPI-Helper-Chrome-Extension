@@ -21,6 +21,12 @@ html {
   height: auto;
 }
 
+@-moz-document url-prefix() {
+  body {
+    width: 800px;
+  }
+}
+
 body {
   margin: 0px;
   font-family: var(--cpi-font), sans-serif;
@@ -95,6 +101,12 @@ a > p {
 .tab {
   overflow-y: scroll;
   max-height: 600px;
+ 
+@-moz-document url-prefix() {
+  body {
+    width: 700px;
+  }
+}
 }
 
 /* color input box */
