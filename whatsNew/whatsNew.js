@@ -46,7 +46,7 @@ It seems that the CPI-Helper is currently experiencing some issues. These are pr
             Known Problems:
           </h3>
           <div class="ui bulleted list">
-            <div class="item">Trace is not working sometimes for some Integration Flows. Please undeploy and deploy them if possible. A redeploy might not work.</div>
+            <div class="item">Trace is not working sometimes for some Integration Flows. Please undeploy, wait a minute and deploy them again if possible. A redeploy might not work.</div>
             </div>
         </div>
         </div>
@@ -85,7 +85,7 @@ It seems that the CPI-Helper is currently experiencing some issues. These are pr
             <p>Created by a dedicated community and Kangoolutions GmbH in Cologne, Germany! Follow us on  <a
                     href="https://www.linkedin.com/company/kangoolutions" target="_blank" style="color: green; text-decoration: none;" 
     onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">LinkedIn</a>, explore our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank" style="color: green; text-decoration: none;" 
-    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">GitHub</a> repository, and watch the recording of the recent Devtoberfest on <a href="https://www.youtube.com/watch?v=uSwSQbc_ULU" target="_blank" style="color: green; text-decoration: none;" 
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">GitHub</a> repository, and watch Devtoberfest 2024 session on <a href="https://www.youtube.com/watch?v=uSwSQbc_ULU" target="_blank" style="color: green; text-decoration: none;" 
     onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Youtube</a> to discover more about the CPI-Helper.</p>
         </div>
     </div>
@@ -104,19 +104,16 @@ It seems that the CPI-Helper is currently experiencing some issues. These are pr
                                 class="ui big left floated image" src="${FIGAF_IMG}"></a>
                     </div>
                     <div class="twelve wide column">
-                        <div class="ui header">This release is sponsored by Figaf </div>
-  <p>Looking for a better overview of your SAP Cloud Integration? Figaf is proud to introduce a new report that makes it easier to understand the contents of your current Integration Suite system. It provides information such as:</p>
-  <div class="ui bulleted list">
-      <div class="item">iFlow dependencies on scripts and more</div>
-      <div class="item">JMS/Process Direct dependencies</div>
-      <div class="item">Last change information</div>
-      <div class="item">And much more</div>
-  </div>
-  <p>You can generate this report for free with the trial version of Figaf.</p>
+  
+     <div class="ui header">This release is sponsored by Figaf </div>
+  <p>Grow Your Integration Business with Figaf:</p>
+  <p>Are you an integration consultant looking to deliver faster, more reliable SAP solutions? Partner with Figaf and get access to powerful tools that simplify testing, documentation, and migration—so you can focus on delivering value, not fixing errors.
+</p>
                     </div>
-                     <div class="sixteen wide column">
-                    For more details, visit the <a href="https://figaf.com/cpihelper18" target="_blank"><u>details page</u></a>.
-                    </div>
+                     <div class="sixteen wide column" style="paddingTop: '0px'">
+               
+👉 <a href="https://figaf.com/cpihelper20" target="_blank"><u>Read more</u></a> about Figaf's Partner Program and take your consultancy to the next level. </div>
+                </div>
                 </div>
             </div>
             <h3 class="ui header">
@@ -236,6 +233,7 @@ It seems that the CPI-Helper is currently experiencing some issues. These are pr
 
     await showBigPopup(html, "Your SAP CI Toolbox since 1963", {
       fullscreen: false,
+      large: true,
       callback: () => {
         $(".menu .item").tab();
         $(".cpihelper83782").popup({
@@ -249,9 +247,9 @@ It seems that the CPI-Helper is currently experiencing some issues. These are pr
         });
       },
       onclose: () => {
-        showBigPopup(recentChanges, "Your SAP CI Toolbox since 1963", {
-          fullscreen: false,
-        });
+     //   showBigPopup(recentChanges, "Your SAP CI Toolbox since 1963", {
+     //     fullscreen: false,
+     //   });
       },
     });
 
@@ -296,7 +294,7 @@ async function recrutingPopup(force = false) {
     //get random int between 1 and 11
     var randomTimestamp = Math.floor(Math.random() * 10) + 1;
 
-    var oneweek = +new Date() + randomTimestamp * 24 * 60 * 60 * 1000;
+    var oneweek = +new Date() + randomTimestamp * 24 * 60 * 60 * 1000*2;
 
     var obj = {};
     obj["recrutingPopupTimestamp"] = oneweek;
@@ -307,7 +305,7 @@ async function recrutingPopup(force = false) {
     log.debug("recruting popup in human readable time: " + hrts);
   }
 
-  if (lang == "de-DE" && (force || (!timestamp && randomGroup > 50) || (timestamp && timestamp < today))) {
+  if (lang == "de-DE" && (force || (!timestamp && randomGroup <= 50) || (timestamp && timestamp < today))) {
     statistic("recrutingPopup", "show");
     var html = `<div>
     <div class="ui message">

@@ -27,24 +27,24 @@
   // Handles changes made to the storage, even if on a different tab.
   function monitorSyncStore() {
     chrome.storage.onChanged.addListener((changes, namespace) => {
-      for (var key in changes) {
-        if (key === host) {
-          let storageChange = changes[key].newValue; // Get the new values
+      //check if the change is for the current host
+      if (changes[host]) {
+        let storageChange = changes[host].newValue; // Get the new values
 
-          // update the global object
-          hostData.title = storageChange.title;
-          hostData.color = storageChange.color;
-          hostData.icon = storageChange.icon;
-          hostData.loglevel = storageChange.loglevel;
-          hostData.count = storageChange.count;
-          // Update the page
-          setData(hostData);
-        }
-        if (key === "darkmodeOnStartup") {
-          $("#cpihelperglobal")
-            .removeClass("ch_dark ch_light")
-            .addClass(!changes[key].newValue ? "ch_dark" : "ch_light");
-        }
+        // update the global object
+        hostData.title = storageChange.title;
+        hostData.color = storageChange.color;
+        hostData.icon = storageChange.icon;
+        hostData.loglevel = storageChange.loglevel;
+        hostData.count = storageChange.count;
+        // Update the page
+        setData(hostData);
+      }
+
+      if (changes["darkmodeOnStartup"]) {
+        $("#cpihelperglobal")
+          .removeClass("ch_dark ch_light")
+          .addClass(!changes[key].newValue ? "ch_dark" : "ch_light");
       }
     });
   }
@@ -84,29 +84,36 @@
   // Handle DOM mutations
   function mutationCallback(mutations) {
     // Set the header background
-    for (let mutation of mutations) {
-      if (mutation.type === "childList") {
-        for (let addedNode of mutation.addedNodes) {
-          if (addedNode.id === "shell--toolHeader") {
-            getHostData((data) => {
-              addedNode.style.backgroundColor = data.color;
-            });
-          }
+
+    let relevantMutations = mutations.filter((mutation) => {
+      return mutatiom.type === "childList";
+    });
+
+    for (let mutation of relevantMutations) {
+      for (let addedNode of mutation.addedNodes) {
+        if (addedNode.id === "shell--toolHeader") {
+          addedNode.style.backgroundColor = hostData.color;
         }
       }
     }
   }
 
-  // Initiate the MutationObserver when div#shellcontent is available
+  // Initiate the MutationObserver when #shell--toolPage-header is available
   function attachObserver(observer) {
-    let shellContent = document.querySelector("#shellcontent");
+    //check if observer is array
+    if (Array.isArray(observer)) {
+      observer = observer[0];
+    }
+
+    let shellContent = document.getElementById("shell--toolPage-header");
     if (shellContent) {
       clearInterval(observerIntervalId);
-      observer.observe(shellContent, { childList: true, subtree: true });
+      //seems like this is not needed anymore
+      // observer.observe(shellContent, { childList: true, subtree: false });
     } else {
       if (!observerIntervalId) {
         log.log("Starting observer interval");
-        setInterval(attachObserver, 1000, [observer]);
+        observerIntervalId = setInterval(attachObserver, 3000, [observer]);
       }
     }
   }
@@ -145,8 +152,8 @@
     setLog(loglevel);
     setcount(count);
     // prepare interval function to keep elements updated
-    let intervalCount = 10; // Times to run the interval function
-    let intervalDelay = 2000;
+    let intervalCount = 2; // Times to run the interval function
+    let intervalDelay = 3000;
     // set title again aftet 2sec
     log.log("Initiate title update sequence");
     documentTitleIntervalId = setInterval(() => {
