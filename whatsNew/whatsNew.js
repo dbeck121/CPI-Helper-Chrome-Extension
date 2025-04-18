@@ -104,12 +104,16 @@ It seems that the CPI-Helper is currently experiencing some issues. These are pr
                                 class="ui big left floated image" src="${FIGAF_IMG}"></a>
                     </div>
                     <div class="twelve wide column">
-                        <div class="ui header">This release is sponsored by Figaf </div>
-  <p>The <b>Figaf Tool</b> is the intelligent solution for SAP Integration, offering smart features that make integration and migration more manageable. Whether want to run DevOps for your Integration Suite with low effort and high value or planning an SAP Integration Suite migration, Figaf equips you with the tools and guidance to excel.</p>
+  
+     <div class="ui header">This release is sponsored by Figaf </div>
+  <p>Grow Your Integration Business with Figaf:</p>
+  <p>Are you an integration consultant looking to deliver faster, more reliable SAP solutions? Partner with Figaf and get access to powerful tools that simplify testing, documentation, and migration—so you can focus on delivering value, not fixing errors.
+</p>
                     </div>
                      <div class="sixteen wide column" style="paddingTop: '0px'">
-                    We have seen a number of customer get started by them themselves in a few hours by following our <a href="https://figaf.com/cpihelper19" target="_blank"><u>guides</u></a>.
-                    </div>
+               
+👉 <a href="https://figaf.com/cpihelper19" target="_blank"><u>Read more</u></a> about Figaf's Partner Program and take your consultancy to the next level. </div>
+                </div>
                 </div>
             </div>
             <h3 class="ui header">
@@ -243,9 +247,9 @@ It seems that the CPI-Helper is currently experiencing some issues. These are pr
         });
       },
       onclose: () => {
-        showBigPopup(recentChanges, "Your SAP CI Toolbox since 1963", {
-          fullscreen: false,
-        });
+     //   showBigPopup(recentChanges, "Your SAP CI Toolbox since 1963", {
+     //     fullscreen: false,
+     //   });
       },
     });
 
@@ -290,7 +294,7 @@ async function recrutingPopup(force = false) {
     //get random int between 1 and 11
     var randomTimestamp = Math.floor(Math.random() * 10) + 1;
 
-    var oneweek = +new Date() + randomTimestamp * 24 * 60 * 60 * 1000;
+    var oneweek = +new Date() + randomTimestamp * 24 * 60 * 60 * 1000*2;
 
     var obj = {};
     obj["recrutingPopupTimestamp"] = oneweek;
@@ -301,7 +305,7 @@ async function recrutingPopup(force = false) {
     log.debug("recruting popup in human readable time: " + hrts);
   }
 
-  if (lang == "de-DE" && (force || (!timestamp && randomGroup > 50) || (timestamp && timestamp < today))) {
+  if (lang == "de-DE" && (force || (!timestamp && randomGroup <= 50) || (timestamp && timestamp < today))) {
     statistic("recrutingPopup", "show");
     var html = `<div>
     <div class="ui message">
