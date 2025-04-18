@@ -44,7 +44,7 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
-### 3.18.1
+### 3.18.2
 
 - [Improvement] Improved performance of the extension.
 - [Fix] Some ui fixes
