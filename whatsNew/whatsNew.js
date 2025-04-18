@@ -112,7 +112,7 @@ It seems that the CPI-Helper is currently experiencing some issues. These are pr
                     </div>
                      <div class="sixteen wide column" style="paddingTop: '0px'">
                
-👉 <a href="https://figaf.com/cpihelper19" target="_blank"><u>Read more</u></a> about Figaf's Partner Program and take your consultancy to the next level. </div>
+👉 <a href="https://figaf.com/cpihelper20" target="_blank"><u>Read more</u></a> about Figaf's Partner Program and take your consultancy to the next level. </div>
                 </div>
                 </div>
             </div>
