@@ -73,6 +73,7 @@
         "/plugins/removeApacheUpdateMessage.js",
         "/plugins/messageidlogs.js",
         "/plugins/zz_developer_tools.js",
+        "/plugins/iFlowSearcher.js",
         "/scripts/ui.js",
         "/scripts/logs.js",
         "/whatsNew/whatsNewLog.js",
