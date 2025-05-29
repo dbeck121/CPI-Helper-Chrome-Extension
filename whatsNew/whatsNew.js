@@ -247,9 +247,9 @@ It seems that the CPI-Helper is currently experiencing some issues. These are pr
         });
       },
       onclose: () => {
-     //   showBigPopup(recentChanges, "Your SAP CI Toolbox since 1963", {
-     //     fullscreen: false,
-     //   });
+        //   showBigPopup(recentChanges, "Your SAP CI Toolbox since 1963", {
+        //     fullscreen: false,
+        //   });
       },
     });
 
@@ -294,7 +294,7 @@ async function recrutingPopup(force = false) {
     //get random int between 1 and 11
     var randomTimestamp = Math.floor(Math.random() * 10) + 1;
 
-    var oneweek = +new Date() + randomTimestamp * 24 * 60 * 60 * 1000*2;
+    var oneweek = +new Date() + randomTimestamp * 24 * 60 * 60 * 1000 * 2;
 
     var obj = {};
     obj["recrutingPopupTimestamp"] = oneweek;
@@ -305,20 +305,20 @@ async function recrutingPopup(force = false) {
     log.debug("recruting popup in human readable time: " + hrts);
   }
 
-  if (lang == "de-DE" && (force || (!timestamp && randomGroup <= 50) || (timestamp && timestamp < today))) {
+  if (lang == "de-DE" && (force || (!timestamp && randomGroup > 50) || (timestamp && timestamp < today))) {
     statistic("recrutingPopup", "show");
     var html = `<div>
     <div class="ui message">
         <img class="ui small floated image" src="${Kangoolutions_Logo}">
         <div class="content">
-            <div class="header">                Werde ein weiterer Held mit der Mission Daten- und Prozessintegration!            </div>
+            <div class="header">Werde ein weiterer Held mit der Mission Daten- und Prozessintegration!            </div>
             <p>Wir wollen moderne Beratung auf Augenhöhe liefern. Unsere Kunden sind super happy mit uns und daher suchen wir aktuell wirklich überall nach den Besten für unser Team.</p>
         </div>
     </div>
     <div class="ui segment">
         <h3 class="ui header">
             <i class="comments icon"></i>
-            <div class="content">                Berater*in für SAP Integration gesucht            </div>
+            <div class="content">Berater*in für SAP Integration gesucht</div>
         </h3>
         <p>
             Kannst du dir vorstellen unsere Kunden als SAP Integrationsspezialist*in zu unterstützen?
@@ -329,7 +329,7 @@ async function recrutingPopup(force = false) {
             <div class="item">Arbeiten aus dem Home Office oder ab und zu mal beim Kunden vor Ort</div>
             <div class="item">Minimale Hierarchien </div>
             <div class="item">Eigenverantwortung und Freiraum, statt Formularen und starren Prozessen</div>
-            <div class="item">Summer Event mit der ganzen Firma (2023 auf Sizilien und 2024 auf Kreta).</div>
+            <div class="item">Summer Event mit der ganzen Firma (2023 Sizilien, 2024 auf Kreta und 2025 auf Teneriffa).</div>
         </div>
         <p>Wir haben viel Humor und das vielleicht coolste <a href="https://kangoolutions.com/team/" style="color: green; text-decoration: none;" 
     onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'" target="_blank" >Team</a> der Welt. Lass uns doch mal plaudern:
