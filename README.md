@@ -47,6 +47,7 @@ It is open source so feel free to check the source code.
 ### 3.19.0
 
 - [Improvement] Less load on backend
+- [Improvement] Reload button in message sidebar
 
 ### 3.18.2
 
