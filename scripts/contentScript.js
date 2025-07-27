@@ -303,32 +303,48 @@ async function renderMessageSidebar() {
 }
 
 function calculateMessageSidebarTimerTime(lastTabHidden, lastDurationRefresh) {
-  var messageSidebarTimerTime = 1;
+  var messageSidebarTimerTime = 3;
 
-  //if tab hidden, set timer to 15 seconds
+  //if tab hidden, set timer to 60 seconds
   if (lastTabHidden > 9) {
-    log.log("Tab is hidden, set timer to 21 seconds");
-    return 7;
+    log.log("Tab is hidden, set timer to 30 seconds");
+    return 10;
+  }
+
+  //if tab hidden for a long time, set timer to 60 seconds
+  if (lastTabHidden > 100) {
+    log.log("Tab is hidden, set timer to 5 minutes");
+    return 100;
   }
 
   if (lastDurationRefresh > 2000) {
-    log.debug("Last rendering took more than 2000ms, set timer to 18 seconds");
-    messageSidebarTimerTime = 6;
+    log.debug("Last rendering took more than 2000ms, set timer to 60 seconds");
+    messageSidebarTimerTime = 20;
     return messageSidebarTimerTime;
   }
   if (lastDurationRefresh > 1000) {
-    log.debug("Last rendering took more than 1000ms, set timer to 12 seconds");
-    messageSidebarTimerTime = 4;
+    log.debug("Last rendering took more than 1000ms, set timer to 30 seconds");
+    messageSidebarTimerTime = 10;
+    return messageSidebarTimerTime;
+  }
+  if (lastDurationRefresh > 700) {
+    log.debug("Last rendering took more than 700ms, set timer to 21 seconds");
+    messageSidebarTimerTime = 7;
     return messageSidebarTimerTime;
   }
   if (lastDurationRefresh > 500) {
-    log.debug("Last rendering took more than 500ms, set timer to 9 seconds");
-    messageSidebarTimerTime = 3;
+    log.debug("Last rendering took more than 500ms, set timer to 15 seconds");
+    messageSidebarTimerTime = 5;
+    return messageSidebarTimerTime;
+  }
+  if (lastDurationRefresh > 400) {
+    log.debug("Last rendering took more than 400ms, set timer to 12 seconds");
+    messageSidebarTimerTime = 4;
     return messageSidebarTimerTime;
   }
   if (lastDurationRefresh > 300) {
-    log.debug("Last rendering took more than 300ms, set timer to 6 seconds");
-    messageSidebarTimerTime = 2;
+    log.debug("Last rendering took more than 300ms, set timer to 9 seconds");
+    messageSidebarTimerTime = 3;
     return messageSidebarTimerTime;
   }
 

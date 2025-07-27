@@ -44,6 +44,10 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.19.0
+
+- [Improvement] Less load on backend
+
 ### 3.18.2
 
 - [Improvement] Improved performance of the extension.
