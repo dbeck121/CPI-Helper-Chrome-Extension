@@ -72,6 +72,7 @@
         "/plugins/traceModifer.js",
         "/plugins/removeApacheUpdateMessage.js",
         "/plugins/messageidlogs.js",
+        "/plugins/connectivityDataManager.js",
         "/plugins/zz_developer_tools.js",
         "/scripts/ui.js",
         "/scripts/logs.js",
