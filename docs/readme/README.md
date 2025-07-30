@@ -44,6 +44,47 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.19.0
+
+- [Improvement] Less load on backend
+- [Improvement] Reload button in message sidebar
+
+### 3.18.2
+
+- [Improvement] Improved performance of the extension.
+- [Fix] Some ui fixes
+- [Fix] Solved problem with Firefox.
+
+### 3.18.0
+
+- [Improvement] Might survive login in some cases (experimental).
+- [Improvement] Improved performance of the extension.
+- [Fix] Solved problem with activating trace (on non-Edge Cell and Edge Cell tenants).
+- [Fix] Solved problem with error on not deployed Integration Flows.
+- [Fix] Solved problem with Firefox.
+
+### 3.17.2
+
+- [Fix] Solved problem with activating trace (on non-Edge Cell and Edge Cell tenants) because of SAP bug.
+- [Fix] Could not beautify logs in some cases.
+
+### 3.17.0
+
+- [Improvement] UI Bugfixes (Dark-mode Darker color for trace, Trace-inline tool editor detect mode you selected by default).
+- [Improvement] XML declaration preserved by code beautify function.
+- [Plugin] WHINT Interface Documentation Plugin - Update v1.2
+- [Plugin] Performance stats plugin has better color for dark mode.
+- [Plugin] Settings Pane Resizer plugin opens settings pane on page load even if Pause mode is active.
+- [Feature] Color mode detected a theme and applied by default (in case of dark mode).
+- [Feature] More compatibale with DARK CPI extension dark mode.
+- [Feature] Position of popup is now state aware.
+- [Feature] Body download option now with proper extension.
+- [Feature] Text wrap option and theme of editor has clear information.
+- [Feature] General UI Bugfix & backend global element to organize. [Read more here with snapshot note](https://github.com/dbeck121/CPI-Helper-Chrome-Extension/pull/194). Special thanks to [Omkar](https://github.com/incpi).
+- [Fix] Solved problem with activating trace in situations with multiple runtimes.
+- [Fix] Solved problem with Firefox
+- [Fix] Solved problem with activating trace (on non-Edge Cell and Edge Cell tenants).
+
 ### 3.16.0
 
 - [Improvement] Plugin Engine now supports multiple artifacts, providing plugin developers with more versatility and an improved user interface for specific artifacts.

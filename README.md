@@ -44,6 +44,17 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.19.0
+
+- [Improvement] Less load on backend
+- [Improvement] Reload button in message sidebar
+
+### 3.18.2
+
+- [Improvement] Improved performance of the extension.
+- [Fix] Some ui fixes
+- [Fix] Solved problem with Firefox.
+
 ### 3.18.0
 
 - [Improvement] Might survive login in some cases (experimental).

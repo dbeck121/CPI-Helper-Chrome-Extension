@@ -15,6 +15,8 @@ cpiData.functions = {};
 cpiData.functions["popup"] = showBigPopup;
 cpiData.isEdge = false;
 cpiData.runtimeLocationId = "";
+cpiData.runtimeLocations = [];
+cpiData.runtimeLocationWithActiveIFlow = [];
 let regexGetPlatform = /cfapps/;
 let regexMatch = regexGetPlatform.exec(document.location.host);
 cpiData.cpiPlatform = regexMatch !== null ? "cf" : "neo";
@@ -111,7 +113,7 @@ async function renderMessageSidebar() {
     let deploymentText = document.getElementById("deploymentText");
     if (deploymentText) {
       let statusColor = getStatusColorCode(cpiData?.flowData?.artifactInformation?.deployState);
-      deploymentText.innerHTML = `State: <span style="color:${statusColor}">${cpiData?.flowData?.artifactInformation?.deployState}</span>`;
+      deploymentText.innerHTML = `<span style="color:${statusColor}">${cpiData?.flowData?.artifactInformation?.deployState}</span>`;
     }
   }, true);
 
@@ -138,7 +140,21 @@ async function renderMessageSidebar() {
 
   let updatedText = document.getElementById("updatedText");
 
-  updatedText.innerHTML = "<span>Updated: " + new Date().toLocaleTimeString("de-DE") + "</span>";
+  updatedText.innerHTML =
+    '<span style="padding-left: 0px; padding-top: 0px;">Update: ' +
+    new Date().toLocaleTimeString("de-DE") +
+    "</span>" +
+    `<button id="cpiHelper_sidebar_refresh" title="Refresh" style="background:none;border:none;cursor:pointer;vertical-align:middle;margin-left:0.5em;">
+      <i class="sync alternate icon"></i>
+    </button>`;
+
+  // Refresh-Button Event
+  const refreshBtn = document.getElementById("cpiHelper_sidebar_refresh");
+  if (refreshBtn) {
+    refreshBtn.onclick = () => {
+      nextMessageSidebarRefreshCount = 0;
+    };
+  }
 
   let thisMessageHash = "";
   if (resp && resp.length != 0) {
@@ -177,7 +193,7 @@ async function renderMessageSidebar() {
           date = date.toISOString();
 
           if (date.substr(0, 10) != lastDay) {
-            messageList.appendChild(createRow([date.substr(0, 10)]));
+            messageList.appendChild(createRow([date.substr(0, 10)], "contentText"));
             lastDay = date.substr(0, 10);
           }
 
@@ -303,32 +319,48 @@ async function renderMessageSidebar() {
 }
 
 function calculateMessageSidebarTimerTime(lastTabHidden, lastDurationRefresh) {
-  var messageSidebarTimerTime = 1;
+  var messageSidebarTimerTime = 3;
 
-  //if tab hidden, set timer to 15 seconds
+  //if tab hidden, set timer to 60 seconds
   if (lastTabHidden > 9) {
-    log.log("Tab is hidden, set timer to 21 seconds");
-    return 7;
+    log.log("Tab is hidden, set timer to 30 seconds");
+    return 10;
+  }
+
+  //if tab hidden for a long time, set timer to 60 seconds
+  if (lastTabHidden > 100) {
+    log.log("Tab is hidden, set timer to 5 minutes");
+    return 100;
   }
 
   if (lastDurationRefresh > 2000) {
-    log.debug("Last rendering took more than 2000ms, set timer to 18 seconds");
-    messageSidebarTimerTime = 6;
+    log.debug("Last rendering took more than 2000ms, set timer to 60 seconds");
+    messageSidebarTimerTime = 20;
     return messageSidebarTimerTime;
   }
   if (lastDurationRefresh > 1000) {
-    log.debug("Last rendering took more than 1000ms, set timer to 12 seconds");
-    messageSidebarTimerTime = 4;
+    log.debug("Last rendering took more than 1000ms, set timer to 30 seconds");
+    messageSidebarTimerTime = 10;
+    return messageSidebarTimerTime;
+  }
+  if (lastDurationRefresh > 700) {
+    log.debug("Last rendering took more than 700ms, set timer to 21 seconds");
+    messageSidebarTimerTime = 7;
     return messageSidebarTimerTime;
   }
   if (lastDurationRefresh > 500) {
-    log.debug("Last rendering took more than 500ms, set timer to 9 seconds");
-    messageSidebarTimerTime = 3;
+    log.debug("Last rendering took more than 500ms, set timer to 15 seconds");
+    messageSidebarTimerTime = 5;
+    return messageSidebarTimerTime;
+  }
+  if (lastDurationRefresh > 400) {
+    log.debug("Last rendering took more than 400ms, set timer to 12 seconds");
+    messageSidebarTimerTime = 4;
     return messageSidebarTimerTime;
   }
   if (lastDurationRefresh > 300) {
-    log.debug("Last rendering took more than 300ms, set timer to 6 seconds");
-    messageSidebarTimerTime = 2;
+    log.debug("Last rendering took more than 300ms, set timer to 9 seconds");
+    messageSidebarTimerTime = 3;
     return messageSidebarTimerTime;
   }
 
@@ -786,8 +818,30 @@ function getChild(node, childNames, childClass = null) {
 }
 
 //makes a http call to set the log level to trace
-function setLogLevel(logLevel, iflowId) {
-  let locID = cpiData.runtimeLocationId && cpiData.isEdge ? ', "runtimeLocationId": "' + cpiData.runtimeLocationId + '"' : "";
+async function setLogLevel(logLevel, iflowId) {
+  /* if (!cpiData.runtimeLocationWithActiveIFlow || cpiData.runtimeLocationWithActiveIFlow == 0) {
+    await getIflowInfo();
+    if (cpiData.runtimeLocationWithActiveIFlow == 0) {
+      showToast("No active IFlow found", "Please open an IFlow to activate trace", "warning");
+      log.log("No active IFlow found");
+      return;
+    }
+  } */
+
+  // seems like bug on sap side is fixed. So we can use the runtimeLocationId in all casws
+  let locID = ', "runtimeLocationId":"cloudintegration"'; // default for cloudintegration
+
+  /* // if runtimeLocations length = 1 and id is cloudintegration
+  if (cpiData.runtimeLocations.length == 1 && cpiData.runtimeLocations[0].id == "cloudintegration") {
+    locID = "";
+  }
+  // if runtimeLocations length > 1
+  if (cpiData.runtimeLocations.length > 1 && cpiData.runtimeLocationId) {
+    locID = cpiData.runtimeLocationId ? ', "runtimeLocationId": "' + cpiData.runtimeLocationId + '"' : "";
+  }
+
+  */
+
   makeCallPromise(
     "POST",
     "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentSetMplLogLevelCommand",
@@ -959,9 +1013,9 @@ async function buildButtonBar() {
         // default mode is open
         if (result["openMessageSidebarOnStartup"] === undefined) {
           chrome.storage.sync.set({
-            openMessageSidebarOnStartup: true,
+            openMessageSidebarOnStartup: false,
           });
-          openMessageSidebarOnStartupValue = true;
+          openMessageSidebarOnStartupValue = false;
         } else {
           openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
         }
@@ -980,87 +1034,99 @@ async function buildButtonBar() {
 }
 
 //Collect Infos to Iflow
-async function getIflowInfo(callback, silent = false) {
+async function getIflowInfo(callback, silent = false, cache = true) {
   if (cpiData.cpiPlatform == "cf") {
-    return getIflowInfoCf(callback, silent);
+    return getIflowInfoCf(callback, silent, cache);
   } else if (cpiData.cpiPlatform == "neo") {
-    return getIflowInfoNeo(callback, silent);
+    return getIflowInfoNeo(callback, silent, cache);
   }
 }
 
-async function getIflowInfoCf(callback, silent = false) {
-  // first we check if we have an Edge cell connected to the tenant (only on CF - neo unclear how to check)
-  return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.srv.web.cf.RuntimeLocationListCommand", 120, null, null, null, null, !silent)
-    .then((response) => {
-      response = new XmlToJson().parse(response)["com.sap.it.op.srv.web.cf.RuntimeLocationListResponse"];
-      var edgeId = response.runtimeLocations[1]?.id;
-      cpiData.runtimeLocationId = edgeId;
-      cpiData.isEdge = edgeId != undefined;
+async function getIflowInfoCf(callback, silent = false, cache = true) {
+  let cacheValue = 120;
+  if (cache) {
+    cacheValue = false;
+  }
+  try {
+    // 1. Edge-Cell prüfen
+    const runtimeLocResp = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.srv.web.cf.RuntimeLocationListCommand", cacheValue, null, null, null, null, !silent);
+    const runtimeLocJson = new XmlToJson().parse(runtimeLocResp)["com.sap.it.op.srv.web.cf.RuntimeLocationListResponse"];
 
-      return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", 120, null, null, null, null, !silent);
-    })
-    .then((response) => {
-      // load all non-Edge iflows and search the currently opened Iflow
-      response = new XmlToJson().parse(response)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
-      var resp = response.artifactInformations;
+    //collect list of runtime locations
+    if (runtimeLocJson.runtimeLocations?.length) {
+      cpiData.runtimeLocations = runtimeLocJson.runtimeLocations.map((loc) => {
+        return {
+          id: loc.id,
+          state: loc.state,
+          type: loc.type,
+          typeId: loc.typeId,
+        };
+      });
+    } else {
+      cpiData.runtimeLocations = [{ id: runtimeLocJson.runtimeLocations.id, state: runtimeLocJson.runtimeLocations.state, type: runtimeLocJson.runtimeLocations.type, typeId: runtimeLocJson.runtimeLocations.typeId }];
+    }
 
-      if (resp.length) {
-        resp = resp.find((element) => {
-          return element.symbolicName == cpiData.integrationFlowId;
+    // filter for active runtime locations
+    cpiData.runtimeLocationWithActiveIFlow = cpiData.runtimeLocations.filter((loc) => loc.state == "ACTIVE");
+
+    //iterate all runtime locations to find the ones that have active iflows
+    cpiData.runtimeLocationWithActiveIFlow = [];
+
+    // Fehler: await in forEach! Besser for...of verwenden:
+    for (const loc of cpiData.runtimeLocations) {
+      const locIdParam = "?runtimeLocationId=" + loc.id;
+      const resp = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand" + locIdParam, 120, null, null, null, null, !silent);
+      const respJson = new XmlToJson().parse(resp)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
+      const artifact = Array.isArray(respJson.artifactInformations)
+        ? respJson.artifactInformations.find((e) => e.symbolicName == cpiData.integrationFlowId)
+        : respJson.artifactInformations?.symbolicName == cpiData.integrationFlowId
+        ? respJson.artifactInformations
+        : null;
+      if (artifact) {
+        cpiData.runtimeLocationWithActiveIFlow.push({
+          id: loc.id,
+          state: loc.state,
+          type: loc.type,
+          typeId: loc.typeId,
+          artifact: artifact,
         });
-      } else {
-        if (resp.symbolicName != cpiData.integrationFlowId) {
-          resp = null;
-        }
       }
-      if (resp) {
-        cpiData.runtimeLocationId = "cloudintegration"; // if we found current iflow in last request, set location id to "cloudintegration" which is default for non-edge Iflows (only on Edge Cell activated tenants)
-      }
+    }
 
-      // If response didn't contain our iflow and it's an Edge cell, redo the request with the locationId
-      // ---> we need to pass the locationId in the request in case the tenant has an Edge cell and the IFlow is deployed there.
-      if (!resp && cpiData.isEdge) {
-        // Repeat the previous request, passing the location ID
-        var locIdParam = cpiData.runtimeLocationId ? "?runtimeLocationId=" + cpiData.runtimeLocationId : "";
-        return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand" + locIdParam, 120, null, null, null, null, !silent);
-      }
+    if (cpiData.runtimeLocationWithActiveIFlow.length == 0) {
+      throw "Integration Flow was not found. Probably it is not deployed.";
+    }
 
-      // If no valid response was found (because the flow is not deployed...), throw an error
-      if (!resp) {
-        throw "Integration Flow was not found. Probably it is not deployed.";
-      }
+    // 4. Detaildaten holen
+    const detailResp = await makeCallPromise(
+      "GET",
+      "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + cpiData.runtimeLocationWithActiveIFlow[0].artifact.id,
+      60,
+      "application/json",
+      null,
+      null,
+      null,
+      !silent
+    );
+    const detail = JSON.parse(detailResp);
+    cpiData.flowData = detail;
+    cpiData.flowData.lastUpdate = new Date().toISOString();
+    cpiData.tenantId = detail?.artifactInformation?.tenantId;
+    cpiData.artifactId = detail?.artifactInformation?.id;
+    cpiData.version = detail?.artifactInformation?.version;
 
-      return resp;
-    })
-    .then((response) => {
-      if (response?.id) {
-        return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + response.id, 60, "application/json", null, null, null, !silent);
-      } else {
-        throw "Integration Flow was not found. Probably it is not deployed.";
-      }
-    })
-    .then((response) => {
-      var resp = JSON.parse(response);
-      cpiData.flowData = resp;
-      cpiData.flowData.lastUpdate = new Date().toISOString();
-      cpiData.tenantId = cpiData?.flowData?.artifactInformation?.tenantId;
-      cpiData.artifactId = cpiData?.flowData?.artifactInformation?.id;
-      cpiData.version = cpiData?.flowData?.artifactInformation?.version;
-
-      if (callback) {
-        callback();
-      }
-      return;
-    })
-    .catch((error) => {
-      if (!silent) {
-        showToast("Error: " + JSON.stringify(error));
-      }
-    });
+    if (callback) callback();
+  } catch (error) {
+    if (!silent) showToast("Error: " + JSON.stringify(error));
+  }
 }
 
-async function getIflowInfoNeo(callback, silent = false) {
-  return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", 120, null, null, null, null, !silent)
+async function getIflowInfoNeo(callback, silent = false, cache = true) {
+  let cacheValue = 120;
+  if (cache) {
+    cacheValue = false;
+  }
+  return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", cacheValue, null, null, null, null, !silent)
     .then((response) => {
       // load all non-Edge iflows and search the currently opened Iflow
       response = new XmlToJson().parse(response)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
@@ -1111,7 +1177,7 @@ async function getIflowInfoNeo(callback, silent = false) {
 //opens the popup that is triggered bei the info button
 async function openIflowInfoPopup() {
   async function getInfoContent() {
-    await getIflowInfo();
+    await getIflowInfo(null, false, false);
 
     var x = document.createElement("div");
     x.classList.add("cpiHelper_infoPopUp_content");
@@ -1520,8 +1586,8 @@ var sidebar = {
     </div>
     <div id="outerFrame" >
       <div>
-        <div id="updatedText" class="contentText"></div>
-        <div id="deploymentText" class="contentText">State: </div>
+        <div style="padding-left:0px" id="updatedText" class="contentText"></div>
+        <div style="padding-left:0px; padding-top:0px" id="deploymentText" class="contentText"></div>
         <div><table id="messageList" class="contentText"></table></div>
       </div>
     </div>
