@@ -1034,18 +1034,22 @@ async function buildButtonBar() {
 }
 
 //Collect Infos to Iflow
-async function getIflowInfo(callback, silent = false) {
+async function getIflowInfo(callback, silent = false, cache = true) {
   if (cpiData.cpiPlatform == "cf") {
-    return getIflowInfoCf(callback, silent);
+    return getIflowInfoCf(callback, silent, cache);
   } else if (cpiData.cpiPlatform == "neo") {
-    return getIflowInfoNeo(callback, silent);
+    return getIflowInfoNeo(callback, silent, cache);
   }
 }
 
-async function getIflowInfoCf(callback, silent = false) {
+async function getIflowInfoCf(callback, silent = false, cache = true) {
+  let cacheValue = 120;
+  if (cache) {
+    cacheValue = false;
+  }
   try {
     // 1. Edge-Cell prüfen
-    const runtimeLocResp = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.srv.web.cf.RuntimeLocationListCommand", 120, null, null, null, null, !silent);
+    const runtimeLocResp = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.srv.web.cf.RuntimeLocationListCommand", cacheValue, null, null, null, null, !silent);
     const runtimeLocJson = new XmlToJson().parse(runtimeLocResp)["com.sap.it.op.srv.web.cf.RuntimeLocationListResponse"];
 
     //collect list of runtime locations
@@ -1117,8 +1121,12 @@ async function getIflowInfoCf(callback, silent = false) {
   }
 }
 
-async function getIflowInfoNeo(callback, silent = false) {
-  return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", 120, null, null, null, null, !silent)
+async function getIflowInfoNeo(callback, silent = false, cache = true) {
+  let cacheValue = 120;
+  if (cache) {
+    cacheValue = false;
+  }
+  return makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", cacheValue, null, null, null, null, !silent)
     .then((response) => {
       // load all non-Edge iflows and search the currently opened Iflow
       response = new XmlToJson().parse(response)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
@@ -1169,7 +1177,7 @@ async function getIflowInfoNeo(callback, silent = false) {
 //opens the popup that is triggered bei the info button
 async function openIflowInfoPopup() {
   async function getInfoContent() {
-    await getIflowInfo();
+    await getIflowInfo(null, false, false);
 
     var x = document.createElement("div");
     x.classList.add("cpiHelper_infoPopUp_content");
