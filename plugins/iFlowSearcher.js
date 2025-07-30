@@ -314,7 +314,7 @@ async function fetchArtifacts(workspaceId, pluginHelper) {
 
     // Static flowId for now
     const flowId = pluginHelper.currentIflowId;
-    const artifact = artifacts.find((a) => a.name === flowId);
+    const artifact = artifacts.find((a) => a.tooltip === flowId);
 
     if (artifact) {
       const entityId = artifact.entityID;
