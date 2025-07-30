@@ -1,5 +1,3 @@
-console.log('[Connectivity Data Manager] 🔥 PLUGIN FILE IS LOADING 🔥');
-
 var plugin = {
     metadataVersion: "1",
     id: "connectivity-data-manager",
@@ -19,16 +17,9 @@ var plugin = {
     isConnectivityPage: function() {
         const url = window.location.href;
         
-        console.log('[Connectivity Data Manager] URL Detection Debug:');
-        console.log('- Current URL:', url);
-        
         // Match pattern: *.integrationsuite.cfapps.*.hana.ondemand.com/shell/monitoring/Connectivity
         const connectivityPathMatch = url.includes('/shell/monitoring/Connectivity');
         const integrationSuiteMatch = /https:\/\/[^.]+\.integrationsuite\.cfapps\.[^.]+\.hana\.ondemand\.com/.test(url);
-        
-        console.log('- Connectivity Path Match:', connectivityPathMatch);
-        console.log('- Integration Suite Match:', integrationSuiteMatch);
-        console.log('- Final Result:', connectivityPathMatch && integrationSuiteMatch);
         
         return connectivityPathMatch && integrationSuiteMatch;
     },
@@ -66,22 +57,11 @@ var plugin = {
         const context = this.detectPageContext();
         
         if (context.isConnectivityPage) {
-            console.log('[Connectivity Data Manager] Plugin activated on connectivity page');
-            console.log('[Connectivity Data Manager] Tenant:', context.tenant);
-            
-            // Create multiple global references for dialog buttons
+            // Create global reference for dialog access
             window.connectivityDataManagerPlugin = this;
-            window.cpiConnectivityManager = this; // Additional reference
-            
-            // Create simple global functions for dialog buttons
-            window.cpiDebugFormStructure = () => this.formHandler.debugFormStructure();
-            window.cpiExtractFormData = () => this.formHandler.extractFormData();
-            window.cpiDetectConnectivityType = () => this.formHandler.detectConnectivityType();
             
             this.initializeUI();
             this.setupPageChangeListener();
-        } else {
-            console.log('[Connectivity Data Manager] Plugin not activated - not on connectivity page');
         }
     },
 
@@ -121,33 +101,9 @@ var plugin = {
 
     // Initialize UI components
     initializeUI: function() {
-        // This will be implemented in the next phase
-        console.log('[Connectivity Data Manager] Initializing UI components...');
-        
         // Ensure global references are always available
         window.connectivityDataManagerPlugin = this;
-        window.cpiConnectivityManager = this;
         
-        // Create simple global functions for dialog buttons (ensure they're created here too)
-        window.cpiDebugFormStructure = () => {
-            console.log('[Connectivity Data Manager] Debug function called');
-            return this.formHandler.debugFormStructure();
-        };
-        window.cpiExtractFormData = () => {
-            console.log('[Connectivity Data Manager] Extract function called');
-            return this.formHandler.extractFormData();
-        };
-        window.cpiDetectConnectivityType = () => {
-            console.log('[Connectivity Data Manager] Detect type function called');
-            return this.formHandler.detectConnectivityType();
-        };
-        
-        // Verify functions are created
-        console.log('[Connectivity Data Manager] Global functions created:', {
-            cpiDebugFormStructure: typeof window.cpiDebugFormStructure,
-            cpiExtractFormData: typeof window.cpiExtractFormData,
-            cpiDetectConnectivityType: typeof window.cpiDetectConnectivityType
-        });
         
         // Add UI elements after page is fully loaded
         setTimeout(() => {
@@ -157,14 +113,8 @@ var plugin = {
 
     // Add profile management UI to the connectivity page
     addProfileManagementUI: function() {
-        console.log('[Connectivity Data Manager] Adding Profile Management UI to connectivity page...');
-        
-        const isConnectivityPage = this.isConnectivityPage();
-        
-        if (!isConnectivityPage) {
-            console.log('[Connectivity Data Manager] Not on connectivity page, skipping UI injection');
-            console.log('[Connectivity Data Manager] TEMPORARY: For testing, will try to add buttons anyway...');
-            // Temporarily continue for debugging - remove this later
+        if (!this.isConnectivityPage()) {
+            return;
         }
 
         // Remove existing buttons first to prevent duplicates
@@ -172,19 +122,9 @@ var plugin = {
 
         // Try multiple approaches to find the best button placement - prioritize toolbar
         setTimeout(() => {
-            console.log('[Connectivity Data Manager] Attempting to add buttons...');
-            const result1 = this.addButtonsToToolbar();
-            console.log('[Connectivity Data Manager] addButtonsToToolbar result:', result1);
-            
-            if (!result1) {
-                const result2 = this.addButtonsToPageHeader();
-                console.log('[Connectivity Data Manager] addButtonsToPageHeader result:', result2);
-                
-                if (!result2) {
-                    const result3 = this.addButtonsNearSendButton();
-                    console.log('[Connectivity Data Manager] addButtonsNearSendButton result:', result3);
-                }
-            }
+            this.addButtonsToToolbar() || 
+            this.addButtonsToPageHeader() || 
+            this.addButtonsNearSendButton();
         }, 2000);
     },
 
@@ -211,9 +151,6 @@ var plugin = {
         for (const selector of headerSelectors) {
             const header = document.querySelector(selector);
             if (header) {
-                console.log('[Connectivity Data Manager] Found page header:', selector);
-                console.log('[Connectivity Data Manager] Header element:', header);
-                console.log('[Connectivity Data Manager] Header parent:', header.parentElement);
                 
                 // Check if this is a title element that needs different handling
                 if (selector === '.sapMTitle') {
@@ -335,12 +272,10 @@ var plugin = {
             '.sapMSegmentedButton'
         ];
         
-        console.log('[Connectivity Data Manager] Looking for tab headers with selectors:', tabHeaderSelectors);
 
         for (const selector of tabHeaderSelectors) {
             const tabHeader = document.querySelector(selector);
             if (tabHeader) {
-                console.log('[Connectivity Data Manager] Found tab header:', selector);
                 
                 // Look for existing right area within this tab header
                 let rightArea = tabHeader.querySelector('.sapMBarRight, .sapMBarEnd');
@@ -1473,42 +1408,6 @@ var plugin = {
     }
 };
 
-// Create global functions immediately at plugin load time
-window.cpiDebugFormStructure = function() {
-    console.log('[Connectivity Data Manager] Global debug function called');
-    const pluginInstance = pluginList.find(p => p.id === 'connectivity-data-manager');
-    if (pluginInstance && pluginInstance.formHandler) {
-        return pluginInstance.formHandler.debugFormStructure();
-    } else {
-        console.error('[Connectivity Data Manager] Plugin instance not found');
-    }
-};
-
-window.cpiExtractFormData = function() {
-    console.log('[Connectivity Data Manager] Global extract function called');
-    const pluginInstance = pluginList.find(p => p.id === 'connectivity-data-manager');
-    if (pluginInstance && pluginInstance.formHandler) {
-        return pluginInstance.formHandler.extractFormData();
-    } else {
-        console.error('[Connectivity Data Manager] Plugin instance not found');
-    }
-};
-
-window.cpiDetectConnectivityType = function() {
-    console.log('[Connectivity Data Manager] Global detect function called');
-    const pluginInstance = pluginList.find(p => p.id === 'connectivity-data-manager');
-    if (pluginInstance && pluginInstance.formHandler) {
-        return pluginInstance.formHandler.detectConnectivityType();
-    } else {
-        console.error('[Connectivity Data Manager] Plugin instance not found');
-    }
-};
-
-console.log('[Connectivity Data Manager] Global functions created at load time:', {
-    cpiDebugFormStructure: typeof window.cpiDebugFormStructure,
-    cpiExtractFormData: typeof window.cpiExtractFormData,
-    cpiDetectConnectivityType: typeof window.cpiDetectConnectivityType
-});
 
 // Auto-initialize when page loads
 if (document.readyState === 'loading') {
@@ -1521,7 +1420,3 @@ if (document.readyState === 'loading') {
 
 // Register plugin with CPI Helper
 pluginList.push(plugin);
-
-console.log('[Connectivity Data Manager] 🚀 PLUGIN REGISTERED SUCCESSFULLY 🚀');
-console.log('[Connectivity Data Manager] Plugin ID:', plugin.id);
-console.log('[Connectivity Data Manager] Current pluginList length:', pluginList.length);
