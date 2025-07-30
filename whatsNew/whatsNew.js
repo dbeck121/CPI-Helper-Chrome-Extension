@@ -106,13 +106,21 @@ It seems that the CPI-Helper is currently experiencing some issues. These are pr
                     <div class="twelve wide column">
   
      <div class="ui header">This release is sponsored by Figaf </div>
-  <p>Grow Your Integration Business with Figaf:</p>
-  <p>Are you an integration consultant looking to deliver faster, more reliable SAP solutions? Partner with Figaf and get access to powerful tools that simplify testing, documentation, and migration—so you can focus on delivering value, not fixing errors.
-</p>
+  
+Just 30 minutes. That’s all it takes to explore how Figaf works.<br>
+You will discover how easy it is to:
+<ul>
+  <li>Create test cases</li>
+  <li>Transport integrations</li>
+  <li>Edit Groovy scripts</li>
+  <li>Document your SAP integrations</li>
+</ul>
+There is also a section on how to migrate from Integration Suite.
+
                     </div>
                      <div class="sixteen wide column" style="paddingTop: '0px'">
                
-👉 <a href="https://figaf.com/cpihelper20" target="_blank"><u>Read more</u></a> about Figaf's Partner Program and take your consultancy to the next level. </div>
+👉 <a href="https://figaf.com/cpihelper21" target="_blank"><u>Read more</u></a> about Figaf and get started right now!</div>
                 </div>
                 </div>
             </div>
@@ -247,9 +255,9 @@ It seems that the CPI-Helper is currently experiencing some issues. These are pr
         });
       },
       onclose: () => {
-     //   showBigPopup(recentChanges, "Your SAP CI Toolbox since 1963", {
-     //     fullscreen: false,
-     //   });
+        //   showBigPopup(recentChanges, "Your SAP CI Toolbox since 1963", {
+        //     fullscreen: false,
+        //   });
       },
     });
 
@@ -294,7 +302,7 @@ async function recrutingPopup(force = false) {
     //get random int between 1 and 11
     var randomTimestamp = Math.floor(Math.random() * 10) + 1;
 
-    var oneweek = +new Date() + randomTimestamp * 24 * 60 * 60 * 1000*2;
+    var oneweek = +new Date() + randomTimestamp * 24 * 60 * 60 * 1000 * 2;
 
     var obj = {};
     obj["recrutingPopupTimestamp"] = oneweek;

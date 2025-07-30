@@ -1013,9 +1013,9 @@ async function buildButtonBar() {
         // default mode is open
         if (result["openMessageSidebarOnStartup"] === undefined) {
           chrome.storage.sync.set({
-            openMessageSidebarOnStartup: true,
+            openMessageSidebarOnStartup: false,
           });
-          openMessageSidebarOnStartupValue = true;
+          openMessageSidebarOnStartupValue = false;
         } else {
           openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
         }
