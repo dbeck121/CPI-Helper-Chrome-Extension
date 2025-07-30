@@ -13,6 +13,12 @@ var plugin = {
         encryptionEnabled: false
     },
 
+    // Centralized error handler
+    handleError: function(operation, error) {
+        console.error(`[Connectivity Data Manager] Error in ${operation}:`, error);
+        return false;
+    },
+
     // Check if we're on the connectivity test page
     isConnectivityPage: function() {
         const url = window.location.href;
@@ -34,7 +40,6 @@ var plugin = {
             pageType: this.getPageType(url)
         };
         
-        console.log('[Connectivity Data Manager] Page context:', context);
         return context;
     },
 
@@ -74,7 +79,6 @@ var plugin = {
             const currentUrl = window.location.href;
             if (currentUrl !== lastUrl) {
                 lastUrl = currentUrl;
-                console.log('[Connectivity Data Manager] Page changed, re-checking context');
                 
                 // Re-initialize if we're still on connectivity page
                 if (this.isConnectivityPage()) {
@@ -94,7 +98,6 @@ var plugin = {
 
     // Cleanup when leaving connectivity page
     cleanup: function() {
-        console.log('[Connectivity Data Manager] Cleaning up plugin resources');
         // Remove any added UI elements, event listeners, etc.
         // This will be expanded in later phases
     },
@@ -113,19 +116,209 @@ var plugin = {
 
     // Add profile management UI to the connectivity page
     addProfileManagementUI: function() {
-        if (!this.isConnectivityPage()) {
+        console.log('[Connectivity Data Manager] Checking page...', window.location.href);
+        const isConnPage = this.isConnectivityPage();
+        console.log('[Connectivity Data Manager] Is connectivity page:', isConnPage);
+        
+        if (!isConnPage) {
+            console.log('[Connectivity Data Manager] Not on connectivity page, skipping button creation');
             return;
         }
+        
+        console.log('[Connectivity Data Manager] On connectivity page, adding buttons...');
 
         // Remove existing buttons first to prevent duplicates
         this.removeExistingButtons();
 
-        // Try multiple approaches to find the best button placement - prioritize toolbar
+        // Single unified button placement
         setTimeout(() => {
-            this.addButtonsToToolbar() || 
-            this.addButtonsToPageHeader() || 
-            this.addButtonsNearSendButton();
+            this.addAllButtons();
         }, 2000);
+
+        // Set up periodic check to re-add buttons if they disappear
+        this.setupButtonPersistence();
+    },
+
+    // Single centralized function to add all buttons
+    addAllButtons: function() {
+        console.log('[Connectivity Data Manager] Adding all buttons...');
+        
+        // Remove any existing buttons first
+        this.removeExistingButtons();
+        
+        // Create button container
+        const buttonContainer = this.createButtonContainer();
+        console.log('[Connectivity Data Manager] Button container created:', buttonContainer);
+        
+        // Try placement strategies in order of preference
+        console.log('[Connectivity Data Manager] Trying placement strategies...');
+        
+        // Primary method: Original toolbar approach (proven to work)
+        if (this.addButtonsToToolbar()) {
+            console.log('[Connectivity Data Manager] SUCCESS: Placed using original toolbar method');
+            return;
+        }
+        
+        // Fallback: Fixed positioning as last resort
+        if (this.tryAnyContainerPlacement(buttonContainer)) {
+            console.log('[Connectivity Data Manager] SUCCESS: Placed in any available container');
+            return;
+        }
+        
+        console.log('[Connectivity Data Manager] WARNING: No suitable placement found!');
+    },
+
+    // Set up periodic check to ensure buttons stay visible
+    setupButtonPersistence: function() {
+        console.log('[Connectivity Data Manager] Setting up button persistence...');
+        
+        // Check every 3 seconds if buttons are still visible
+        this.buttonCheckInterval = setInterval(() => {
+            if (!this.isConnectivityPage()) {
+                // If not on connectivity page anymore, stop checking
+                if (this.buttonCheckInterval) {
+                    clearInterval(this.buttonCheckInterval);
+                    this.buttonCheckInterval = null;
+                }
+                return;
+            }
+            
+            // Check if our button container still exists and is visible
+            const existingContainer = document.getElementById('cpiHelper_connectivity_buttonContainer');
+            if (!existingContainer || !document.body.contains(existingContainer)) {
+                console.log('[Connectivity Data Manager] Buttons disappeared, re-adding...');
+                this.addAllButtons();
+            }
+        }, 3000);
+    },
+
+
+    // Try placing in any available container as absolute fallback
+    tryAnyContainerPlacement: function(buttonContainer) {
+        console.log('[Connectivity Data Manager] Trying any container placement (last resort)...');
+        // Try very generic selectors, prioritizing stable areas
+        const genericSelectors = [
+            'body', // Most stable as final fallback
+            'div[class*="Shell"]',
+            'div[class*="Application"]',
+            'div[class*="Header"]',
+            'div[class*="Bar"]', 
+            'div[class*="Toolbar"]',
+            'header',
+            'nav',
+            '.ui-content',
+            'main'
+        ];
+        
+        for (const selector of genericSelectors) {
+            const container = document.querySelector(selector);
+            console.log(`[Connectivity Data Manager] Generic selector "${selector}" found:`, !!container);
+            if (container) {
+                this.addButtonsToContainer(buttonContainer, 'sap');
+                
+                // Create fixed positioning for maximum stability
+                buttonContainer.style.position = 'fixed';
+                buttonContainer.style.top = '20px';
+                buttonContainer.style.right = '20px';
+                buttonContainer.style.zIndex = '10000';
+                buttonContainer.style.background = 'rgba(255, 255, 255, 0.95)';
+                buttonContainer.style.padding = '8px';
+                buttonContainer.style.borderRadius = '4px';
+                buttonContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                
+                container.appendChild(buttonContainer);
+                return true;
+            }
+        }
+        return false;
+    },
+
+    // Original toolbar method - more sophisticated approach
+    addButtonsToToolbar: function() {
+        console.log('[Connectivity Data Manager] Trying original toolbar approach...');
+        
+        // Remove existing buttons first
+        this.removeExistingButtons();
+        
+        // Specifically target the tab header area where the protocol tabs are
+        const tabHeaderSelectors = [
+            '.sapMIconTabHeader',
+            '.sapMIconTabBar .sapMIconTabHeader',
+            '[role="tablist"]',
+            '.sapMSegmentedButton'
+        ];
+        
+        console.log('[Connectivity Data Manager] Looking for tab headers with selectors:', tabHeaderSelectors);
+
+        for (const selector of tabHeaderSelectors) {
+            const tabHeader = document.querySelector(selector);
+            if (tabHeader) {
+                console.log('[Connectivity Data Manager] Found tab header:', selector);
+                
+                // Look for existing right area within this tab header
+                let rightArea = tabHeader.querySelector('.sapMBarRight, .sapMBarEnd');
+                
+                if (!rightArea) {
+                    // Create a right area positioned at the end of the tab header
+                    rightArea = document.createElement('div');
+                    rightArea.className = 'sapMBarRight sapMBarContainer';
+                    rightArea.style.cssText = `
+                        position: absolute;
+                        right: 16px;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        z-index: 10;
+                    `;
+                    
+                    // Ensure the tab header has relative positioning
+                    if (getComputedStyle(tabHeader).position === 'static') {
+                        tabHeader.style.position = 'relative';
+                    }
+                    
+                    tabHeader.appendChild(rightArea);
+                    console.log('[Connectivity Data Manager] Created right area in tab header');
+                }
+                
+                // Add buttons to the right area
+                const buttonContainer = document.createElement('div');
+                buttonContainer.id = 'cpiHelper_connectivity_buttonContainer';
+                buttonContainer.style.cssText = `
+                    display: inline-flex;
+                    gap: 6px;
+                    align-items: center;
+                `;
+
+                const loadBtn = this.createToolbarButton('Load', 'Load saved connectivity profile', () => this.showLoadProfileDialog());
+                const saveBtn = this.createToolbarButton('Save', 'Save current connectivity data as profile', () => this.showSaveProfileDialog());
+                const manageBtn = this.createToolbarButton('Manage', 'Manage saved connectivity profiles', () => this.showManageProfilesDialog());
+                const analyzeBtn = this.createToolbarButton('Analyze', 'Analyze form fields for Phase 1/2 mapping', () => this.showAnalyzeFieldsDialog());
+
+                buttonContainer.appendChild(loadBtn);
+                buttonContainer.appendChild(saveBtn);
+                buttonContainer.appendChild(manageBtn);
+                buttonContainer.appendChild(analyzeBtn);
+
+                rightArea.appendChild(buttonContainer);
+                
+                console.log('[Connectivity Data Manager] Buttons added to tab header right area');
+                return true;
+            }
+        }
+        
+        console.log('[Connectivity Data Manager] No suitable tab header found');
+        return false;
+    },
+
+    // Create right area helper
+    createRightArea: function(parent) {
+        const rightArea = document.createElement('div');
+        rightArea.className = 'sapMBarEnd';
+        rightArea.style.cssText = 'margin-left: auto; display: flex; align-items: center;';
+        parent.appendChild(rightArea);
+        return rightArea;
     },
 
     // Primary approach: Add buttons to page header like iflow buttons (Logs, Trace, Messages)
@@ -177,22 +370,21 @@ var plugin = {
                 buttonContainer.appendChild(loadBtn);
                 buttonContainer.appendChild(saveBtn);
                 buttonContainer.appendChild(manageBtn);
+                const analyzeBtn = this.createHeaderButton('Analyze', 'Analyze form fields for Phase 1/2 mapping', () => this.showAnalyzeFieldsDialog());
+                buttonContainer.appendChild(analyzeBtn);
 
                 // Insert into header
                 header.appendChild(buttonContainer);
                 
-                console.log('[Connectivity Data Manager] Buttons added to page header successfully');
                 return true;
             }
         }
         
-        console.log('[Connectivity Data Manager] No suitable page header found');
         return false;
     },
 
     // Special handling for title elements
     addButtonsNearTitle: function(titleElement) {
-        console.log('[Connectivity Data Manager] Handling title element specifically');
         
         // Find the parent container (likely a header bar or flex container)
         let container = titleElement.parentElement;
@@ -205,7 +397,6 @@ var plugin = {
         }
         
         if (container) {
-            console.log('[Connectivity Data Manager] Found title container:', container);
             
             // Create button container that will sit alongside the title
             const buttonContainer = document.createElement('div');
@@ -230,10 +421,8 @@ var plugin = {
             // Insert into the same container as the title
             container.appendChild(buttonContainer);
             
-            console.log('[Connectivity Data Manager] Buttons added near title successfully');
             return true;
         } else {
-            console.log('[Connectivity Data Manager] Could not find suitable container for title');
             
             // Fallback: insert directly after the title element
             const buttonContainer = document.createElement('div');
@@ -255,14 +444,12 @@ var plugin = {
 
             titleElement.parentNode.insertBefore(buttonContainer, titleElement.nextSibling);
             
-            console.log('[Connectivity Data Manager] Buttons added as fallback after title');
             return true;
         }
     },
 
     // Primary approach: Add buttons to toolbar right area
     addButtonsToToolbar: function() {
-        console.log('[Connectivity Data Manager] Trying toolbar approach first...');
         
         // Specifically target the tab header area where the protocol tabs are
         const tabHeaderSelectors = [
@@ -301,7 +488,6 @@ var plugin = {
                     }
                     
                     tabHeader.appendChild(rightArea);
-                    console.log('[Connectivity Data Manager] Created right area in tab header');
                 }
                 
                 // Add buttons to the right area
@@ -313,22 +499,14 @@ var plugin = {
                     align-items: center;
                 `;
 
-                const loadBtn = this.createToolbarButton('Load', 'Load saved connectivity profile', () => this.showLoadProfileDialog());
-                const saveBtn = this.createToolbarButton('Save', 'Save current connectivity data as profile', () => this.showSaveProfileDialog());
-                const manageBtn = this.createToolbarButton('Manage', 'Manage saved connectivity profiles', () => this.showManageProfilesDialog());
-
-                buttonContainer.appendChild(loadBtn);
-                buttonContainer.appendChild(saveBtn);
-                buttonContainer.appendChild(manageBtn);
+                this.addButtonsToContainer(buttonContainer, 'toolbar');
 
                 rightArea.appendChild(buttonContainer);
                 
-                console.log('[Connectivity Data Manager] Buttons added to tab header right area');
                 return true;
             }
         }
         
-        console.log('[Connectivity Data Manager] No suitable tab header found');
         return false;
     },
 
@@ -352,7 +530,6 @@ var plugin = {
         buttonContainer.appendChild(manageBtn);
 
         rightArea.appendChild(buttonContainer);
-        console.log('[Connectivity Data Manager] Buttons added to existing right area');
     },
 
     // Create right area in toolbar if it doesn't exist
@@ -386,7 +563,6 @@ var plugin = {
         rightArea.appendChild(buttonContainer);
         toolbar.appendChild(rightArea);
         
-        console.log('[Connectivity Data Manager] Created new right area in toolbar');
     },
 
     // Fallback approach: Add buttons near the Send button
@@ -398,7 +574,6 @@ var plugin = {
                           );
         
         if (sendButton) {
-            console.log('[Connectivity Data Manager] Found Send button, adding our buttons as fallback');
             
             // Create our button container
             const buttonContainer = document.createElement('div');
@@ -422,10 +597,8 @@ var plugin = {
             // Insert right after the Send button
             sendButton.parentNode.insertBefore(buttonContainer, sendButton.nextSibling);
             
-            console.log('[Connectivity Data Manager] Buttons added successfully near Send button');
             return true;
         } else {
-            console.log('[Connectivity Data Manager] Send button not found, trying form container approach');
             this.addButtonsToFormContainer();
             return true;
         }
@@ -466,9 +639,7 @@ var plugin = {
             buttonContainer.appendChild(manageBtn);
 
             formContainer.appendChild(buttonContainer);
-            console.log('[Connectivity Data Manager] Buttons added to form container');
         } else {
-            console.log('[Connectivity Data Manager] No suitable container found for buttons');
         }
     },
 
@@ -478,6 +649,43 @@ var plugin = {
         existingButtons.forEach(button => button.remove());
     },
 
+    // Unified button creation and container management
+    createButtonContainer: function() {
+        const container = document.createElement('div');
+        container.id = 'cpiHelper_connectivity_buttonContainer';
+        container.style.cssText = `
+            display: inline-flex;
+            gap: 4px;
+            align-items: center;
+            margin-left: 8px;
+        `;
+        return container;
+    },
+
+    addButtonsToContainer: function(container, buttonType = 'header') {
+        const buttons = [
+            { text: 'Load', title: 'Load saved connectivity profile', action: () => this.showLoadProfileDialog() },
+            { text: 'Save', title: 'Save current connectivity data as profile', action: () => this.showSaveProfileDialog() },
+            { text: 'Manage', title: 'Manage saved connectivity profiles', action: () => this.showManageProfilesDialog() },
+            { text: 'Analyze', title: 'Analyze form fields for Phase 1/2 mapping', action: () => this.showAnalyzeFieldsDialog() }
+        ];
+
+        buttons.forEach(btn => {
+            let button;
+            switch(buttonType) {
+                case 'toolbar':
+                    button = this.createToolbarButton(btn.text, btn.title, btn.action);
+                    break;
+                case 'sap':
+                    const icon = btn.text === 'Load' ? '📂' : btn.text === 'Save' ? '💾' : btn.text === 'Manage' ? '⚙️' : '🔍';
+                    button = this.createSAPButton(`${icon} ${btn.text}`, btn.title, btn.action);
+                    break;
+                default: // header
+                    button = this.createHeaderButton(btn.text, btn.title, btn.action);
+            }
+            container.appendChild(button);
+        });
+    },
 
     // Create SAP Fiori styled button to match Send button
     createSAPButton: function(text, title, onClick) {
@@ -963,6 +1171,382 @@ var plugin = {
         }
     },
 
+    // Field Analysis Dialog for Phase 1/2 mapping
+    showAnalyzeFieldsDialog: async function() {
+        const connectivityType = this.formHandler.detectConnectivityType();
+        const elements = this.formHandler.findAllFormElements();
+        
+        const html = `
+            <div style="padding: 20px; max-height: 70vh; overflow-y: auto;">
+                <h3>🔍 Field Phase Analysis - ${connectivityType.toUpperCase()}</h3>
+                <p style="margin: 15px 0; color: #666; font-size: 14px;">
+                    <strong>Phase 1 fields</strong> are primary fields that trigger visibility of other fields.<br>
+                    <strong>Phase 2 fields</strong> are conditional fields that appear after Phase 1 selections.<br>
+                    <em>🔴 Red fields are currently hidden, 🟢 green fields are visible.</em>
+                </p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                    <div>
+                        <h4 style="color: #28a745; margin: 10px 0;">✅ Phase 1 Fields (Primary)</h4>
+                        <div id="phase1Fields" style="border: 2px solid #28a745; border-radius: 8px; padding: 15px; min-height: 200px; background: #f8fff8;">
+                            <p style="color: #666; font-style: italic;">Drop fields here that control visibility of other fields</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="color: #007bff; margin: 10px 0;">⚡ Phase 2 Fields (Conditional)</h4>
+                        <div id="phase2Fields" style="border: 2px solid #007bff; border-radius: 8px; padding: 15px; min-height: 200px; background: #f8faff;">
+                            <p style="color: #666; font-style: italic;">Drop fields here that appear conditionally</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin: 10px 0;">📦 Available Fields</h4>
+                    <div id="availableFields" style="border: 2px dashed #ccc; border-radius: 8px; padding: 15px; background: #fafafa;">
+                        ${Object.entries(elements).map(([fieldName, fieldData]) => {
+                            const isVisible = fieldData.visible;
+                            const element = fieldData.element;
+                            const label = fieldData.label || fieldName;
+                            const value = element ? (element.type === 'checkbox' ? element.checked : element.value || 'empty') : 'not found';
+                            
+                            return `
+                                <div class="field-item" draggable="true" data-field="${fieldName}" 
+                                     style="display: inline-block; margin: 5px; padding: 8px 12px; 
+                                            background: ${isVisible ? '#e8f5e8' : '#ffe8e8'}; 
+                                            border: 1px solid ${isVisible ? '#28a745' : '#dc3545'};
+                                            border-radius: 4px; cursor: move; font-size: 13px;">
+                                    <strong>${fieldName}</strong><br>
+                                    <small>${isVisible ? '🟢' : '🔴'} ${label}</small><br>
+                                    <small>Type: ${fieldData.type} | Value: ${String(value).substring(0, 15)}</small>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+                
+                <div style="margin: 20px 0; text-align: center;">
+                    <button id="autoDetectBtn" style="padding: 10px 20px; margin: 5px; background: #ffc107; color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                        🤖 Auto-Detect Phases
+                    </button>
+                    <button id="testPhasesBtn" style="padding: 10px 20px; margin: 5px; background: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                        🧪 Test Phase Logic
+                    </button>
+                    <button id="saveConfigBtn" style="padding: 10px 20px; margin: 5px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                        💾 Save Configuration
+                    </button>
+                </div>
+                
+                <div id="testResults" style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; display: none;">
+                    <h4>Test Results:</h4>
+                    <pre id="testOutput" style="background: #fff; padding: 10px; border-radius: 4px; font-size: 12px; max-height: 200px; overflow-y: auto;"></pre>
+                </div>
+            </div>
+        `;
+        
+        await showBigPopup(html, 'Field Phase Analyzer');
+        this.initFieldAnalyzer();
+    },
+
+    // Initialize drag & drop and analysis functionality
+    initFieldAnalyzer: function() {
+        const phase1Container = document.getElementById('phase1Fields');
+        const phase2Container = document.getElementById('phase2Fields');
+        const availableContainer = document.getElementById('availableFields');
+        
+        // Enable drag & drop
+        [phase1Container, phase2Container, availableContainer].forEach(container => {
+            container.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                container.style.backgroundColor = container.id === 'phase1Fields' ? '#e8f5e8' : 
+                                                 container.id === 'phase2Fields' ? '#e8f4fd' : '#f0f0f0';
+            });
+            
+            container.addEventListener('dragleave', () => {
+                container.style.backgroundColor = container.id === 'phase1Fields' ? '#f8fff8' : 
+                                                 container.id === 'phase2Fields' ? '#f8faff' : '#fafafa';
+            });
+            
+            container.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const fieldName = e.dataTransfer.getData('text/plain');
+                const fieldElement = document.querySelector(`[data-field="${fieldName}"]`);
+                if (fieldElement) {
+                    // Remove placeholder text
+                    const placeholder = container.querySelector('p');
+                    if (placeholder && placeholder.textContent.includes('Drop fields')) {
+                        placeholder.remove();
+                    }
+                    container.appendChild(fieldElement);
+                }
+                container.style.backgroundColor = container.id === 'phase1Fields' ? '#f8fff8' : 
+                                                 container.id === 'phase2Fields' ? '#f8faff' : '#fafafa';
+            });
+        });
+        
+        // Enable dragging of field items
+        document.querySelectorAll('.field-item').forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', item.dataset.field);
+            });
+        });
+        
+        // Auto-detect button
+        document.getElementById('autoDetectBtn').addEventListener('click', () => {
+            this.autoDetectPhases();
+        });
+        
+        // Test phases button  
+        document.getElementById('testPhasesBtn').addEventListener('click', () => {
+            this.testPhaseLogic();
+        });
+        
+        // Save config button
+        document.getElementById('saveConfigBtn').addEventListener('click', () => {
+            this.savePhaseConfiguration();
+        });
+    },
+
+    // Auto-detect which fields should be in Phase 1 vs Phase 2
+    autoDetectPhases: function() {
+        console.log('Auto-detecting field phases...');
+        
+        const connectivityType = this.formHandler.detectConnectivityType();
+        const elements = this.formHandler.findAllFormElements();
+        
+        // Phase 1: Fields that typically control visibility of others
+        const phase1Patterns = [
+            // Authentication-related controls
+            /auth.*method/i,
+            /authentication/i,
+            /login.*type/i,
+            /connection.*type/i,
+            
+            // Certificate and security controls
+            /check.*cert/i,
+            /checksrvcert/i,
+            /verify.*cert/i,
+            /use.*cert/i,
+            /certificate.*check/i,
+            /certificate.*auth/i,
+            /tls.*enable/i,
+            /ssl.*enable/i,
+            /security.*mode/i,
+            
+            // Protocol controls
+            /protocol/i,
+            /mode/i,
+            /type/i,
+            
+            // Radio buttons and checkboxes that control visibility
+            /radio|checkbox/i
+        ];
+        
+        // Phase 2: Fields that are typically conditional
+        const phase2Patterns = [
+            // Certificate details (usually appear after enabling cert check)
+            /certificate.*path/i,
+            /cert.*file/i,
+            /keystore/i,
+            /truststore/i,
+            /private.*key/i,
+            /public.*key/i,
+            
+            // Authentication details (appear after selecting auth method)
+            /username/i,
+            /password/i,
+            /token/i,
+            /secret/i,
+            /credential/i,
+            
+            // Advanced/optional settings
+            /timeout/i,
+            /retry/i,
+            /buffer/i,
+            /encoding/i,
+            /charset/i,
+            
+            // Proxy settings (usually optional)
+            /proxy/i,
+            
+            // Port numbers (usually have defaults)
+            /port/i
+        ];
+        
+        const phase1Fields = [];
+        const phase2Fields = [];
+        const uncategorized = [];
+        
+        // Analyze each field
+        Object.entries(elements).forEach(([fieldName, fieldData]) => {
+            const element = fieldData.element;
+            const label = fieldData.label.toLowerCase();
+            const fieldNameLower = fieldName.toLowerCase();
+            const combinedText = `${fieldNameLower} ${label}`;
+            
+            // Check for Phase 1 patterns
+            const isPhase1 = phase1Patterns.some(pattern => 
+                pattern.test(combinedText) || 
+                pattern.test(element.type)
+            );
+            
+            // Check for Phase 2 patterns
+            const isPhase2 = phase2Patterns.some(pattern => 
+                pattern.test(combinedText)
+            );
+            
+            // Special logic for specific field types and TLS connectivity
+            const isTLSControlField = connectivityType === 'tls' && (
+                fieldNameLower.includes('checksrvcert') ||
+                fieldNameLower.includes('certificateauth') ||
+                combinedText.includes('check server cert')
+            );
+            
+            if (isTLSControlField) {
+                // TLS control fields that trigger visibility -> Phase 1
+                phase1Fields.push(fieldName);
+            } else if (element.type === 'checkbox' && !isPhase2) {
+                // Most checkboxes control visibility -> Phase 1
+                phase1Fields.push(fieldName);
+            } else if (element.type === 'radio' && !isPhase2) {
+                // Radio buttons usually control visibility -> Phase 1
+                phase1Fields.push(fieldName);
+            } else if (element.type === 'password') {
+                // Passwords are usually conditional -> Phase 2
+                phase2Fields.push(fieldName);
+            } else if (isPhase1 && !isPhase2) {
+                phase1Fields.push(fieldName);
+            } else if (isPhase2 && !isPhase1) {
+                phase2Fields.push(fieldName);
+            } else if (!fieldData.visible) {
+                // Hidden fields are likely Phase 2 (conditional)
+                phase2Fields.push(fieldName);
+            } else {
+                // Common fields that don't clearly fit -> Phase 1 by default
+                uncategorized.push(fieldName);
+            }
+        });
+        
+        // Move uncategorized fields to Phase 1 (conservative approach)
+        phase1Fields.push(...uncategorized);
+        
+        // Apply the auto-detection results
+        this.applyPhaseDetection(phase1Fields, phase2Fields);
+        
+        // Show results
+        const testOutput = document.getElementById('testOutput');
+        const results = `Auto-Detection Results for ${connectivityType.toUpperCase()}:
+
+Phase 1 Fields (${phase1Fields.length}):
+${phase1Fields.map(f => `• ${f} (${elements[f]?.label || 'no label'})`).join('\n')}
+
+Phase 2 Fields (${phase2Fields.length}):
+${phase2Fields.map(f => `• ${f} (${elements[f]?.label || 'no label'})`).join('\n')}
+
+Logic Applied:
+- Checkboxes/radios that control visibility → Phase 1
+- Hidden fields → Phase 2 (conditional)
+- Certificate/auth details → Phase 2
+- Control fields (auth method, connection type) → Phase 1`;
+        
+        if (testOutput) {
+            testOutput.textContent = results;
+            document.getElementById('testResults').style.display = 'block';
+        }
+    },
+    
+    // Apply auto-detection results to the UI
+    applyPhaseDetection: function(phase1Fields, phase2Fields) {
+        // Move fields to their detected phases
+        const phase1Container = document.getElementById('phase1Fields');
+        const phase2Container = document.getElementById('phase2Fields');
+        const availableContainer = document.getElementById('availableFields');
+        
+        // Clear existing phase containers
+        phase1Container.innerHTML = '';
+        phase2Container.innerHTML = '';
+        
+        // Move Phase 1 fields
+        phase1Fields.forEach(fieldName => {
+            const fieldElement = availableContainer.querySelector(`[data-field="${fieldName}"]`);
+            if (fieldElement) {
+                phase1Container.appendChild(fieldElement);
+            }
+        });
+        
+        // Move Phase 2 fields
+        phase2Fields.forEach(fieldName => {
+            const fieldElement = availableContainer.querySelector(`[data-field="${fieldName}"]`);
+            if (fieldElement) {
+                phase2Container.appendChild(fieldElement);
+            }
+        });
+        
+        console.log(`Auto-detection completed: ${phase1Fields.length} Phase 1, ${phase2Fields.length} Phase 2`);
+    },
+
+    // Test the current phase configuration
+    testPhaseLogic: function() {
+        console.log('Testing phase logic...');
+        const phase1Fields = Array.from(document.querySelectorAll('#phase1Fields .field-item')).map(el => el.dataset.field);
+        const phase2Fields = Array.from(document.querySelectorAll('#phase2Fields .field-item')).map(el => el.dataset.field);
+        
+        const testOutput = document.getElementById('testOutput');
+        if (testOutput) {
+            testOutput.textContent = `Phase 1 Fields: ${phase1Fields.join(', ')}\nPhase 2 Fields: ${phase2Fields.join(', ')}`;
+            document.getElementById('testResults').style.display = 'block';
+        }
+    },
+
+    // Save phase configuration
+    savePhaseConfiguration: function() {
+        const connectivityType = this.formHandler.detectConnectivityType();
+        const phase1Fields = Array.from(document.querySelectorAll('#phase1Fields .field-item')).map(el => el.dataset.field);
+        const phase2Fields = Array.from(document.querySelectorAll('#phase2Fields .field-item')).map(el => el.dataset.field);
+        
+        const config = {
+            connectivityType: connectivityType,
+            phase1Fields,
+            phase2Fields,
+            timestamp: new Date().toISOString()
+        };
+        
+        console.log('Saving phase configuration:', config);
+        
+        // Store in localStorage for development use
+        const storageKey = `cpi_phase_config_${connectivityType}`;
+        localStorage.setItem(storageKey, JSON.stringify(config));
+        
+        // Generate code snippet for implementation
+        const codeSnippet = this.generatePhaseConfigCode(connectivityType, phase1Fields, phase2Fields);
+        
+        const testOutput = document.getElementById('testOutput');
+        if (testOutput) {
+            testOutput.textContent = `✅ Configuration saved to localStorage: ${storageKey}
+
+📝 Generated Code for Implementation:
+${codeSnippet}
+
+📋 Full Configuration Object:
+${JSON.stringify(config, null, 2)}`;
+            document.getElementById('testResults').style.display = 'block';
+        }
+        
+        console.log(`✅ Phase configuration saved: ${storageKey}`);
+    },
+    
+    // Generate code snippet for phase configuration
+    generatePhaseConfigCode: function(connectivityType, phase1Fields, phase2Fields) {
+        return `// ${connectivityType.toUpperCase()} Phase Configuration
+${connectivityType}: {
+    phase1: [
+        ${phase1Fields.map(field => `'${field}'`).join(',\n        ')}
+    ],
+    phase2: [
+        ${phase2Fields.map(field => `'${field}'`).join(',\n        ')}
+    ]
+},`;
+    },
+
     // Storage functions - Phase 3 Implementation
     storage: {
         STORAGE_KEY: 'connectivityDataManager_profiles',
@@ -973,7 +1557,6 @@ var plugin = {
                 return new Promise((resolve) => {
                     chrome.storage.local.get([this.STORAGE_KEY], (result) => {
                         const profiles = result[this.STORAGE_KEY] || [];
-                        console.log('[Connectivity Data Manager] Retrieved profiles:', profiles);
                         resolve(profiles);
                     });
                 });
@@ -1012,7 +1595,6 @@ var plugin = {
                             console.error('[Connectivity Data Manager] Error saving profile:', chrome.runtime.lastError);
                             reject(chrome.runtime.lastError);
                         } else {
-                            console.log('[Connectivity Data Manager] Profile saved successfully:', newProfile);
                             resolve(newProfile);
                         }
                     });
@@ -1045,7 +1627,6 @@ var plugin = {
                             console.error('[Connectivity Data Manager] Error updating profile:', chrome.runtime.lastError);
                             reject(chrome.runtime.lastError);
                         } else {
-                            console.log('[Connectivity Data Manager] Profile updated successfully:', profiles[profileIndex]);
                             resolve(profiles[profileIndex]);
                         }
                     });
@@ -1068,7 +1649,6 @@ var plugin = {
                             console.error('[Connectivity Data Manager] Error deleting profile:', chrome.runtime.lastError);
                             reject(chrome.runtime.lastError);
                         } else {
-                            console.log('[Connectivity Data Manager] Profile deleted successfully:', profileId);
                             resolve(true);
                         }
                     });
@@ -1099,7 +1679,6 @@ var plugin = {
                             bytesUsed: bytesInUse,
                             bytesUsedFormatted: (bytesInUse / 1024).toFixed(2) + ' KB'
                         };
-                        console.log('[Connectivity Data Manager] Storage stats:', stats);
                         resolve(stats);
                     });
                 });
@@ -1194,7 +1773,6 @@ var plugin = {
             const activeTab = document.querySelector('.sapMITBSelected .sapMITBText, .sapMSegmentedButtonItem--selected');
             if (activeTab) {
                 const tabText = activeTab.textContent.trim().toLowerCase();
-                console.log('[Connectivity Data Manager] Active tab detected:', tabText);
                 
                 // Map tab text to internal connectivity type names
                 const typeMap = {
@@ -1223,7 +1801,6 @@ var plugin = {
             if (url.includes('amqp')) return 'amqp';
             if (url.includes('kafka')) return 'kafka';
             
-            console.log('[Connectivity Data Manager] Could not detect connectivity type, defaulting to ssh');
             return 'ssh';
         },
 
@@ -1240,9 +1817,7 @@ var plugin = {
                 const element = document.querySelector(selector);
                 if (element) {
                     elements[fieldName] = element;
-                    console.log(`[Connectivity Data Manager] Found ${fieldName}:`, element);
                 } else {
-                    console.log(`[Connectivity Data Manager] Could not find ${fieldName} with selector: ${selector}`);
                 }
             }
             
@@ -1251,402 +1826,171 @@ var plugin = {
                 const element = document.querySelector(selector);
                 if (element) {
                     elements[fieldName] = element;
-                    console.log(`[Connectivity Data Manager] Found ${connectivityType} ${fieldName}:`, element);
                 } else {
-                    console.log(`[Connectivity Data Manager] Could not find ${connectivityType} ${fieldName} with selector: ${selector}`);
                 }
             }
             
             return elements;
         },
 
-        // Helper method to set SAP UI5 ComboBox/Select value
-        setSAPComboBoxValue: function(hiddenInput, targetValue, fieldName) {
-            console.log(`[Connectivity Data Manager] Setting SAP ComboBox ${fieldName} to: ${targetValue}`);
+        // Enhanced field detection that finds both visible and hidden fields
+        findAllFormElements: function() {
+            const elements = {};
             
+            // Generic selectors to find ALL form fields on the page
+            const genericSelectors = [
+                'input[type="text"]',
+                'input[type="password"]', 
+                'input[type="number"]',
+                'input[type="checkbox"]',
+                'input[type="radio"]',
+                'select',
+                'textarea',
+                'input[id*="hiddenInput"]' // SAP ComboBox hidden inputs
+            ];
+            
+            genericSelectors.forEach(selector => {
+                const foundElements = document.querySelectorAll(selector);
+                foundElements.forEach((element, index) => {
+                    // Generate a field name from the element
+                    let fieldName = this.generateFieldName(element, index);
+                    if (fieldName && !elements[fieldName]) {
+                        elements[fieldName] = {
+                            element: element,
+                            visible: this.isElementVisible(element),
+                            type: element.type || element.tagName.toLowerCase(),
+                            label: this.findFieldLabel(element)
+                        };
+                    }
+                });
+            });
+            
+            return elements;
+        },
+
+        // Generate a meaningful field name from element attributes
+        generateFieldName: function(element, index) {
+            // Try to get a meaningful name from various attributes
+            if (element.id) {
+                // Clean up SAP UI5 IDs
+                let name = element.id
+                    .replace(/-inner$/, '')
+                    .replace(/-hiddenInput$/, '')
+                    .replace(/^.*__(input|text|cb|rb|select)/, '')
+                    .replace(/[_-]/g, ' ')
+                    .toLowerCase()
+                    .trim();
+                if (name) return name;
+            }
+            if (element.name) return element.name;
+            
+            // Fallback to label-based name
+            const label = this.findFieldLabel(element);
+            if (label) {
+                return label.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 20);
+            }
+            
+            // Final fallback
+            return `field_${element.type}_${index}`;
+        },
+
+        // Check if element is currently visible
+        isElementVisible: function(element) {
+            const style = window.getComputedStyle(element);
+            const rect = element.getBoundingClientRect();
+            return style.display !== 'none' && 
+                   style.visibility !== 'hidden' && 
+                   style.opacity !== '0' &&
+                   rect.width > 0 && 
+                   rect.height > 0;
+        },
+
+        // Find the label associated with a form field
+        findFieldLabel: function(element) {
+            // Try to find label by various methods
+            const id = element.id;
+            if (id) {
+                const label = document.querySelector(`label[for="${id}"]`);
+                if (label) return label.textContent.trim();
+            }
+            
+            // Look for nearby text that might be a label
+            const parent = element.closest('.sapMInputBase, .sapMCheckBox, .sapMRadioButton, .sapMComboBox, .sapMFormElement');
+            if (parent) {
+                const labelElement = parent.querySelector('.sapMLabel, .sapMText, .sapMFormElementLabel');
+                if (labelElement) return labelElement.textContent.trim();
+            }
+            
+            return element.placeholder || element.title || '';
+        },
+
+        // Simplified SAP UI5 ComboBox value setter (async version for Phase 1 compatibility)
+        setSAPComboBoxValue: async function(hiddenInput, targetValue, fieldName) {
             try {
-                // Extract ComboBox base ID
                 const comboBoxId = hiddenInput.id.replace('-hiddenInput', '');
-                console.log(`[Connectivity Data Manager] ComboBox ID: ${comboBoxId}`);
                 
-                // Phase 1: Try multiple selector patterns for visible input
-                const visibleInputSelectors = [
-                    `#${comboBoxId}-inner`,
-                    `#${comboBoxId}-input`, 
-                    `#${comboBoxId}`,
-                    `[id*="${comboBoxId}"][class*="Input"]`,
-                    `[id*="${comboBoxId}"][class*="sapMInputBase"]`,
-                    `[aria-owns*="${comboBoxId}"]`,
-                    `input[id^="${comboBoxId}"]`
-                ];
-                
-                let visibleInput = null;
-                for (const selector of visibleInputSelectors) {
-                    visibleInput = document.querySelector(selector);
-                    if (visibleInput) {
-                        console.log(`[Connectivity Data Manager] Found visible input with selector: ${selector}`, visibleInput);
-                        break;
-                    }
-                }
-                
-                // Phase 1: Try multiple selector patterns for dropdown trigger
-                const dropdownSelectors = [
-                    `#${comboBoxId}-arrow`,
-                    `#${comboBoxId}-button`,
-                    `#${comboBoxId}Arrow`,
-                    `[id*="${comboBoxId}"][class*="Arrow"]`,
-                    `[id*="${comboBoxId}"][class*="Button"]`,
-                    `[id*="${comboBoxId}"][class*="sapMBtn"]`,
-                    `button[id^="${comboBoxId}"]`
-                ];
-                
-                let dropdownArrow = null;
-                for (const selector of dropdownSelectors) {
-                    dropdownArrow = document.querySelector(selector);
-                    if (dropdownArrow) {
-                        console.log(`[Connectivity Data Manager] Found dropdown trigger with selector: ${selector}`, dropdownArrow);
-                        break;
-                    }
-                }
-                
-                // Phase 4: Enhanced debugging - log DOM structure around the hidden input
-                console.log(`[Connectivity Data Manager] Hidden input parent:`, hiddenInput.parentElement);
-                console.log(`[Connectivity Data Manager] Hidden input siblings:`, hiddenInput.parentElement?.children);
-                
-                // Find all elements containing the ComboBox ID fragment
-                const shortId = comboBoxId.split('--').pop(); // Get last part after --
-                const relatedElements = document.querySelectorAll(`[id*="${shortId}"]`);
-                console.log(`[Connectivity Data Manager] Found ${relatedElements.length} elements containing '${shortId}':`, relatedElements);
-                
-                // Phase 2: Alternative detection methods if basic selectors failed
-                if (!visibleInput || !dropdownArrow) {
-                    console.log(`[Connectivity Data Manager] Basic selectors failed, trying alternative methods...`);
-                    
-                    // Method 2a: Search by data-sap-ui attributes
-                    if (!visibleInput) {
-                        const sapInputs = document.querySelectorAll(`[data-sap-ui*="${shortId}"], [data-sap-ui-id*="${shortId}"]`);
-                        sapInputs.forEach((elem, index) => {
-                            console.log(`[Connectivity Data Manager] SAP UI element ${index}:`, elem);
-                            if ((elem.tagName === 'INPUT' || elem.classList.contains('sapMInputBase')) && !visibleInput) {
-                                visibleInput = elem;
-                                console.log(`[Connectivity Data Manager] Using SAP UI input element`);
-                            }
-                        });
-                    }
-                    
-                    // Method 2b: Search by CSS classes
-                    if (!visibleInput) {
-                        const classBasedInput = hiddenInput.parentElement?.querySelector('.sapMInputBase, .sapMComboBoxInput, input[class*="sapM"]');
-                        if (classBasedInput) {
-                            visibleInput = classBasedInput;
-                            console.log(`[Connectivity Data Manager] Found input by CSS class:`, visibleInput);
-                        }
-                    }
-                    
-                    if (!dropdownArrow) {
-                        const classBasedButton = hiddenInput.parentElement?.querySelector('.sapMBtn, button[class*="sapM"], [class*="Arrow"], [class*="Button"]');
-                        if (classBasedButton) {
-                            dropdownArrow = classBasedButton;
-                            console.log(`[Connectivity Data Manager] Found button by CSS class:`, dropdownArrow);
-                        }
-                    }
-                    
-                    // Method 2c: Search by ARIA attributes
-                    if (!visibleInput) {
-                        const ariaComboBox = document.querySelector(`[role="combobox"][id*="${shortId}"], [aria-owns*="${shortId}"]`);
-                        if (ariaComboBox) {
-                            visibleInput = ariaComboBox;
-                            console.log(`[Connectivity Data Manager] Found input by ARIA attributes:`, visibleInput);
-                        }
-                    }
-                    
-                    // Method 2d: Walk the DOM tree around hidden input
-                    if (!visibleInput || !dropdownArrow) {
-                        const parentContainer = hiddenInput.closest('.sapMComboBox, .sapMSelect, [class*="ComboBox"], [class*="Select"]');
-                        console.log(`[Connectivity Data Manager] Parent container:`, parentContainer);
-                        
-                        if (parentContainer && !visibleInput) {
-                            visibleInput = parentContainer.querySelector('input:not([type="hidden"])');
-                            console.log(`[Connectivity Data Manager] Found input in parent container:`, visibleInput);
-                        }
-                        
-                        if (parentContainer && !dropdownArrow) {
-                            dropdownArrow = parentContainer.querySelector('button, [role="button"], .sapMBtn');
-                            console.log(`[Connectivity Data Manager] Found button in parent container:`, dropdownArrow);
-                        }
-                    }
-                }
+                // Find visible input and dropdown button using most common SAP UI5 patterns
+                const visibleInput = document.querySelector(`#${comboBoxId}-inner`) || 
+                                   document.querySelector(`#${comboBoxId}`);
+                const dropdownArrow = document.querySelector(`#${comboBoxId}-arrow`) || 
+                                    document.querySelector(`#${comboBoxId}-button`);
                 
                 if (visibleInput && dropdownArrow) {
-                    // Step 1: Click the dropdown arrow to open the list
-                    console.log(`[Connectivity Data Manager] Opening dropdown...`);
+                    // Click dropdown to open options
                     dropdownArrow.click();
                     
-                    // Step 2: Wait for dropdown to open and find the option
+                    // Wait for dropdown to open and find matching option
                     setTimeout(() => {
-                        // Look for dropdown items (SAP UI5 uses various patterns)
                         const dropdownItems = document.querySelectorAll(`
-                            li[id*="${comboBoxId}"][role="option"],
+                            li[role="option"],
                             .sapMSelectListItem,
-                            .sapMComboBoxItem,
-                            [data-sap-ui*="ComboBoxItem"]
+                            .sapMComboBoxItem
                         `);
                         
-                        console.log(`[Connectivity Data Manager] Found ${dropdownItems.length} dropdown items`);
-                        
-                        let foundItem = null;
-                        dropdownItems.forEach((item, index) => {
+                        // Find matching item
+                        for (const item of dropdownItems) {
                             const itemText = item.textContent?.trim() || '';
                             const itemValue = item.getAttribute('data-value') || item.getAttribute('key') || itemText;
                             
-                            console.log(`[Connectivity Data Manager] Item ${index}: "${itemText}" (value: "${itemValue}")`);
-                            
-                            // Try multiple matching strategies
+                            // Check for exact match or case-insensitive match
                             if (itemValue === targetValue || 
                                 itemText.toLowerCase() === targetValue.toLowerCase() ||
-                                itemText.toLowerCase().includes(targetValue.toLowerCase()) ||
-                                targetValue.toLowerCase().includes(itemText.toLowerCase())) {
-                                foundItem = item;
-                                console.log(`[Connectivity Data Manager] MATCH FOUND: "${itemText}"`);
-                            }
-                        });
-                        
-                        if (foundItem) {
-                            console.log(`[Connectivity Data Manager] Clicking dropdown item: ${foundItem.textContent.trim()}`);
-                            foundItem.click();
-                            
-                            // Trigger change events after selection
-                            setTimeout(() => {
-                                hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
-                                if (visibleInput) {
+                                itemText.toLowerCase().includes(targetValue.toLowerCase())) {
+                                
+                                // Click the matching item
+                                item.click();
+                                
+                                // Trigger change events
+                                setTimeout(() => {
+                                    hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
                                     visibleInput.dispatchEvent(new Event('change', { bubbles: true }));
-                                    visibleInput.dispatchEvent(new Event('input', { bubbles: true }));
-                                }
-                                console.log(`[Connectivity Data Manager] ComboBox ${fieldName} set to: ${foundItem.textContent.trim()}`);
-                            }, 100);
-                        } else {
-                            console.log(`[Connectivity Data Manager] No matching option found for: ${targetValue}`);
-                            // Close dropdown if no match found
-                            document.body.click();
+                                }, 50);
+                                
+                                return;
+                            }
                         }
+                        
+                        // No match found, close dropdown
+                        document.body.click();
                     }, 100);
                 } else {
-                    console.log(`[Connectivity Data Manager] Could not find visible ComboBox elements, trying fallback methods...`);
-                    
-                    // Phase 3: Fallback interaction methods
-                    let fallbackSuccess = false;
-                    
-                    // Method 3a: Keyboard navigation approach
-                    if (visibleInput && !dropdownArrow) {
-                        console.log(`[Connectivity Data Manager] Trying keyboard navigation on visible input...`);
-                        try {
-                            visibleInput.focus();
-                            visibleInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
-                            setTimeout(() => {
-                                // Look for opened dropdown after keyboard event
-                                const dropdownItems = document.querySelectorAll(`
-                                    li[role="option"],
-                                    .sapMSelectListItem,
-                                    .sapMComboBoxItem,
-                                    [class*="ListItem"]:not(.sapMInputListItem)
-                                `);
-                                console.log(`[Connectivity Data Manager] Found ${dropdownItems.length} dropdown items after keyboard event`);
-                                this.selectComboBoxItem(dropdownItems, targetValue, hiddenInput, visibleInput);
-                            }, 150);
-                            fallbackSuccess = true;
-                        } catch (e) {
-                            console.error('[Connectivity Data Manager] Keyboard navigation failed:', e);
-                        }
-                    }
-                    
-                    // Method 3b: Direct dropdown search without opening
-                    if (!fallbackSuccess) {
-                        console.log(`[Connectivity Data Manager] Searching for existing dropdown items...`);
-                        const existingItems = document.querySelectorAll(`
-                            li[role="option"][id*="${shortId}"],
-                            .sapMSelectListItem,
-                            .sapMComboBoxItem,
-                            [data-sap-ui*="${shortId}"][role="option"]
-                        `);
-                        
-                        if (existingItems.length > 0) {
-                            console.log(`[Connectivity Data Manager] Found ${existingItems.length} existing dropdown items`);
-                            this.selectComboBoxItem(existingItems, targetValue, hiddenInput, visibleInput);
-                            fallbackSuccess = true;
-                        }
-                    }
-                    
-                    // Method 3c: Try clicking parent containers to trigger dropdown
-                    if (!fallbackSuccess) {
-                        console.log(`[Connectivity Data Manager] Trying to click parent containers...`);
-                        const clickableParents = [
-                            hiddenInput.parentElement,
-                            hiddenInput.closest('.sapMComboBox'),
-                            hiddenInput.closest('.sapMSelect'),
-                            hiddenInput.closest('[class*="ComboBox"]'),
-                            hiddenInput.closest('[class*="Select"]')
-                        ].filter(Boolean);
-                        
-                        for (const parent of clickableParents) {
-                            try {
-                                console.log(`[Connectivity Data Manager] Clicking parent:`, parent);
-                                parent.click();
-                                
-                                // Wait and check for dropdown
-                                setTimeout(() => {
-                                    const dropdownItems = document.querySelectorAll(`li[role="option"], .sapMSelectListItem, .sapMComboBoxItem`);
-                                    if (dropdownItems.length > 0) {
-                                        console.log(`[Connectivity Data Manager] Parent click opened dropdown with ${dropdownItems.length} items`);
-                                        this.selectComboBoxItem(dropdownItems, targetValue, hiddenInput, visibleInput);
-                                    }
-                                }, 150);
-                                
-                                fallbackSuccess = true;
-                                break;
-                            } catch (e) {
-                                console.error('[Connectivity Data Manager] Parent click failed:', e);
-                            }
-                        }
-                    }
-                    
-                    // Method 3d: Final fallback - direct hidden input manipulation
-                    if (!fallbackSuccess) {
-                        console.log(`[Connectivity Data Manager] All interaction methods failed, trying direct hidden input manipulation...`);
-                        hiddenInput.value = targetValue;
-                        hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
-                        hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
-                        
-                        // Try to trigger parent container events
-                        const parentContainer = hiddenInput.closest('.sapMComboBox, .sapMSelect');
-                        if (parentContainer) {
-                            parentContainer.dispatchEvent(new Event('change', { bubbles: true }));
-                        }
-                    }
+                    // Fallback: Set hidden input directly
+                    hiddenInput.value = targetValue;
+                    hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
                 }
                 
             } catch (error) {
-                console.error(`[Connectivity Data Manager] Error setting ComboBox ${fieldName}:`, error);
+                this.handleError(`setting ComboBox ${fieldName}`, error);
             }
         },
 
-        // Async version of setSAPComboBoxValue for Phase 1 (returns promise)
+        // Alias for backward compatibility
         setSAPComboBoxValueAsync: function(hiddenInput, targetValue, fieldName) {
-            return new Promise((resolve) => {
-                console.log(`[Connectivity Data Manager] Phase 1: Setting SAP ComboBox ${fieldName} to: ${targetValue} (async)`);
-                
-                // Call the existing method
-                this.setSAPComboBoxValue(hiddenInput, targetValue, fieldName);
-                
-                // Wait longer for ComboBox to fully process and trigger conditional fields
-                setTimeout(() => {
-                    console.log(`[Connectivity Data Manager] Phase 1: ComboBox ${fieldName} async operation completed`);
-                    resolve();
-                }, 500); // Longer delay to ensure UI updates and conditional fields appear
-            });
-        },
-
-        // Helper method to select an item from ComboBox dropdown items
-        selectComboBoxItem: function(dropdownItems, targetValue, hiddenInput, visibleInput) {
-            console.log(`[Connectivity Data Manager] Searching through ${dropdownItems.length} dropdown items for: ${targetValue}`);
-            
-            let foundItem = null;
-            dropdownItems.forEach((item, index) => {
-                const itemText = item.textContent?.trim() || '';
-                const itemValue = item.getAttribute('data-value') || 
-                                item.getAttribute('key') || 
-                                item.getAttribute('value') ||
-                                itemText;
-                
-                console.log(`[Connectivity Data Manager] Item ${index}: "${itemText}" (value: "${itemValue}")`);
-                
-                // Try multiple matching strategies
-                const exactMatch = itemValue === targetValue || itemText === targetValue;
-                const caseInsensitiveMatch = itemValue.toLowerCase() === targetValue.toLowerCase() || 
-                                           itemText.toLowerCase() === targetValue.toLowerCase();
-                const containsMatch = itemText.toLowerCase().includes(targetValue.toLowerCase()) || 
-                                    targetValue.toLowerCase().includes(itemText.toLowerCase());
-                
-                // Special matching for common proxy types
-                const proxyMatches = (targetValue.includes('ON-PREMISE') || targetValue.includes('ON_PREMISE')) && 
-                                   (itemText.toLowerCase().includes('on premise') || itemText.toLowerCase().includes('on-premise'));
-                
-                if (exactMatch || caseInsensitiveMatch || containsMatch || proxyMatches) {
-                    foundItem = item;
-                    console.log(`[Connectivity Data Manager] MATCH FOUND: "${itemText}" (exact: ${exactMatch}, case: ${caseInsensitiveMatch}, contains: ${containsMatch}, proxy: ${proxyMatches})`);
-                    return; // Break out of forEach
-                }
-            });
-            
-            if (foundItem) {
-                console.log(`[Connectivity Data Manager] Clicking dropdown item: ${foundItem.textContent.trim()}`);
-                
-                // Multiple click approaches to ensure SAP UI5 recognizes the selection
-                foundItem.click();
-                
-                // Also try mouse events like a real user would do
-                foundItem.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
-                foundItem.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
-                foundItem.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-                
-                // Trigger selection events
-                foundItem.dispatchEvent(new Event('select', { bubbles: true }));
-                
-                // Trigger change events after selection with multiple delays
-                setTimeout(() => {
-                    if (hiddenInput) {
-                        hiddenInput.value = foundItem.textContent.trim(); // Set the actual value
-                        hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
-                        hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
-                    }
-                    if (visibleInput) {
-                        // Update visible input value too
-                        if (visibleInput.value !== foundItem.textContent.trim()) {
-                            visibleInput.value = foundItem.textContent.trim();
-                            visibleInput.dispatchEvent(new Event('change', { bubbles: true }));
-                            visibleInput.dispatchEvent(new Event('input', { bubbles: true }));
-                        }
-                    }
-                    console.log(`[Connectivity Data Manager] ComboBox values updated - hidden: ${hiddenInput?.value}, visible: ${visibleInput?.value}`);
-                }, 50);
-                
-                // Additional attempt with longer delay to ensure UI updates
-                setTimeout(() => {
-                    // Force focus and blur to trigger validation
-                    if (visibleInput) {
-                        visibleInput.focus();
-                        visibleInput.blur();
-                    }
-                    
-                    // Check if the selection is visible in the UI
-                    const parentContainer = hiddenInput?.closest('.sapMSlt, .sapMComboBox, .sapMSelect');
-                    if (parentContainer) {
-                        const labelElement = parentContainer.querySelector('.sapMSltLabel, .sapMComboBoxInner, span[id*="label"]');
-                        console.log(`[Connectivity Data Manager] UI label after selection:`, labelElement?.textContent?.trim());
-                        
-                        // If UI still doesn't show correct value, try one more approach
-                        if (labelElement && !labelElement.textContent.includes(foundItem.textContent.trim())) {
-                            console.log(`[Connectivity Data Manager] UI not updated, trying direct label update...`);
-                            if (labelElement.textContent !== foundItem.textContent.trim()) {
-                                labelElement.textContent = foundItem.textContent.trim();
-                            }
-                        }
-                    }
-                    
-                    console.log(`[Connectivity Data Manager] ComboBox selection completed: ${foundItem.textContent.trim()}`);
-                }, 200);
-                
-                return true;
-            } else {
-                console.log(`[Connectivity Data Manager] No matching option found for: ${targetValue}`);
-                // Close any open dropdown
-                document.body.click();
-                return false;
-            }
+            return this.setSAPComboBoxValue(hiddenInput, targetValue, fieldName);
         },
 
         // Extract data from connectivity form
         extractFormData: function() {
-            console.log('[Connectivity Data Manager] Extracting form data...');
             
             const elements = this.findFormElements();
             const connectivityType = this.detectConnectivityType();
@@ -1678,7 +2022,6 @@ var plugin = {
                                         const selectedButton = ui5Control.getSelectedButton();
                                         if (selectedButton) {
                                             selectedRadioId = selectedButton.getId();
-                                            console.log(`[Connectivity Data Manager] Found selected radio via UI5 API: ${selectedRadioId}`);
                                         }
                                     }
                                 }
@@ -1688,7 +2031,6 @@ var plugin = {
 
                             // Fallback to DOM query if UI5 API fails
                             if (!selectedRadioId) {
-                                console.log('[Connectivity Data Manager] UI5 API failed, falling back to DOM query for checked radio.');
                                 const checkedRadio = radioGroupContainer.querySelector('input[type="radio"]:checked');
                                 if (checkedRadio) {
                                     selectedRadioId = checkedRadio.id;
@@ -1698,7 +2040,6 @@ var plugin = {
                             if (selectedRadioId) {
                                 value = selectedRadioId;
                             } else {
-                                console.log(`[Connectivity Data Manager] No radio selected in group ${radioGroupContainer.id}`);
                                 value = null;
                             }
                             processedRadioGroups.add(radioGroupContainer.id);
@@ -1714,10 +2055,9 @@ var plugin = {
                     
                     if (value !== null) {
                         formData.fields[fieldName] = value;
-                        console.log(`[Connectivity Data Manager] Extracted ${fieldName}:`, value);
                     }
                 } catch (error) {
-                    console.log(`[Connectivity Data Manager] Error extracting ${fieldName}:`, error);
+                    this.handleError(`extracting ${fieldName}`, error);
                 }
             }
             
@@ -1744,18 +2084,15 @@ var plugin = {
                     
                     if (fieldName && !formData.fields[fieldName]) {
                         formData.fields[fieldName] = value;
-                        console.log(`[Connectivity Data Manager] Extracted additional radio group ${fieldName} (${groupName}):`, value);
                     }
                 }
             });
             
-            console.log('[Connectivity Data Manager] Complete form data:', formData);
             return formData;
         },
 
         // Populate form with profile data
         populateForm: async function(profileData) {
-            console.log('[Connectivity Data Manager] Populating form with:', profileData);
             
             if (!profileData || !profileData.fields) {
                 console.log('[Connectivity Data Manager] No profile data to populate');
@@ -2088,6 +2425,7 @@ var plugin = {
             `;
             showBigPopup(html, 'Plugin Test');
         },
+
         condition: function(cpiData, settings, runInfo) {
             return true; // Always show for testing
         }
