@@ -691,7 +691,7 @@ var plugin = {
                             const profile = profiles.find(p => p.id === profileId);
                             
                             if (profile) {
-                                const success = this.formHandler.populateForm(profile);
+                                const success = await this.formHandler.populateForm(profile);
                                 if (success) {
                                     showToast('Profile "' + profile.name + '" loaded successfully!');
                                     $("#cpiHelper_semanticui_modal").modal("hide");
@@ -899,7 +899,7 @@ var plugin = {
                             const profiles = await this.storage.getProfiles();
                             const profile = profiles.find(p => p.id === profileId);
                             if (profile) {
-                                const success = this.formHandler.populateForm(profile);
+                                const success = await this.formHandler.populateForm(profile);
                                 if (success) {
                                     showToast('Profile "' + profile.name + '" loaded successfully!');
                                     $("#cpiHelper_semanticui_modal").modal("hide");
@@ -1125,14 +1125,11 @@ var plugin = {
             },
             ssh: {
                 useOutdatedProtocols: 'input[id*="UseOutdatedProtocols-CB"]',
-                authMethodAnonymous: 'input[id*="AuthMethodAnonymous-RB"]',
-                authMethodPublicKey: 'input[id*="AuthMethodPublicKey-RB"]', 
-                authMethodUserCredentials: 'input[id*="AuthMethodUserCredentials-RB"]',
-                authMethodDual: 'input[id*="AuthMethodDual-RB"]',
-                hostKeyValidationKnownHosts: 'input[id*="HostKeyValidationKH-RB"]',
-                hostKeyValidationPublicKeyData: 'input[id*="HostKeyValidationPD-RB"]',
-                hostKeyValidationNone: 'input[id*="HostKeyValidationNO-RB"]',
-                checkDirectoryAccess: 'input[id*="CheckDirectoryAccess-CB"]'
+                authenticationMethod: 'input[name="__group0"]', // Radio group for authentication method
+                hostKeyValidation: 'input[name="__group1"]', // Radio group for host key validation
+                checkDirectoryAccess: 'input[id*="CheckDirectoryAccess-CB"]',
+                credentialName: 'input[id*="CredentialName-inner"]',
+                directory: 'input[id*="Directory-inner"]'
             },
             tls: {
                 certificateAuth: 'input[id*="CertificateAuth-CB"]',
@@ -1255,10 +1252,396 @@ var plugin = {
                 if (element) {
                     elements[fieldName] = element;
                     console.log(`[Connectivity Data Manager] Found ${connectivityType} ${fieldName}:`, element);
+                } else {
+                    console.log(`[Connectivity Data Manager] Could not find ${connectivityType} ${fieldName} with selector: ${selector}`);
                 }
             }
             
             return elements;
+        },
+
+        // Helper method to set SAP UI5 ComboBox/Select value
+        setSAPComboBoxValue: function(hiddenInput, targetValue, fieldName) {
+            console.log(`[Connectivity Data Manager] Setting SAP ComboBox ${fieldName} to: ${targetValue}`);
+            
+            try {
+                // Extract ComboBox base ID
+                const comboBoxId = hiddenInput.id.replace('-hiddenInput', '');
+                console.log(`[Connectivity Data Manager] ComboBox ID: ${comboBoxId}`);
+                
+                // Phase 1: Try multiple selector patterns for visible input
+                const visibleInputSelectors = [
+                    `#${comboBoxId}-inner`,
+                    `#${comboBoxId}-input`, 
+                    `#${comboBoxId}`,
+                    `[id*="${comboBoxId}"][class*="Input"]`,
+                    `[id*="${comboBoxId}"][class*="sapMInputBase"]`,
+                    `[aria-owns*="${comboBoxId}"]`,
+                    `input[id^="${comboBoxId}"]`
+                ];
+                
+                let visibleInput = null;
+                for (const selector of visibleInputSelectors) {
+                    visibleInput = document.querySelector(selector);
+                    if (visibleInput) {
+                        console.log(`[Connectivity Data Manager] Found visible input with selector: ${selector}`, visibleInput);
+                        break;
+                    }
+                }
+                
+                // Phase 1: Try multiple selector patterns for dropdown trigger
+                const dropdownSelectors = [
+                    `#${comboBoxId}-arrow`,
+                    `#${comboBoxId}-button`,
+                    `#${comboBoxId}Arrow`,
+                    `[id*="${comboBoxId}"][class*="Arrow"]`,
+                    `[id*="${comboBoxId}"][class*="Button"]`,
+                    `[id*="${comboBoxId}"][class*="sapMBtn"]`,
+                    `button[id^="${comboBoxId}"]`
+                ];
+                
+                let dropdownArrow = null;
+                for (const selector of dropdownSelectors) {
+                    dropdownArrow = document.querySelector(selector);
+                    if (dropdownArrow) {
+                        console.log(`[Connectivity Data Manager] Found dropdown trigger with selector: ${selector}`, dropdownArrow);
+                        break;
+                    }
+                }
+                
+                // Phase 4: Enhanced debugging - log DOM structure around the hidden input
+                console.log(`[Connectivity Data Manager] Hidden input parent:`, hiddenInput.parentElement);
+                console.log(`[Connectivity Data Manager] Hidden input siblings:`, hiddenInput.parentElement?.children);
+                
+                // Find all elements containing the ComboBox ID fragment
+                const shortId = comboBoxId.split('--').pop(); // Get last part after --
+                const relatedElements = document.querySelectorAll(`[id*="${shortId}"]`);
+                console.log(`[Connectivity Data Manager] Found ${relatedElements.length} elements containing '${shortId}':`, relatedElements);
+                
+                // Phase 2: Alternative detection methods if basic selectors failed
+                if (!visibleInput || !dropdownArrow) {
+                    console.log(`[Connectivity Data Manager] Basic selectors failed, trying alternative methods...`);
+                    
+                    // Method 2a: Search by data-sap-ui attributes
+                    if (!visibleInput) {
+                        const sapInputs = document.querySelectorAll(`[data-sap-ui*="${shortId}"], [data-sap-ui-id*="${shortId}"]`);
+                        sapInputs.forEach((elem, index) => {
+                            console.log(`[Connectivity Data Manager] SAP UI element ${index}:`, elem);
+                            if ((elem.tagName === 'INPUT' || elem.classList.contains('sapMInputBase')) && !visibleInput) {
+                                visibleInput = elem;
+                                console.log(`[Connectivity Data Manager] Using SAP UI input element`);
+                            }
+                        });
+                    }
+                    
+                    // Method 2b: Search by CSS classes
+                    if (!visibleInput) {
+                        const classBasedInput = hiddenInput.parentElement?.querySelector('.sapMInputBase, .sapMComboBoxInput, input[class*="sapM"]');
+                        if (classBasedInput) {
+                            visibleInput = classBasedInput;
+                            console.log(`[Connectivity Data Manager] Found input by CSS class:`, visibleInput);
+                        }
+                    }
+                    
+                    if (!dropdownArrow) {
+                        const classBasedButton = hiddenInput.parentElement?.querySelector('.sapMBtn, button[class*="sapM"], [class*="Arrow"], [class*="Button"]');
+                        if (classBasedButton) {
+                            dropdownArrow = classBasedButton;
+                            console.log(`[Connectivity Data Manager] Found button by CSS class:`, dropdownArrow);
+                        }
+                    }
+                    
+                    // Method 2c: Search by ARIA attributes
+                    if (!visibleInput) {
+                        const ariaComboBox = document.querySelector(`[role="combobox"][id*="${shortId}"], [aria-owns*="${shortId}"]`);
+                        if (ariaComboBox) {
+                            visibleInput = ariaComboBox;
+                            console.log(`[Connectivity Data Manager] Found input by ARIA attributes:`, visibleInput);
+                        }
+                    }
+                    
+                    // Method 2d: Walk the DOM tree around hidden input
+                    if (!visibleInput || !dropdownArrow) {
+                        const parentContainer = hiddenInput.closest('.sapMComboBox, .sapMSelect, [class*="ComboBox"], [class*="Select"]');
+                        console.log(`[Connectivity Data Manager] Parent container:`, parentContainer);
+                        
+                        if (parentContainer && !visibleInput) {
+                            visibleInput = parentContainer.querySelector('input:not([type="hidden"])');
+                            console.log(`[Connectivity Data Manager] Found input in parent container:`, visibleInput);
+                        }
+                        
+                        if (parentContainer && !dropdownArrow) {
+                            dropdownArrow = parentContainer.querySelector('button, [role="button"], .sapMBtn');
+                            console.log(`[Connectivity Data Manager] Found button in parent container:`, dropdownArrow);
+                        }
+                    }
+                }
+                
+                if (visibleInput && dropdownArrow) {
+                    // Step 1: Click the dropdown arrow to open the list
+                    console.log(`[Connectivity Data Manager] Opening dropdown...`);
+                    dropdownArrow.click();
+                    
+                    // Step 2: Wait for dropdown to open and find the option
+                    setTimeout(() => {
+                        // Look for dropdown items (SAP UI5 uses various patterns)
+                        const dropdownItems = document.querySelectorAll(`
+                            li[id*="${comboBoxId}"][role="option"],
+                            .sapMSelectListItem,
+                            .sapMComboBoxItem,
+                            [data-sap-ui*="ComboBoxItem"]
+                        `);
+                        
+                        console.log(`[Connectivity Data Manager] Found ${dropdownItems.length} dropdown items`);
+                        
+                        let foundItem = null;
+                        dropdownItems.forEach((item, index) => {
+                            const itemText = item.textContent?.trim() || '';
+                            const itemValue = item.getAttribute('data-value') || item.getAttribute('key') || itemText;
+                            
+                            console.log(`[Connectivity Data Manager] Item ${index}: "${itemText}" (value: "${itemValue}")`);
+                            
+                            // Try multiple matching strategies
+                            if (itemValue === targetValue || 
+                                itemText.toLowerCase() === targetValue.toLowerCase() ||
+                                itemText.toLowerCase().includes(targetValue.toLowerCase()) ||
+                                targetValue.toLowerCase().includes(itemText.toLowerCase())) {
+                                foundItem = item;
+                                console.log(`[Connectivity Data Manager] MATCH FOUND: "${itemText}"`);
+                            }
+                        });
+                        
+                        if (foundItem) {
+                            console.log(`[Connectivity Data Manager] Clicking dropdown item: ${foundItem.textContent.trim()}`);
+                            foundItem.click();
+                            
+                            // Trigger change events after selection
+                            setTimeout(() => {
+                                hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+                                if (visibleInput) {
+                                    visibleInput.dispatchEvent(new Event('change', { bubbles: true }));
+                                    visibleInput.dispatchEvent(new Event('input', { bubbles: true }));
+                                }
+                                console.log(`[Connectivity Data Manager] ComboBox ${fieldName} set to: ${foundItem.textContent.trim()}`);
+                            }, 100);
+                        } else {
+                            console.log(`[Connectivity Data Manager] No matching option found for: ${targetValue}`);
+                            // Close dropdown if no match found
+                            document.body.click();
+                        }
+                    }, 100);
+                } else {
+                    console.log(`[Connectivity Data Manager] Could not find visible ComboBox elements, trying fallback methods...`);
+                    
+                    // Phase 3: Fallback interaction methods
+                    let fallbackSuccess = false;
+                    
+                    // Method 3a: Keyboard navigation approach
+                    if (visibleInput && !dropdownArrow) {
+                        console.log(`[Connectivity Data Manager] Trying keyboard navigation on visible input...`);
+                        try {
+                            visibleInput.focus();
+                            visibleInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+                            setTimeout(() => {
+                                // Look for opened dropdown after keyboard event
+                                const dropdownItems = document.querySelectorAll(`
+                                    li[role="option"],
+                                    .sapMSelectListItem,
+                                    .sapMComboBoxItem,
+                                    [class*="ListItem"]:not(.sapMInputListItem)
+                                `);
+                                console.log(`[Connectivity Data Manager] Found ${dropdownItems.length} dropdown items after keyboard event`);
+                                this.selectComboBoxItem(dropdownItems, targetValue, hiddenInput, visibleInput);
+                            }, 150);
+                            fallbackSuccess = true;
+                        } catch (e) {
+                            console.error('[Connectivity Data Manager] Keyboard navigation failed:', e);
+                        }
+                    }
+                    
+                    // Method 3b: Direct dropdown search without opening
+                    if (!fallbackSuccess) {
+                        console.log(`[Connectivity Data Manager] Searching for existing dropdown items...`);
+                        const existingItems = document.querySelectorAll(`
+                            li[role="option"][id*="${shortId}"],
+                            .sapMSelectListItem,
+                            .sapMComboBoxItem,
+                            [data-sap-ui*="${shortId}"][role="option"]
+                        `);
+                        
+                        if (existingItems.length > 0) {
+                            console.log(`[Connectivity Data Manager] Found ${existingItems.length} existing dropdown items`);
+                            this.selectComboBoxItem(existingItems, targetValue, hiddenInput, visibleInput);
+                            fallbackSuccess = true;
+                        }
+                    }
+                    
+                    // Method 3c: Try clicking parent containers to trigger dropdown
+                    if (!fallbackSuccess) {
+                        console.log(`[Connectivity Data Manager] Trying to click parent containers...`);
+                        const clickableParents = [
+                            hiddenInput.parentElement,
+                            hiddenInput.closest('.sapMComboBox'),
+                            hiddenInput.closest('.sapMSelect'),
+                            hiddenInput.closest('[class*="ComboBox"]'),
+                            hiddenInput.closest('[class*="Select"]')
+                        ].filter(Boolean);
+                        
+                        for (const parent of clickableParents) {
+                            try {
+                                console.log(`[Connectivity Data Manager] Clicking parent:`, parent);
+                                parent.click();
+                                
+                                // Wait and check for dropdown
+                                setTimeout(() => {
+                                    const dropdownItems = document.querySelectorAll(`li[role="option"], .sapMSelectListItem, .sapMComboBoxItem`);
+                                    if (dropdownItems.length > 0) {
+                                        console.log(`[Connectivity Data Manager] Parent click opened dropdown with ${dropdownItems.length} items`);
+                                        this.selectComboBoxItem(dropdownItems, targetValue, hiddenInput, visibleInput);
+                                    }
+                                }, 150);
+                                
+                                fallbackSuccess = true;
+                                break;
+                            } catch (e) {
+                                console.error('[Connectivity Data Manager] Parent click failed:', e);
+                            }
+                        }
+                    }
+                    
+                    // Method 3d: Final fallback - direct hidden input manipulation
+                    if (!fallbackSuccess) {
+                        console.log(`[Connectivity Data Manager] All interaction methods failed, trying direct hidden input manipulation...`);
+                        hiddenInput.value = targetValue;
+                        hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+                        hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        
+                        // Try to trigger parent container events
+                        const parentContainer = hiddenInput.closest('.sapMComboBox, .sapMSelect');
+                        if (parentContainer) {
+                            parentContainer.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                    }
+                }
+                
+            } catch (error) {
+                console.error(`[Connectivity Data Manager] Error setting ComboBox ${fieldName}:`, error);
+            }
+        },
+
+        // Async version of setSAPComboBoxValue for Phase 1 (returns promise)
+        setSAPComboBoxValueAsync: function(hiddenInput, targetValue, fieldName) {
+            return new Promise((resolve) => {
+                console.log(`[Connectivity Data Manager] Phase 1: Setting SAP ComboBox ${fieldName} to: ${targetValue} (async)`);
+                
+                // Call the existing method
+                this.setSAPComboBoxValue(hiddenInput, targetValue, fieldName);
+                
+                // Wait longer for ComboBox to fully process and trigger conditional fields
+                setTimeout(() => {
+                    console.log(`[Connectivity Data Manager] Phase 1: ComboBox ${fieldName} async operation completed`);
+                    resolve();
+                }, 500); // Longer delay to ensure UI updates and conditional fields appear
+            });
+        },
+
+        // Helper method to select an item from ComboBox dropdown items
+        selectComboBoxItem: function(dropdownItems, targetValue, hiddenInput, visibleInput) {
+            console.log(`[Connectivity Data Manager] Searching through ${dropdownItems.length} dropdown items for: ${targetValue}`);
+            
+            let foundItem = null;
+            dropdownItems.forEach((item, index) => {
+                const itemText = item.textContent?.trim() || '';
+                const itemValue = item.getAttribute('data-value') || 
+                                item.getAttribute('key') || 
+                                item.getAttribute('value') ||
+                                itemText;
+                
+                console.log(`[Connectivity Data Manager] Item ${index}: "${itemText}" (value: "${itemValue}")`);
+                
+                // Try multiple matching strategies
+                const exactMatch = itemValue === targetValue || itemText === targetValue;
+                const caseInsensitiveMatch = itemValue.toLowerCase() === targetValue.toLowerCase() || 
+                                           itemText.toLowerCase() === targetValue.toLowerCase();
+                const containsMatch = itemText.toLowerCase().includes(targetValue.toLowerCase()) || 
+                                    targetValue.toLowerCase().includes(itemText.toLowerCase());
+                
+                // Special matching for common proxy types
+                const proxyMatches = (targetValue.includes('ON-PREMISE') || targetValue.includes('ON_PREMISE')) && 
+                                   (itemText.toLowerCase().includes('on premise') || itemText.toLowerCase().includes('on-premise'));
+                
+                if (exactMatch || caseInsensitiveMatch || containsMatch || proxyMatches) {
+                    foundItem = item;
+                    console.log(`[Connectivity Data Manager] MATCH FOUND: "${itemText}" (exact: ${exactMatch}, case: ${caseInsensitiveMatch}, contains: ${containsMatch}, proxy: ${proxyMatches})`);
+                    return; // Break out of forEach
+                }
+            });
+            
+            if (foundItem) {
+                console.log(`[Connectivity Data Manager] Clicking dropdown item: ${foundItem.textContent.trim()}`);
+                
+                // Multiple click approaches to ensure SAP UI5 recognizes the selection
+                foundItem.click();
+                
+                // Also try mouse events like a real user would do
+                foundItem.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+                foundItem.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+                foundItem.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+                
+                // Trigger selection events
+                foundItem.dispatchEvent(new Event('select', { bubbles: true }));
+                
+                // Trigger change events after selection with multiple delays
+                setTimeout(() => {
+                    if (hiddenInput) {
+                        hiddenInput.value = foundItem.textContent.trim(); // Set the actual value
+                        hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+                        hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                    if (visibleInput) {
+                        // Update visible input value too
+                        if (visibleInput.value !== foundItem.textContent.trim()) {
+                            visibleInput.value = foundItem.textContent.trim();
+                            visibleInput.dispatchEvent(new Event('change', { bubbles: true }));
+                            visibleInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+                    }
+                    console.log(`[Connectivity Data Manager] ComboBox values updated - hidden: ${hiddenInput?.value}, visible: ${visibleInput?.value}`);
+                }, 50);
+                
+                // Additional attempt with longer delay to ensure UI updates
+                setTimeout(() => {
+                    // Force focus and blur to trigger validation
+                    if (visibleInput) {
+                        visibleInput.focus();
+                        visibleInput.blur();
+                    }
+                    
+                    // Check if the selection is visible in the UI
+                    const parentContainer = hiddenInput?.closest('.sapMSlt, .sapMComboBox, .sapMSelect');
+                    if (parentContainer) {
+                        const labelElement = parentContainer.querySelector('.sapMSltLabel, .sapMComboBoxInner, span[id*="label"]');
+                        console.log(`[Connectivity Data Manager] UI label after selection:`, labelElement?.textContent?.trim());
+                        
+                        // If UI still doesn't show correct value, try one more approach
+                        if (labelElement && !labelElement.textContent.includes(foundItem.textContent.trim())) {
+                            console.log(`[Connectivity Data Manager] UI not updated, trying direct label update...`);
+                            if (labelElement.textContent !== foundItem.textContent.trim()) {
+                                labelElement.textContent = foundItem.textContent.trim();
+                            }
+                        }
+                    }
+                    
+                    console.log(`[Connectivity Data Manager] ComboBox selection completed: ${foundItem.textContent.trim()}`);
+                }, 200);
+                
+                return true;
+            } else {
+                console.log(`[Connectivity Data Manager] No matching option found for: ${targetValue}`);
+                // Close any open dropdown
+                document.body.click();
+                return false;
+            }
         },
 
         // Extract data from connectivity form
@@ -1273,6 +1656,9 @@ var plugin = {
                 fields: {}
             };
             
+            // Track processed radio groups to avoid duplicates
+            const processedRadioGroups = new Set();
+            
             // Extract values from found elements
             for (const [fieldName, element] of Object.entries(elements)) {
                 try {
@@ -1281,28 +1667,85 @@ var plugin = {
                     if (element.type === 'checkbox') {
                         value = element.checked;
                     } else if (element.type === 'radio') {
-                        value = element.checked;
+                        // For radio buttons, find the selected one in the group using UI5 API for reliability
+                        const radioGroupContainer = element.closest('[role="radiogroup"]');
+                        if (radioGroupContainer && !processedRadioGroups.has(radioGroupContainer.id)) {
+                            let selectedRadioId = null;
+                            try {
+                                if (window.sap && window.sap.ui) {
+                                    const ui5Control = window.sap.ui.getCore().byId(radioGroupContainer.id);
+                                    if (ui5Control && typeof ui5Control.getSelectedButton === 'function') {
+                                        const selectedButton = ui5Control.getSelectedButton();
+                                        if (selectedButton) {
+                                            selectedRadioId = selectedButton.getId();
+                                            console.log(`[Connectivity Data Manager] Found selected radio via UI5 API: ${selectedRadioId}`);
+                                        }
+                                    }
+                                }
+                            } catch (e) {
+                                console.error('[Connectivity Data Manager] Error using UI5 API to find selected radio, falling back to DOM.', e);
+                            }
+
+                            // Fallback to DOM query if UI5 API fails
+                            if (!selectedRadioId) {
+                                console.log('[Connectivity Data Manager] UI5 API failed, falling back to DOM query for checked radio.');
+                                const checkedRadio = radioGroupContainer.querySelector('input[type="radio"]:checked');
+                                if (checkedRadio) {
+                                    selectedRadioId = checkedRadio.id;
+                                }
+                            }
+                            
+                            if (selectedRadioId) {
+                                value = selectedRadioId;
+                            } else {
+                                console.log(`[Connectivity Data Manager] No radio selected in group ${radioGroupContainer.id}`);
+                                value = null;
+                            }
+                            processedRadioGroups.add(radioGroupContainer.id);
+                        } else {
+                            // If the group was already processed or not found, skip.
+                            continue;
+                        }
                     } else if (element.tagName === 'SELECT') {
                         value = element.value;
                     } else {
                         value = element.value;
                     }
                     
-                    formData.fields[fieldName] = value;
-                    console.log(`[Connectivity Data Manager] Extracted ${fieldName}:`, value);
+                    if (value !== null) {
+                        formData.fields[fieldName] = value;
+                        console.log(`[Connectivity Data Manager] Extracted ${fieldName}:`, value);
+                    }
                 } catch (error) {
                     console.log(`[Connectivity Data Manager] Error extracting ${fieldName}:`, error);
                 }
             }
             
-            // Also extract radio button group values
-            const radioGroups = ['__group0', '__group1']; // Authentication and Host Key Validation groups
-            radioGroups.forEach(groupName => {
-                const checkedRadio = document.querySelector(`input[name="${groupName}"]:checked`);
-                if (checkedRadio) {
-                    const groupType = groupName === '__group0' ? 'authenticationMethod' : 'hostKeyValidation';
-                    formData.fields[groupType] = checkedRadio.id;
-                    console.log(`[Connectivity Data Manager] Extracted ${groupType}:`, checkedRadio.id);
+            // Extract any remaining radio button groups that weren't captured above
+            const allRadioButtons = document.querySelectorAll('input[type="radio"]:checked');
+            allRadioButtons.forEach(radio => {
+                const groupName = radio.name;
+                const value = radio.id; // Use ID consistently
+                
+                // Only add if we haven't already processed this group
+                if (!processedRadioGroups.has(groupName)) {
+                    // Try to map common radio group names to field names
+                    let fieldName = null;
+                    if (groupName === '__group0') {
+                        fieldName = 'authenticationMethod';
+                    } else if (groupName === '__group1') {
+                        fieldName = 'hostKeyValidation';
+                    } else if (groupName.includes('connection') || radio.id.includes('connection')) {
+                        fieldName = 'connectionType';
+                    } else {
+                        // Use group name as field name
+                        fieldName = groupName;
+                    }
+                    
+                    if (fieldName && !formData.fields[fieldName]) {
+                        formData.fields[fieldName] = value;
+                        console.log(`[Connectivity Data Manager] Extracted additional radio group ${fieldName} (${groupName}):`, value);
+                    }
                 }
             });
             
@@ -1311,7 +1754,7 @@ var plugin = {
         },
 
         // Populate form with profile data
-        populateForm: function(profileData) {
+        populateForm: async function(profileData) {
             console.log('[Connectivity Data Manager] Populating form with:', profileData);
             
             if (!profileData || !profileData.fields) {
@@ -1319,11 +1762,250 @@ var plugin = {
                 return false;
             }
             
+            // Phase 1: Populate primary fields (that trigger conditional fields)
+            await this.populateFormPhase1(profileData);
+            
+            // Phase 2: Wait and populate conditional fields  
+            await this.populateFormPhase2(profileData);
+            
+            return true;
+        },
+
+        // Phase 1: Populate primary fields that might trigger conditional fields
+        populateFormPhase1: async function(profileData) {
             const elements = this.findFormElements();
+            const primaryFields = ['host', 'port', 'authenticationMethod', 'authenticationType', 'connectionType', 'proxyType'];
             let populatedCount = 0;
             
-            // Populate each field
+            console.log('[Connectivity Data Manager] Phase 1: Populating primary fields...');
+            console.log('[Connectivity Data Manager] Profile data fields:', profileData.fields);
+            console.log('[Connectivity Data Manager] Found form elements:', elements);
+            
+            for (const fieldName of primaryFields) {
+                const value = profileData.fields[fieldName];
+                const element = elements[fieldName];
+                
+                console.log(`[Connectivity Data Manager] Processing field: ${fieldName}, value:`, value, 'element:', element);
+                
+                if (element && value !== null && value !== undefined) {
+                    try {
+                        if (element.type === 'radio') {
+                            console.log(`[Connectivity Data Manager] Processing radio field: ${fieldName} with value: ${value}`);
+                            console.log(`[Connectivity Data Manager] Element name: ${element.name}`);
+                            
+                            // For radio buttons, find the correct option
+                            const radioButtons = document.querySelectorAll(`input[name="${element.name}"]`);
+                            console.log(`[Connectivity Data Manager] Found ${radioButtons.length} radio buttons for name: ${element.name}`);
+                            
+                            let foundMatch = false;
+                            radioButtons.forEach((radio, index) => {
+                                console.log(`[Connectivity Data Manager] Radio ${index}: id=${radio.id}, value="${radio.value}", data-value="${radio.getAttribute('data-value')}", checked=${radio.checked}`);
+                                
+                                // Check next sibling text content and labels
+                                const nextSiblingText = radio.nextSibling?.textContent?.trim() || '';
+                                const label = document.querySelector(`label[for="${radio.id}"]`);
+                                const labelText = label?.textContent?.trim() || '';
+                                console.log(`[Connectivity Data Manager] Radio ${index} next sibling text: "${nextSiblingText}"`);
+                                console.log(`[Connectivity Data Manager] Radio ${index} label text: "${labelText}"`);
+                                
+                                // Since we store radio button IDs, prioritize exact ID matching
+                                const exactIdMatch = radio.id === value;
+                                const idIncludesMatch = value && radio.id && radio.id.includes(value);
+                                const dataValueMatch = radio.getAttribute('data-value') === value;
+                                const nextSiblingIncludesMatch = nextSiblingText && value && nextSiblingText.toLowerCase().includes(value.toLowerCase());
+                                const labelIncludesMatch = labelText && value && labelText.toLowerCase().includes(value.toLowerCase());
+                                
+                                // Case-insensitive partial matches
+                                const idIncludesCaseInsensitive = value && radio.id && radio.id.toLowerCase().includes(value.toLowerCase());
+                                
+                                console.log(`[Connectivity Data Manager] Radio ${index} trying to match "${value}" against:`);
+                                console.log(`[Connectivity Data Manager]   - radio.id: "${radio.id}" -> exactId: ${exactIdMatch}`);
+                                console.log(`[Connectivity Data Manager]   - radio.value: "${radio.value}" (ignored for ID-based matching)`);
+                                console.log(`[Connectivity Data Manager]   - matches: exactId: ${exactIdMatch}, idIncludes: ${idIncludesMatch}, dataValue: ${dataValueMatch}, nextSibling: ${nextSiblingIncludesMatch}, label: ${labelIncludesMatch}, idIncludesCI: ${idIncludesCaseInsensitive}`);
+                                
+                                // Since we save IDs, exact ID match should be sufficient
+                                const matches = exactIdMatch || idIncludesMatch || dataValueMatch || 
+                                              nextSiblingIncludesMatch || labelIncludesMatch || idIncludesCaseInsensitive;
+                                              
+                                if (matches) {
+                                    console.log(`[Connectivity Data Manager] MATCH FOUND! Setting radio ${index} (${radio.id}) to checked`);
+                                    
+                                    // For SAP UI5, we need to use multiple approaches
+                                    foundMatch = true;
+                                    
+                                    // UI5-first approach: Try to use the official framework API before falling back to DOM manipulation.
+                                    let ui5Success = false;
+                                    const radioGroupContainer = radio.closest('[role="radiogroup"]');
+
+                                    if (radioGroupContainer && window.sap && window.sap.ui) {
+                                        try {
+                                            const ui5Control = window.sap.ui.getCore().byId(radioGroupContainer.id);
+                                            
+                                            // Check if we have a RadioButtonGroup control
+                                            if (ui5Control && typeof ui5Control.setSelectedIndex === 'function') {
+                                                const allRadioInputs = Array.from(radioGroupContainer.querySelectorAll('input[type="radio"]'));
+                                                const targetIndex = allRadioInputs.findIndex(r => r.id === radio.id);
+
+                                                if (targetIndex !== -1) {
+                                                    console.log(`[Connectivity Data Manager] Using UI5 API to set selected index to ${targetIndex} on control ${ui5Control.getId()}`);
+                                                    ui5Control.setSelectedIndex(targetIndex);
+                                                    // Manually fire the 'select' event which the application listens for to show/hide fields.
+                                                    ui5Control.fireSelect({ selectedIndex: targetIndex });
+                                                    ui5Success = true;
+                                                }
+                                            }
+                                        } catch (e) {
+                                            console.error('[Connectivity Data Manager] Error using UI5 API, will fallback to DOM events.', e);
+                                        }
+                                    }
+
+                                    // Fallback to DOM events if UI5 API fails or is not available
+                                    if (!ui5Success) {
+                                        console.log('[Connectivity Data Manager] UI5 API failed or unavailable, falling back to enhanced DOM manipulation.');
+                                        
+                                        // Try multiple approaches to trigger SAP UI5 recognition
+                                        
+                                        // Method 1: Click the radio button
+                                        radio.click();
+                                        console.log(`[Connectivity Data Manager] After click: radio.checked = ${radio.checked}`);
+                                        
+                                        // Method 2: Try DOM-based approaches since window.sap is undefined
+                                        setTimeout(() => {
+                                            console.log(`[Connectivity Data Manager] window.sap is ${typeof window.sap}, trying DOM-based approaches...`);
+                                            
+                                            // Method 2a: Try to find and click the visual label/wrapper
+                                            const label = document.querySelector(`label[for="${radio.id}"]`);
+                                            if (label) {
+                                                console.log(`[Connectivity Data Manager] Found label for radio, clicking it: ${label.textContent.trim()}`);
+                                                label.click();
+                                            }
+                                            
+                                            // Method 2b: Try to find the parent container and simulate user interaction
+                                            const radioContainer = radio.closest('.sapMRb, .sapMRbBG, [role="radio"]');
+                                            if (radioContainer) {
+                                                console.log(`[Connectivity Data Manager] Found radio container, clicking it`);
+                                                radioContainer.click();
+                                            }
+                                            
+                                            // Method 2c: Trigger multiple DOM events to simulate user interaction
+                                            console.log(`[Connectivity Data Manager] Triggering comprehensive DOM events...`);
+                                            
+                                            // Focus first
+                                            radio.focus();
+                                            
+                                            // Trigger mouse events
+                                            radio.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+                                            radio.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+                                            radio.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+                                            
+                                            // Trigger change and input events
+                                            radio.dispatchEvent(new Event('change', { bubbles: true }));
+                                            radio.dispatchEvent(new Event('input', { bubbles: true }));
+                                            
+                                            // Try custom SAP events even without window.sap
+                                            radio.dispatchEvent(new CustomEvent('sapselect', { bubbles: true, detail: { selected: true } }));
+                                            radio.dispatchEvent(new CustomEvent('sapchange', { bubbles: true, detail: { checked: true } }));
+                                            
+                                            // Blur to complete the interaction
+                                            radio.blur();
+                                            
+                                            console.log(`[Connectivity Data Manager] After comprehensive DOM events: radio.checked = ${radio.checked}`);
+                                            
+                                        }, 25);
+                                    }
+
+                                    // Add multiple checks to verify the radio button was actually set
+                                    setTimeout(() => {
+                                        console.log(`[Connectivity Data Manager] First check (50ms): radio ${radio.id} checked = ${radio.checked}`);
+                                        const credentialField = document.querySelector('input[id*="CredentialName-inner"]');
+                                        console.log(`[Connectivity Data Manager] Credential field is now ${credentialField ? 'VISIBLE' : 'NOT VISIBLE'}.`);
+                                    }, 50);
+                                    
+                                    setTimeout(() => {
+                                        console.log(`[Connectivity Data Manager] Second check (200ms): radio ${radio.id} checked = ${radio.checked}`);
+                                        const credentialField = document.querySelector('input[id*="CredentialName-inner"]');
+                                        console.log(`[Connectivity Data Manager] Credential field is now ${credentialField ? 'VISIBLE' : 'NOT VISIBLE'}.`);
+                                        
+                                        // If still not working, try one more time with direct UI5 manipulation
+                                        if (!radio.checked && radioGroupContainer && window.sap && window.sap.ui) {
+                                            console.log(`[Connectivity Data Manager] Radio still not checked, trying direct UI5 manipulation again...`);
+                                            try {
+                                                const ui5Control = window.sap.ui.getCore().byId(radioGroupContainer.id);
+                                                if (ui5Control && typeof ui5Control.setSelectedIndex === 'function') {
+                                                    const allRadioInputs = Array.from(radioGroupContainer.querySelectorAll('input[type="radio"]'));
+                                                    const targetIndex = allRadioInputs.findIndex(r => r.id === radio.id);
+                                                    if (targetIndex !== -1) {
+                                                        ui5Control.setSelectedIndex(targetIndex);
+                                                        ui5Control.fireSelect({ selectedIndex: targetIndex });
+                                                        console.log(`[Connectivity Data Manager] Second attempt: set index ${targetIndex}`);
+                                                    }
+                                                }
+                                            } catch (e) {
+                                                console.error('[Connectivity Data Manager] Second UI5 attempt failed:', e);
+                                            }
+                                        }
+                                    }, 200);
+                                    
+                                    setTimeout(() => {
+                                        console.log(`[Connectivity Data Manager] Final check (500ms): radio ${radio.id} checked = ${radio.checked}`);
+                                        const credentialField = document.querySelector('input[id*="CredentialName-inner"]');
+                                        console.log(`[Connectivity Data Manager] Final: Credential field is ${credentialField ? 'VISIBLE' : 'NOT VISIBLE'}.`);
+                                    }, 500);
+                                }
+                            });
+                            
+                            if (!foundMatch) {
+                                console.log(`[Connectivity Data Manager] WARNING: No radio button match found for ${fieldName} with value: ${value}`);
+                            }
+                        } else if (element.type === 'checkbox') {
+                            element.checked = value;
+                        } else if (element.tagName === 'SELECT') {
+                            element.value = value;
+                        } else if (element.id && element.id.includes('hiddenInput')) {
+                            // This is likely a SAP UI5 ComboBox/Select hidden input
+                            console.log(`[Connectivity Data Manager] Phase 1: Detected SAP UI5 ComboBox hidden input for ${fieldName}: ${element.id}`);
+                            // Set ComboBox value with await to ensure it completes before Phase 2
+                            await this.setSAPComboBoxValueAsync(element, value, fieldName);
+                        } else {
+                            element.value = value;
+                        }
+                        
+                        // Trigger change events to update UI and conditional fields
+                        if (element.type !== 'radio' && !(element.id && element.id.includes('hiddenInput'))) {
+                            element.dispatchEvent(new Event('change', { bubbles: true }));
+                            element.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+                        
+                        populatedCount++;
+                        console.log(`[Connectivity Data Manager] Phase 1: Populated ${fieldName} with:`, value);
+                    } catch (error) {
+                        console.log(`[Connectivity Data Manager] Phase 1: Error populating ${fieldName}:`, error);
+                    }
+                } else if (value !== null && value !== undefined) {
+                    console.log(`[Connectivity Data Manager] WARNING: No element found for field ${fieldName} with value:`, value);
+                }
+            }
+            
+            console.log(`[Connectivity Data Manager] Phase 1: Populated ${populatedCount} primary fields`);
+            
+            // Wait for conditional fields to appear (longer delay for ComboBox processing)
+            await new Promise(resolve => setTimeout(resolve, 800));
+        },
+
+        // Phase 2: Populate conditional fields after DOM updates
+        populateFormPhase2: async function(profileData) {
+            const elements = this.findFormElements(); // Re-scan DOM for new conditional fields
+            const primaryFields = ['host', 'port', 'authenticationMethod', 'authenticationType', 'connectionType'];
+            let populatedCount = 0;
+            
+            console.log('[Connectivity Data Manager] Phase 2: Populating conditional fields...');
+            
+            // Populate all remaining fields (excluding primary fields already handled)
             for (const [fieldName, value] of Object.entries(profileData.fields)) {
+                if (primaryFields.includes(fieldName)) {
+                    continue; // Skip primary fields already handled in Phase 1
+                }
+                
                 const element = elements[fieldName];
                 if (element && value !== null && value !== undefined) {
                     try {
@@ -1331,24 +2013,28 @@ var plugin = {
                             element.checked = value;
                         } else if (element.tagName === 'SELECT') {
                             element.value = value;
+                        } else if (element.id && element.id.includes('hiddenInput')) {
+                            // This is likely a SAP UI5 ComboBox/Select hidden input
+                            console.log(`[Connectivity Data Manager] Phase 2: Detected SAP UI5 ComboBox hidden input for ${fieldName}: ${element.id}`);
+                            this.setSAPComboBoxValue(element, value, fieldName);
+                            continue; // Skip manual event triggering for ComboBox
                         } else {
                             element.value = value;
                         }
                         
-                        // Trigger change event to update UI
+                        // Trigger change event to update UI (skip for ComboBox as it handles its own events)
                         element.dispatchEvent(new Event('change', { bubbles: true }));
                         element.dispatchEvent(new Event('input', { bubbles: true }));
                         
                         populatedCount++;
-                        console.log(`[Connectivity Data Manager] Populated ${fieldName} with:`, value);
+                        console.log(`[Connectivity Data Manager] Phase 2: Populated ${fieldName} with:`, value);
                     } catch (error) {
-                        console.log(`[Connectivity Data Manager] Error populating ${fieldName}:`, error);
+                        console.log(`[Connectivity Data Manager] Phase 2: Error populating ${fieldName}:`, error);
                     }
                 }
             }
             
-            console.log(`[Connectivity Data Manager] Successfully populated ${populatedCount} fields`);
-            return populatedCount > 0;
+            console.log(`[Connectivity Data Manager] Phase 2: Populated ${populatedCount} conditional fields`);
         },
 
         // Debug function to analyze page structure
