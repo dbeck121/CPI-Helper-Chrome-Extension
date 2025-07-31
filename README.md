@@ -44,6 +44,10 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.xx.x
+
+- [Plugin] iFlow Searcher - Highlight Content Modifier and Scripts with key words. Special thanks to [Filip](https://github.com/krrrsmanovic).
+
 ### 3.19.0
 
 - [Improvement] Less load on backend
