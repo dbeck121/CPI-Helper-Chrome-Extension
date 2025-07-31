@@ -1,5 +1,4 @@
 // template = - [header :your header as HTML] [description": "description goes here as HTML] ,... //multiple
 const whats_new_log = `
-- [Improvement] Less load on backend
-- [Improvement] Reload button in message sidebar
+- [Plugin] iFlow Searcher - Highlight Content Modifier and Scripts with key words.
 `;
