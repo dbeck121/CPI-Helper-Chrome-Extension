@@ -4,7 +4,7 @@ var plugin = {
   name: "iFlow Searcher",
   version: "0.1.0",
   author: "Filip Krsmanovic",
-  email: "krsm.filip@gmail.com",
+  email: "f.krsmanovic@blackbelt-solutions.com",
   website: "https://www.linkedin.com/in/filip-krsmanovic/",
   description:
     "This plugin enables to search for a specified terms across both <b>Content Modifiers</b> and <b>Scripts</b>. The search covers <b>Script Content</b> and <b>Content Modifier</b> (Header Name, Header Source Value, Property Name, Property Source Value, and Message Body).<br>(*) Please note that Version 0.1.0 currently <b>supports only</b> iFlows in the Integration Suite on <b>Cloud Foundry</b>.",
@@ -98,7 +98,7 @@ function applyStylesToLiveDOM(foundElements) {
       // Find the rect inside the g element and apply fill color
       const rectElement = targetElement.querySelector("rect.activity");
       if (rectElement) {
-        rectElement.style.fill = "#30914c"; // Apply fill to the rect
+        rectElement.style.fill = "#13af00"; // Apply fill to the rect
       }
     }
   });
@@ -106,149 +106,124 @@ function applyStylesToLiveDOM(foundElements) {
 
 // creates container for search bar
 function createDraggableSearchContainer() {
-  if (document.getElementById("draggable-container")) return; // Prevent multiple instances
+  if (document.getElementById("draggable-container")) return;
 
-  var container = document.createElement("div");
+  // Create base card container
+  const container = document.createElement("div");
   container.id = "draggable-container";
+  container.className = "ui card";
   Object.assign(container.style, {
     position: "fixed",
-    top: "50px",
-    left: "50px",
-    width: "200px",
-    padding: "10px",
-    background: "white",
-    border: "1px solid #ccc",
-    borderRadius: "5px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px",
-    cursor: "move",
+    top: "60px",
+    left: "60px",
+    width: "260px",
     zIndex: "1000",
+    cursor: "move",
+    boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+    padding: "0",
   });
 
-  var header = document.createElement("div");
+  // Header
+  const header = document.createElement("div");
+  header.className = "content";
+  header.style.background = "#2185d0"; // Fomantic blue
+  header.style.color = "black";
+  header.style.fontWeight = "bold";
+  header.style.padding = "10px";
+  header.style.fontSize = "16px";
   header.textContent = "iFlow Searcher";
-  Object.assign(header.style, {
-    fontWeight: "bold",
-    textAlign: "center",
-    background: "#2084cf",
-    borderBottom: "1px solid #ccc",
-    width: "100%",
-    boxSizing: "border-box",
-    padding: "10px 0",
-    position: "relative",
-  });
 
-  var searchInput = document.createElement("input");
-  searchInput.type = "search";
-  searchInput.placeholder = "Search Term...";
-  var searchTerm;
-
-  searchInput.addEventListener("input", function () {
-    searchTerm = searchInput.value;
-  });
-
-  var searchButton = document.createElement("button");
-  searchButton.textContent = "Search";
-  Object.assign(searchButton.style, {
-    background: "#ffffff",
-    color: "#000000",
-    border: "1px solid #3c3c3c",
-    borderRadius: "4px",
+  // Close icon
+  const closeIcon = document.createElement("i");
+  closeIcon.className = "close icon";
+  Object.assign(closeIcon.style, {
+    float: "right",
     cursor: "pointer",
+    color: "black",
   });
 
-  // search button event listener
-  searchButton.addEventListener("click", function () {
-    if (searchTerm != "" || searchTerm == null) {
-      fetch(iFlowUrl)
-        .then((response) => {
-          // Check if the response is successful (status code 200-299)
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          // Parse the response body as JSON
-          return response.json();
-        })
-        .then((data) => {
-          // Once data is fetched and parsed, find the matching objects
-          const scriptElements = extractElementsByDisplayName(data, ["Groovy Script", "JavaScript"]);
-          const contentModifierElements = extractElementsByDisplayName(data, ["Content Modifier"]);
+  closeIcon.addEventListener("click", () => {
+    resetAllStyles();
+    container.remove();
+  });
 
-          const tcmElements = searchContentModifierValues(contentModifierElements, searchTerm);
+  // Hover effect for close icon
+  closeIcon.addEventListener("mouseenter", () => {
+    closeIcon.style.color = "red";
+  });
 
-          resetAllStyles();
+  closeIcon.addEventListener("mouseleave", () => {
+    closeIcon.style.color = "black";
+  });
 
-          // Wait for searchScripts to finish, then combine and apply styles
-          return searchScripts(scriptElements, searchTerm).then((sElements) => {
-            // Combine both tcmElements and sElements into a single array
-            const combinedElements = [...tcmElements, ...sElements];
+  header.appendChild(closeIcon);
 
-            // Apply styles to the combined array of elements
-            applyStylesToLiveDOM(combinedElements);
-          });
-        })
-        .catch((error) => {
-          // Handle any errors
-          console.error("Error fetching or processing data:", error);
+  // Body (search input)
+  const content = document.createElement("div");
+  content.className = "content";
+  content.style.padding = "12px";
+
+  const inputDiv = document.createElement("div");
+  inputDiv.className = "ui small fluid input";
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.placeholder = "Search term...";
+  input.id = "search-input";
+
+  // enable search by enter instead of button
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") button.click();
+  });
+
+  inputDiv.appendChild(input);
+  content.appendChild(inputDiv);
+
+  // Actions (button)
+  const actions = document.createElement("div");
+  actions.className = "extra content";
+  actions.style.textAlign = "right";
+
+  const button = document.createElement("button");
+  button.className = "ui tiny blue button";
+  button.textContent = "Search";
+
+  button.addEventListener("click", () => {
+    const searchTerm = input.value.trim();
+
+    resetAllStyles();
+
+    if (!searchTerm) return;
+
+    fetch(iFlowUrl)
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        return response.json();
+      })
+      .then((data) => {
+        const scriptElements = extractElementsByDisplayName(data, ["Groovy Script", "JavaScript"]);
+        const contentModifierElements = extractElementsByDisplayName(data, ["Content Modifier"]);
+        const tcmElements = searchContentModifierValues(contentModifierElements, searchTerm);
+
+        return searchScripts(scriptElements, searchTerm).then((sElements) => {
+          const combined = [...tcmElements, ...sElements];
+          applyStylesToLiveDOM(combined);
         });
-    }
+      })
+      .catch((error) => console.error("Search failed:", error));
   });
 
-  // hover effect
-  // Add hover effect using event listeners
-  searchButton.addEventListener("mouseenter", function () {
-    searchButton.style.background = "#2084cf"; // Change background color on hover
-    searchButton.style.color = "#ffffff"; // Change text color on hover
-  });
+  actions.appendChild(button);
 
-  searchButton.addEventListener("mouseleave", function () {
-    searchButton.style.background = "#ffffff"; // Reset background color
-    searchButton.style.color = "#000000"; // Reset text color
-  });
-
-  // Create the close button ("x")
-  var closeButton = document.createElement("button");
-  closeButton.textContent = "x"; // Unicode "x" symbol
-  Object.assign(closeButton.style, {
-    position: "absolute", // Position the button absolutely within the header
-    top: "5px", // Adjust the top margin as needed
-    right: "5px", // Align to the top-right corner
-    textAlign: "center",
-    background: "transparent",
-    border: "none",
-    color: "#000000",
-    fontSize: "20px",
-    fontWeight: "bold",
-    cursor: "pointer",
-  });
-
-  closeButton.addEventListener("click", function () {
-    document.body.removeChild(container); // Removes the draggable container
-  });
-
-  // Add hover effect using JavaScript
-  closeButton.addEventListener("mouseenter", function () {
-    closeButton.style.color = "red"; // Change color to red on hover
-  });
-
-  closeButton.addEventListener("mouseleave", function () {
-    closeButton.style.color = "#000000"; // Reset color back to black when hover ends
-  });
-
-  // Append the close button to the header
-  header.appendChild(closeButton);
-
+  // Compose card
   container.appendChild(header);
-  container.appendChild(searchInput);
-  container.appendChild(searchButton);
+  container.appendChild(content);
+  container.appendChild(actions);
   document.body.appendChild(container);
 
-  makeDraggable(container);
-  setupPopup(searchButton);
+  // Make it draggable via header
+  makeDraggable(container, header);
 }
-
 // makes container dragable container
 function makeDraggable(element) {
   var offsetX,
