@@ -85,6 +85,8 @@ var getLogsTimer;
 var activeInlineItem;
 
 //fill the message sidebar
+var lastResponses = [];
+var lastCompletedLogStart = "2025-01-01T01:02:50";
 async function renderMessageSidebar() {
   if (!sidebar.active) {
     return;
@@ -126,35 +128,40 @@ async function renderMessageSidebar() {
         cpiData.urlExtension +
         "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" +
         iflowId +
-        "' and LogStart gt datetime'1900-01-01T01:02:50' and Status ne 'DISCARDED'&$top=" +
+        "' and LogStart gt datetime'" +
+        lastCompletedLogStart +
+        "' and Status ne 'DISCARDED'&$top=" +
         numberEntries +
-        "&$format=json&$orderby=LogEnd desc"
+        "&$format=json&$orderby=LogEnd desc&$select=Status,LogEnd,LogStart,MessageGuid,LogLevel,AlternateWebLink"
     );
 
     resp = JSON.parse(responseText);
-    resp = resp.d.results;
+
+    const newMessageGuids = new Set(resp.d.results.map((item) => item.MessageGuid));
+    const filteredLastResponses = lastResponses.filter((item) => !newMessageGuids.has(item.MessageGuid));
+
+    // Combine arrays without duplicates
+    resp = [...resp.d.results, ...filteredLastResponses].slice(0, numberEntries);
+    lastResponses = resp;
   } catch (e) {
     log.error("There was a faulty message from CI-API. CPI Helper will ignore it: " + e);
   }
   //    document.getElementById('iflowName').innerText = cpiData.integrationFlowId;
 
-  let updatedText = document.getElementById("updatedText");
+  let updatedText = document.getElementById("cpiHelper_sidebar_refresh_text");
 
-  updatedText.innerHTML =
-    '<span style="padding-left: 0px; padding-top: 0px;">Update: ' +
-    new Date().toLocaleTimeString("de-DE") +
-    "</span>" +
-    `<button id="cpiHelper_sidebar_refresh" title="Refresh" style="background:none;border:none;cursor:pointer;vertical-align:middle;margin-left:0.5em;">
-      <i class="sync alternate icon"></i>
-    </button>`;
+  updatedText.innerHTML = "Update: " + new Date().toLocaleTimeString("de-DE");
 
   // Refresh-Button Event
-  const refreshBtn = document.getElementById("cpiHelper_sidebar_refresh");
-  if (refreshBtn) {
-    refreshBtn.onclick = () => {
-      nextMessageSidebarRefreshCount = 0;
-    };
-  }
+  const refreshBtn = document.getElementById("cpiHelper_sidebar_refresh_icon");
+
+  refreshBtn.onclick = async () => {
+    // check if not cpiHelper_sidebar_refresh_icon_inactive
+    if (refreshBtn.classList.contains("cpiHelper_sidebar_refresh_icon_spin")) {
+      return;
+    }
+    await refreshMessageSidebar();
+  };
 
   let thisMessageHash = "";
   if (resp && resp.length != 0) {
@@ -171,17 +178,27 @@ async function renderMessageSidebar() {
         var lastDay;
 
         //display few :
-        var count = parseInt(document.querySelector("head > meta[name='cpi-count']") !== null ? document.querySelector("head > meta[name='cpi-count']").content : resp.length);
+        // var count = parseInt(document.querySelector("head > meta[name='cpi-count']") !== null ? document.querySelector("head > meta[name='cpi-count']").content : resp.length);
 
-        for (var i = 0; i < count; i++) {
+        for (var i = 0; i < resp.length; i++) {
           //var logStart = resp[i].LogStart == null ? "-" : resp[i].LogStart;
+
+          var logStart = new Date(parseInt(resp[i].LogStart.match(/\d+/)[0]));
+          var logStartFormatted = logStart.toISOString().substring(0, 19);
+          var logEnd = new Date(parseInt(resp[i].LogEnd.match(/\d+/)[0]));
+          var status = resp[i].Status;
+
+          if (status != "PROCESSING" && logStartFormatted > lastCompletedLogStart) {
+            lastCompletedLogStart = logStartFormatted;
+          }
+
           thisMessageHashList.push(resp[i].MessageGuid + resp[i].LogStart + resp[i].LogEnd + resp[i].Status);
           runInfoElement[thisMessageHash] = {};
           runInfoElement[thisMessageHash].messageHash = resp[i].MessageGuid + resp[i].LogStart + resp[i].LogEnd + resp[i].Status;
           runInfoElement[thisMessageHash].messageGuid = resp[i].MessageGuid;
-          runInfoElement[thisMessageHash].logStart = new Date(parseInt(resp[i].LogStart.match(/\d+/)[0]));
-          runInfoElement[thisMessageHash].logEnd = new Date(parseInt(resp[i].LogEnd.match(/\d+/)[0]));
-          runInfoElement[thisMessageHash].status = resp[i].Status;
+          runInfoElement[thisMessageHash].logStart = logStart;
+          runInfoElement[thisMessageHash].logEnd = logEnd;
+          runInfoElement[thisMessageHash].status = status;
           runInfoElement[thisMessageHash].message = resp[i].LogLevel;
 
           //write date if necessary
@@ -319,48 +336,32 @@ async function renderMessageSidebar() {
 }
 
 function calculateMessageSidebarTimerTime(lastTabHidden, lastDurationRefresh) {
-  var messageSidebarTimerTime = 3;
-
-  //if tab hidden, set timer to 60 seconds
-  if (lastTabHidden > 9) {
-    log.log("Tab is hidden, set timer to 30 seconds");
-    return 10;
-  }
+  var messageSidebarTimerTime = 5;
 
   //if tab hidden for a long time, set timer to 60 seconds
-  if (lastTabHidden > 100) {
+  if (lastTabHidden > 5) {
     log.log("Tab is hidden, set timer to 5 minutes");
     return 100;
   }
 
   if (lastDurationRefresh > 2000) {
-    log.debug("Last rendering took more than 2000ms, set timer to 60 seconds");
-    messageSidebarTimerTime = 20;
+    log.debug("Last rendering took more than 2000ms, set timer to 90 seconds");
+    messageSidebarTimerTime = 30;
     return messageSidebarTimerTime;
   }
   if (lastDurationRefresh > 1000) {
-    log.debug("Last rendering took more than 1000ms, set timer to 30 seconds");
-    messageSidebarTimerTime = 10;
+    log.debug("Last rendering took more than 1000ms, set timer to 60 seconds");
+    messageSidebarTimerTime = 20;
     return messageSidebarTimerTime;
   }
   if (lastDurationRefresh > 700) {
-    log.debug("Last rendering took more than 700ms, set timer to 21 seconds");
-    messageSidebarTimerTime = 7;
+    log.debug("Last rendering took more than 700ms, set timer to 30 seconds");
+    messageSidebarTimerTime = 10;
     return messageSidebarTimerTime;
   }
   if (lastDurationRefresh > 500) {
-    log.debug("Last rendering took more than 500ms, set timer to 15 seconds");
-    messageSidebarTimerTime = 5;
-    return messageSidebarTimerTime;
-  }
-  if (lastDurationRefresh > 400) {
-    log.debug("Last rendering took more than 400ms, set timer to 12 seconds");
-    messageSidebarTimerTime = 4;
-    return messageSidebarTimerTime;
-  }
-  if (lastDurationRefresh > 300) {
-    log.debug("Last rendering took more than 300ms, set timer to 9 seconds");
-    messageSidebarTimerTime = 3;
+    log.debug("Last rendering took more than 500ms, set timer to 21 seconds");
+    messageSidebarTimerTime = 7;
     return messageSidebarTimerTime;
   }
 
@@ -1010,8 +1011,8 @@ async function buildButtonBar() {
     if ((sidebar.active == null || sidebar.active == false) && cpiData.currentArtifactType) {
       chrome.storage.sync.get(["openMessageSidebarOnStartup"], function (result) {
         var openMessageSidebarOnStartupValue;
-        // default mode is open
-        if (result["openMessageSidebarOnStartup"] === undefined) {
+        // default mode is closed to reduce traffic on backend
+        if (result["openMessageSidebarOnStartup"] == undefined || result["openMessageSidebarOnStartup"] == null) {
           chrome.storage.sync.set({
             openMessageSidebarOnStartup: false,
           });
@@ -1020,7 +1021,6 @@ async function buildButtonBar() {
           openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
         }
 
-        openMessageSidebarOnStartupValue = result["openMessageSidebarOnStartup"];
         if (openMessageSidebarOnStartupValue) {
           log.debug("opened sidebar on startup");
           sidebar.init();
@@ -1043,8 +1043,8 @@ async function getIflowInfo(callback, silent = false, cache = true) {
 }
 
 async function getIflowInfoCf(callback, silent = false, cache = true) {
-  let cacheValue = 120;
-  if (cache) {
+  let cacheValue = 3000;
+  if (!cache) {
     cacheValue = false;
   }
   try {
@@ -1067,15 +1067,18 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
     }
 
     // filter for active runtime locations
-    cpiData.runtimeLocationWithActiveIFlow = cpiData.runtimeLocations.filter((loc) => loc.state == "ACTIVE");
+    cpiData.runtimeLocations = cpiData.runtimeLocations.filter((loc) => loc.state.toUpperCase() == "ACTIVE");
 
     //iterate all runtime locations to find the ones that have active iflows
     cpiData.runtimeLocationWithActiveIFlow = [];
 
-    // Fehler: await in forEach! Besser for...of verwenden:
+    if (cpiData.runtimeLocationWithActiveIFlow.length == 0) {
+      cacheValue = 120;
+    }
+
     for (const loc of cpiData.runtimeLocations) {
       const locIdParam = "?runtimeLocationId=" + loc.id;
-      const resp = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand" + locIdParam, 120, null, null, null, null, !silent);
+      const resp = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand" + locIdParam, cacheValue, null, null, null, null, !silent);
       const respJson = new XmlToJson().parse(resp)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
       const artifact = Array.isArray(respJson.artifactInformations)
         ? respJson.artifactInformations.find((e) => e.symbolicName == cpiData.integrationFlowId)
@@ -1097,18 +1100,28 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
       throw "Integration Flow was not found. Probably it is not deployed.";
     }
 
-    // 4. Detaildaten holen
-    const detailResp = await makeCallPromise(
-      "GET",
-      "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + cpiData.runtimeLocationWithActiveIFlow[0].artifact.id,
-      60,
-      "application/json",
-      null,
-      null,
-      null,
-      !silent
-    );
-    const detail = JSON.parse(detailResp);
+    for (const loc of cpiData.runtimeLocationWithActiveIFlow) {
+      // 4. Detaildaten holen
+      const detailResp = await makeCallPromise(
+        "GET",
+        "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + cpiData.runtimeLocationWithActiveIFlow[0].artifact.id + "&runtimeLocationId=" + loc.id,
+        90,
+        "application/json",
+        null,
+        null,
+        null,
+        !silent
+      );
+      const detail = JSON.parse(detailResp);
+
+      loc["detail"] = detail;
+      loc["artifact"] = detail.artifactInformation;
+      loc["artifactId"] = detail.artifactInformation?.id;
+      loc["tenantId"] = detail.artifactInformation?.tenantId;
+      loc["version"] = detail.artifactInformation?.version;
+    }
+
+    const detail = cpiData.runtimeLocationWithActiveIFlow[0].detail;
     cpiData.flowData = detail;
     cpiData.flowData.lastUpdate = new Date().toISOString();
     cpiData.tenantId = detail?.artifactInformation?.tenantId;
@@ -1117,12 +1130,13 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
 
     if (callback) callback();
   } catch (error) {
+    log.error("Error getting Iflow Info: ", error);
     if (!silent) showToast("Error: " + JSON.stringify(error));
   }
 }
 
 async function getIflowInfoNeo(callback, silent = false, cache = true) {
-  let cacheValue = 120;
+  let cacheValue = 500;
   if (cache) {
     cacheValue = false;
   }
@@ -1586,7 +1600,13 @@ var sidebar = {
     </div>
     <div id="outerFrame" >
       <div>
-        <div style="padding-left:0px" id="updatedText" class="contentText"></div>
+        <div style="padding-left:0px" id="updatedText" class="contentText">
+        <span id="cpiHelper_sidebar_refresh_text" style="padding-left: 0px; padding-top: 0px;">
+    </span>
+    <button id="cpiHelper_sidebar_refresh_icon" title="Refresh" style="background:none;border:none;cursor:pointer;vertical-align:middle;margin-left:0.5em;">
+      <i class="sync alternate icon"></i>
+    </button>
+        </div>
         <div style="padding-left:0px; padding-top:0px" id="deploymentText" class="contentText"></div>
         <div><table id="messageList" class="contentText"></table></div>
       </div>
@@ -2246,23 +2266,8 @@ setInterval(async function () {
   }
 
   //check if message sidebar should be refreshed
-  if (!refreshActive && sidebar.active && (nextMessageSidebarRefreshCount <= 0 || (lastTabHidden > 0 && document.hidden == false))) {
-    log.debug("refresh message sidebar");
-    //count time in ms of reload and rendering of sidebar in ms
-    var start = new Date();
-    refreshActive = true;
-    log.debug("refresh message sidebar");
-    try {
-      await renderMessageSidebar();
-    } catch (err) {
-      log.error(err);
-    }
-    refreshActive = false;
-    log.debug("refresh message sidebar done");
-    var end = new Date();
-    lastDurationRefresh = end - start;
-    log.debug("refresh message sidebar took " + lastDurationRefresh + "ms");
-    nextMessageSidebarRefreshCount = calculateMessageSidebarTimerTime(lastTabHidden, lastDurationRefresh);
+  if (nextMessageSidebarRefreshCount <= 0 || (lastTabHidden > 0 && document.hidden == false)) {
+    await refreshMessageSidebar();
   }
 
   //check if trace should be refreshed again
@@ -2294,3 +2299,42 @@ setInterval(async function () {
   //run heartbeat function of plugins
   runPluginHeartbeat();
 }, 3000);
+
+var refreshbutton = null;
+async function refreshMessageSidebar() {
+  if (!refreshActive && sidebar.active) {
+    log.debug("refresh message sidebar");
+
+    //if there is an refresh button, deactivate it
+    const refreshBtn = document.getElementById("cpiHelper_sidebar_refresh_icon");
+    if (refreshBtn) {
+      refreshBtn.classList.add("cpiHelper_sidebar_refresh_icon_spin");
+    }
+
+    //count time in ms of reload and rendering of sidebar in ms
+    var start = new Date();
+    refreshActive = true;
+    log.debug("refresh message sidebar");
+    try {
+      await renderMessageSidebar();
+    } catch (err) {
+      log.error(err);
+    }
+    refreshActive = false;
+    if (refreshBtn) {
+      refreshBtn.classList.add("cpiHelper_sidebar_refresh_icon_inactive");
+
+      //become inactive for 3 seconds
+      refreshbutton = setTimeout(() => {
+        refreshBtn.classList.remove("cpiHelper_sidebar_refresh_icon_inactive");
+        refreshBtn.classList.remove("cpiHelper_sidebar_refresh_icon_spin");
+      }, 3000);
+    }
+
+    log.debug("refresh message sidebar done");
+    var end = new Date();
+    lastDurationRefresh = end - start;
+    log.debug("refresh message sidebar took " + lastDurationRefresh + "ms");
+    nextMessageSidebarRefreshCount = calculateMessageSidebarTimerTime(lastTabHidden, lastDurationRefresh);
+  }
+}
