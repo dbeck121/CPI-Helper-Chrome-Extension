@@ -340,8 +340,8 @@ function calculateMessageSidebarTimerTime(lastTabHidden, lastDurationRefresh) {
 
   //if tab hidden for a long time, set timer to 60 seconds
   if (lastTabHidden > 5) {
-    log.log("Tab is hidden, set timer to 5 minutes");
-    return 100;
+    log.log("Tab is hidden, set timer to 2.5 minutes");
+    return 50;
   }
 
   if (lastDurationRefresh > 2000) {
