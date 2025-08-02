@@ -2265,9 +2265,13 @@ setInterval(async function () {
     log.log("refresh active. Will not refresh message sidebar");
   }
 
+  const autoRefreshEnabled = (await chrome.storage.sync.get(["autoRefreshMessageSidebar"])["autoRefreshMessageSidebar"]) ?? true; // default to true if not set
+
   //check if message sidebar should be refreshed
-  if (nextMessageSidebarRefreshCount <= 0 || (lastTabHidden > 0 && document.hidden == false)) {
-    await refreshMessageSidebar();
+  if (autoRefreshEnabled) {
+    if (nextMessageSidebarRefreshCount <= 0 || (lastTabHidden > 0 && document.hidden == false)) {
+      await refreshMessageSidebar();
+    }
   }
 
   //check if trace should be refreshed again
