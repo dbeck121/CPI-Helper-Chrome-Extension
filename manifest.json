@@ -6,7 +6,7 @@
       "id": "cpi_helper@dbeck121"
     }
   },
-  "version": "3.19.0",
+  "version": "3.19.1",
 
   "description": "Extends the SAP Cloud Platform Integration with some useful features to improve usability.",
   "author": "Dominic Beckbauer",
