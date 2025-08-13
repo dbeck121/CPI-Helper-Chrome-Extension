@@ -44,10 +44,15 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
-### 3.19.1
+### 3.20.0
 
+- [Plugin] iFlow Searcher - Highlight Content Modifier and Scripts with key words. Special thanks to [Filip](https://github.com/krrrsmanovic).
+- [Improvement] Less load on backend
 - [Improvement] Optimized reload button in message sidebar
 - [Feature] Toggle to shut off auto reload
+
+### 3.19.1
+
 - [Fix] Fix problems with edge cell
 
 ### 3.19.0
