@@ -4,4 +4,5 @@ const whats_new_log = `
 - [Improvement] Less load on backend
 - [Improvement] Optimized reload button in message sidebar
 - [Feature] Toggle to shut off auto reload
+- [Fix] Fix problems with edge cell
 `;

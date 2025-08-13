@@ -1070,10 +1070,11 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
     cpiData.runtimeLocations = cpiData.runtimeLocations.filter((loc) => loc.state.toUpperCase() == "ACTIVE");
 
     //iterate all runtime locations to find the ones that have active iflows
-    cpiData.runtimeLocationWithActiveIFlow = [];
-
-    if (cpiData.runtimeLocationWithActiveIFlow.length == 0) {
+    cacheValue = 500; // default cache value for the next calls
+    if (!cpiData.runtimeLocationWithActiveIFlow || cpiData.runtimeLocationWithActiveIFlow.length == 0) {
       cacheValue = 120;
+    } else {
+      cpiData.runtimeLocationWithActiveIFlow = [];
     }
 
     for (const loc of cpiData.runtimeLocations) {
