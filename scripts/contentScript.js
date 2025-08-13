@@ -1067,7 +1067,7 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
     }
 
     // filter for active runtime locations
-    cpiData.runtimeLocationWithActiveIFlow = cpiData.runtimeLocations.filter((loc) => loc.state == "ACTIVE");
+    cpiData.runtimeLocations = cpiData.runtimeLocations.filter((loc) => loc.state == "ACTIVE");
 
     //iterate all runtime locations to find the ones that have active iflows
     cpiData.runtimeLocationWithActiveIFlow = [];
