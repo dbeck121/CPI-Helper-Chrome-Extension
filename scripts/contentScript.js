@@ -890,6 +890,10 @@ function addBreadcrumbs() {
       var packageName;
       if ((regexMatch = regex.exec(url)) !== null) {
         packageUrl = regexMatch[1] + regexMatch[2] + "?section=ARTIFACTS";
+        packageUrl = regexMatch[1] + regexMatch[2];
+        if (!packageUrl.includes('?section=ARTIFACTS')) {
+          packageUrl += '?section=ARTIFACTS';
+        }
         packageName = regexMatch[2];
       }
       const newLi = $(`<li class="sapMBreadcrumbsItem"><a href="${packageUrl}" tabindex="0" class="sapMLnk sapMLnkMaxWidth">${packageName}</a><span class="sapMBreadcrumbsSeparator">/</span></li>`);
@@ -2170,9 +2174,9 @@ async function storeVisitedIflowsForPopup() {
           }
 
           let urlext = "";
-          if (dataRegexp[1] == "Package") {
-            urlext = "?section=ARTIFACTS";
-          }
+            if (dataRegexp[1] == "Package" && !document.location.href.includes('?section=ARTIFACTS')) {
+              urlext = "?section=ARTIFACTS";
+            }
 
           //put the current flow to the last element. last position indicates last visited element
           visitedIflows.push({
