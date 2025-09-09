@@ -43,7 +43,8 @@ async function addLastVisitedIflows() {
       if (elements[subject]) {
         html += `<div class="ui menu"><a class="ui item"><strong>${subject}</strong></a><div class="ui wrapped wrapping buttons fluid">`;
         elements[subject].map((item) => {
-          html += `<a class="ui button" href="${item.url}" target="_blank">${item.name}</a>`;
+          let url = item.url;
+          html += `<a class="ui button" href="${item.url.replace("?section=ARTIFACTS?section=ARTIFACTS", "?section=ARTIFACTS")}" target="_blank">${item.name}</a>`;
         });
         html += `</div></div>`;
       }
@@ -81,7 +82,7 @@ async function addLastVisitedIflows() {
       if (elements[subject]) {
         html += `<div class="ui menu"><a class="ui item"><strong>${subject}</strong></a><div class="ui wrapped wrapping buttons fluid">`;
         elements[subject].map((item, index) => {
-          html += `<div class="ui fluid buttons"><a href="${item.url}" target="_blank" class="ui button">${item.name}</a></div>`;
+          html += `<div class="ui fluid buttons"><a href="${item.url.replace("?section=ARTIFACTS?section=ARTIFACTS", "?section=ARTIFACTS")}" target="_blank" class="ui button">${item.name}</a></div>`;
         });
         html += `</div></div>`;
       }
