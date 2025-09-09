@@ -140,6 +140,16 @@ function getSideBarAlwaysVisible() {
       chrome.storage.sync.set({ openSidebarOnStartup: ctnx });
     });
   });
+  chrome.storage.sync.get(["autoRefreshMessageSidebar"], function (result) {
+    const isAutoRefreshEnabled = result["autoRefreshMessageSidebar"] ?? true; // Default: true
+    document.querySelectorAll("#refreshMessageSidebar>.button")[isAutoRefreshEnabled ? 0 : 1].classList.add("active");
+    document.querySelector("#refreshMessageSidebar").addEventListener("click", () => {
+      document.querySelectorAll("#refreshMessageSidebar>.button").forEach((e) => e.classList.toggle("active"));
+      let ctnx = document.querySelector("#refreshMessageSidebar>.active").getAttribute("data") === "true";
+      console.log("auto-refresh : ", ctnx);
+      chrome.storage.sync.set({ autoRefreshMessageSidebar: ctnx });
+    });
+  });
 }
 
 function addTenantSettings() {
@@ -243,6 +253,11 @@ function addTenantSettings() {
             <div data=true class="ui toggle basic button">Yes</div>
             <div data=false class="ui toggle basic button">No</div>
         </div><br/>    
+        <div  id="refreshMessageSidebar" class="ui label buttons">
+            <div class="ui label">Auto-Refresh Message Sidebar?</div>
+            <div data=true class="ui toggle basic button">On</div>
+            <div data=false class="ui toggle basic button">Off</div>
+        </div><br/> 
         <div  id="openSidebarOnStartup" class="ui label buttons">
             <div class="ui label">Plugin-page as Sidebar (Separate)?</div>
             <div data=true class="ui toggle basic button">Yes</div>
@@ -717,16 +732,6 @@ async function storageGetPromise(name) {
 
 async function statistic(event, value = null, value2 = null) {
   return null;
-  try {
-    var sessionId = await storageGetPromise("sessionId");
-    var installtype = await storageGetPromise("installtype");
-    var img = document.createElement("img");
-    img.src = `https://mmjs2inijoe3rpwsdmqbgtyvdu0ldvfj.lambda-url.eu-central-1.on.aws/?version=${
-      chrome.runtime.getManifest().version
-    }&event=${event}&session=${sessionId}&value=${value}&value2=${value2}&installtype=${installtype}&nonse=${Date.now()}`;
-  } catch (e) {
-    console.log(e);
-  }
 }
 
 function callChromeStoragePromise(key) {
