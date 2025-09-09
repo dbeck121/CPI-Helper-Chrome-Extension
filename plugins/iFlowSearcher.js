@@ -311,4 +311,4 @@ async function fetchEntity(artifactsUrl, entityId, pluginHelper) {
   iFlowUrl = `${artifactsUrl}${entityId}/entities/${entityId}/iflows/${flowName}`;
 }
 
-//pluginList.push(plugin);
+pluginList.push(plugin);
