@@ -305,9 +305,6 @@ var plugin = {
         `;
         
         cpiData.functions.popup(createElementFromHTML(html), 'Load Profile');
-        
-        // Make plugin available globally for click handlers
-        window.connectivityPlugin = this;
     },
 
     // Load specific profile
@@ -376,7 +373,6 @@ var plugin = {
         `;
         
         cpiData.functions.popup(createElementFromHTML(html), 'Manage Profiles');
-        window.connectivityPlugin = this;
     },
 
     // Delete profile
@@ -401,6 +397,9 @@ var plugin = {
 
     // Initialize plugin on connectivity pages
     init: function() {
+        // Always set global reference for event handlers
+        window.connectivityPlugin = this;
+        
         if (this.isConnectivityPage()) {
             // Wait for page to be ready
             setTimeout(() => {
