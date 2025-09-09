@@ -447,7 +447,7 @@ div#cpiHelper_semanticui_modal {
   color: #ff0000 !important;
 }
 
-.cpiHelper li[class^="L"] {
+.cpiHelper li[class^='L'] {
   list-style-type: decimal !important;
 }
 
@@ -549,7 +549,7 @@ div#cpiHelper_messageSidebar_pluginArea {
 
 /* .card .extra.content:has(input:checked)>label::after, */
 .card .extra.content.checked > label::after {
-  content: "d";
+  content: 'd';
 }
 
 .card .extra.content > label:hover {
@@ -590,4 +590,39 @@ fieldset {
 
 .changeloglist ul > li {
   padding-block: 0.2rem !important;
+}
+
+#cpiHelper_sidebar_refresh_icon {
+  transition: all 0.2s ease-in-out;
+}
+
+.cpiHelper_sidebar_refresh_icon_active {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.cpiHelper_sidebar_refresh_icon_spin i {
+  animation: cpiHelper_refresh_spin 2.5s linear 1;
+  color: #818181 !important;
+  opacity: 0.8;
+}
+
+@keyframes cpiHelper_refresh_spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cpiHelper_sidebar_refresh_icon_inactive {
+  color: #818181 !important;
+  opacity: 0.8;
+  transition: all 1.5s ease-in-out;
+}
+
+/* Verhindert das "Zurückspringen" nach der Animation */
+#cpiHelper_sidebar_refresh_icon i {
+  animation-fill-mode: forwards;
 }
