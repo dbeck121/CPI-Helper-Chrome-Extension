@@ -4,5 +4,5 @@ const whats_new_log = `
 - [Improvement] Less load on backend
 - [Improvement] Optimized reload button in message sidebar
 - [Feature] Toggle to shut off auto reload
-- [Fix] Problem with visited packages in list
+- [Fix] Problem with visited packages in popup
 `;
