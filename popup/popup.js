@@ -43,7 +43,8 @@ async function addLastVisitedIflows() {
       if (elements[subject]) {
         html += `<div class="ui menu"><a class="ui item"><strong>${subject}</strong></a><div class="ui wrapped wrapping buttons fluid">`;
         elements[subject].map((item) => {
-          html += `<a class="ui button" href="${item.url}" target="_blank">${item.name}</a>`;
+          let url = item.url;
+          html += `<a class="ui button" href="${item.url.replace("?section=ARTIFACTS?section=ARTIFACTS", "?section=ARTIFACTS")}" target="_blank">${item.name}</a>`;
         });
         html += `</div></div>`;
       }
@@ -81,7 +82,7 @@ async function addLastVisitedIflows() {
       if (elements[subject]) {
         html += `<div class="ui menu"><a class="ui item"><strong>${subject}</strong></a><div class="ui wrapped wrapping buttons fluid">`;
         elements[subject].map((item, index) => {
-          html += `<div class="ui fluid buttons"><a href="${item.url}" target="_blank" class="ui button">${item.name}</a></div>`;
+          html += `<div class="ui fluid buttons"><a href="${item.url.replace("?section=ARTIFACTS?section=ARTIFACTS", "?section=ARTIFACTS")}" target="_blank" class="ui button">${item.name}</a></div>`;
         });
         html += `</div></div>`;
       }
@@ -138,6 +139,16 @@ function getSideBarAlwaysVisible() {
       let ctnx = document.querySelector("#openSidebarOnStartup>.active").getAttribute("data") === "true";
       console.log("plugin : ", ctnx);
       chrome.storage.sync.set({ openSidebarOnStartup: ctnx });
+    });
+  });
+  chrome.storage.sync.get(["autoRefreshMessageSidebar"], function (result) {
+    const isAutoRefreshEnabled = result["autoRefreshMessageSidebar"] ?? true; // Default: true
+    document.querySelectorAll("#refreshMessageSidebar>.button")[isAutoRefreshEnabled ? 0 : 1].classList.add("active");
+    document.querySelector("#refreshMessageSidebar").addEventListener("click", () => {
+      document.querySelectorAll("#refreshMessageSidebar>.button").forEach((e) => e.classList.toggle("active"));
+      let ctnx = document.querySelector("#refreshMessageSidebar>.active").getAttribute("data") === "true";
+      console.log("auto-refresh : ", ctnx);
+      chrome.storage.sync.set({ autoRefreshMessageSidebar: ctnx });
     });
   });
 }
@@ -243,6 +254,11 @@ function addTenantSettings() {
             <div data=true class="ui toggle basic button">Yes</div>
             <div data=false class="ui toggle basic button">No</div>
         </div><br/>    
+        <div  id="refreshMessageSidebar" class="ui label buttons">
+            <div class="ui label">Auto-Refresh Message Sidebar?</div>
+            <div data=true class="ui toggle basic button">On</div>
+            <div data=false class="ui toggle basic button">Off</div>
+        </div><br/> 
         <div  id="openSidebarOnStartup" class="ui label buttons">
             <div class="ui label">Plugin-page as Sidebar (Separate)?</div>
             <div data=true class="ui toggle basic button">Yes</div>
@@ -717,16 +733,6 @@ async function storageGetPromise(name) {
 
 async function statistic(event, value = null, value2 = null) {
   return null;
-  try {
-    var sessionId = await storageGetPromise("sessionId");
-    var installtype = await storageGetPromise("installtype");
-    var img = document.createElement("img");
-    img.src = `https://mmjs2inijoe3rpwsdmqbgtyvdu0ldvfj.lambda-url.eu-central-1.on.aws/?version=${
-      chrome.runtime.getManifest().version
-    }&event=${event}&session=${sessionId}&value=${value}&value2=${value2}&installtype=${installtype}&nonse=${Date.now()}`;
-  } catch (e) {
-    console.log(e);
-  }
 }
 
 function callChromeStoragePromise(key) {
