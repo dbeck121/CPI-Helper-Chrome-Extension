@@ -48,7 +48,8 @@ It is open source so feel free to check the source code.
 
 - [Plugin] iFlow Searcher - Highlight Content Modifier and Scripts with key words. Special thanks to [Filip](https://github.com/krrrsmanovic).
 - [Improvement] Less load on backend
-- [Improvement] Optimized reload button in message sidebar)
+- [Improvement] Optimized reload button in message sidebar
+- [Fix] Problem with visited packages in list
 
 ### 3.19.1
 

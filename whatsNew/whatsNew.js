@@ -107,20 +107,16 @@ It seems that the CPI-Helper is currently experiencing some issues. These are pr
   
      <div class="ui header">This release is sponsored by Figaf </div>
   
-Just 30 minutes. That’s all it takes to explore how Figaf works.<br>
-You will discover how easy it is to:
-<ul>
-  <li>Create test cases</li>
-  <li>Transport integrations</li>
-  <li>Edit Groovy scripts</li>
-  <li>Document your SAP integrations</li>
-</ul>
-There is also a section on how to migrate from Integration Suite.
+You can now migrate B2B to Integration Suite!<br>
+Figaf has made it possible to automate the migration of your EDIFACT and X12 interfaces. It supports the entire migration process, including Trading Partner Management artifacts and sessions.<br>
+<br>
+A learning universe provides an end-to-end demo and all the steps you need to migrate independently.
+
 
                     </div>
                      <div class="sixteen wide column" style="paddingTop: '0px'">
                
-👉 <a href="https://figaf.com/cpihelper21" target="_blank"><u>Read more</u></a> about Figaf and get started right now!</div>
+👉 <a href="https://figaf.com/cpihelper22" target="_blank"><u>Read more</u></a> about Figaf and get started with your migrations right now!</div>
                 </div>
                 </div>
             </div>
@@ -313,7 +309,7 @@ async function recrutingPopup(force = false) {
     log.debug("recruting popup in human readable time: " + hrts);
   }
 
-  if (lang == "de-DE" && (force || (!timestamp && randomGroup <= 50) || (timestamp && timestamp < today))) {
+  if (lang == "de-DE" && (force || (!timestamp && randomGroup > 75) || (timestamp && timestamp < today))) {
     statistic("recrutingPopup", "show");
     var html = `<div>
     <div class="ui message">
