@@ -110,7 +110,13 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["images/favicons/*.png", "lib/semanticui/*", "images/*", "plugins/settingsPaneResizer-inject.js"],
+      "resources": [
+        "images/favicons/*.png",
+        "lib/semanticui/*",
+        "images/*",
+        "plugins/settingsPaneResizer-inject.js",
+        "docs/LICENSE"
+      ],
       "matches": ["https://*.hana.ondemand.com/*", "https://*.platform.sapcloud.cn/*"]
     }
   ],

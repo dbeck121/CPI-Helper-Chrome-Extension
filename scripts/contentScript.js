@@ -934,7 +934,7 @@ async function buildButtonBar() {
     //timer for recruiting popup in some seconds
     if (recrutingTimerSet == false) {
       setTimeout(() => {
-        recrutingPopup();
+        //     recrutingPopup();
       }, 600000);
       recrutingTimerSet = true;
     }
@@ -1535,6 +1535,17 @@ async function openIflowInfoPopup() {
     });
     x.appendChild(whatsNewButton);
 
+    //add a new "license" button
+    var licenseButton = document.createElement("button");
+    licenseButton.classList.add("ui");
+    licenseButton.classList.add("button");
+    licenseButton.innerText = "License (GNU GPL v3)";
+    licenseButton.addEventListener("click", async (a) => {
+      await showLicensePopup();
+      statistic("info_popup_license_click");
+    });
+    x.appendChild(licenseButton);
+
     //add a new "become part of the team" button
     var recrutingButton = document.createElement("button");
     recrutingButton.classList.add("ui");
@@ -1851,7 +1862,7 @@ async function getMessageProcessingLogRuns(MessageGuid, store = true) {
     console.debug("traceModifer_flow", cpiData.integrationFlowId, top_mode_count, top_mode_count_flow);
     top_mode_count = (top_mode_count_flow == null && top_mode_count_flow == undefined) || top_mode_count_flow == 0 ? top_mode_count : `& $top=${parseInt(top_mode_count_flow)} `;
   }
-  console.log(top_mode_count);
+
   return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store)
     .then((responseText) => {
       var resp = JSON.parse(responseText);
