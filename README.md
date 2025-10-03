@@ -47,6 +47,7 @@ It is open source so feel free to check the source code.
 ### 3.21.0
 
 - [Plugin] Connectivity Credentials Manager - Save, load, and manage connection profiles for SAP CPI connectivity tests. Special thanks to [Vladimir Balko](https://github.com/vbalko-claimate).
+- [Fix] Message sidebar now correctly shows only messages from the current iFlow when switching between tabs or iFlows
 
 ### 3.20.0
 

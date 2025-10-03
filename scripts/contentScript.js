@@ -86,7 +86,12 @@ var activeInlineItem;
 
 //fill the message sidebar
 var lastResponses = [];
-var lastCompletedLogStart = "2025-01-01T01:02:50";
+function getLastCompletedLogStart() {
+  const date = new Date();
+  date.setMonth(date.getMonth() - 1);
+  return date.toISOString().substring(0, 19).replace("T", "T");
+}
+var lastCompletedLogStart = getLastCompletedLogStart();
 async function renderMessageSidebar() {
   if (!sidebar.active) {
     return;
@@ -891,8 +896,8 @@ function addBreadcrumbs() {
       if ((regexMatch = regex.exec(url)) !== null) {
         packageUrl = regexMatch[1] + regexMatch[2] + "?section=ARTIFACTS";
         packageUrl = regexMatch[1] + regexMatch[2];
-        if (!packageUrl.includes('?section=ARTIFACTS')) {
-          packageUrl += '?section=ARTIFACTS';
+        if (!packageUrl.includes("?section=ARTIFACTS")) {
+          packageUrl += "?section=ARTIFACTS";
         }
         packageName = regexMatch[2];
       }
@@ -1970,6 +1975,10 @@ async function handleUrlChange() {
   //check if powertrace button was on / set correct button status
   await refreshPowerTrace();
 
+  // Reset message sidebar data when URL changes
+  lastResponses = [];
+  lastCompletedLogStart = getLastCompletedLogStart();
+
   //check current artifact
   await storeVisitedIflowsForPopup();
 
@@ -2174,9 +2183,9 @@ async function storeVisitedIflowsForPopup() {
           }
 
           let urlext = "";
-            if (dataRegexp[1] == "Package" && !document.location.href.includes('?section=ARTIFACTS')) {
-              urlext = "?section=ARTIFACTS";
-            }
+          if (dataRegexp[1] == "Package" && !document.location.href.includes("?section=ARTIFACTS")) {
+            urlext = "?section=ARTIFACTS";
+          }
 
           //put the current flow to the last element. last position indicates last visited element
           visitedIflows.push({
