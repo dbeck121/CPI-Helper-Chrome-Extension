@@ -89,7 +89,7 @@ var lastResponses = [];
 function getLastCompletedLogStart() {
   const date = new Date();
   date.setMonth(date.getMonth() - 1);
-  return date.toISOString().substring(0, 19).replace("T", "T");
+  return date.toISOString().substring(0, 19);
 }
 var lastCompletedLogStart = getLastCompletedLogStart();
 async function renderMessageSidebar() {
