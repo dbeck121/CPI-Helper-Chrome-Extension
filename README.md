@@ -44,6 +44,10 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.21.0
+
+- [Plugin] Connectivity Credentials Manager - Save, load, and manage connection profiles for SAP CPI connectivity tests. Special thanks to [Vladimir Balko](https://github.com/vbalko-claimate).
+
 ### 3.20.0
 
 - [Plugin] iFlow Searcher - Highlight Content Modifier and Scripts with key words. Special thanks to [Filip](https://github.com/krrrsmanovic).
