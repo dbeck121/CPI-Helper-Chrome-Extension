@@ -1,3 +1,42 @@
+// Function to show license popup
+async function showLicensePopup(options = {}) {
+  const licenseUrl = chrome.runtime.getURL("docs/LICENSE");
+  let licenseText = "";
+  try {
+    const response = await fetch(licenseUrl);
+    licenseText = await response.text();
+  } catch (e) {
+    licenseText = "Could not load license text. Please visit: https://www.gnu.org/licenses/gpl-3.0.en.html";
+  }
+
+  const licenseContent = `
+    <div class="ui segment">
+      <h3 class="ui header">
+        <i class="legal icon"></i>
+        <div class="content">
+          GNU General Public License v3
+        </div>
+      </h3>
+      <div style="margin-top: 0.1rem; margin-bottom: 1rem;">
+        This extension is free and open-source software licensed under the GNU GPL v3.
+        <br><br>
+        <strong>By using this extension, you agree to the terms and conditions of this license.</strong>
+      </div>
+      <div class="ui segment" style="max-height: 400px; overflow-y: auto; font-family: monospace; white-space: pre-wrap; font-size: 0.9em;">
+${licenseText}
+      </div>
+    </div>
+  `;
+
+  showBigPopup(licenseContent, "License Agreement - GNU GPL v3", {
+    fullscreen: false,
+    closeText: "I Agree",
+    iconInButton: "checkmark",
+    iconType: "positive",
+    ...options,
+  });
+}
+
 function workingIndicator(status) {
   // log.log(`CPI-Helper show indicator: $status`)
   //create snackbar div element
@@ -49,8 +88,11 @@ async function showBigPopup(
   header,
   parameters = {
     fullscreen: true,
+    iconInButton: "", //can be checkmark
+    iconType: "", //can be positive, negative, etc
     large: false,
     callback: null,
+    closeText: "Close",
     onclose: () => {
       $("#cpiHelper_waiting_model, #cpiHelper_semanticui_modal").modal("hide");
     },
@@ -59,6 +101,18 @@ async function showBigPopup(
   maxcount = 0,
   type = "mouse"
 ) {
+  //collects all parameters for the popup button
+  let buttonParameters = ["deny", "ui", "button"];
+  let icon = "";
+  if (parameters.iconInButton) {
+    icon = `<i class="${parameters.iconInButton} icon"></i>`;
+  }
+
+  if (parameters.iconType) {
+    buttonParameters.push(parameters.iconType);
+  }
+
+  if (!parameters.closeText) parameters.closeText = "Close";
   $("#cpiHelper_waiting_model, #cpiHelper_semanticui_modal").modal("hide");
   var $modal = $("#cpiHelper_semanticui_modal");
   if ($modal.length) {
@@ -82,31 +136,33 @@ async function showBigPopup(
           <div class="actions">
             ${maxcount && count ? '<div class="ui negative animated button"><div class="visible content">Prev</div><div class="hidden content"><i class="angle double left icon"></i></div></div>' : ""}
             ${maxcount && count !== maxcount - 1 ? '<div class="ui positive animated button"><div class="visible content">Next</div><div class="hidden content"><i class="angle double right icon"></i></div></div>' : ""}
-            <div class="ui black deny button">Close</div>
+            <div class="${buttonParameters.join(" ")}">${icon}${parameters.closeText}</div>
           </div>
         `);
 
-    ["negative", "positive"].forEach((type, index) => {
-      const $button = $modal.find(`.${type}`);
-      if ($button.length) {
-        $button.on("click", () => {
-          const sortedArray = $(".cpiHelper_onclick[inline_cpi_child]")
-            .map((_, e) => parseInt($(e).attr("inline_cpi_child"), 10))
-            .get()
-            .sort((a, b) => a - b);
-          console.log(sortedArray, $("#cpiHelper_semanticui_modal .header").attr("count"), sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")], index === 0 ? "previous" : "next");
-          if (sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")]) {
-            let element = findNearest(sortedArray, sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")], index === 0 ? "previous" : "next");
-            $(`[inline_cpi_child=${element}] .cpiHelper_inlineInfo`).trigger("click");
-            showToast(`${index ? "Next" : "Previous"} Step ${element} will be displayed shortly`);
-            $modal.modal("hide");
-            showWaitingPopup();
-          } else {
-            showToast(`${index ? "Next" : "Previous"} Step is not found`, "something went wrong", "error");
-          }
-        });
-      }
-    });
+    if (maxcount > 0) {
+      ["negative", "positive"].forEach((type, index) => {
+        const $button = $modal.find(`.${type}`);
+        if ($button.length) {
+          $button.on("click", () => {
+            const sortedArray = $(".cpiHelper_onclick[inline_cpi_child]")
+              .map((_, e) => parseInt($(e).attr("inline_cpi_child"), 10))
+              .get()
+              .sort((a, b) => a - b);
+            console.log(sortedArray, $("#cpiHelper_semanticui_modal .header").attr("count"), sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")], index === 0 ? "previous" : "next");
+            if (sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")]) {
+              let element = findNearest(sortedArray, sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")], index === 0 ? "previous" : "next");
+              $(`[inline_cpi_child=${element}] .cpiHelper_inlineInfo`).trigger("click");
+              showToast(`${index ? "Next" : "Previous"} Step ${element} will be displayed shortly`);
+              $modal.modal("hide");
+              showWaitingPopup();
+            } else {
+              showToast(`${index ? "Next" : "Previous"} Step is not found`, "something went wrong", "error");
+            }
+          });
+        }
+      });
+    }
 
     var $infocontent = $("#cpiHelper_bigPopup_content_semanticui");
 

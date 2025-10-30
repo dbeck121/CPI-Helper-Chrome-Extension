@@ -20,38 +20,11 @@ async function whatsNewCheck(showOnlyOnce = true) {
 
   //const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
   const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo.png");
+  const FIGAF_VIBE_SCREENSHOT = chrome.runtime.getURL("images/figaf-vibe-coding/figaf vibe code org.png");
   const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
   const devtoberfestPicture = chrome.runtime.getURL("images/devtoberfestPicture.png");
   const devtoberfestInvite = chrome.runtime.getURL("images/Devtoberfest_CPIHelper.ics");
   const md = window.markdownit();
-
-  var recentChanges = `
-         <div class="ui segment">
-         <h3 class="ui header">
-                <i class="bell icon"></i>
-                <div class="content">
-                 API Changes
-                </div>
-            </h3>
- 
-    
-    
-        <div style="margin-top: 0.1rem;">
-        Hi Developers,<br /><br />
-
-It seems that the CPI-Helper is currently experiencing some issues. These are primarily due to recent changes in SAP's APIs. As you may know, we rely on some undocumented API calls, such as those used to activate trace. There have been updates, and the behavior varies between Neo and Cloud Foundry environments. We are in the process of learning and adapting to these changes, but there may still be some bugs that require attention. This is not an official plugin by SAP.</div>
-  
-        <div class="ui segment cpihelper83782">
-          <h3 class="ui header">
-            Known Problems:
-          </h3>
-          <div class="ui bulleted list">
-            <div class="item">Trace is not working sometimes for some Integration Flows. Please undeploy, wait a minute and deploy them again if possible. A redeploy might not work.</div>
-            </div>
-        </div>
-        </div>
-    
-    `;
 
   // old
   var devtoberfest = `
@@ -82,7 +55,7 @@ It seems that the CPI-Helper is currently experiencing some issues. These are pr
         <img class="ui small floated image" src="${Kangoolutions_Logo}">
         <div class="content">
             <div class="header">${version_text}</div>
-            <p>Created by a dedicated community and Kangoolutions GmbH in Cologne, Germany! Follow us on  <a
+            <p>Created by a dedicated community and Kangoolutions GmbH in Germany! <strong>By using this extension, you agree to the <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension/blob/dev/docs/LICENSE" target="_blank" style="color: green; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Open Source GNU GPL v3 license</a>.</strong> Follow us on  <a
                     href="https://www.linkedin.com/company/kangoolutions" target="_blank" style="color: green; text-decoration: none;" 
     onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">LinkedIn</a>, explore our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank" style="color: green; text-decoration: none;" 
     onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">GitHub</a> repository, and watch Devtoberfest 2024 session on <a href="https://www.youtube.com/watch?v=uSwSQbc_ULU" target="_blank" style="color: green; text-decoration: none;" 
@@ -107,20 +80,22 @@ It seems that the CPI-Helper is currently experiencing some issues. These are pr
   
      <div class="ui header">This release is sponsored by Figaf </div>
   
-Just 30 minutes. That’s all it takes to explore how Figaf works.<br>
-You will discover how easy it is to:
+AI/Vibe code your Groovy and XSLT scripts. In Figaf editor you can now code your Groovy scripts with OpenAI. What really sets this apart from your own AI tool is:
 <ul>
-  <li>Create test cases</li>
-  <li>Transport integrations</li>
-  <li>Edit Groovy scripts</li>
-  <li>Document your SAP integrations</li>
+  <li>Ability to reuse your test case</li>
+  <li>Check the groovy script on your SAP Integration Suite and use the full scope of the API</li>
+  <li>Validate the response with your test cases</li>
+  <li>Communicate with OpenAI with relevant context</li>
+  <li>Data inside of your instance</li>
 </ul>
-There is also a section on how to migrate from Integration Suite.
+<div class="ui segment cpihelperFigafScreenshot" style="cursor: pointer; background-color: #f8f9fa; border: 2px dashed #ccc; padding: 10px; text-align: center;">
+    <i class="eye icon"></i> Click here to see a screenshot of Figaf's AI-powered editor in action
+</div>
 
                     </div>
                      <div class="sixteen wide column" style="paddingTop: '0px'">
                
-👉 <a href="https://figaf.com/cpihelper21" target="_blank"><u>Read more</u></a> about Figaf and get started right now!</div>
+👉 <a href="https://figaf.com/cpihelper23" target="_blank"><u>Read more</u></a> about Figaf and get started right now!</div>
                 </div>
                 </div>
             </div>
@@ -230,6 +205,8 @@ There is also a section on how to migrate from Integration Suite.
             </h3>
             <div>License: <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU GPL v3</a>
             </div>
+            <div>By using this extension, you agree to the <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension/blob/dev/docs/LICENSE" target="_blank">Open Source GNU GPL v3 license</a>.
+            </div>
             <div>Please also explore our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">Github Page</a>.
             </div>
             <div>Created by: Dominic Beckbauer and Kangoolutions.com</div>
@@ -242,6 +219,9 @@ There is also a section on how to migrate from Integration Suite.
     await showBigPopup(html, "Your SAP CI Toolbox since 1963", {
       fullscreen: false,
       large: true,
+      iconType: "positive",
+      closeText: "OK",
+      iconInButton: "checkmark",
       callback: () => {
         $(".menu .item").tab();
         $(".cpihelper83782").popup({
@@ -253,11 +233,35 @@ There is also a section on how to migrate from Integration Suite.
             hide: 800,
           },
         });
+        $(".cpihelperFigafScreenshot").on("click", function () {
+          const overlay = $(`
+            <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+              <div style="max-width: 90vw; max-height: 90vh; overflow: auto; background: white; padding: 10px; border-radius: 5px;">
+                <img src="${FIGAF_VIBE_SCREENSHOT}" style="width: auto; height: auto; max-width: none;" />
+              </div>
+            </div>
+          `);
+
+          overlay.on("click", function () {
+            $(this).fadeOut(300, function () {
+              $(this).remove();
+            });
+          });
+
+          $("body").append(overlay);
+        });
       },
-      onclose: () => {
-        //   showBigPopup(recentChanges, "Your SAP CI Toolbox since 1963", {
-        //     fullscreen: false,
-        //   });
+      onclose: async () => {
+        //should only appear one time
+        var licenseShown = await storageGetPromise("cpiHelper_LicenseShown");
+
+        if (!licenseShown) {
+          await showLicensePopup({
+            onclose: async () => {
+              await storageSetPromise({ cpiHelper_LicenseShown: true });
+            },
+          });
+        }
       },
     });
 
