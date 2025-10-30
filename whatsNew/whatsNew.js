@@ -20,6 +20,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
 
   //const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
   const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo.png");
+  const FIGAF_VIBE_SCREENSHOT = chrome.runtime.getURL("images/figaf-vibe-coding/figaf vibe code org.png");
   const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
   const devtoberfestPicture = chrome.runtime.getURL("images/devtoberfestPicture.png");
   const devtoberfestInvite = chrome.runtime.getURL("images/Devtoberfest_CPIHelper.ics");
@@ -79,20 +80,22 @@ async function whatsNewCheck(showOnlyOnce = true) {
   
      <div class="ui header">This release is sponsored by Figaf </div>
   
-Just 30 minutes. That’s all it takes to explore how Figaf works.<br>
-You will discover how easy it is to:
+AI/Vibe code your Groovy and XSLT scripts. In Figaf editor you can now code your Groovy scripts with OpenAI. What really sets this apart from your own AI tool is:
 <ul>
-  <li>Create test cases</li>
-  <li>Transport integrations</li>
-  <li>Edit Groovy scripts</li>
-  <li>Document your SAP integrations</li>
+  <li>Ability to reuse your test case</li>
+  <li>Check the groovy script on your SAP Integration Suite and use the full scope of the API</li>
+  <li>Validate the response with your test cases</li>
+  <li>Communicate with OpenAI with relevant context</li>
+  <li>Data inside of your instance</li>
 </ul>
-There is also a section on how to migrate from Integration Suite.
+<div class="ui segment cpihelperFigafScreenshot" style="cursor: pointer; background-color: #f8f9fa; border: 2px dashed #ccc; padding: 10px; text-align: center;">
+    <i class="eye icon"></i> Click here to see a screenshot of Figaf's AI-powered editor in action
+</div>
 
                     </div>
                      <div class="sixteen wide column" style="paddingTop: '0px'">
                
-👉 <a href="https://figaf.com/cpihelper21" target="_blank"><u>Read more</u></a> about Figaf and get started right now!</div>
+👉 <a href="https://figaf.com/cpihelper23" target="_blank"><u>Read more</u></a> about Figaf and get started right now!</div>
                 </div>
                 </div>
             </div>
@@ -229,6 +232,23 @@ There is also a section on how to migrate from Integration Suite.
             show: 300,
             hide: 800,
           },
+        });
+        $(".cpihelperFigafScreenshot").on("click", function () {
+          const overlay = $(`
+            <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+              <div style="max-width: 90vw; max-height: 90vh; overflow: auto; background: white; padding: 10px; border-radius: 5px;">
+                <img src="${FIGAF_VIBE_SCREENSHOT}" style="width: auto; height: auto; max-width: none;" />
+              </div>
+            </div>
+          `);
+
+          overlay.on("click", function () {
+            $(this).fadeOut(300, function () {
+              $(this).remove();
+            });
+          });
+
+          $("body").append(overlay);
         });
       },
       onclose: async () => {
