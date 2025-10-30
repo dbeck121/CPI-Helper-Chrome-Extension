@@ -1471,12 +1471,15 @@ async function openIflowInfoPopup() {
 
       return result;
     }
-
-    var variablesDiv = document.createElement("div");
-    variablesDiv.id = "cpiHelper_infoPopUp_Variables";
-    variablesDiv.classList.add("cpiHelper_infoPopUp_items");
-    variablesDiv.appendChild(await createTableForVariables());
-    x.appendChild(variablesDiv);
+    try {
+      var variablesDiv = document.createElement("div");
+      variablesDiv.id = "cpiHelper_infoPopUp_Variables";
+      variablesDiv.classList.add("cpiHelper_infoPopUp_items");
+      variablesDiv.appendChild(await createTableForVariables());
+      x.appendChild(variablesDiv);
+    } catch (error) {
+      log.error("Error creating variable table: ", error);
+    }
 
     //Get Variable XCSRF
     //https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/Operations/com.sap.esb.monitoring.datastore.access.command.GetDataStoreVariableCommand

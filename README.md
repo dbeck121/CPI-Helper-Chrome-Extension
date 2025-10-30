@@ -44,6 +44,10 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.22.0
+
+- [Fix] Persist message downloads now have meaningful filenames
+
 ### 3.21.0
 
 - [Plugin] Connectivity Credentials Manager - Save, load, and manage connection profiles for SAP CPI connectivity tests. Special thanks to [Vladimir Balko](https://github.com/vbalko-claimate).
