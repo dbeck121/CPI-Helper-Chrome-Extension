@@ -289,9 +289,15 @@ createPersistLogsContent = async (messageId) => {
       {
         label: "Log",
         content: async (input) => {
-          return formatTrace(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageStoreEntries('" + input.item + "')/$value", false), "cpiHelper_persistLogsItem" + input.item);
+          return formatTrace(
+            await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageStoreEntries('" + input.item + "')/$value", false),
+            "cpiHelper_persistLogsItem" + input.item,
+            null,
+            `${cpiData.integrationFlowId}_persist_${input.name}_${cpiData.logEnd}`
+          );
         },
         item: input.item,
+        name: input.name,
         active: true,
       },
       {
@@ -301,6 +307,7 @@ createPersistLogsContent = async (messageId) => {
           return formatHeadersAndPropertiesToTable(elements);
         },
         item: input.item,
+        name: input.name,
         active: false,
       },
     ];
@@ -318,8 +325,9 @@ createPersistLogsContent = async (messageId) => {
   })) {
     tabs.push({
       label: item.MessageStoreId,
-      content: count == 0 ? await innerpersist({ item: item.Id, count: count }) : innerpersist,
+      content: count == 0 ? await innerpersist({ item: item.Id, count: count, name: item.MessageStoreId }) : innerpersist,
       item: item.Id,
+      name: item.MessageStoreId,
       active,
       count,
     });
@@ -368,6 +376,7 @@ createLogsInfo = async (messageId) => {
   if (input.LogEnd) {
     var logEnd = new Date(parseInt(input.LogEnd.substr(6, 13)));
     logEnd.setTime(logEnd.getTime() - logEnd.getTimezoneOffset() * 60 * 1000);
+    cpiData.logEnd = logEnd.toISOString().substr(0, 19);
     valueList.push({
       Name: "End Time",
       Value: logEnd.toISOString().substr(0, 23),

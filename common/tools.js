@@ -262,7 +262,7 @@ function downloadFile(fileContent, format, filename) {
   URL.revokeObjectURL(url);
 }
 
-var formatTrace = function (input, id, traceId) {
+var formatTrace = function (input, id, traceId, filename) {
   id = id.replaceAll(":", "_");
   var tab_size = 2;
   var editorManager;
@@ -352,7 +352,10 @@ var formatTrace = function (input, id, traceId) {
   DownloadBodyButton.innerText = "Download Body";
   DownloadBodyButton.onclick = async (element) => {
     let typeOfInput = prettify_type(input);
-    downloadFile(input, typeOfInput, `CPI_${traceId}_${id}`);
+    if (!filename) {
+      filename = `CPI_${traceId}_${id}`;
+    }
+    downloadFile(input, typeOfInput, filename);
     showToast("Download of body is complete.");
   };
   var copyButton = document.createElement("button");
