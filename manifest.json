@@ -6,7 +6,7 @@
       "id": "cpi_helper@dbeck121"
     }
   },
-  "version": "3.20.0",
+  "version": "3.21.0",
 
   "description": "Extends the SAP Cloud Platform Integration with some useful features to improve usability.",
   "author": "Dominic Beckbauer",
@@ -110,7 +110,13 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["images/favicons/*.png", "lib/semanticui/*", "images/*", "plugins/settingsPaneResizer-inject.js"],
+      "resources": [
+        "images/favicons/*.png",
+        "lib/semanticui/*",
+        "images/*",
+        "plugins/settingsPaneResizer-inject.js",
+        "docs/LICENSE"
+      ],
       "matches": ["https://*.hana.ondemand.com/*", "https://*.platform.sapcloud.cn/*"]
     }
   ],

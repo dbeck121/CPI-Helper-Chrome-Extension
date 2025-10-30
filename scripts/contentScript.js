@@ -86,7 +86,12 @@ var activeInlineItem;
 
 //fill the message sidebar
 var lastResponses = [];
-var lastCompletedLogStart = "2025-01-01T01:02:50";
+function getLastCompletedLogStart() {
+  const date = new Date();
+  date.setMonth(date.getMonth() - 1);
+  return date.toISOString().substring(0, 19);
+}
+var lastCompletedLogStart = getLastCompletedLogStart();
 async function renderMessageSidebar() {
   if (!sidebar.active) {
     return;
@@ -891,8 +896,8 @@ function addBreadcrumbs() {
       if ((regexMatch = regex.exec(url)) !== null) {
         packageUrl = regexMatch[1] + regexMatch[2] + "?section=ARTIFACTS";
         packageUrl = regexMatch[1] + regexMatch[2];
-        if (!packageUrl.includes('?section=ARTIFACTS')) {
-          packageUrl += '?section=ARTIFACTS';
+        if (!packageUrl.includes("?section=ARTIFACTS")) {
+          packageUrl += "?section=ARTIFACTS";
         }
         packageName = regexMatch[2];
       }
@@ -929,7 +934,7 @@ async function buildButtonBar() {
     //timer for recruiting popup in some seconds
     if (recrutingTimerSet == false) {
       setTimeout(() => {
-        recrutingPopup();
+        //     recrutingPopup();
       }, 600000);
       recrutingTimerSet = true;
     }
@@ -1530,6 +1535,17 @@ async function openIflowInfoPopup() {
     });
     x.appendChild(whatsNewButton);
 
+    //add a new "license" button
+    var licenseButton = document.createElement("button");
+    licenseButton.classList.add("ui");
+    licenseButton.classList.add("button");
+    licenseButton.innerText = "License (GNU GPL v3)";
+    licenseButton.addEventListener("click", async (a) => {
+      await showLicensePopup();
+      statistic("info_popup_license_click");
+    });
+    x.appendChild(licenseButton);
+
     //add a new "become part of the team" button
     var recrutingButton = document.createElement("button");
     recrutingButton.classList.add("ui");
@@ -1846,7 +1862,7 @@ async function getMessageProcessingLogRuns(MessageGuid, store = true) {
     console.debug("traceModifer_flow", cpiData.integrationFlowId, top_mode_count, top_mode_count_flow);
     top_mode_count = (top_mode_count_flow == null && top_mode_count_flow == undefined) || top_mode_count_flow == 0 ? top_mode_count : `& $top=${parseInt(top_mode_count_flow)} `;
   }
-  console.log(top_mode_count);
+
   return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store)
     .then((responseText) => {
       var resp = JSON.parse(responseText);
@@ -1969,6 +1985,10 @@ async function checkURLchange() {
 async function handleUrlChange() {
   //check if powertrace button was on / set correct button status
   await refreshPowerTrace();
+
+  // Reset message sidebar data when URL changes
+  lastResponses = [];
+  lastCompletedLogStart = getLastCompletedLogStart();
 
   //check current artifact
   await storeVisitedIflowsForPopup();
@@ -2174,9 +2194,9 @@ async function storeVisitedIflowsForPopup() {
           }
 
           let urlext = "";
-            if (dataRegexp[1] == "Package" && !document.location.href.includes('?section=ARTIFACTS')) {
-              urlext = "?section=ARTIFACTS";
-            }
+          if (dataRegexp[1] == "Package" && !document.location.href.includes("?section=ARTIFACTS")) {
+            urlext = "?section=ARTIFACTS";
+          }
 
           //put the current flow to the last element. last position indicates last visited element
           visitedIflows.push({
