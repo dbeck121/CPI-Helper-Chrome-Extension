@@ -22,6 +22,7 @@ async function addLastVisitedIflows() {
   var artifactTypes = ["Package", "IFlow", "Message Mapping", "Script Collection", "Value Mapping", "SOAP API", "REST API", "ODATA API"];
   var html = `<div class="ui horizontal divider header">Last Visited on Tenant ${name.split("_")[1]}</div>`;
   if (compact) {
+  // compact mode of last iflows list
     for (var i = visitedIflows.length - 1; i > -1; i--) {
       if (visitedIflows[i].type) {
         if (elements[visitedIflows[i].type]) {
@@ -61,6 +62,7 @@ async function addLastVisitedIflows() {
       html += `</div></div>`;
     }
   } else {
+    // Cozy mode of last iflows list
     for (var i = visitedIflows.length - 1; i > -1; i--) {
       if (visitedIflows[i].type) {
         if (elements[visitedIflows[i].type]) {
@@ -82,7 +84,7 @@ async function addLastVisitedIflows() {
       if (elements[subject]) {
         html += `<div class="ui menu"><a class="ui item"><strong>${subject}</strong></a><div class="ui wrapped wrapping buttons fluid">`;
         elements[subject].map((item, index) => {
-          html += `<div class="ui fluid buttons"><a href="${item.url.replace("?section=ARTIFACTS?section=ARTIFACTS", "?section=ARTIFACTS")}" target="_blank" class="ui button">${item.name}</a></div>`;
+          html += `<div class="ui fluid buttons"><a href="${item.url.replace("?section=ARTIFACTS?section=ARTIFACTS", "?section=ARTIFACTS")}" target="_blank" class="ui button">${item.fullName != 'undefined' ? item.fullName : item.name}</a></div>`;
         });
         html += `</div></div>`;
       }
