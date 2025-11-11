@@ -8,6 +8,7 @@
   --cpi-grey: #e3e3e3;
   --cpi-blue: #c7c7ff;
   --cpi-red: #ffc7c7;
+  --cpi-yellow: #cfb690;
   --cpi-color: #000;
   --cpi-text-color: #000;
   --cpi-hover: #ff5722;
@@ -127,12 +128,17 @@ input[type="color"] {
   --_cpi-dclass: var(--cpi-red);
 }
 
+.l-yellow {
+  --_cpi-dclass: var(--cpi-yellow);
+}
+
 .l-blue {
   --_cpi-dclass: var(--cpi-blue);
 }
 
 .l-blue,
 .l-red,
+.l-yellow,
 .l-black,
 .l-green {
   color: var(--cpi-color) !important;
@@ -142,6 +148,7 @@ input[type="color"] {
 
 .l-blue:hover,
 .l-red:hover,
+.l-yellow:hover,
 .l-black:hover,
 .l-green:hover {
   color: var(--_cpi-dclass) !important;

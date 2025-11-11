@@ -22,6 +22,7 @@ async function addLastVisitedIflows() {
   var artifactTypes = ["Package", "IFlow", "Message Mapping", "Script Collection", "Value Mapping", "SOAP API", "REST API", "ODATA API"];
   var html = `<div class="ui horizontal divider header">Last Visited on Tenant ${name.split("_")[1]}</div>`;
   if (compact) {
+  // compact mode of last iflows list
     for (var i = visitedIflows.length - 1; i > -1; i--) {
       if (visitedIflows[i].type) {
         if (elements[visitedIflows[i].type]) {
@@ -44,7 +45,7 @@ async function addLastVisitedIflows() {
         html += `<div class="ui menu"><a class="ui item"><strong>${subject}</strong></a><div class="ui wrapped wrapping buttons fluid">`;
         elements[subject].map((item) => {
           let url = item.url;
-          html += `<a class="ui button" href="${item.url.replace("?section=ARTIFACTS?section=ARTIFACTS", "?section=ARTIFACTS")}" target="_blank">${item.name}</a>`;
+          html += `<a class="ui button" href="${item.url.replace("?section=ARTIFACTS?section=ARTIFACTS", "?section=ARTIFACTS")}" target="_blank">${item.fullName != 'undefined' ? item.fullName : item.name}</a>`;
         });
         html += `</div></div>`;
       }
@@ -61,6 +62,7 @@ async function addLastVisitedIflows() {
       html += `</div></div>`;
     }
   } else {
+    // Cozy mode of last iflows list
     for (var i = visitedIflows.length - 1; i > -1; i--) {
       if (visitedIflows[i].type) {
         if (elements[visitedIflows[i].type]) {
@@ -82,7 +84,7 @@ async function addLastVisitedIflows() {
       if (elements[subject]) {
         html += `<div class="ui menu"><a class="ui item"><strong>${subject}</strong></a><div class="ui wrapped wrapping buttons fluid">`;
         elements[subject].map((item, index) => {
-          html += `<div class="ui fluid buttons"><a href="${item.url.replace("?section=ARTIFACTS?section=ARTIFACTS", "?section=ARTIFACTS")}" target="_blank" class="ui button">${item.name}</a></div>`;
+          html += `<div class="ui fluid buttons"><a href="${item.url.replace("?section=ARTIFACTS?section=ARTIFACTS", "?section=ARTIFACTS")}" target="_blank" class="ui button">${item.fullName != 'undefined' ? item.fullName : item.name}</a></div>`;
         });
         html += `</div></div>`;
       }
@@ -397,10 +399,11 @@ function addTenantUrls() {
   var tenantUrls = document.getElementById("tenantUrls");
   tenantUrls.innerHTML = `<div class="ui horizontal divider header">Main Links</div>
                 <div class="ui wrapping buttons fluid">
-                    <a class="ui l-green button" target="_blank" href="${host + "/shell/monitoring/Messages/"}">Processed Messages</a>
+                    <a class="ui l-green button" target="_blank" href="${host + "/shell/monitoring/Messages/"}">All Messages</a>
                     <a class="ui l-red button" target="_blank" href="${host + "/shell/monitoring/Messages/%7B%22status%22%3A%22FAILED%22%2C%22time%22%3A%22PASTHOUR%22%2C%22type%22%3A%22INTEGRATION_FLOW%22%7D"}">Failed Messages</a>
+                    <a class="ui l-yellow button" target="_blank" href="${host + "/shell/monitoring/MessageStatusOverview"}">Status Overview</a>
                     <a class="ui l-black button" target="_blank" href="${host + "/shell/monitoring/Artifacts/"}">Integration Content</a>
-                    <a class="ui l-blue button" target="_blank" href="${host + "/shell/design"}">Design</a> 
+                    <a class="ui l-blue button" target="_blank" href="${host + "/shell/design"}">Packages</a>
                 </div>
                 <div class="ui horizontal divider header">Tenant Links</div>
                 <div class='ui menu'>
@@ -410,23 +413,24 @@ function addTenantUrls() {
                         <div class="three ui buttons">
                             <a class="ui button" href="${host + "/shell/monitoring/SecurityMaterials"}" target="_blank">Security Material</a>
                             <a class="ui button" href="${host + "/shell/monitoring/Keystore"}" target="_blank">Keystore</a>
-                            <a class="ui button" href="${host + "/shell/monitoring/CertificateUserMappings"}" target="_blank">Certificate User Mappings</a>
+                            <a class="ui button" href="${host + "/shell/monitoring/AccessPolicies"}" target="_blank">Access Policies</a>
                         </div>
                         <div class="three ui buttons">
-                            <a class="ui button" href="${host + "/shell/monitoring/AccessPolicies"}" target="_blank">Access Policies</a>
                             <a class="ui button" href="${host + "/shell/monitoring/JdbcMaterial"}" target="_blank">JDBC Material</a>
                             <a class="ui button" href="${host + "/shell/monitoring/Connectivity"}" target="_blank">Connectivity Tests</a>
+                            <a class="ui button" href="${host + "/shell/monitoring/DataStores"}" target="_blank">Data Stores</a>
                         </div>
                         <div class="ui fitted divider"></div>
                         <div class="three ui buttons">
-                            <a class="ui button" href="${host + "/shell/monitoring/DataStores"}" target="_blank">Data Stores</a>
+
                             <a class="ui button" href="${host + "/shell/monitoring/Variables"}" target="_blank">Variables</a>
                             <a class="ui button" href="${host + "/shell/monitoring/MessageQueues"}" target="_blank">Message Queues</a>
+                            <a class="fluid ui button" href="${host + "/shell/monitoring/NumberRangeObject"}" target="_blank">Number Ranges</a>
                         </div>
                         <div class="three ui buttons">
-                            <a class="fluid ui button" href="${host + "/shell/monitoring/NumberRangeObject"}" target="_blank">Number Ranges</a>
+                            <a class="fluid ui button" href="${host + "/shell/monitoring/PartnerDirectory"}" target="_blank">Partner Directory</a>
                             <a class="fluid ui button" href="${host + "/shell/monitoring/UserRoles"}" target="_blank">User Roles</a>
-                            <a class="fluid ui button" href="${host + "/shell/monitoring/MessageUsage"}" target="_blank">Message Usage</a>                            
+                            <a class="fluid ui button" href="${host + "/shell/monitoring/MessageUsage"}" target="_blank">Message Usage</a>
                         </div>
                         <div class="ui fitted divider"></div>
                         <div class="three ui buttons">

@@ -1907,7 +1907,7 @@ function collectDataOfCurrentArtifact() {
   }
 
   if (result != undefined) {
-    log.log("Highlighted Artifact: " + artifactType + ": " + result);
+    log.log("Current Artifact: " + artifactType + ": " + result);
     cpiData.integrationFlowId = result; //set integration flow id for legacy reasons
     cpiData.currentArtifactId = result;
     cpiData.currentArtifactType = artifactType;
@@ -1926,27 +1926,28 @@ function collectDataOfCurrentArtifact() {
   return result;
 }
 
-function getIflowId() {
-  var url = window.location.href;
-  var result;
+async function getArtifactFullName() {
+  // Get Artifact full name: After page load, wait for the Iflow/package name field to be present in the DOM and extract the full name from it.
+  let executionCount = 0;
+  let artifactName = undefined;
 
-  //try {
-  let groups = "";
+  const intval2 = setInterval(() => {
+    executionCount++;
 
-  if (cpiIflowUriRegexp.test(url) === true) {
-    groups = url.match(cpiIflowUriRegexp).groups;
-    result = groups.artifactId;
-  }
+    artifactName = document.querySelectorAll(".sapUxAPObjectPageHeaderTitleText");
+    artifactName = artifactName[artifactName.length - 1]?.innerText; // get last element since some pages contain a hidden, first, page header with wrong text in it.
 
-  if (result != undefined) {
-    log.log("Found IFlow: " + result);
-    cpiData.currentIflowId = result;
-    cpiData.lastVisitedIflowId = result;
-  } else {
-    cpiData.currentIflowId = null;
-    log.log("no iflow found");
-  }
-  return result;
+    if (artifactName != undefined || executionCount >= 30) {
+      // Stop the interval once the element is found or after ~30 seconds if not found (then it will use the ID for the history instead)
+      clearInterval(intval2); // stop interval
+      // get full names if present
+      cpiData.currentIflowName = artifactName;
+      cpiData.lastVisitedIflowName = artifactName;
+      storeVisitedIflowsForPopup(); // store the artifact full name and ID to the history
+    }
+  }, 1000); // Check every 1s if field is present in DOM (DOMContentLoaded event listener didn't work)
+
+    return artifactName;
 }
 
 function getPackageId() {
@@ -1993,13 +1994,10 @@ async function handleUrlChange() {
   lastResponses = [];
   lastCompletedLogStart = getLastCompletedLogStart();
 
-  //check current artifact
-  await storeVisitedIflowsForPopup();
-
   getPackageId();
-  getIflowId();
-
   collectDataOfCurrentArtifact();
+  await getArtifactFullName();
+
 
   //init
   var xsltCount = 0;
@@ -2204,12 +2202,13 @@ async function storeVisitedIflowsForPopup() {
           //put the current flow to the last element. last position indicates last visited element
           visitedIflows.push({
             name: `${cpiArtifactId}`,
+            fullName: `${cpiData.currentIflowName}`,
             url: document.location.href + urlext,
             favorit: false,
             type: `${dataRegexp[1]}`,
           });
 
-          //delete the first one when there are more than 10 iflows in visited list
+          //delete the first one when there are more than 15 iflows in visited list
           if (visitedIflows.length > 15) {
             visitedIflows.shift();
           }
