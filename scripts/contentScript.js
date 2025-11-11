@@ -112,7 +112,6 @@ async function renderMessageSidebar() {
 
   //check if iflowid exists
   iflowId = cpiData.integrationFlowId;
-  iflowName = cpiData.integrationFlowName;
   if (!iflowId) {
     return;
   }
