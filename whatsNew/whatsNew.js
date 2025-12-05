@@ -80,22 +80,16 @@ async function whatsNewCheck(showOnlyOnce = true) {
   
      <div class="ui header">This release is sponsored by Figaf </div>
   
-AI/Vibe code your Groovy and XSLT scripts. In Figaf editor you can now code your Groovy scripts with OpenAI. What really sets this apart from your own AI tool is:
-<ul>
-  <li>Ability to reuse your test case</li>
-  <li>Check the groovy script on your SAP Integration Suite and use the full scope of the API</li>
-  <li>Validate the response with your test cases</li>
-  <li>Communicate with OpenAI with relevant context</li>
-  <li>Data inside of your instance</li>
-</ul>
-<div class="ui segment cpihelperFigafScreenshot" style="cursor: pointer; background-color: #f8f9fa; border: 2px dashed #ccc; padding: 10px; text-align: center;">
-    <i class="eye icon"></i> Click here to see a screenshot of Figaf's AI-powered editor in action
-</div>
+Mainstream maintenance for SAP PI/PO ends in 2027, and the window to plan, prepare, test, and execute your migration to SAP Integration Suite is closing fast.
+
+<br>You may think you still have time, but you don’t. Waiting too long increases risk, reduces available time and resources, and ultimately leads to a rushed project.
+
+<br><br>If you haven’t started yet, now is the time. Kick off your migration with the Figaf Migration Edition — the smart way to begin your journey today.
 
                     </div>
                      <div class="sixteen wide column" style="paddingTop: '0px'">
                
-👉 <a href="https://figaf.com/cpihelper23" target="_blank"><u>Read more</u></a> about Figaf and get started right now!</div>
+<a href="https://figaf.com/cpihelper24" target="_blank"><u>Read more</u></a> about Figaf and start your migration the right way!</div>
                 </div>
                 </div>
             </div>
