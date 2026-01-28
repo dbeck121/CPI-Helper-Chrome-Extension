@@ -372,7 +372,7 @@ async function renderMessageSidebar() {
                }
             } else {
                 let messageGuid = a.currentTarget.classList[1];
-                 url =`/${cpiData.urlExtension}shell/monitor/Messages/%7B%22edge%22%3A%7B%22runtimeLocationId%22%3A%22${cpiData.runtimeLocationWithActiveIFlow[0].id}%22%7D%2C%22identifier%22%3A%22${encodeURIComponent(messageGuid)}%22%7D`
+                 url =`/${cpiData.urlExtension}shell/monitoring/Messages/%7B%22edge%22%3A%7B%22runtimeLocationId%22%3A%22${cpiData.runtimeLocationWithActiveIFlow[0].id}%22%7D%2C%22identifier%22%3A%22${encodeURIComponent(messageGuid)}%22%7D`
             }
             openInfo(url);
           });
@@ -654,7 +654,7 @@ async function clickTrace(e) {
     logleveldata = JSON.parse(
       await makeCallPromise(
         "GET",
-        `/${cpiData.urlExtension}location/${cpiData.runtimeLocationWithActiveIFlow[0].id}odata/api/v1/MessageProcessingLogs('${messageguid}')?$format=json`,
+        `/${cpiData.urlExtension}location/${cpiData.runtimeLocationWithActiveIFlow[0].id}/odata/api/v1/MessageProcessingLogs('${messageguid}')?$format=json`,
         true
       )
     ).d;
@@ -1944,7 +1944,7 @@ async function errorPopupOpen(MessageGuid) {
       "GET",
       "/" + cpiData.urlExtension +
         "location/" + cpiData.runtimeLocationWithActiveIFlow[0].id +
-        "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')?$format=json&$expand=CustomHeaderProperties",
+        "/odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')?$format=json&$expand=CustomHeaderProperties",
       false
     );
   }
