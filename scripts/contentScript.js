@@ -558,7 +558,7 @@ async function clickTrace(e) {
       } else {
         elements = JSON.parse(await makeCallPromise(
           "GET",
-          "/" + cpiData.urlExtension + "location/" + cpiData.runtimeLocationWithActiveIFlow[0].id + "odata/api/v1/TraceMessages(" + traceId + ")/Properties?$format=json",
+          "/" + cpiData.urlExtension + "location/" + cpiData.runtimeLocationWithActiveIFlow[0].id + "/odata/api/v1/TraceMessages(" + traceId + ")/Properties?$format=json",
           true
         )).d.results;
       }
@@ -576,7 +576,7 @@ async function clickTrace(e) {
       } else {
         elements = await makeCallPromise(
           "GET",
-          "/" + cpiData.urlExtension + "location/" + cpiData.runtimeLocationWithActiveIFlow[0].id + "odata/api/v1/TraceMessages(" + traceId + ")/$value",
+          "/" + cpiData.urlExtension + "location/" + cpiData.runtimeLocationWithActiveIFlow[0].id + "/odata/api/v1/TraceMessages(" + traceId + ")/$value",
           true
         );
       }
@@ -595,7 +595,7 @@ async function clickTrace(e) {
         elements = JSON.parse(await makeCallPromise(
           "GET",
           "/" + cpiData.urlExtension + "location/" + cpiData.runtimeLocationWithActiveIFlow[0].id +
-          "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/?$expand=RunStepProperties&$format=json",
+          "/odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/?$expand=RunStepProperties&$format=json",
           true
         )).d.RunStepProperties.results;
       }
@@ -617,7 +617,7 @@ async function clickTrace(e) {
           await makeCallPromise(
             "GET",
             "/" + cpiData.urlExtension + "location/" + cpiData.runtimeLocationWithActiveIFlow[0].id +
-            "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/?$expand=RunStepProperties&$format=json",
+            "/odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/?$expand=RunStepProperties&$format=json",
             true
           )
         ).d;
