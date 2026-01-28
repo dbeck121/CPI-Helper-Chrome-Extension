@@ -426,7 +426,18 @@ createPersistLogsContent = async (messageId) => {
 
 createLogsInfo = async (messageId) => {
   try {
-    var input = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + messageId + "')?$format=json&$expand=CustomHeaderProperties", false, null, null, false, null, false)).d;
+    var runtimeId = cpiData.runtimeLocationWithActiveIFlow && cpiData.runtimeLocationWithActiveIFlow[0]
+      ? cpiData.runtimeLocationWithActiveIFlow[0].id
+      : "cloudintegration";
+    var url;
+    if (runtimeId === "cloudintegration") {
+      url = "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + messageId + "')?$format=json&$expand=CustomHeaderProperties";
+    } else {
+      url = "/" + cpiData.urlExtension + "location/" + runtimeId + "/odata/api/v1/MessageProcessingLogs('" + messageId + "')?$format=json&$expand=CustomHeaderProperties";
+    }
+
+    var input = JSON.parse(await makeCallPromise("GET", url, false, null, null, false, null, false)).d;
+    
   } catch (error) {
     log.log(error);
     showToast("Check input data.", "Error while fetching logs. Message ID not found.", "error");
