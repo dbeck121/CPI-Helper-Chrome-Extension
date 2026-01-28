@@ -179,7 +179,7 @@ async function renderMessageSidebar() {
         "GET",
         "/" +
           cpiData.urlExtension + "location/" + cpiData.runtimeLocationWithActiveIFlow[0].id +
-          "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" +
+          "/odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" +
           iflowId +
           "' and LogStart gt datetime'" +
           lastCompletedLogStart +
