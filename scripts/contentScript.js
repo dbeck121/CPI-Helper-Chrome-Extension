@@ -290,8 +290,10 @@ async function renderMessageSidebar() {
           let infoButton = createElementFromHTML(
             `<button title='show logs in new tab' id='info--${i}' class='${
               cpiData.urlExtension && !resp[i].AlternateWebLink.replace("https://", "").match(cpiTypeRegexp) ? resp[i].AlternateWebLink.replace("443/shell", "443/" + cpiData.urlExtension + "shell") : resp[i].AlternateWebLink
-            } ${flash}'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>`
+            } ${resp[i].MessageGuid} ${flash}'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>`
           );
+
+
           let logButton = createElementFromHTML(
             `<button title='show log viewer on this page' id='logs--${i}' class='${resp[i].MessageGuid} ${flash}'><span data-sap-ui-icon-content=\"\" class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>`
           );
@@ -362,9 +364,15 @@ async function renderMessageSidebar() {
           messageList.appendChild(createRow([statusicon, logButton, infoButton, traceButton, quickInlineTraceButton, ...pluginButtons], resp[i].MessageGuid));
           infoButton.addEventListener("click", (a) => {
             statistic("messagebar_btn_info_click");
-            let url = a.currentTarget.classList[0];
-            if (url.match(cpiTypeRegexp)) {
-              url = url.replace("/itspaces", "");
+            var url;
+            if (cpiData.runtimeLocationWithActiveIFlow[0].id ==="cloudintegration") {
+                 url = a.currentTarget.classList[0];
+              if (url.match(cpiTypeRegexp)) {
+                 url = url.replace("/itspaces", "");
+               }
+            } else {
+                let messageGuid = a.currentTarget.classList[1];
+                 url =`/${cpiData.urlExtension}shell/monitor/Messages/%7B%22edge%22%3A%7B%22runtimeLocationId%22%3A%22${cpiData.runtimeLocationWithActiveIFlow[0].id}%22%7D%2C%22identifier%22%3A%22${encodeURIComponent(messageGuid)}%22%7D`
             }
             openInfo(url);
           });
@@ -509,7 +517,7 @@ async function clickTrace(e) {
     if(cpiData.runtimeLocationWithActiveIFlow[0].id ==="cloudintegration"){   // if runtime is Cloud Integration
         traceData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/TraceMessages?$format=json", true)).d.results;
       }else{   // if runtime is other than Cloud Integration
-        traceData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension +"location/" + cpiData.runtimeLocationWithActiveIFlow[0].id  + "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/TraceMessages?$format=json", true)).d.results;
+        traceData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension +"location/" + cpiData.runtimeLocationWithActiveIFlow[0].id  + "/odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/TraceMessages?$format=json", true)).d.results;
       }
     var trace = traceData.sort((a, b) => {
       return a.TraceId - b.TraceId;
@@ -532,7 +540,7 @@ async function clickTrace(e) {
       } else {
         elements = JSON.parse(await makeCallPromise(
           "GET",
-          "/" + cpiData.urlExtension + "location/" + cpiData.runtimeLocationWithActiveIFlow[0].id + "odata/api/v1/TraceMessages(" + traceId + ")/ExchangeProperties?$format=json",
+          "/" + cpiData.urlExtension + "location/" + cpiData.runtimeLocationWithActiveIFlow[0].id + "/odata/api/v1/TraceMessages(" + traceId + ")/ExchangeProperties?$format=json",
           true
         )).d.results;
       }
