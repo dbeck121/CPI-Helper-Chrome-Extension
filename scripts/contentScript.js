@@ -48,17 +48,32 @@ var cpiIflowUriRegexp = /\/integrationflows\/(?<artifactId>[0-9a-zA-Z_\-.]+)/;
 function openTrace(MessageGuid) {
   log.debug("MessageGuid");
   //we have to get the RunID first
-  makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$format=json", false)
+  // Add if else for cloud integration runtime
+  let runtimeId = cpiData.runtimeLocationWithActiveIFlow && cpiData.runtimeLocationWithActiveIFlow[0]
+    ? cpiData.runtimeLocationWithActiveIFlow[0].id
+    : "cloudintegration"; // fallback
+
+  let runUrl;
+  if (runtimeId === "cloudintegration") {
+    runUrl = "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$format=json";
+  } else {
+    runUrl = "/" + cpiData.urlExtension + "location/" + runtimeId + "/odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$format=json";
+  }
+
+  makeCallPromise("GET", runUrl, false)
     .then((responseText) => {
       var resp = JSON.parse(responseText);
       var status = resp.d.results[0].OverallState;
+      var runId;
       if (resp.d.results.length > 1 && status != "COMPLETED") {
-        var runId = resp.d.results[1].Id;
+        runId = resp.d.results[1].Id;
       } else {
-        var runId = resp.d.results[0].Id;
+        runId = resp.d.results[0].Id;
       }
 
-      let url =
+      let url;
+      if (runtimeId === "cloudintegration") {
+        url =
         "/" +
         cpiData.urlExtension +
         'shell/monitoring/MessageProcessingRun/%7B"parentContext":%7B"MessageMonitor":%7B"artifactKey":"__ALL__MESSAGE_PROVIDER","artifactName":"All%20Artifacts"%7D%7D,"messageProcessingLog":"' +
@@ -66,6 +81,21 @@ function openTrace(MessageGuid) {
         '","RunId":"' +
         runId +
         '"%7D';
+      } else {
+        url =
+        "/" +
+         cpiData.urlExtension +
+          'shell/monitoring/MessageProcessingRun/%7B"parentContext"%3A%7B"MessageMonitor"%3A%7B"packageId"%3A"ALL"%2C"artifactIds"%3A"ALL"%2C"time"%3A"ALL"%2C"type"%3A"ALL"%2C"edge"%3A%7B"runtimeLocationId"%3A"' +
+           runtimeId +
+           '"%7D%7D%7D%2C"edge"%3A%7B"runtimeLocationId"%3A"' +
+           runtimeId +
+          '"%7D%2C"messageProcessingLog"%3A"' +
+          MessageGuid +
+          '"%2C"RunId"%3A"' +
+          runId +
+          '"%7D';
+
+      }
       window.open(url, "_blank");
     })
     .catch((e) => {
@@ -125,20 +155,39 @@ async function renderMessageSidebar() {
   }, true);
 
   var resp = null;
+  console.log(cpiData.runtimeLocationWithActiveIFlow[0].id)
   try {
     //24-04-2024, On some tenants there are Retry messages hanging without any LogStart and LogEnd date and SAP is unable to discard them, these msgs stops CPI helper to display messages in popup ,using a timestamp from long back helpsso using date from 1900
-    var responseText = await makeCallPromise(
-      "GET",
-      "/" +
-        cpiData.urlExtension +
-        "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" +
-        iflowId +
-        "' and LogStart gt datetime'" +
-        lastCompletedLogStart +
-        "' and Status ne 'DISCARDED'&$top=" +
-        numberEntries +
-        "&$format=json&$orderby=LogEnd desc&$select=Status,LogEnd,LogStart,MessageGuid,LogLevel,AlternateWebLink"
-    );
+
+    var responseText;
+
+    if(cpiData.runtimeLocationWithActiveIFlow[0].id ==="cloudintegration"){                  // if runtime is Cloud Integration
+      responseText = await makeCallPromise(
+        "GET",
+        "/" +
+          cpiData.urlExtension +
+          "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" +
+          iflowId +
+          "' and LogStart gt datetime'" +
+          lastCompletedLogStart +
+          "' and Status ne 'DISCARDED'&$top=" +
+          numberEntries +
+          "&$format=json&$orderby=LogEnd desc&$select=Status,LogEnd,LogStart,MessageGuid,LogLevel,AlternateWebLink"
+      );
+    }else{
+      responseText = await makeCallPromise(                                              // if runtime is other than Cloud Integration ( EIC )
+        "GET",
+        "/" +
+          cpiData.urlExtension + "location/" + cpiData.runtimeLocationWithActiveIFlow[0].id +
+          "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" +
+          iflowId +
+          "' and LogStart gt datetime'" +
+          lastCompletedLogStart +
+          "' and Status ne 'DISCARDED'&$top=" +
+          numberEntries +
+          "&$format=json&$orderby=LogEnd desc&$select=Status,LogEnd,LogStart,MessageGuid,LogLevel,AlternateWebLink"
+      );
+    }
 
     resp = JSON.parse(responseText);
 
@@ -454,7 +503,14 @@ async function clickTrace(e) {
 
   //get the content for a tab in a trace popup
   var getTraceTabContent = async function (object) {
-    var traceData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/TraceMessages?$format=json", true)).d.results;
+
+    var traceData;
+
+    if(cpiData.runtimeLocationWithActiveIFlow[0].id ==="cloudintegration"){   // if runtime is Cloud Integration
+        traceData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/TraceMessages?$format=json", true)).d.results;
+      }else{   // if runtime is other than Cloud Integration
+        traceData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension +"location/" + cpiData.runtimeLocationWithActiveIFlow[0].id  + "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/TraceMessages?$format=json", true)).d.results;
+      }
     var trace = traceData.sort((a, b) => {
       return a.TraceId - b.TraceId;
     })[0];
@@ -466,29 +522,98 @@ async function clickTrace(e) {
     var traceId = trace.TraceId;
     let html = "";
     if (object.traceType == "properties") {
-      let elements = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + traceId + ")/ExchangeProperties?$format=json", true)).d.results;
+      let elements;
+      if (cpiData.runtimeLocationWithActiveIFlow[0].id === "cloudintegration") {
+        elements = JSON.parse(await makeCallPromise(
+          "GET",
+          "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + traceId + ")/ExchangeProperties?$format=json",
+          true
+        )).d.results;
+      } else {
+        elements = JSON.parse(await makeCallPromise(
+          "GET",
+          "/" + cpiData.urlExtension + "location/" + cpiData.runtimeLocationWithActiveIFlow[0].id + "odata/api/v1/TraceMessages(" + traceId + ")/ExchangeProperties?$format=json",
+          true
+        )).d.results;
+      }
       html = formatHeadersAndPropertiesToTable(elements);
     }
+
     if (object.traceType == "headers") {
-      let elements = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + traceId + ")/Properties?$format=json", true)).d.results;
+      let elements;
+      if (cpiData.runtimeLocationWithActiveIFlow[0].id === "cloudintegration") {
+        elements = JSON.parse(await makeCallPromise(
+          "GET",
+          "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + traceId + ")/Properties?$format=json",
+          true
+        )).d.results;
+      } else {
+        elements = JSON.parse(await makeCallPromise(
+          "GET",
+          "/" + cpiData.urlExtension + "location/" + cpiData.runtimeLocationWithActiveIFlow[0].id + "odata/api/v1/TraceMessages(" + traceId + ")/Properties?$format=json",
+          true
+        )).d.results;
+      }
       html = formatHeadersAndPropertiesToTable(elements);
     }
 
     if (object.traceType == "trace") {
-      let elements = await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + traceId + ")/$value", true);
+      let elements;
+      if (cpiData.runtimeLocationWithActiveIFlow[0].id === "cloudintegration") {
+        elements = await makeCallPromise(
+          "GET",
+          "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + traceId + ")/$value",
+          true
+        );
+      } else {
+        elements = await makeCallPromise(
+          "GET",
+          "/" + cpiData.urlExtension + "location/" + cpiData.runtimeLocationWithActiveIFlow[0].id + "odata/api/v1/TraceMessages(" + traceId + ")/$value",
+          true
+        );
+      }
       html = formatTrace(elements, object.runId + "_" + object.childCount, traceId);
     }
 
     if (object.traceType == "logContent") {
-      let elements = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/?$expand=RunStepProperties&$format=json", true)).d
-        .RunStepProperties.results;
+      let elements;
+      if (cpiData.runtimeLocationWithActiveIFlow[0].id === "cloudintegration") {
+        elements = JSON.parse(await makeCallPromise(
+          "GET",
+          "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/?$expand=RunStepProperties&$format=json",
+          true
+        )).d.RunStepProperties.results;
+      } else {
+        elements = JSON.parse(await makeCallPromise(
+          "GET",
+          "/" + cpiData.urlExtension + "location/" + cpiData.runtimeLocationWithActiveIFlow[0].id +
+          "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/?$expand=RunStepProperties&$format=json",
+          true
+        )).d.RunStepProperties.results;
+      }
       html = formatLogContent(elements);
     }
 
     if (object.traceType == "info") {
-      let elements = JSON.parse(
-        await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/?$expand=RunStepProperties&$format=json", true)
-      ).d;
+      let elements;
+      if (cpiData.runtimeLocationWithActiveIFlow[0].id === "cloudintegration") {
+        elements = JSON.parse(
+          await makeCallPromise(
+            "GET",
+            "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/?$expand=RunStepProperties&$format=json",
+            true
+          )
+        ).d;
+      } else {
+        elements = JSON.parse(
+          await makeCallPromise(
+            "GET",
+            "/" + cpiData.urlExtension + "location/" + cpiData.runtimeLocationWithActiveIFlow[0].id +
+            "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + object.runId + "',ChildCount=" + object.childCount + ")/?$expand=RunStepProperties&$format=json",
+            true
+          )
+        ).d;
+      }
       html = formatInfoContent(elements);
     }
 
@@ -507,7 +632,25 @@ async function clickTrace(e) {
     .className.replace("flash", "")
     .replace(/cpiHelper_inlineInfo-[A-z]+|\s+/g, "")
     .trim();
-  var logleveldata = JSON.parse(await makeCallPromise("GET", `/${cpiData.urlExtension}odata/api/v1/MessageProcessingLogs('${messageguid}')?$format=json`, true)).d;
+  
+  let logleveldata;
+  if (cpiData.runtimeLocationWithActiveIFlow[0].id === "cloudintegration") {
+    logleveldata = JSON.parse(
+      await makeCallPromise(
+        "GET",
+        `/${cpiData.urlExtension}odata/api/v1/MessageProcessingLogs('${messageguid}')?$format=json`,
+        true
+      )
+    ).d;
+  } else {
+    logleveldata = JSON.parse(
+      await makeCallPromise(
+        "GET",
+        `/${cpiData.urlExtension}location/${cpiData.runtimeLocationWithActiveIFlow[0].id}odata/api/v1/MessageProcessingLogs('${messageguid}')?$format=json`,
+        true
+      )
+    ).d;
+  }
 
   if (logleveldata.LogLevel != "TRACE") {
     $("#cpiHelper_waiting_model").modal("hide");
@@ -835,7 +978,12 @@ async function setLogLevel(logLevel, iflowId) {
   } */
 
   // seems like bug on sap side is fixed. So we can use the runtimeLocationId in all casws
-  let locID = ', "runtimeLocationId":"cloudintegration"'; // default for cloudintegration
+  let locID = '';
+  if(cpiData.runtimeLocationWithActiveIFlow[0].id ==="cloudintegration"){
+    locID = ', "runtimeLocationId":"cloudintegration"';
+  } else{
+    locID = ', "runtimeLocationId":"' + cpiData.runtimeLocationWithActiveIFlow[0].id + '"';
+  }
 
   /* // if runtimeLocations length = 1 and id is cloudintegration
   if (cpiData.runtimeLocations.length == 1 && cpiData.runtimeLocations[0].id == "cloudintegration") {
@@ -871,15 +1019,45 @@ async function setLogLevel(logLevel, iflowId) {
 function undeploy(tenant = null, artifactId = null) {
   tenant ??= cpiData.tenantId;
   artifactId ??= cpiData.artifactId;
-  makeCallPromise("POST", "/" + cpiData.urlExtension + "Operations/com.sap.it.nm.commands.deploy.DeleteContentCommand", false, null, "artifactIds=" + artifactId + "&tenantId=" + tenant, true, "application/x-www-form-urlencoded; charset=UTF-8")
-    .then((res) => {
-      showToast("Undeploy triggered");
-      log.log("Undeploy triggered");
-    })
-    .catch((e) => {
-      log.error("Error triggering undeploy");
-      showToast("Error triggering undeploy", "", "error");
-    });
+  if (cpiData.runtimeLocationWithActiveIFlow[0].id === "cloudintegration") {
+    // For Cloud Integration runtime
+    makeCallPromise(
+      "POST",
+      "/" + cpiData.urlExtension + "Operations/com.sap.it.nm.commands.deploy.DeleteContentCommand",
+      false,
+      null,
+      "artifactIds=" + artifactId + "&tenantId=" + tenant,
+      true,
+      "application/x-www-form-urlencoded; charset=UTF-8"
+    )
+      .then((res) => {
+        showToast("Undeploy triggered (Cloud Integration)");
+        log.log("Undeploy triggered (Cloud Integration)");
+      })
+      .catch((e) => {
+        log.error("Error triggering undeploy (Cloud Integration)");
+        showToast("Error triggering undeploy (Cloud Integration)", "", "error");
+      });
+  } else {
+    // For EIC runtimes
+    makeCallPromise(
+      "POST",
+      "/" + cpiData.urlExtension + "Operations/com.sap.it.nm.commands.deploy.DeleteContentCommand",
+      false,
+      null,
+      "artifactIds=" + artifactId + "&tenantId=" + tenant + "&runtimeLocationId=" + cpiData.runtimeLocationWithActiveIFlow[0].id,
+      true,
+      "application/x-www-form-urlencoded; charset=UTF-8"
+    )
+      .then((res) => {
+        showToast("Undeploy triggered (Other Runtime)");
+        log.log("Undeploy triggered (Other Runtime)");
+      })
+      .catch((e) => {
+        log.error("Error triggering undeploy (EIC Runtime)");
+        showToast("Error triggering undeploy (EIC Runtime)", "", "error");
+      });
+  }
 }
 cpiData.functions.undeploy = undeploy;
 
@@ -1744,7 +1922,24 @@ function formatDuration(durationMs) {
 async function errorPopupOpen(MessageGuid) {
   ///MessageProcessingLogRuns('AF5eUbNwAc1SeL_vdh09y4njOvwO')/RunSteps?$inlinecount=allpages&$format=json&$top=500
   var resp = await getMessageProcessingLogRuns(MessageGuid, false);
-  var customHeaders = await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')?$format=json&$expand=CustomHeaderProperties", false);
+  var customHeaders;
+  if (cpiData.runtimeLocationWithActiveIFlow[0].id === "cloudintegration") {
+    // Cloud Integration runtime
+    customHeaders = await makeCallPromise(
+      "GET",
+      "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')?$format=json&$expand=CustomHeaderProperties",
+      false
+    );
+  } else {
+    // EIC runtimes
+    customHeaders = await makeCallPromise(
+      "GET",
+      "/" + cpiData.urlExtension +
+        "location/" + cpiData.runtimeLocationWithActiveIFlow[0].id +
+        "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')?$format=json&$expand=CustomHeaderProperties",
+      false
+    );
+  }
   customHeaders = JSON.parse(customHeaders).d;
 
   //Duration
@@ -1866,7 +2061,22 @@ async function getMessageProcessingLogRuns(MessageGuid, store = true) {
     top_mode_count = (top_mode_count_flow == null && top_mode_count_flow == undefined) || top_mode_count_flow == 0 ? top_mode_count : `& $top=${parseInt(top_mode_count_flow)} `;
   }
 
-  return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store)
+  // Add support for different runtime location (Cloud Integration vs EIC)
+  let runtimeId = cpiData.runtimeLocationWithActiveIFlow && cpiData.runtimeLocationWithActiveIFlow[0]
+    ? cpiData.runtimeLocationWithActiveIFlow[0].id
+    : "cloudintegration"; // fallback
+
+  let runUrl, runStepsUrl;
+  if (runtimeId === "cloudintegration") {
+    runUrl = "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200";
+    // runStepsUrl constructed after runId is known
+  } else {
+    // For EIC or other runtimes, use the runtime location in the API endpoint
+    runUrl = "/" + cpiData.urlExtension + "location/" + runtimeId + "/odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200";
+    // runStepsUrl constructed after runId is known
+  }
+
+  return makeCallPromise("GET", runUrl, store)
     .then((responseText) => {
       var resp = JSON.parse(responseText);
       var status = resp.d.results[0].OverallState;
@@ -1878,7 +2088,12 @@ async function getMessageProcessingLogRuns(MessageGuid, store = true) {
       }
     })
     .then((runId) => {
-      return makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json" + top_mode_count, store);
+      if (runtimeId === "cloudintegration") {
+        runStepsUrl = "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json" + top_mode_count;
+      } else {
+        runStepsUrl = "/" + cpiData.urlExtension + "location/" + runtimeId + "/odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json" + top_mode_count;
+      }
+      return makeCallPromise("GET", runStepsUrl, store);
     })
     .then((response) => {
       return JSON.parse(response).d.results.filter((e) => e.StepStop != null);

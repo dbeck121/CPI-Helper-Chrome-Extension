@@ -126,26 +126,76 @@ updateLogList = async () => {
     }
 
     if (dateType == "custom") {
+      var runtimeId = cpiData.runtimeLocationWithActiveIFlow && cpiData.runtimeLocationWithActiveIFlow[0]
+        ? cpiData.runtimeLocationWithActiveIFlow[0].id
+        : "cloudintegration"; // fallback
+
+      var url;
+      if (runtimeId === "cloudintegration") {
+        url =
+          "/" +
+          cpiData.urlExtension +
+          "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" +
+          artifact +
+          "' and Status ne 'DISCARDED' " +
+          statusfilter +
+          "and LogStart ge datetime'" +
+          startDateTimeInUTC +
+          "' and LogStart le datetime'" +
+          endDateTimeInUTC +
+          "'&$top=40&$format=json&$orderby=LogEnd desc";
+      } else {
+        url =
+          "/" +
+          cpiData.urlExtension +
+          "location/" + runtimeId + "/" +
+          "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" +
+          artifact +
+          "' and Status ne 'DISCARDED' " +
+          statusfilter +
+          "and LogStart ge datetime'" +
+          startDateTimeInUTC +
+          "' and LogStart le datetime'" +
+          endDateTimeInUTC +
+          "'&$top=40&$format=json&$orderby=LogEnd desc";
+      }
+
       var response = JSON.parse(
         await makeCallPromise(
           "GET",
-          "/" +
-            cpiData.urlExtension +
-            "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" +
-            artifact +
-            "' and Status ne 'DISCARDED' " +
-            statusfilter +
-            "and LogStart ge datetime'" +
-            startDateTimeInUTC +
-            "' and LogStart le datetime'" +
-            endDateTimeInUTC +
-            "'&$top=40&$format=json&$orderby=LogEnd desc",
+          url,
           false
         )
       ).d.results;
     } else {
+      var runtimeId = cpiData.runtimeLocationWithActiveIFlow && cpiData.runtimeLocationWithActiveIFlow[0]
+        ? cpiData.runtimeLocationWithActiveIFlow[0].id
+        : "cloudintegration"; // fallback
+
+      var url;
+      if (runtimeId === "cloudintegration") {
+        url =
+          "/" +
+          cpiData.urlExtension +
+          "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" +
+          artifact +
+          "' " +
+          statusfilter +
+          "and Status ne 'DISCARDED'&$top=35&$format=json&$orderby=LogEnd desc";
+      } else {
+        url =
+          "/" +
+          cpiData.urlExtension +
+          "location/" + runtimeId + "/" +
+          "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" +
+          artifact +
+          "' " +
+          statusfilter +
+          "and Status ne 'DISCARDED'&$top=35&$format=json&$orderby=LogEnd desc";
+      }
+
       var response = JSON.parse(
-        await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + artifact + "' " + statusfilter + "and Status ne 'DISCARDED'&$top=35&$format=json&$orderby=LogEnd desc", false)
+        await makeCallPromise("GET", url, false)
       ).d.results;
     }
 
@@ -289,8 +339,17 @@ createPersistLogsContent = async (messageId) => {
       {
         label: "Log",
         content: async (input) => {
+          let runtimeId = cpiData.runtimeLocationWithActiveIFlow && cpiData.runtimeLocationWithActiveIFlow[0]
+            ? cpiData.runtimeLocationWithActiveIFlow[0].id
+            : "cloudintegration";
+          let url;
+          if (runtimeId === "cloudintegration") {
+            url = "/" + cpiData.urlExtension + "odata/api/v1/MessageStoreEntries('" + input.item + "')/$value";
+          } else {
+            url = "/" + cpiData.urlExtension + "location/" + runtimeId + "/odata/api/v1/MessageStoreEntries('" + input.item + "')/$value";
+          }
           return formatTrace(
-            await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageStoreEntries('" + input.item + "')/$value", false),
+            await makeCallPromise("GET", url, false),
             "cpiHelper_persistLogsItem" + input.item,
             null,
             `${cpiData.integrationFlowId}_persist_${input.name}_${cpiData.logEnd}`
@@ -303,7 +362,16 @@ createPersistLogsContent = async (messageId) => {
       {
         label: "Properties",
         content: async (input) => {
-          let elements = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageStoreEntries('" + input.item + "')/Properties?$format=json", true)).d.results;
+          let runtimeId = cpiData.runtimeLocationWithActiveIFlow && cpiData.runtimeLocationWithActiveIFlow[0]
+            ? cpiData.runtimeLocationWithActiveIFlow[0].id
+            : "cloudintegration";
+          let url;
+          if (runtimeId === "cloudintegration") {
+            url = "/" + cpiData.urlExtension + "odata/api/v1/MessageStoreEntries('" + input.item + "')/Properties?$format=json";
+          } else {
+            url = "/" + cpiData.urlExtension + "location/" + runtimeId + "/odata/api/v1/MessageStoreEntries('" + input.item + "')/Properties?$format=json";
+          }
+          let elements = JSON.parse(await makeCallPromise("GET", url, true)).d.results;
           return formatHeadersAndPropertiesToTable(elements);
         },
         item: input.item,
@@ -314,7 +382,16 @@ createPersistLogsContent = async (messageId) => {
     return await createTabHTML(persistTabs, "cpiHelper_persistLogs_tabs" + input.count);
   };
 
-  entriesList = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + messageId + "')/MessageStoreEntries?$format=json", false));
+  let runtimeId = cpiData.runtimeLocationWithActiveIFlow && cpiData.runtimeLocationWithActiveIFlow[0]
+    ? cpiData.runtimeLocationWithActiveIFlow[0].id
+    : "cloudintegration";
+  let entriesUrl;
+  if (runtimeId === "cloudintegration") {
+    entriesUrl = "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + messageId + "')/MessageStoreEntries?$format=json";
+  } else {
+    entriesUrl = "/" + cpiData.urlExtension + "location/" + runtimeId + "/odata/api/v1/MessageProcessingLogs('" + messageId + "')/MessageStoreEntries?$format=json";
+  }
+  entriesList = JSON.parse(await makeCallPromise("GET", entriesUrl, false));
   log.log(entriesList);
 
   var tabs = [];
@@ -453,7 +530,18 @@ createLogsInfo = async (messageId) => {
 };
 
 createRunLogsContent = async (messageId) => {
-  entriesList = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + messageId + "')/Attachments?$format=json", false));
+  
+  let runtimeId = cpiData.runtimeLocationWithActiveIFlow && cpiData.runtimeLocationWithActiveIFlow[0]
+    ? cpiData.runtimeLocationWithActiveIFlow[0].id
+    : "cloudintegration";
+
+  let attachmentsUrl;
+  if (runtimeId === "cloudintegration") {
+    attachmentsUrl = "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + messageId + "')/Attachments?$format=json";
+  } else {
+    attachmentsUrl = "/" + cpiData.urlExtension + "location/" + runtimeId + "/odata/api/v1/MessageProcessingLogs('" + messageId + "')/Attachments?$format=json";
+  }
+  entriesList = JSON.parse(await makeCallPromise("GET", attachmentsUrl, false));
   log.log(entriesList);
 
   var tabs = [];
@@ -464,7 +552,13 @@ createRunLogsContent = async (messageId) => {
     tabs.push({
       label: item.Name,
       content: async (input) => {
-        return formatTrace(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogAttachments('" + input.item + "')/$value", false), "cpiHelper_runLogsItem" + input.item);
+        let downloadUrl;
+        if (runtimeId === "cloudintegration") {
+          downloadUrl = "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogAttachments('" + input.item + "')/$value";
+        } else {
+          downloadUrl = "/" + cpiData.urlExtension + "location/" + runtimeId + "/odata/api/v1/MessageProcessingLogAttachments('" + input.item + "')/$value";
+        }
+        return formatTrace(await makeCallPromise("GET", downloadUrl, false), "cpiHelper_runLogsItem" + input.item);
       },
       item: item.Id,
       active,
