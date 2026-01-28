@@ -1058,8 +1058,8 @@ function undeploy(tenant = null, artifactId = null) {
       "application/x-www-form-urlencoded; charset=UTF-8"
     )
       .then((res) => {
-        showToast("Undeploy triggered (Other Runtime)");
-        log.log("Undeploy triggered (Other Runtime)");
+        showToast("Undeploy triggered (EIC Runtime)");
+        log.log("Undeploy triggered (EIC Runtime)");
       })
       .catch((e) => {
         log.error("Error triggering undeploy (EIC Runtime)");
