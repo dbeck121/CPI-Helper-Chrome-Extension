@@ -22,7 +22,7 @@ var plugin = {
       // Get data for table
       // Order by LogStart so we know in what order it started
       const urlForPathData = `/${pluginHelper.urlExtension}odata/api/v1/MessageProcessingLogs?$format=json&$filter=CorrelationId eq '${dataOfCurrentMessage[0].CorrelationId}'&$orderby=LogStart`;
-      var dataForTable = JSON.parse(await makeCallPromise("GET", urlForPathData, false)).d.results;
+      var dataForTable = JSON.parse(await makeCallPromise("GET", encodeURI(urlForPathData), false)).d.results;
 
       // Popup
       var popupContent = document.createElement("div");
