@@ -10,6 +10,7 @@ cpiData.messageSidebar.lastMessageHashList = [];
 cpiData.integrationFlowId = "";
 cpiData.tenant = document.location.host;
 cpiData.urlExtension = "";
+cpiData.runtimePathExtension = "";
 cpiData.classicUrl = false;
 cpiData.functions = {};
 cpiData.functions["popup"] = showBigPopup;
@@ -131,6 +132,7 @@ async function renderMessageSidebar() {
       "GET",
       "/" +
         cpiData.urlExtension +
+        cpiData.runtimePathExtension +
         "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" +
         iflowId +
         "' and LogStart gt datetime'" +
@@ -1109,8 +1111,7 @@ async function buildButtonBar() {
       const item = e.target.closest(".__trace_dropdown_item");
       if (item) {
         const locationId = item.getAttribute("data-location-id");
-        cpiData.runtimeLocationId = locationId;
-        log.debug(`Runtime location changed to: ${cpiData.runtimeLocationId}`);
+        setRuntimeLocation(locationId);
 
         // Update visual selection
         updateRuntimeLocationDropdown();
@@ -1304,7 +1305,7 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
     cpiData.version = detail?.artifactInformation?.version;
 
     if (!cpiData.runtimeLocationId) {
-      cpiData.runtimeLocationId = cpiData.runtimeLocationWithActiveIFlow[0].id;
+      setRuntimeLocation(cpiData.runtimeLocationWithActiveIFlow[0].id);
     }
 
     // Update runtime location dropdown if it exists
@@ -1317,6 +1318,16 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
     log.error("Error getting Iflow Info: ", error);
     if (!silent) showToast("Error: " + JSON.stringify(error));
   }
+}
+
+function setRuntimeLocation(locationId) {
+  cpiData.runtimeLocationId = locationId;
+  if (locationId != "cloudintegration") {
+    cpiData.runtimePathExtension = `location/${locationId}/`;
+  } else {
+    cpiData.runtimePathExtension = "";
+  }
+  log.debug(`Runtime location set to: ${cpiData.runtimeLocationId}`);
 }
 
 async function getIflowInfoNeo(callback, silent = false, cache = true) {
