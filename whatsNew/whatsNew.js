@@ -219,7 +219,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
       iconInButton: "checkmark",
       callback: () => {
         $("#cpiHelper_whatsnew_tabs .item").tab({
-          context: $("#cpiHelper_bigPopup_content_semanticui")
+          context: $("#cpiHelper_bigPopup_content_semanticui"),
         });
         $(".cpihelper83782").popup({
           inline: true,
