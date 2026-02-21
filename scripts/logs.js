@@ -131,6 +131,7 @@ updateLogList = async () => {
           "GET",
           "/" +
             cpiData.urlExtension +
+            cpiData.runtimePathExtension +
             "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" +
             artifact +
             "' and Status ne 'DISCARDED' " +
@@ -145,7 +146,11 @@ updateLogList = async () => {
       ).d.results;
     } else {
       var response = JSON.parse(
-        await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + artifact + "' " + statusfilter + "and Status ne 'DISCARDED'&$top=35&$format=json&$orderby=LogEnd desc", false)
+        await makeCallPromise(
+          "GET",
+          "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/MessageProcessingLogs?$filter=IntegrationFlowName eq '" + artifact + "' " + statusfilter + "and Status ne 'DISCARDED'&$top=35&$format=json&$orderby=LogEnd desc",
+          false
+        )
       ).d.results;
     }
 
@@ -314,7 +319,7 @@ createPersistLogsContent = async (messageId) => {
     return await createTabHTML(persistTabs, "cpiHelper_persistLogs_tabs" + input.count);
   };
 
-  entriesList = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + messageId + "')/MessageStoreEntries?$format=json", false));
+  entriesList = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/MessageProcessingLogs('" + messageId + "')/MessageStoreEntries?$format=json", false));
   log.log(entriesList);
 
   var tabs = [];
@@ -349,7 +354,9 @@ createPersistLogsContent = async (messageId) => {
 
 createLogsInfo = async (messageId) => {
   try {
-    var input = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + messageId + "')?$format=json&$expand=CustomHeaderProperties", false, null, null, false, null, false)).d;
+    var input = JSON.parse(
+      await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/MessageProcessingLogs('" + messageId + "')?$format=json&$expand=CustomHeaderProperties", false, null, null, false, null, false)
+    ).d;
   } catch (error) {
     log.log(error);
     showToast("Check input data.", "Error while fetching logs. Message ID not found.", "error");
@@ -453,7 +460,7 @@ createLogsInfo = async (messageId) => {
 };
 
 createRunLogsContent = async (messageId) => {
-  entriesList = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + messageId + "')/Attachments?$format=json", false));
+  entriesList = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/MessageProcessingLogs('" + messageId + "')/Attachments?$format=json", false));
   log.log(entriesList);
 
   var tabs = [];
@@ -464,7 +471,7 @@ createRunLogsContent = async (messageId) => {
     tabs.push({
       label: item.Name,
       content: async (input) => {
-        return formatTrace(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogAttachments('" + input.item + "')/$value", false), "cpiHelper_runLogsItem" + input.item);
+        return formatTrace(await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/MessageProcessingLogAttachments('" + input.item + "')/$value", false), "cpiHelper_runLogsItem" + input.item);
       },
       item: item.Id,
       active,

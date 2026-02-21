@@ -84,6 +84,7 @@
         "/whatsNew/whatsNew.js",
         "/scripts/plugins.js",
         "/scripts/Mode-Script.js",
+        "/scripts/inline-trace.js",
         "/scripts/contentScript.js"
       ],
       "css": [
