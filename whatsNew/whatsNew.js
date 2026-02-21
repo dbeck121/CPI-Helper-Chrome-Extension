@@ -69,28 +69,29 @@ async function whatsNewCheck(showOnlyOnce = true) {
             <a class="item" data-tab="three">About</a>
             <a class="item" data-tab="four">Devtoberfest</a>
         </div>
-        <div class="ui bottom attached tab segment" data-tab="one">
-            <div class="ui segment">
+        <div class="ui bottom attached tab segment active" data-tab="one">
+            <div class="ui segment" style="overflow: hidden;">
                 <div class="ui grid">
                     <div class="four wide column">
                         <a href="https://figaf.com/cpihelper-and-figaf" target="_blank"><img
-                                class="ui big left floated image" src="${FIGAF_IMG}"></a>
+                                class="ui big image" style="float: left; margin-right: 20px;" src="${FIGAF_IMG}"></a>
                     </div>
                     <div class="twelve wide column">
   
      <div class="ui header">This release is sponsored by Figaf </div>
-  
-Mainstream maintenance for SAP PI/PO ends in 2027, and the window to plan, prepare, test, and execute your migration to SAP Integration Suite is closing fast.
 
-<br>You may think you still have time, but you don’t. Waiting too long increases risk, reduces available time and resources, and ultimately leads to a rushed project.
-
-<br><br>If you haven’t started yet, now is the time. Kick off your migration with the Figaf Migration Edition — the smart way to begin your journey today.
+<p>If you want to improve the operation of your Edge Integration Cell, Figaf can help you with more information, including:</p>
+<div class="ui bulleted list">
+  <div class="item">Deploy/undeploy iFlows and dependent objects</div>
+  <div class="item">Handle transport of iFlows</div>
+  <div class="item">Test all your EIC iFlows as in normal operation</div>
+  <div class="item">Monitor and alerting also on Edge</div>
+</div>
 
                     </div>
                      <div class="sixteen wide column" style="paddingTop: '0px'">
                
-<a href="https://figaf.com/cpihelper24" target="_blank"><u>Read more</u></a> about Figaf and start your migration the right way!</div>
-                </div>
+<a href="https://figaf.com/cpihelper25" target="_blank"><u>Read more</u></a> about Figaf and start the right way!</div>
                 </div>
             </div>
             <h3 class="ui header">
@@ -170,7 +171,7 @@ Mainstream maintenance for SAP PI/PO ends in 2027, and the window to plan, prepa
     onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Youtube</a>.</p>
           <p>Please be patient if something isn't working perfectly, as SAP doesn't collaborate with us or inform us of API changes. We work on this project in our free time, so adapting to SAP's updates can sometimes take a while.</p>
         </div>
-        <div class="ui bottom attached tab segment active" data-tab="three">
+        <div class="ui bottom attached tab segment" data-tab="three">
             <h3 class="ui header">
                 <a href="https://www.linkedin.com/company/kangoolutions" target="_blank"><i class="linkedin icon"></i></a>
                 <div class="content">
@@ -205,7 +206,7 @@ Mainstream maintenance for SAP PI/PO ends in 2027, and the window to plan, prepa
             </div>
             <div>Created by: Dominic Beckbauer and Kangoolutions.com</div>
         </div>
-        <div class="ui bottom attached tab segment active" data-tab="four">
+        <div class="ui bottom attached tab segment" data-tab="four">
             ${devtoberfest}
         </div>
     </div>`;
@@ -217,7 +218,9 @@ Mainstream maintenance for SAP PI/PO ends in 2027, and the window to plan, prepa
       closeText: "OK",
       iconInButton: "checkmark",
       callback: () => {
-        $(".menu .item").tab();
+        $("#cpiHelper_whatsnew_tabs .item").tab({
+          context: $("#cpiHelper_bigPopup_content_semanticui")
+        });
         $(".cpihelper83782").popup({
           inline: true,
           hoverable: true,
