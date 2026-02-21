@@ -774,22 +774,27 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
     }
 
     for (const loc of cpiData.runtimeLocations) {
-      const locIdParam = "?runtimeLocationId=" + loc.id;
-      const resp = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand" + locIdParam, cacheValue, null, null, null, null, !silent);
-      const respJson = new XmlToJson().parse(resp)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
-      const artifact = Array.isArray(respJson.artifactInformations)
-        ? respJson.artifactInformations.find((e) => e.symbolicName == cpiData.integrationFlowId)
-        : respJson.artifactInformations?.symbolicName == cpiData.integrationFlowId
-          ? respJson.artifactInformations
-          : null;
-      if (artifact) {
-        cpiData.runtimeLocationWithActiveIFlow.push({
-          id: loc.id,
-          state: loc.state,
-          type: loc.type,
-          typeId: loc.typeId,
-          artifact: artifact,
-        });
+      try {
+        const locIdParam = "?runtimeLocationId=" + loc.id;
+        const resp = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand" + locIdParam, cacheValue, null, null, null, null, !silent);
+        const respJson = new XmlToJson().parse(resp)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
+        const artifact = Array.isArray(respJson.artifactInformations)
+          ? respJson.artifactInformations.find((e) => e.symbolicName == cpiData.integrationFlowId)
+          : respJson.artifactInformations?.symbolicName == cpiData.integrationFlowId
+            ? respJson.artifactInformations
+            : null;
+        if (artifact) {
+          cpiData.runtimeLocationWithActiveIFlow.push({
+            id: loc.id,
+            state: loc.state,
+            type: loc.type,
+            typeId: loc.typeId,
+            artifact: artifact,
+          });
+        }
+      } catch (locError) {
+        log.warn("Error fetching runtime location " + loc.id + ": ", locError);
+        continue;
       }
     }
 
@@ -798,24 +803,29 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
     }
 
     for (const loc of cpiData.runtimeLocationWithActiveIFlow) {
-      // 4. Detaildaten holen
-      const detailResp = await makeCallPromise(
-        "GET",
-        "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + cpiData.runtimeLocationWithActiveIFlow[0].artifact.id + "&runtimeLocationId=" + loc.id,
-        90,
-        "application/json",
-        null,
-        null,
-        null,
-        !silent
-      );
-      const detail = JSON.parse(detailResp);
+      try {
+        // 4. Detaildaten holen
+        const detailResp = await makeCallPromise(
+          "GET",
+          "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + loc.artifact.id + "&runtimeLocationId=" + loc.id,
+          90,
+          "application/json",
+          null,
+          null,
+          null,
+          !silent
+        );
+        const detail = JSON.parse(detailResp);
 
-      loc["detail"] = detail;
-      loc["artifact"] = detail.artifactInformation;
-      loc["artifactId"] = detail.artifactInformation?.id;
-      loc["tenantId"] = detail.artifactInformation?.tenantId;
-      loc["version"] = detail.artifactInformation?.version;
+        loc["detail"] = detail;
+        loc["artifact"] = detail.artifactInformation;
+        loc["artifactId"] = detail.artifactInformation?.id;
+        loc["tenantId"] = detail.artifactInformation?.tenantId;
+        loc["version"] = detail.artifactInformation?.version;
+      } catch (detailError) {
+        log.warn("Error fetching detail for location " + loc.id + ": ", detailError);
+        continue;
+      }
     }
 
     const detail = cpiData.runtimeLocationWithActiveIFlow[0].detail;
