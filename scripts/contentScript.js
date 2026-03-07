@@ -52,7 +52,7 @@ var getLogsTimer;
 var activeInlineItem;
 
 //fill the message sidebar
-var lastResponses = [];
+var lastMessageResponses = [];
 function getLastCompletedLogStart() {
   const date = new Date();
   date.setMonth(date.getMonth() - 1);
@@ -115,11 +115,11 @@ async function renderMessageSidebar() {
     resp = JSON.parse(responseText);
 
     const newMessageGuids = new Set(resp.d.results.map((item) => item.MessageGuid));
-    const filteredLastResponses = lastResponses.filter((item) => !newMessageGuids.has(item.MessageGuid));
+    const filteredlastMessageResponses = lastMessageResponses.filter((item) => !newMessageGuids.has(item.MessageGuid));
 
     // Combine arrays without duplicates
-    resp = [...resp.d.results, ...filteredLastResponses].slice(0, numberEntries);
-    lastResponses = resp;
+    resp = [...resp.d.results, ...filteredlastMessageResponses].slice(0, numberEntries);
+    lastMessageResponses = resp;
   } catch (e) {
     log.error("There was a faulty message from CI-API. CPI Helper will ignore it: " + e);
   }
@@ -876,6 +876,16 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
 }
 
 function setRuntimeLocation(location, silent = false) {
+  change = false;
+  //check if this is a change of runtime location
+  if (cpiData.runtimeLocationId && cpiData.runtimeLocationId !== location.id) {
+    change = true;
+    log.debug(`Runtime location switched to: ${location.id}`);
+    lastCompletedLogStart = getLastCompletedLogStart();
+    cpiData.messageSidebar.lastMessageHashList = [];
+    lastMessageResponses = [];
+  }
+
   cpiData.runtimeLocationId = location.id;
   if (location.id != "cloudintegration") {
     cpiData.runtimePathExtension = `location/${location.id}/`;
@@ -902,7 +912,9 @@ function setRuntimeLocation(location, silent = false) {
       } else {
         updatedTextElem.innerHTML = "Update: Wait for refresh";
       }
-      renderMessageSidebar();
+      if (change) {
+        renderMessageSidebar();
+      }
     }
   } catch (e) {
     // ignore if DOM not available
@@ -1386,7 +1398,8 @@ async function handleUrlChange() {
   await refreshPowerTrace();
 
   // Reset message sidebar data when URL changes
-  lastResponses = [];
+
+  lastMessageResponses = [];
   lastCompletedLogStart = getLastCompletedLogStart();
 
   getPackageId();
