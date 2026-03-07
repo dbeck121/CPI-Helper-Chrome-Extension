@@ -90,8 +90,9 @@ async function renderMessageSidebar() {
   await getIflowInfo((data) => {
     let deploymentText = document.getElementById("deploymentText");
     if (deploymentText) {
-      let statusColor = getStatusColorCode(cpiData?.flowData?.artifactInformation?.deployState);
-      deploymentText.innerHTML = `<span style="color:${statusColor}">${cpiData?.flowData?.artifactInformation?.deployState}</span>`;
+      let deployState = cpiData?.flowData?.artifactInformation?.deployState || "Unknown";
+      let statusColor = getStatusColorCode(deployState);
+      deploymentText.innerHTML = `<span style="color:${statusColor}">${deployState}</span>`;
     }
   }, true);
 
@@ -128,7 +129,7 @@ async function renderMessageSidebar() {
   let updatedText = document.getElementById("cpiHelper_sidebar_refresh_text");
 
   if (updatedText) {
-    if (cpiData.runtimeLocationId && cpiData.runtimeLocationId !== "cloudintegration" && cpiData.runtimeLocationWithActiveIFlow.length == 1) {
+    if (cpiData.runtimeLocationId && cpiData.runtimeLocationId !== "cloudintegration" && cpiData.runtimeLocationId !== "undefined" && cpiData.runtimeLocationWithActiveIFlow && cpiData.runtimeLocationWithActiveIFlow.length == 1) {
       updatedText.innerHTML = "Runtime: " + cpiData.runtimeLocationId + "<br>Update: " + new Date().toLocaleTimeString("de-DE");
     } else {
       // hide runtime info when only cloudintegration is available
@@ -903,11 +904,16 @@ function setRuntimeLocation(location, silent = false) {
 
   log.debug(`Runtime location set to: ${cpiData.runtimeLocationId}`);
 
+  if (!change) {
+    //do not update if runtime location is the same, to avoid unnecessary refreshes
+    return;
+  }
+
   // update sidebar runtime info if sidebar is active
   try {
     const updatedTextElem = document.getElementById("cpiHelper_sidebar_refresh_text");
     if (updatedTextElem) {
-      if (cpiData.runtimeLocationId && cpiData.runtimeLocationId !== "cloudintegration" && cpiData.runtimeLocationWithActiveIFlow.length > 1) {
+      if (cpiData.runtimeLocationId && cpiData.runtimeLocationId !== "cloudintegration" && cpiData.runtimeLocationId !== "undefined" && cpiData.runtimeLocationWithActiveIFlow && cpiData.runtimeLocationWithActiveIFlow.length > 1) {
         updatedTextElem.innerHTML = "Runtime: " + cpiData.runtimeLocationId + "<br>Update: Wait for refresh";
       } else {
         updatedTextElem.innerHTML = "Update: Wait for refresh";

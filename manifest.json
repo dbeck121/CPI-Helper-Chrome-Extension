@@ -28,10 +28,8 @@
         "https://*.hana.ondemand.com/*"
       ],
       "include_globs": [
-        "https://*.hana.ondemand.com/itspaces/*",
-        "https://*.platform.sapcloud.cn/itspaces/*",
-        "https://*.hana.ondemand.com/shell/*",
-        "https://*.platform.sapcloud.cn/shell/*",
+        "https://*.hana.ondemand.com/*",
+        "https://*.platform.sapcloud.cn/*",
         "https://*.integrationsuite.cfapps.*.hana.ondemand.com/*",
         "https://?????-tmn.hci.*.hana.ondemand.com/*"
       ],
