@@ -127,7 +127,14 @@ async function renderMessageSidebar() {
 
   let updatedText = document.getElementById("cpiHelper_sidebar_refresh_text");
 
-  updatedText.innerHTML = "Runtime: " + (cpiData.runtimeLocationId || "none") + "<br>Update: " + new Date().toLocaleTimeString("de-DE");
+  if (updatedText) {
+    if (cpiData.runtimeLocationId && cpiData.runtimeLocationId !== "cloudintegration" && cpiData.runtimeLocationWithActiveIFlow.length == 1) {
+      updatedText.innerHTML = "Runtime: " + cpiData.runtimeLocationId + "<br>Update: " + new Date().toLocaleTimeString("de-DE");
+    } else {
+      // hide runtime info when only cloudintegration is available
+      updatedText.innerHTML = "Update: " + new Date().toLocaleTimeString("de-DE");
+    }
+  }
 
   // Refresh-Button Event
   const refreshBtn = document.getElementById("cpiHelper_sidebar_refresh_icon");
@@ -609,18 +616,21 @@ async function buildButtonBar() {
     //   });
 
     //create div for better alignment of runtime button
-    var runtimeButtonDiv = document.createElement("div");
+    var buttonbarDiv = document.createElement("div");
+    // ensure the container sits above other elements and is positioned for its dropdowns
+    buttonbarDiv.style.position = "relative";
+    buttonbarDiv.style.zIndex = "4";
 
-    //runtimeButtonDiv.appendChild(breakLine);
-    runtimeButtonDiv.appendChild(moreButton);
+    //buttonbarDiv.appendChild(breakLine);
+    buttonbarDiv.appendChild(moreButton);
     if (runtimeButtonContainer) {
-      runtimeButtonDiv.appendChild(runtimeButtonContainer);
+      buttonbarDiv.appendChild(runtimeButtonContainer);
     }
-    runtimeButtonDiv.appendChild(infobutton);
-    runtimeButtonDiv.appendChild(messagebutton);
-    runtimeButtonDiv.appendChild(tracebutton);
+    buttonbarDiv.appendChild(infobutton);
+    buttonbarDiv.appendChild(messagebutton);
+    buttonbarDiv.appendChild(tracebutton);
 
-    area.appendChild(runtimeButtonDiv);
+    area.appendChild(buttonbarDiv);
 
     // Append dropdown to body to avoid clipping or relative positioning issues
     document.body.appendChild(moreDropdownMenu);
@@ -882,6 +892,23 @@ function setRuntimeLocation(location, silent = false) {
   cpiData.version = detail?.artifactInformation?.version;
 
   log.debug(`Runtime location set to: ${cpiData.runtimeLocationId}`);
+
+  // update sidebar runtime info if sidebar is active
+  try {
+    const updatedTextElem = document.getElementById("cpiHelper_sidebar_refresh_text");
+    if (updatedTextElem) {
+      if (cpiData.runtimeLocationId && cpiData.runtimeLocationId !== "cloudintegration" && cpiData.runtimeLocationWithActiveIFlow.length > 1) {
+        updatedTextElem.innerHTML = "Runtime: " + cpiData.runtimeLocationId + "<br>Update: Wait for refresh";
+      } else {
+        updatedTextElem.innerHTML = "Update: Wait for refresh";
+      }
+      renderMessageSidebar();
+    }
+  } catch (e) {
+    // ignore if DOM not available
+    log.debug("sidebar runtime text update failed", e);
+  }
+
   if (!silent) {
     showToast(`Runtime location set to: ${cpiData.runtimeLocationId}`, "info");
   }
