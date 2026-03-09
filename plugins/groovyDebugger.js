@@ -15,24 +15,6 @@ if (!window.groovyDebugSendToIDE) {
     const ideUrl = ideSelection === "custom" ? customUrl.trim() || "https://groovyide.com/cpi/share/v1/" : ideSelection === "contiva" ? "https://ide.contiva.com/cpi/script/debug" : ideSelection;
     const domain = new URL(ideUrl).hostname;
 
-    // Load saved user preferences for checkbox states using plugin settings
-    const loadTransferPreferences = async () => {
-      const body = (await getStorageValue("groovyDebugger", "transferBody", "browser")) ?? true;
-      const script = (await getStorageValue("groovyDebugger", "transferScript", "browser")) ?? true;
-      const properties = (await getStorageValue("groovyDebugger", "transferProperties", "browser")) ?? false;
-      const headers = (await getStorageValue("groovyDebugger", "transferHeaders", "browser")) ?? false;
-
-      return {
-        body: body,
-        script: script,
-        properties: properties,
-        headers: headers,
-      };
-    };
-
-    // Load saved user preferences for checkbox states
-    const userPreferences = await loadTransferPreferences();
-
     // Create custom confirmation popup
     const popupContent = `
       <div class="ui warning message">
@@ -49,26 +31,26 @@ if (!window.groovyDebugSendToIDE) {
         <div class="ui form">
           <div class="grouped fields">
             <div class="field">
-              <div class="ui checkbox" id="transfer-body">
-                <input type="checkbox" name="transfer-body" ${userPreferences.body ? "checked" : ""}>
+              <div class="ui checkbox checked" id="transfer-body">
+                <input type="checkbox" name="transfer-body" checked>
                 <label>Message Body <em>(may contain sensitive data)</em></label>
               </div>
             </div>
             <div class="field">
-              <div class="ui checkbox" id="transfer-script">
-                <input type="checkbox" name="transfer-script" ${userPreferences.script ? "checked" : ""}>
+              <div class="ui checkbox checked" id="transfer-script">
+                <input type="checkbox" name="transfer-script" checked>
                 <label>Groovy Script <em>(source code)</em></label>
               </div>
             </div>
             <div class="field">
               <div class="ui checkbox" id="transfer-properties">
-                <input type="checkbox" name="transfer-properties" ${userPreferences.properties ? "checked" : ""}>
+                <input type="checkbox" name="transfer-properties">
                 <label>Properties <em>(may contain configuration data)</em></label>
               </div>
             </div>
             <div class="field">
               <div class="ui checkbox" id="transfer-headers">
-                <input type="checkbox" name="transfer-headers" ${userPreferences.headers ? "checked" : ""}>
+                <input type="checkbox" name="transfer-headers">
                 <label>Headers <em>(may contain security & metadata)</em></label>
               </div>
             </div>
@@ -81,8 +63,16 @@ if (!window.groovyDebugSendToIDE) {
       fullscreen: false,
       large: false,
       callback: () => {
-        // Initialize Semantic UI checkboxes so they render as styled ticks, not plain boxes
-        $("#cpiHelper_semanticui_modal .ui.checkbox").checkbox();
+        // Semantic UI checkboxes in this extension work via CSS only.
+        // Toggle the 'checked' class on the wrapper div on click, and sync to the native input.
+        $("#cpiHelper_semanticui_modal .ui.checkbox").on("click", function () {
+          const $wrapper = $(this);
+          const $input = $wrapper.find("input");
+          const nowChecked = !$input.prop("checked");
+          $input.prop("checked", nowChecked);
+          $wrapper.toggleClass("checked", nowChecked);
+          updateContinueButton();
+        });
 
         // Add custom buttons to the actions div
         let actionsDiv = $("#cpiHelper_semanticui_modal .actions");
@@ -98,23 +88,13 @@ if (!window.groovyDebugSendToIDE) {
         // Continue button
         let continueBtn = $('<div class="ui positive button"><i class="rocket icon"></i>Continue</div>');
 
-        // Function to check if any checkbox is selected and enable/disable continue button
+        // Enable/disable Continue based on whether any checkbox is checked
         const updateContinueButton = () => {
-          const anyChecked = $("#transfer-body input").is(":checked") || $("#transfer-properties input").is(":checked") || $("#transfer-headers input").is(":checked") || $("#transfer-script input").is(":checked");
-
-          if (anyChecked) {
-            continueBtn.removeClass("disabled");
-            continueBtn.prop("disabled", false);
-          } else {
-            continueBtn.addClass("disabled");
-            continueBtn.prop("disabled", true);
-          }
+          const anyChecked = $("#transfer-body input").prop("checked") || $("#transfer-properties input").prop("checked") || $("#transfer-headers input").prop("checked") || $("#transfer-script input").prop("checked");
+          continueBtn.toggleClass("disabled", !anyChecked).prop("disabled", !anyChecked);
         };
 
-        // Add event listeners to all checkboxes to update continue button state
-        $("#transfer-body input, #transfer-properties input, #transfer-headers input, #transfer-script input").on("change", updateContinueButton);
-
-        // Initial check
+        // Initial state (body + script pre-checked so Continue starts enabled)
         updateContinueButton();
 
         continueBtn.on("click", async () => {
@@ -125,12 +105,6 @@ if (!window.groovyDebugSendToIDE) {
             headers: $("#transfer-headers input").is(":checked"),
             script: $("#transfer-script input").is(":checked"),
           };
-
-          // Save user preferences for next time using plugin settings
-          await syncChromeStoragePromise(getStoragePath("groovyDebugger", "transferBody", "browser"), transferOptions.body);
-          await syncChromeStoragePromise(getStoragePath("groovyDebugger", "transferScript", "browser"), transferOptions.script);
-          await syncChromeStoragePromise(getStoragePath("groovyDebugger", "transferProperties", "browser"), transferOptions.properties);
-          await syncChromeStoragePromise(getStoragePath("groovyDebugger", "transferHeaders", "browser"), transferOptions.headers);
 
           $("#cpiHelper_semanticui_modal").modal("hide");
           const debugData = window.currentGroovyDebugData;
@@ -214,21 +188,17 @@ var plugin = {
 
       // Get artifactId directly via API call
       const artifactId = await getArtifactIdDirectly();
-      console.log("Direct API call artifactId:", artifactId);
+      log.log("Groovy Debugger: artifactId=" + artifactId);
 
-      //console.log(pluginHelper);
-      //console.log(runInfo);
+      if (!artifactId) {
+        showToast("Could not fetch iFlow structure - make sure you're on an integration flow page", "Groovy Debugger", "Error");
+        return;
+      }
 
       showWaitingPopup("Fetching iFlow data, trace information and highlighting Groovy steps with data...", "ui blue");
 
       try {
         const iFlowUrl = "https://" + pluginHelper.tenant + "/api/1.0/iflows/" + artifactId;
-
-        if (!artifactId) {
-          $("#cpiHelper_waiting_model").modal("hide");
-          showToast("Could not fetch iFlow structure - make sure you're on an integration flow page", "Groovy Debugger", "Error");
-          return;
-        }
 
         // Fetch the iFlow JSON structure
         const response = await fetch(iFlowUrl);
@@ -236,7 +206,6 @@ var plugin = {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const iFlowData = await response.json();
-        //console.log(iFlowData);
 
         // Extract groovy script elements
         const groovyElements = extractGroovyElements(iFlowData);
@@ -253,8 +222,8 @@ var plugin = {
         resetGroovyHighlighting();
 
         // Get trace elements to identify which groovy steps have been executed
-        const logRuns = await createInlineTraceElements(runInfo.messageGuid, false);
-        if (!logRuns || !inlineTraceElements?.length) {
+        await createInlineTraceElements(runInfo.messageGuid, false);
+        if (!inlineTraceElements?.length) {
           $("#cpiHelper_waiting_model").modal("hide");
           showToast("No trace data found for this message", "Groovy Debugger", "Warning");
           return;
@@ -333,20 +302,20 @@ function resetGroovyHighlighting() {
  */
 async function getArtifactIdDirectly() {
   try {
+    // Both Neo and CF share the same list-fetch — only the return value differs
+    const listResponse = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", false, null, null, null, null, true);
+    const listData = new XmlToJson().parse(listResponse)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
+    const artifact = Array.isArray(listData.artifactInformations)
+      ? listData.artifactInformations.find((e) => e.symbolicName === cpiData.integrationFlowId)
+      : listData.artifactInformations?.symbolicName === cpiData.integrationFlowId
+        ? listData.artifactInformations
+        : null;
+
+    if (!artifact) {
+      throw new Error("Integration Flow not found in list");
+    }
+
     if (cpiData.cpiPlatform === "neo") {
-      // For Neo platform
-      const listResponse = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", false, null, null, null, null, true);
-      const listData = new XmlToJson().parse(listResponse)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
-      const artifact = Array.isArray(listData.artifactInformations)
-        ? listData.artifactInformations.find((e) => e.symbolicName === cpiData.integrationFlowId)
-        : listData.artifactInformations?.symbolicName === cpiData.integrationFlowId
-          ? listData.artifactInformations
-          : null;
-
-      if (!artifact) {
-        throw new Error("Integration Flow not found in list");
-      }
-
       const detailResponse = await makeCallPromise(
         "GET",
         "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + artifact.id,
@@ -357,25 +326,11 @@ async function getArtifactIdDirectly() {
         null,
         true
       );
-      const detailData = JSON.parse(detailResponse);
-
-      return detailData.artifactInformation.id;
-    } else {
-      // For CF platform - simplified version
-      const listResponse = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", false, null, null, null, null, true);
-      const listData = new XmlToJson().parse(listResponse)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
-      const artifact = Array.isArray(listData.artifactInformations)
-        ? listData.artifactInformations.find((e) => e.symbolicName === cpiData.integrationFlowId)
-        : listData.artifactInformations?.symbolicName === cpiData.integrationFlowId
-          ? listData.artifactInformations
-          : null;
-
-      if (!artifact) {
-        throw new Error("Integration Flow not found in list");
-      }
-
-      return artifact.id; // For CF, the artifact id from list might be sufficient
+      return JSON.parse(detailResponse).artifactInformation.id;
     }
+
+    // CF platform — artifact id from list is sufficient
+    return artifact.id;
   } catch (error) {
     log.error("Error getting artifactId directly:", error);
     throw error;
@@ -725,7 +680,7 @@ function formatLogContent(inputList) {
   inputList = inputList.sort(function (a, b) {
     return a.Name.toLowerCase() > b.Name.toLowerCase() ? 1 : -1;
   });
-  result = `<table class='ui basic striped selectable compact table'>
+  let result = `<table class='ui basic striped selectable compact table'>
   <thead><tr class="blue"><th>Name</th><th>Value</th></tr></thead>
   <tbody>`;
   inputList.forEach((item) => {
@@ -750,7 +705,7 @@ function formatLogContent(inputList) {
  * @returns {string} HTML table string containing formatted execution information
  */
 function formatInfoContent(inputList) {
-  valueList = [];
+  const valueList = [];
 
   var stepStart = new Date(parseInt(inputList.StepStart.substr(6, 13)));
   stepStart.setTime(stepStart.getTime() - stepStart.getTimezoneOffset() * 60 * 1000);
@@ -791,7 +746,7 @@ function formatInfoContent(inputList) {
 
   valueList.push({ Name: "ChildCount", Value: inputList.ChildCount });
 
-  result = `<table class='ui basic striped selectable compact table'><thead><tr class="blue"><th>Name</th><th>Value</th></tr></thead>
+  let result = `<table class='ui basic striped selectable compact table'><thead><tr class="blue"><th>Name</th><th>Value</th></tr></thead>
   <tbody>`;
   valueList.forEach((item) => {
     result += "<tr><td>" + item.Name + '</td><td style="word-break: break-all;">' + item.Value + "</td></tr>";
@@ -801,11 +756,86 @@ function formatInfoContent(inputList) {
 }
 
 /**
+ * Resolves the full script fetch URL from scriptInfo, handling v2 path variants.
+ * @function resolveScriptUrl
+ * @param {Object} scriptInfo - Script metadata
+ * @returns {string|null} Full URL to fetch the script, or null if unavailable
+ */
+function resolveScriptUrl(scriptInfo) {
+  if (!scriptInfo?.scriptPath) return null;
+  let scriptPath = scriptInfo.scriptPath;
+  const isV2Path = scriptPath.includes("/v2/");
+  const versionParam = isV2Path ? "?scriptVersion=v2" : "";
+  scriptPath = isV2Path ? scriptPath.replace("/script/v2/", "/") : scriptPath.replace(/^\/script\//, "/");
+  return `https://${scriptInfo.tenant}/api/1.0/iflows/${scriptInfo.artifactId}/script/${scriptPath}${versionParam}`;
+}
+
+/**
+ * Gathers and lazy-fetches all transfer data (script, payload, headers, properties)
+ * based on the transfer options selected by the user.
+ * @async
+ * @function resolveTransferData
+ * @param {Object} debugData - Complete debug data object
+ * @param {Object} transferOptions - Which data types to transfer
+ * @returns {Promise<{groovyScript: string, payload: string, headers: Object, properties: Object}>}
+ */
+async function resolveTransferData(debugData, transferOptions) {
+  let groovyScript = "";
+  if (transferOptions.script) {
+    groovyScript = debugData.groovyScript || "";
+    if (groovyScript === "// Script content not available") {
+      const scriptUrl = resolveScriptUrl(debugData.scriptInfo);
+      if (scriptUrl) {
+        try {
+          const scriptResponse = await fetch(scriptUrl);
+          const scriptData = await scriptResponse.json();
+          groovyScript = scriptData.content || "";
+        } catch (e) {
+          log.error("Error fetching script for IDE:", e);
+          groovyScript = "";
+        }
+      }
+    }
+  }
+
+  let payload = "";
+  if (transferOptions.body) {
+    payload = debugData.payload || "";
+    if (!payload && debugData.traceId) {
+      try {
+        payload = await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + debugData.traceId + ")/$value", true);
+      } catch (e) {
+        log.error("Error fetching payload for IDE:", e);
+      }
+    }
+  }
+
+  let headers = {};
+  if (transferOptions.headers) {
+    headers = debugData.headers || {};
+    if (Object.keys(headers).length === 0 && debugData.traceId) {
+      try {
+        const headersData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + debugData.traceId + ")/Properties?$format=json", true)).d.results;
+        headersData.forEach((h) => {
+          headers[h.Name] = h.Value;
+        });
+      } catch (e) {
+        log.error("Error fetching headers for IDE:", e);
+      }
+    }
+  }
+
+  const properties = transferOptions.properties ? debugData.properties || {} : {};
+
+  return { groovyScript, payload, headers, properties };
+}
+
+/**
  * Sends debug data to an external Groovy IDE for debugging.
  * Compresses and encodes the data before opening in a new tab/window.
  * @async
  * @function sendToExternalIDE
- * @param {Object} settings - Plugin settings (currently unused)
+ * @param {Object} settings - Plugin settings
  * @param {Object} debugData - Complete debug data object
  * @param {Object} transferOptions - Options for which data types to transfer
  * @param {boolean} transferOptions.body - Whether to transfer message body
@@ -817,98 +847,19 @@ function formatInfoContent(inputList) {
 async function sendToExternalIDE(settings, debugData, transferOptions = { body: true, properties: true, headers: true, script: true }) {
   const ideSelection = settings["groovyDebugger---ideSelection"] || "https://groovyide.com/cpi/share/v1/";
   const customUrl = settings["groovyDebugger---customIdeUrl"] || "";
-  var ideUrl = ideSelection === "custom" ? customUrl.trim() || "https://groovyide.com/cpi/share/v1/" : ideSelection;
+  const ideUrl = ideSelection === "custom" ? customUrl.trim() || "https://groovyide.com/cpi/share/v1/" : ideSelection;
 
-  // Use actual debug data based on transfer options
-  let groovyScript = "";
-  if (transferOptions.script) {
-    groovyScript = debugData.groovyScript;
-    // If script not fetched yet (lazy loading), fetch it now
-    if (groovyScript === "// Script content not available" && debugData.scriptInfo) {
-      try {
-        if (debugData.scriptInfo.scriptPath) {
-          let scriptPath = debugData.scriptInfo.scriptPath;
-          let isV2Path = scriptPath.includes("/v2/");
-          let scriptVersionParam = isV2Path ? "?scriptVersion=v2" : "";
-          if (isV2Path) {
-            scriptPath = scriptPath.replace("/script/v2/", "/");
-          } else if (scriptPath.startsWith("/script/")) {
-            scriptPath = scriptPath.replace("/script/", "/");
-          }
-          const scriptUrl = "https://" + debugData.scriptInfo.tenant + "/api/1.0/iflows/" + debugData.scriptInfo.artifactId + "/script/" + scriptPath + scriptVersionParam;
-          const scriptResponse = await fetch(scriptUrl);
-          const scriptData = await scriptResponse.json();
-          groovyScript = scriptData.content || "// Script content not available";
-        }
-      } catch (error) {
-        log.error("Error fetching script for IDE:", error);
-        groovyScript = "// Script content not available";
-      }
-    }
-  }
+  const { groovyScript, payload, headers, properties } = await resolveTransferData(debugData, transferOptions);
 
-  let payload = "";
-  if (transferOptions.body) {
-    payload = debugData.payload;
-    // If payload not fetched yet (lazy loading), fetch it now
-    if (!payload && debugData.traceId) {
-      try {
-        payload = await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + debugData.traceId + ")/$value", true);
-      } catch (error) {
-        log.error("Error fetching payload for IDE:", error);
-        payload = "";
-      }
-    }
-  }
-
-  let headers = {};
-  if (transferOptions.headers) {
-    headers = debugData.headers || {};
-    // If headers not fetched yet (lazy loading), fetch them now
-    if ((!headers || Object.keys(headers).length === 0) && debugData.traceId) {
-      try {
-        let headersData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + debugData.traceId + ")/Properties?$format=json", true)).d.results;
-        headers = {};
-        headersData.forEach((header) => {
-          headers[header.Name] = header.Value;
-        });
-      } catch (error) {
-        log.error("Error fetching headers for IDE:", error);
-        headers = {};
-      }
-    }
-  }
-
-  let properties = {};
-  if (transferOptions.properties) {
-    properties = debugData.properties || {};
-  }
-
-  // Build the JSON structure from actual debug data
-  let dataObject = {
-    input: {
-      body: payload,
-      headers: headers,
-      properties: properties,
-    },
-    script: {
-      code: groovyScript,
-      function: debugData.scriptFunction || "processData",
-    },
+  const dataObject = {
+    input: { body: payload, headers: headers, properties: properties },
+    script: { code: groovyScript, function: debugData.scriptFunction || "processData" },
   };
 
-  let dataString = JSON.stringify(dataObject);
-
-  // Compress and encode
-  let encoded;
-  encoded = await compressToBase64(dataString);
-  // Make URL-safe and remove padding
+  let encoded = await compressToBase64(JSON.stringify(dataObject));
   encoded = encoded.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 
-  var fullUrl = ideUrl + encoded;
-
-  // Open in new tab/window
-  window.open(fullUrl, "_blank");
+  window.open(ideUrl + encoded, "_blank");
 }
 
 /**
@@ -924,64 +875,8 @@ async function sendToExternalIDE(settings, debugData, transferOptions = { body: 
 async function sendToContivaIDE(settings, debugData, transferOptions = { body: true, properties: true, headers: true, script: true }) {
   const contivaUrl = "https://ide.contiva.com/cpi/script/debug";
 
-  // ── 1. Gather data (same lazy-fetch logic as sendToExternalIDE) ──────────
-  let groovyScript = "";
-  if (transferOptions.script) {
-    groovyScript = debugData.groovyScript;
-    if (groovyScript === "// Script content not available" && debugData.scriptInfo?.scriptPath) {
-      try {
-        let scriptPath = debugData.scriptInfo.scriptPath;
-        const isV2Path = scriptPath.includes("/v2/");
-        const scriptVersionParam = isV2Path ? "?scriptVersion=v2" : "";
-        if (isV2Path) {
-          scriptPath = scriptPath.replace("/script/v2/", "/");
-        } else if (scriptPath.startsWith("/script/")) {
-          scriptPath = scriptPath.replace("/script/", "/");
-        }
-        const scriptUrl = "https://" + debugData.scriptInfo.tenant + "/api/1.0/iflows/" + debugData.scriptInfo.artifactId + "/script/" + scriptPath + scriptVersionParam;
-        const scriptResponse = await fetch(scriptUrl);
-        const scriptData = await scriptResponse.json();
-        groovyScript = scriptData.content || "";
-      } catch (e) {
-        log.error("Contiva: error fetching script:", e);
-        groovyScript = "";
-      }
-    }
-  }
+  const { groovyScript, payload, headers, properties } = await resolveTransferData(debugData, transferOptions);
 
-  let payload = "";
-  if (transferOptions.body) {
-    payload = debugData.payload || "";
-    if (!payload && debugData.traceId) {
-      try {
-        payload = await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + debugData.traceId + ")/$value", true);
-      } catch (e) {
-        log.error("Contiva: error fetching body:", e);
-      }
-    }
-  }
-
-  let headers = {};
-  if (transferOptions.headers) {
-    headers = debugData.headers || {};
-    if ((!headers || Object.keys(headers).length === 0) && debugData.traceId) {
-      try {
-        const headersData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + debugData.traceId + ")/Properties?$format=json", true)).d.results;
-        headersData.forEach((h) => {
-          headers[h.Name] = h.Value;
-        });
-      } catch (e) {
-        log.error("Contiva: error fetching headers:", e);
-      }
-    }
-  }
-
-  let properties = {};
-  if (transferOptions.properties) {
-    properties = debugData.properties || {};
-  }
-
-  // ── 2. Build Contiva format object ────────────────────────────────────────
   const contivaData = {
     currentSessionType: "groovy",
     scriptInput: payload,
@@ -991,10 +886,8 @@ async function sendToContivaIDE(settings, debugData, transferOptions = { body: t
     properties: properties,
   };
 
-  // ── 3. Encode and open ────────────────────────────────────────────────────
   const encoded = await compressToContivaBase64(contivaData);
-  const fullUrl = contivaUrl + "?data=" + encoded;
-  window.open(fullUrl, "_blank");
+  window.open(contivaUrl + "?data=" + encoded, "_blank");
 }
 
 /**
