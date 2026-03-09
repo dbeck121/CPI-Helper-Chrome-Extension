@@ -216,6 +216,69 @@ async function createPluginPopupUI(plugin) {
           subcontainer.appendChild(div);
         }
 
+        if (plugin.settings[key].type == "radio") {
+          var radioGroupDiv = document.createElement("div");
+          radioGroupDiv.classList = "ui form";
+          radioGroupDiv.style.marginBottom = "8px";
+
+          var groupLabel = document.createElement("div");
+          groupLabel.classList = "ui tiny header";
+          groupLabel.style.marginBottom = "6px";
+          groupLabel.innerText = plugin.settings[key].text;
+          radioGroupDiv.appendChild(groupLabel);
+
+          var savedRadioValue = await getStorageValue(plugin.id, key, plugin.settings[key].scope);
+
+          // Track outerDivs that depend on this radio for showWhen toggling
+          var radioLinkedInputs = {};
+
+          for (var option of plugin.settings[key].options) {
+            var radioWrapper = document.createElement("div");
+            radioWrapper.classList = "field";
+            radioWrapper.style.marginBottom = "4px";
+
+            var radioDiv = document.createElement("div");
+            radioDiv.classList = "ui radio checkbox";
+
+            var radioInput = document.createElement("input");
+            var radioId = `cpiHelper_popup_plugins-${plugin.id}-${key}-${option.value}`;
+            radioInput.id = radioId;
+            radioInput.type = "radio";
+            radioInput.name = `cpiHelper_popup_plugins-${plugin.id}-${key}`;
+            radioInput.value = option.value;
+            radioInput.checked = (savedRadioValue !== "" && savedRadioValue === option.value) || ((!savedRadioValue || savedRadioValue === "") && option.default === true);
+
+            radioInput.addEventListener(
+              "change",
+              (function (storageKey, val, pluginId, radioKey) {
+                return function () {
+                  if (this.checked) {
+                    chrome.storage.sync.set({ [storageKey]: val }, function () {
+                      log.log(radioKey + " set to " + val);
+                    });
+                    // Show/hide any textinputs with showWhen linked to this radio key
+                    var allLinked = document.querySelectorAll(`[data-show-when-key="cpiHelper_popup_plugins-${pluginId}-${radioKey}"]`);
+                    allLinked.forEach(function (el) {
+                      el.style.display = el.dataset.showWhenValue === val ? "" : "none";
+                    });
+                  }
+                };
+              })(getStoragePath(plugin.id, key, plugin.settings[key].scope), option.value, plugin.id, key)
+            );
+
+            var radioLabel = document.createElement("label");
+            radioLabel.htmlFor = radioId;
+            radioLabel.innerText = option.label;
+
+            radioDiv.appendChild(radioInput);
+            radioDiv.appendChild(radioLabel);
+            radioWrapper.appendChild(radioDiv);
+            radioGroupDiv.appendChild(radioWrapper);
+          }
+
+          subcontainer.appendChild(radioGroupDiv);
+        }
+
         if (plugin.settings[key].type == "textinput") {
           var outerDiv = document.createElement("div");
           outerDiv.classList = "inputbox-spacing";
@@ -236,6 +299,23 @@ async function createPluginPopupUI(plugin) {
           div.appendChild(createElementFromHTML(`<div class="ui basic label" for="cpiHelper_popup_plugins-${plugin.id}-${key}"> ${plugin.settings[key].text}</div>`));
           div.appendChild(text);
           outerDiv.appendChild(div);
+
+          // Handle showWhen: hide this textinput unless the linked radio matches
+          if (plugin.settings[key].showWhen) {
+            var showWhenKey = plugin.settings[key].showWhen.key;
+            var showWhenValue = plugin.settings[key].showWhen.value;
+            var currentRadioValue = await getStorageValue(plugin.id, showWhenKey, plugin.settings[showWhenKey]?.scope);
+            var defaultRadioOption = plugin.settings[showWhenKey]?.options?.find((o) => o.default === true);
+
+            var resolvedRadioValue = currentRadioValue !== "" ? currentRadioValue : defaultRadioOption?.value || "";
+
+            outerDiv.style.display = resolvedRadioValue === showWhenValue ? "" : "none";
+
+            // Store data attributes so radio change listeners can find and toggle this input
+            outerDiv.dataset.showWhenKey = `cpiHelper_popup_plugins-${plugin.id}-${showWhenKey}`;
+            outerDiv.dataset.showWhenValue = showWhenValue;
+          }
+
           subcontainer.appendChild(outerDiv);
         }
         if (plugin.settings[key].type == "label") {
