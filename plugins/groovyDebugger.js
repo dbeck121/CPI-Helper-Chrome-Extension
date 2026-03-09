@@ -15,6 +15,14 @@ if (!window.groovyDebugSendToIDE) {
     const ideUrl = ideSelection === "custom" ? customUrl.trim() || "https://groovyide.com/cpi/share/v1/" : ideSelection === "contiva" ? "https://ide.contiva.com/cpi/script/debug" : ideSelection;
     const domain = new URL(ideUrl).hostname;
 
+    // Load last-used transfer preferences (defaults: body+script on, properties+headers off)
+    const prefs = {
+      body: !!((await getStorageValue("groovyDebugger", "transferBody", "browser")) ?? true),
+      script: !!((await getStorageValue("groovyDebugger", "transferScript", "browser")) ?? true),
+      properties: !!((await getStorageValue("groovyDebugger", "transferProperties", "browser")) ?? false),
+      headers: !!((await getStorageValue("groovyDebugger", "transferHeaders", "browser")) ?? false),
+    };
+
     // Create custom confirmation popup
     const popupContent = `
       <div class="ui warning message">
@@ -31,26 +39,26 @@ if (!window.groovyDebugSendToIDE) {
         <div class="ui form">
           <div class="grouped fields">
             <div class="field">
-              <div class="ui checkbox checked" id="transfer-body">
-                <input type="checkbox" name="transfer-body" checked>
+              <div class="ui checkbox ${prefs.body ? "checked" : ""}" id="transfer-body">
+                <input type="checkbox" name="transfer-body" ${prefs.body ? "checked" : ""}>
                 <label>Message Body <em>(may contain sensitive data)</em></label>
               </div>
             </div>
             <div class="field">
-              <div class="ui checkbox checked" id="transfer-script">
-                <input type="checkbox" name="transfer-script" checked>
+              <div class="ui checkbox ${prefs.script ? "checked" : ""}" id="transfer-script">
+                <input type="checkbox" name="transfer-script" ${prefs.script ? "checked" : ""}>
                 <label>Groovy Script <em>(source code)</em></label>
               </div>
             </div>
             <div class="field">
-              <div class="ui checkbox" id="transfer-properties">
-                <input type="checkbox" name="transfer-properties">
+              <div class="ui checkbox ${prefs.properties ? "checked" : ""}" id="transfer-properties">
+                <input type="checkbox" name="transfer-properties" ${prefs.properties ? "checked" : ""}>
                 <label>Properties <em>(may contain configuration data)</em></label>
               </div>
             </div>
             <div class="field">
-              <div class="ui checkbox" id="transfer-headers">
-                <input type="checkbox" name="transfer-headers">
+              <div class="ui checkbox ${prefs.headers ? "checked" : ""}" id="transfer-headers">
+                <input type="checkbox" name="transfer-headers" ${prefs.headers ? "checked" : ""}>
                 <label>Headers <em>(may contain security & metadata)</em></label>
               </div>
             </div>
@@ -63,17 +71,6 @@ if (!window.groovyDebugSendToIDE) {
       fullscreen: false,
       large: false,
       callback: () => {
-        // Semantic UI checkboxes in this extension work via CSS only.
-        // Toggle the 'checked' class on the wrapper div on click, and sync to the native input.
-        $("#cpiHelper_semanticui_modal .ui.checkbox").on("click", function () {
-          const $wrapper = $(this);
-          const $input = $wrapper.find("input");
-          const nowChecked = !$input.prop("checked");
-          $input.prop("checked", nowChecked);
-          $wrapper.toggleClass("checked", nowChecked);
-          updateContinueButton();
-        });
-
         // Add custom buttons to the actions div
         let actionsDiv = $("#cpiHelper_semanticui_modal .actions");
         actionsDiv.empty(); // Remove default close button
@@ -94,28 +91,45 @@ if (!window.groovyDebugSendToIDE) {
           continueBtn.toggleClass("disabled", !anyChecked).prop("disabled", !anyChecked);
         };
 
+        // Sync the checked CSS class on the wrapper when native input changes
+        $("#cpiHelper_semanticui_modal .ui.checkbox input").on("change", function () {
+          $(this).closest(".ui.checkbox").toggleClass("checked", $(this).prop("checked"));
+          updateContinueButton();
+        });
+
         // Initial state (body + script pre-checked so Continue starts enabled)
         updateContinueButton();
 
         continueBtn.on("click", async () => {
           // Get selected data types
           const transferOptions = {
-            body: $("#transfer-body input").is(":checked"),
-            properties: $("#transfer-properties input").is(":checked"),
-            headers: $("#transfer-headers input").is(":checked"),
-            script: $("#transfer-script input").is(":checked"),
+            body: $("#transfer-body input").prop("checked"),
+            properties: $("#transfer-properties input").prop("checked"),
+            headers: $("#transfer-headers input").prop("checked"),
+            script: $("#transfer-script input").prop("checked"),
           };
+
+          // Save selections for next time (parallel)
+          await Promise.all([
+            syncChromeStoragePromise(getStoragePath("groovyDebugger", "transferBody", "browser"), transferOptions.body),
+            syncChromeStoragePromise(getStoragePath("groovyDebugger", "transferScript", "browser"), transferOptions.script),
+            syncChromeStoragePromise(getStoragePath("groovyDebugger", "transferProperties", "browser"), transferOptions.properties),
+            syncChromeStoragePromise(getStoragePath("groovyDebugger", "transferHeaders", "browser"), transferOptions.headers),
+          ]);
 
           $("#cpiHelper_semanticui_modal").modal("hide");
           const debugData = window.currentGroovyDebugData;
-          if (ideSelection === "contiva") {
-            await sendToContivaIDE(settings, debugData, transferOptions);
-          } else {
-            await sendToExternalIDE(settings, debugData, transferOptions);
+          try {
+            if (ideSelection === "contiva") {
+              await sendToContivaIDE(settings, debugData, transferOptions);
+            } else {
+              await sendToExternalIDE(settings, debugData, transferOptions);
+            }
+            showToast("Debug data sent to IDE", "Success");
+          } catch (e) {
+            log.error("Error sending to IDE:", e);
+            showToast("Failed to send to IDE: " + e.message, "Groovy Debugger", "Error");
           }
-          showToast(`Debug data sent to IDE`, "Success");
-          // Close the main debug popup after sending
-          $("#cpiHelper_semanticui_modal").modal("hide");
         });
         actionsDiv.append(continueBtn);
       },
@@ -171,10 +185,6 @@ var plugin = {
       placeholder: "https://your-custom-ide.com/share/",
       showWhen: { key: "ideSelection", value: "custom" },
     },
-    transferBody: { text: "Transfer Message Body by default", type: "checkbox", scope: "browser" },
-    transferScript: { text: "Transfer Groovy Script by default", type: "checkbox", scope: "browser" },
-    transferProperties: { text: "Transfer Properties by default", type: "checkbox", scope: "browser" },
-    transferHeaders: { text: "Transfer Headers by default", type: "checkbox", scope: "browser" },
   },
   messageSidebarButton: {
     icon: { text: "{}", type: "text" },
@@ -431,12 +441,6 @@ function setupGroovyClickHandlers(settings, runInfo, groovyElements, iFlowData, 
             scriptPath: element.script,
           };
 
-          // Check if there's meaningful data to display
-          if ((!debugData.payload || debugData.payload === "") && Object.keys(debugData.headers || {}).length === 0 && Object.keys(debugData.properties || {}).length === 0) {
-            showToast("No debug data available for this Groovy step", "Warning");
-            return;
-          }
-
           showBigPopup(await createGroovyDebugContent(debugData), `Groovy Debug Data - ${element.displayName || element.id}`, {
             fullscreen: false,
             callback: () => {
@@ -548,7 +552,7 @@ async function fetchGroovyDebugData(runInfo, groovyStep, scriptFunction) {
       log.log("No run step data for this step");
     }
 
-    var groovyScript = "// Groovy script content not available via API\n// Please check your integration flow for the actual script";
+    var groovyScript = "// Script content not available";
 
     return {
       messageGuid: messageGuid,
@@ -622,23 +626,13 @@ async function createGroovyDebugContent(data) {
   // Lazy load script content when Script tab is activated
   let scriptContent = async () => {
     try {
+      const scriptUrl = resolveScriptUrl(data.scriptInfo);
       let groovyScriptContent = "// Script content not available";
-      if (data.scriptInfo && data.scriptInfo.scriptPath) {
-        let scriptPath = data.scriptInfo.scriptPath;
-        let isV2Path = scriptPath.includes("/v2/");
-        let scriptVersionParam = isV2Path ? "?scriptVersion=v2" : "";
-        if (isV2Path) {
-          scriptPath = scriptPath.replace("/script/v2/", "/");
-        } else if (scriptPath.startsWith("/script/")) {
-          scriptPath = scriptPath.replace("/script/", "/");
-        }
-        const scriptUrl = "https://" + data.scriptInfo.tenant + "/api/1.0/iflows/" + data.scriptInfo.artifactId + "/script/" + scriptPath + scriptVersionParam;
+      if (scriptUrl) {
         const scriptResponse = await fetch(scriptUrl);
         const scriptData = await scriptResponse.json();
         groovyScriptContent = scriptData.content || "// Script content not available";
       }
-
-      // Use formatTrace function like the Body section for full editor functionality
       return formatTrace(groovyScriptContent, "groovyDebugScript", null, "script.groovy");
     } catch (error) {
       log.error("Error fetching script content:", error);
@@ -706,6 +700,10 @@ function formatLogContent(inputList) {
  */
 function formatInfoContent(inputList) {
   const valueList = [];
+
+  if (!inputList?.StepStart) {
+    return "<div class='ui message'>No execution info available for this step.</div>";
+  }
 
   var stepStart = new Date(parseInt(inputList.StepStart.substr(6, 13)));
   stepStart.setTime(stepStart.getTime() - stepStart.getTimezoneOffset() * 60 * 1000);
