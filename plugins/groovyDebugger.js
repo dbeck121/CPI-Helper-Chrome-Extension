@@ -10,7 +10,9 @@ if (!window.groovyDebugSendToIDE) {
    */
   window.groovyDebugSendToIDE = async function () {
     const settings = window.groovyDebuggerData?.settings || {};
-    const ideUrl = settings["groovyDebugger---externalIdeUrl"] || "https://groovyide.com/cpi/share/v1/";
+    const ideSelection = settings["groovyDebugger---ideSelection"] || "https://groovyide.com/cpi/share/v1/";
+    const customUrl = settings["groovyDebugger---customIdeUrl"] || "";
+    const ideUrl = ideSelection === "custom" ? customUrl.trim() || "https://groovyide.com/cpi/share/v1/" : ideSelection === "contiva" ? "https://ide.contiva.com/cpi/script/debug" : ideSelection;
     const domain = new URL(ideUrl).hostname;
 
     // Load saved user preferences for checkbox states using plugin settings
@@ -79,6 +81,9 @@ if (!window.groovyDebugSendToIDE) {
       fullscreen: false,
       large: false,
       callback: () => {
+        // Initialize Semantic UI checkboxes so they render as styled ticks, not plain boxes
+        $("#cpiHelper_semanticui_modal .ui.checkbox").checkbox();
+
         // Add custom buttons to the actions div
         let actionsDiv = $("#cpiHelper_semanticui_modal .actions");
         actionsDiv.empty(); // Remove default close button
@@ -129,7 +134,11 @@ if (!window.groovyDebugSendToIDE) {
 
           $("#cpiHelper_semanticui_modal").modal("hide");
           const debugData = window.currentGroovyDebugData;
-          await sendToExternalIDE(settings, debugData, transferOptions);
+          if (ideSelection === "contiva") {
+            await sendToContivaIDE(settings, debugData, transferOptions);
+          } else {
+            await sendToExternalIDE(settings, debugData, transferOptions);
+          }
           showToast(`Debug data sent to IDE`, "Success");
           // Close the main debug popup after sending
           $("#cpiHelper_semanticui_modal").modal("hide");
@@ -171,7 +180,23 @@ var plugin = {
   description:
     "<b>GroovyDebugX</b> streamlines Groovy debugging by automating runtime trace extraction. With visual step highlighting and one-click data transfer to <b>Groovy WebIDE</b>, it eliminates manual data entry and accelerates your integration development.<br><br><b>Note</b>: Requires the message to be processed in <b>Trace Mode</b> to capture and transfer runtime data.",
   settings: {
-    externalIdeUrl: { text: "External IDE URL", type: "textinput", scope: "browser" },
+    ideSelection: {
+      text: "External Groovy IDE",
+      type: "radio",
+      scope: "browser",
+      options: [
+        { value: "https://groovyide.com/cpi/share/v1/", label: "GroovyIDE.com", default: true },
+        { value: "contiva", label: "Contiva IDE (ide.contiva.com)" },
+        { value: "custom", label: "Custom URL" },
+      ],
+    },
+    customIdeUrl: {
+      text: "Custom IDE URL",
+      type: "textinput",
+      scope: "browser",
+      placeholder: "https://your-custom-ide.com/share/",
+      showWhen: { key: "ideSelection", value: "custom" },
+    },
     transferBody: { text: "Transfer Message Body by default", type: "checkbox", scope: "browser" },
     transferScript: { text: "Transfer Groovy Script by default", type: "checkbox", scope: "browser" },
     transferProperties: { text: "Transfer Properties by default", type: "checkbox", scope: "browser" },
@@ -442,7 +467,6 @@ function setupGroovyClickHandlers(settings, runInfo, groovyElements, iFlowData, 
           } else {
             // Set initial placeholder for script content (will be lazy loaded)
             debugData.groovyScript = "// Script content not available";
-            debugData.scriptFunction = element.scriptFunction || "processData";
           }
 
           // Store script fetching info for lazy loading
@@ -505,7 +529,7 @@ async function tryGetTraceDataForElement(runInfo, element, inlineTraceElements) 
     }
 
     // Get debug data for the first matching trace element
-    return await fetchGroovyDebugData(runInfo, matchingTraceElements[0]);
+    return await fetchGroovyDebugData(runInfo, matchingTraceElements[0], element.scriptFunction);
   } catch (error) {
     log.error("Error getting trace data for element:", error);
     return null;
@@ -522,9 +546,10 @@ async function tryGetTraceDataForElement(runInfo, element, inlineTraceElements) 
  * @param {string} groovyStep.RunId - Run identifier
  * @param {number} groovyStep.ChildCount - Child count
  * @param {string} groovyStep.StepId - Step identifier
+ * @param {string} scriptFunction - The actual Groovy function name from the iFlow element
  * @returns {Promise<Object|null>} Complete debug data object or null if failed
  */
-async function fetchGroovyDebugData(runInfo, groovyStep) {
+async function fetchGroovyDebugData(runInfo, groovyStep, scriptFunction) {
   try {
     var messageGuid = runInfo.messageGuid;
     var runId = groovyStep.RunId;
@@ -579,7 +604,7 @@ async function fetchGroovyDebugData(runInfo, groovyStep) {
       properties: properties,
       runStepData: runStepData,
       groovyScript: groovyScript,
-      scriptFunction: "processData", // Will be overridden by element.scriptFunction
+      scriptFunction: scriptFunction || "processData",
       timestamp: new Date().toISOString(),
     };
   } catch (error) {
@@ -790,7 +815,9 @@ function formatInfoContent(inputList) {
  * @returns {Promise<void>} Resolves when IDE is opened
  */
 async function sendToExternalIDE(settings, debugData, transferOptions = { body: true, properties: true, headers: true, script: true }) {
-  var ideUrl = settings["groovyDebugger---externalIdeUrl"] || "https://groovyide.com/cpi/share/v1/";
+  const ideSelection = settings["groovyDebugger---ideSelection"] || "https://groovyide.com/cpi/share/v1/";
+  const customUrl = settings["groovyDebugger---customIdeUrl"] || "";
+  var ideUrl = ideSelection === "custom" ? customUrl.trim() || "https://groovyide.com/cpi/share/v1/" : ideSelection;
 
   // Use actual debug data based on transfer options
   let groovyScript = "";
@@ -882,6 +909,134 @@ async function sendToExternalIDE(settings, debugData, transferOptions = { body: 
 
   // Open in new tab/window
   window.open(fullUrl, "_blank");
+}
+
+/**
+ * Converts CPI Helper debug data to Contiva format and opens in Contiva IDE.
+ * Contiva encoding: JSON → ZIP (JSZip) → Gzip (pako) → standard Base64 → URL-encode.
+ * URL: https://ide.contiva.com/cpi/script/debug?data={encoded}
+ * @async
+ * @function sendToContivaIDE
+ * @param {Object} settings - Plugin settings
+ * @param {Object} debugData - Complete debug data object
+ * @param {Object} transferOptions - Which data types to transfer
+ */
+async function sendToContivaIDE(settings, debugData, transferOptions = { body: true, properties: true, headers: true, script: true }) {
+  const contivaUrl = "https://ide.contiva.com/cpi/script/debug";
+
+  // ── 1. Gather data (same lazy-fetch logic as sendToExternalIDE) ──────────
+  let groovyScript = "";
+  if (transferOptions.script) {
+    groovyScript = debugData.groovyScript;
+    if (groovyScript === "// Script content not available" && debugData.scriptInfo?.scriptPath) {
+      try {
+        let scriptPath = debugData.scriptInfo.scriptPath;
+        const isV2Path = scriptPath.includes("/v2/");
+        const scriptVersionParam = isV2Path ? "?scriptVersion=v2" : "";
+        if (isV2Path) {
+          scriptPath = scriptPath.replace("/script/v2/", "/");
+        } else if (scriptPath.startsWith("/script/")) {
+          scriptPath = scriptPath.replace("/script/", "/");
+        }
+        const scriptUrl = "https://" + debugData.scriptInfo.tenant + "/api/1.0/iflows/" + debugData.scriptInfo.artifactId + "/script/" + scriptPath + scriptVersionParam;
+        const scriptResponse = await fetch(scriptUrl);
+        const scriptData = await scriptResponse.json();
+        groovyScript = scriptData.content || "";
+      } catch (e) {
+        log.error("Contiva: error fetching script:", e);
+        groovyScript = "";
+      }
+    }
+  }
+
+  let payload = "";
+  if (transferOptions.body) {
+    payload = debugData.payload || "";
+    if (!payload && debugData.traceId) {
+      try {
+        payload = await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + debugData.traceId + ")/$value", true);
+      } catch (e) {
+        log.error("Contiva: error fetching body:", e);
+      }
+    }
+  }
+
+  let headers = {};
+  if (transferOptions.headers) {
+    headers = debugData.headers || {};
+    if ((!headers || Object.keys(headers).length === 0) && debugData.traceId) {
+      try {
+        const headersData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + debugData.traceId + ")/Properties?$format=json", true)).d.results;
+        headersData.forEach((h) => {
+          headers[h.Name] = h.Value;
+        });
+      } catch (e) {
+        log.error("Contiva: error fetching headers:", e);
+      }
+    }
+  }
+
+  let properties = {};
+  if (transferOptions.properties) {
+    properties = debugData.properties || {};
+  }
+
+  // ── 2. Build Contiva format object ────────────────────────────────────────
+  const contivaData = {
+    currentSessionType: "groovy",
+    scriptInput: payload,
+    script: groovyScript,
+    functionName: debugData.scriptFunction || "processData",
+    headers: headers,
+    properties: properties,
+  };
+
+  // ── 3. Encode and open ────────────────────────────────────────────────────
+  const encoded = await compressToContivaBase64(contivaData);
+  const fullUrl = contivaUrl + "?data=" + encoded;
+  window.open(fullUrl, "_blank");
+}
+
+/**
+ * Encodes Contiva format data for the Contiva IDE URL.
+ * Pipeline: JSON → ZIP (JSZip, epoch date) → Gzip (pako, mtime=0)
+ *           → standard Base64 (with padding) → URL-encode (encodeURIComponent).
+ * @async
+ * @function compressToContivaBase64
+ * @param {Object} contivaData - Contiva format object to encode
+ * @returns {Promise<string>} URL-encoded standard Base64 string
+ */
+async function compressToContivaBase64(contivaData) {
+  // Step 1: JSON stringify
+  const jsonString = JSON.stringify(contivaData);
+
+  // Step 2: Create ZIP archive using JSZip (already loaded by the extension)
+  //         Use epoch date (new Date(0)) for deterministic output
+  const zip = new JSZip();
+  zip.file("data.json", jsonString, { date: new Date(0) });
+  const zipBytes = await zip.generateAsync({
+    type: "uint8array",
+    compression: "DEFLATE",
+    compressionOptions: { level: 9 },
+  });
+
+  // Step 3: Gzip compress the ZIP using pako (pako_deflate.min.js is already loaded)
+  //         mtime: 0 keeps the gzip header deterministic
+  const gzipped = pako.gzip(zipBytes, { level: 9, mtime: 0 });
+
+  // Step 4: Standard Base64 encode (NOT URL-safe — keep + and /)
+  let binary = "";
+  for (let i = 0; i < gzipped.length; i++) {
+    binary += String.fromCharCode(gzipped[i]);
+  }
+  let base64 = btoa(binary);
+
+  // Step 5: Ensure standard Base64 padding
+  const paddingNeeded = (4 - (base64.length % 4)) % 4;
+  base64 += "=".repeat(paddingNeeded);
+
+  // Step 6: URL-encode (+→%2B, /→%2F, =→%3D)
+  return encodeURIComponent(base64);
 }
 
 /**
