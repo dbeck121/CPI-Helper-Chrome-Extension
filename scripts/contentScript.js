@@ -63,7 +63,7 @@ function getLastCompletedLogStart() {
 Render Message Sidebar;
 */
 var lastCompletedLogStart = getLastCompletedLogStart();
-async function renderMessageSidebar() {
+async function renderMessageSidebar(cache = true) {
   if (!sidebar.active) {
     return;
   }
@@ -87,14 +87,7 @@ async function renderMessageSidebar() {
     return;
   }
 
-  await getIflowInfo((data) => {
-    let deploymentText = document.getElementById("deploymentText");
-    if (deploymentText) {
-      let deployState = cpiData?.flowData?.artifactInformation?.deployState || "Unknown";
-      let statusColor = getStatusColorCode(deployState);
-      deploymentText.innerHTML = `<span style="color:${statusColor}">${deployState}</span>`;
-    }
-  }, true);
+  await getIflowInfo(null, true, cache);
 
   var resp = null;
   try {
@@ -145,7 +138,8 @@ async function renderMessageSidebar() {
     if (refreshBtn.classList.contains("cpiHelper_sidebar_refresh_icon_spin")) {
       return;
     }
-    await refreshMessageSidebar();
+
+    await refreshMessageSidebar(false);
   };
 
   let thisMessageHash = "";
@@ -401,6 +395,10 @@ function undeploy(tenant = null, artifactId = null) {
     .then((res) => {
       showToast("Undeploy triggered");
       log.log("Undeploy triggered");
+      //wait some seconds and update the IFlow information to reflect the undeploy in the extension
+      setTimeout(async () => {
+        await getIflowInfo(null, true, false);
+      }, 10000);
     })
     .catch((e) => {
       log.error("Error triggering undeploy");
@@ -451,11 +449,13 @@ function updateRuntimeLocationDropdown(traceDropdownMenu = null) {
 
   // Rebuild dropdown items
   let dropdownItems = "";
-  if (cpiData.runtimeLocationWithActiveIFlow && cpiData.runtimeLocationWithActiveIFlow.length > 0) {
-    cpiData.runtimeLocationWithActiveIFlow.forEach((location) => {
+  if (cpiData.runtimeLocations && cpiData.runtimeLocations.length > 0) {
+    cpiData.runtimeLocations.forEach((location) => {
       const isSelected = location.id === currentSelection;
+      const isActive = cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id === location.id);
       const checkmark = isSelected ? "✓ " : "&nbsp;&nbsp;";
-      dropdownItems += `<div class="__trace_dropdown_item" data-location-id="${location.id}" style="padding: 4px 10px; cursor: pointer; font-size: 13px; ${isSelected ? "background: #e3f2fd; font-weight: bold;" : ""}">${checkmark}${location.id}</div>`;
+      const bgColor = isSelected && isActive ? "#c8e6c9" : isSelected ? "#e3f2fd" : "";
+      dropdownItems += `<div class="__trace_dropdown_item" data-location-id="${location.id}" style="padding: 4px 10px; cursor: pointer; font-size: 13px; background: ${bgColor}; ${isSelected ? "font-weight: bold;" : ""}">${checkmark}${location.id}${isActive ? " (Deployed)" : " (Not Deployed)"}</div>`;
     });
   } else {
     dropdownItems = `<div class="__trace_dropdown_item" style="padding: 4px 10px; cursor: default; font-size: 13px; color: #888;">No runtime locations</div>`;
@@ -538,7 +538,8 @@ async function buildButtonBar() {
     var runtimeButton;
     var runtimeButtonContainer;
     // Create runtime button container with dropdown
-    if (cpiData.runtimeLocations.length > 1) {
+    if (true) {
+      //cpiData.runtimeLocations.length > 1) {
       runtimeButtonContainer = createElementFromHTML(
         `<div id="__runtime_button_container" style="display: inline-block; float: right; position: relative; margin-left: 10px;">
         <button id="__runtime_button" title="Select Runtime Location" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="margin: 0 !important;">
@@ -553,7 +554,6 @@ async function buildButtonBar() {
       </div>`
       );
       runtimeButton = runtimeButtonContainer.querySelector("#__runtime_button");
-      updateRuntimeLocationDropdown(runtimeButtonContainer.querySelector("#__trace_dropdown_menu"));
       // Close dropdown when clicking outside (registered once)
       document.addEventListener("click", (e) => {
         if (!runtimeButtonContainer.contains(e.target)) {
@@ -569,10 +569,8 @@ async function buildButtonBar() {
         const item = e.target.closest(".__trace_dropdown_item");
         if (item) {
           const locationId = item.getAttribute("data-location-id");
-          setRuntimeLocation(cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id === locationId));
-
-          // Update visual selection
-          updateRuntimeLocationDropdown();
+          const location = cpiData.runtimeLocations.find((loc) => loc.id === locationId);
+          setRuntimeLocation(location || { id: locationId });
 
           runtimeButtonContainer.querySelector("#__trace_dropdown_menu").style.display = "none";
         }
@@ -581,18 +579,15 @@ async function buildButtonBar() {
       runtimeButton.addEventListener("click", async (e) => {
         e.stopPropagation();
 
-        // Update runtime info on click to ensure fresh data
-        await getIflowInfo(null, true, false);
-        updateRuntimeLocationDropdown();
-
-        if (!cpiData.runtimeLocationWithActiveIFlow || cpiData.runtimeLocationWithActiveIFlow.length === 0) {
-          showToast("No runtime locations available. IFlow not deployed?", "Warning", "warning");
-        } else if (!cpiData.runtimeLocationId) {
-          showToast("Please select a runtime location", "Info", "info");
-        }
-
         var traceDropdownMenu = runtimeButtonContainer.querySelector("#__trace_dropdown_menu");
         const isVisible = traceDropdownMenu.style.display === "block";
+
+        if (!isVisible) {
+          // Update runtime info on click to ensure fresh data
+          await getIflowInfo(null, true, false);
+          updateRuntimeLocationDropdown();
+        }
+
         traceDropdownMenu.style.display = isVisible ? "none" : "block";
       });
     }
@@ -621,15 +616,16 @@ async function buildButtonBar() {
     // ensure the container sits above other elements and is positioned for its dropdowns
     buttonbarDiv.style.position = "relative";
     buttonbarDiv.style.zIndex = "4";
-
-    //buttonbarDiv.appendChild(breakLine);
     buttonbarDiv.appendChild(moreButton);
-    if (runtimeButtonContainer) {
-      buttonbarDiv.appendChild(runtimeButtonContainer);
-    }
     buttonbarDiv.appendChild(infobutton);
     buttonbarDiv.appendChild(messagebutton);
     buttonbarDiv.appendChild(tracebutton);
+
+    buttonbarDiv.appendChild(breakLine);
+
+    if (runtimeButtonContainer) {
+      buttonbarDiv.appendChild(runtimeButtonContainer);
+    }
 
     area.appendChild(buttonbarDiv);
 
@@ -733,11 +729,25 @@ async function buildButtonBar() {
 
 //Collect Infos to Iflow
 async function getIflowInfo(callback, silent = false, cache = true) {
+  result = null;
   if (cpiData.cpiPlatform == "cf") {
-    return getIflowInfoCf(callback, silent, cache);
+    result = getIflowInfoCf(callback, silent, cache);
   } else if (cpiData.cpiPlatform == "neo") {
-    return getIflowInfoNeo(callback, silent, cache);
+    result = getIflowInfoNeo(callback, silent, cache);
   }
+
+  //update text and color of deployment status in message sidebar if element is there
+  let deploymentText = document.getElementById("deploymentText");
+  if (deploymentText) {
+    let deployState = cpiData?.flowData?.artifactInformation?.deployState;
+    if (!deployState || deployState == "") {
+      deployState = cpiData?.flowData?.manualSetUndeployed ? "Undeployed" : "UNKNOWN";
+    }
+
+    let statusColor = getStatusColorCode(deployState);
+    deploymentText.innerHTML = `<span style="color:${statusColor}">${deployState}</span>`;
+  }
+  return result;
 }
 
 async function getIflowInfoCf(callback, silent = false, cache = true) {
@@ -746,9 +756,15 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
     cacheValue = false;
   }
   try {
-    // 1. Edge-Cell prüfen
-    const runtimeLocResp = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.srv.web.cf.RuntimeLocationListCommand", cacheValue, null, null, null, null, !silent);
-    const runtimeLocJson = new XmlToJson().parse(runtimeLocResp)["com.sap.it.op.srv.web.cf.RuntimeLocationListResponse"];
+    //Get Runtime Locations
+    const runtimeLocResp = await makeCallPromiseV2("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.srv.web.cf.RuntimeLocationListCommand", cacheValue, null, null, null, null, silent);
+
+    if (!runtimeLocResp.successful) {
+      throw "Error fetching runtime locations: " + runtimeLocResp.message;
+      return false;
+    }
+
+    const runtimeLocJson = new XmlToJson().parse(runtimeLocResp.responseText)["com.sap.it.op.srv.web.cf.RuntimeLocationListResponse"];
 
     //collect list of runtime locations
     if (runtimeLocJson.runtimeLocations?.length) {
@@ -771,12 +787,6 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
       throw "No active runtime locations found. Please check your environment.";
     }
 
-    if (cpiData.runtimeLocations.length == 1 && cpiData.runtimeLocations[0].id == "cloudintegration") {
-      //if only cloud integration runtime is available, set it as default without checking for iflow presence, because there is only this one runtime possible
-      cpiData.runtimeLocationWithActiveIFlow = cpiData.runtimeLocations;
-      setRuntimeLocation(cpiData.runtimeLocations[0], true);
-    }
-
     //iterate all runtime locations to find the ones that have active iflows
     cacheValue = 500; // default cache value for the next calls
     if (!cpiData.runtimeLocationWithActiveIFlow || cpiData.runtimeLocationWithActiveIFlow.length == 0) {
@@ -790,18 +800,25 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
       cacheValue = false;
     }
 
+    runtimeLocationWithActiveIFlow = [];
     for (const loc of cpiData.runtimeLocations) {
       try {
         const locIdParam = "?runtimeLocationId=" + loc.id;
-        const resp = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand" + locIdParam, cacheValue, null, null, null, null, !silent);
-        const respJson = new XmlToJson().parse(resp)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
+        const resp = await makeCallPromiseV2("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand" + locIdParam, cacheValue, null, null, null, null, silent);
+
+        if (!resp.successful) {
+          log.warn("Error fetching integration components for runtime location " + loc.id + ": " + resp.message);
+          continue;
+        }
+
+        const respJson = new XmlToJson().parse(resp.responseText)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
         const artifact = Array.isArray(respJson.artifactInformations)
           ? respJson.artifactInformations.find((e) => e.symbolicName == cpiData.integrationFlowId)
           : respJson.artifactInformations?.symbolicName == cpiData.integrationFlowId
             ? respJson.artifactInformations
             : null;
         if (artifact) {
-          cpiData.runtimeLocationWithActiveIFlow.push({
+          runtimeLocationWithActiveIFlow.push({
             id: loc.id,
             state: loc.state,
             type: loc.type,
@@ -815,15 +832,23 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
       }
     }
 
-    if (cpiData.runtimeLocationWithActiveIFlow.length == 0) {
-      log.warn("Integration Flow was not found. Probably it is not deployed.");
-      return;
-    }
+    //check that there are no dublicates in runtimeLocationWithActiveIFlow, if yes, log it and remove duplicates
+    const uniqueIds = new Set();
+    runtimeLocationWithActiveIFlow = runtimeLocationWithActiveIFlow.filter((loc) => {
+      if (uniqueIds.has(loc.id)) {
+        log.warn("Duplicate runtime location found: " + loc.id + ". This should not happen, please check the environment.");
+        return false;
+      } else {
+        uniqueIds.add(loc.id);
+        return true;
+      }
+    });
 
-    for (const loc of cpiData.runtimeLocationWithActiveIFlow) {
+    runtimeLocationWithActiveIFlowTemp = [];
+    for (const loc of runtimeLocationWithActiveIFlow) {
       try {
         // 4. Detaildaten holen
-        const detailResp = await makeCallPromise(
+        const detailResp = await makeCallPromiseV2(
           "GET",
           "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + loc.artifact.id + "&runtimeLocationId=" + loc.id,
           90,
@@ -831,30 +856,57 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
           null,
           null,
           null,
-          !silent
+          silent
         );
-        const detail = JSON.parse(detailResp);
 
-        loc["detail"] = detail;
-        loc["artifact"] = detail.artifactInformation;
-        loc["artifactId"] = detail.artifactInformation?.id;
-        loc["tenantId"] = detail.artifactInformation?.tenantId;
-        loc["version"] = detail.artifactInformation?.version;
+        if (!detailResp.successful) {
+          log.warn("Error fetching detail for location " + loc.id + ": " + detailResp.message);
+          continue;
+        }
+
+        const detail = JSON.parse(detailResp.responseText);
+
+        runtimeLocationWithActiveIFlowTemp.push({
+          detail: detail,
+          artifact: detail.artifactInformation,
+          artifactId: detail.artifactInformation?.id,
+          tenantId: detail.artifactInformation?.tenantId,
+          version: detail.artifactInformation?.version,
+          id: loc.id,
+          state: loc.state,
+          type: loc.type,
+          typeId: loc.typeId,
+        });
       } catch (detailError) {
         log.warn("Error fetching detail for location " + loc.id + ": ", detailError);
         continue;
       }
     }
 
+    cpiData.runtimeLocationWithActiveIFlow = runtimeLocationWithActiveIFlowTemp;
+
     //default
     if (!cpiData.runtimeLocationId) {
-      setRuntimeLocation(cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id == "cloudintegration") || cpiData.runtimeLocationWithActiveIFlow[0]);
+      if (cpiData.runtimeLocationWithActiveIFlow.length == 0) {
+        log.warn("No runtime location with active IFlow found. Set default to cloudintegration.");
+        setRuntimeLocation({ id: "cloudintegration" });
+      } else {
+        setRuntimeLocation(cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id == "cloudintegration") || cpiData.runtimeLocationWithActiveIFlow[0]);
+      }
     }
 
     if (cpiData.runtimeLocationId) {
-      if (!cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id === cpiData.runtimeLocationId)) {
-        showToast("The previously selected runtime location " + cpiData.runtimeLocationId + " is not available anymore. Runtime location switched to " + cpiData.runtimeLocationWithActiveIFlow[0].id, "Runtime location switched", "warning");
-        setRuntimeLocation(cpiData.runtimeLocationWithActiveIFlow[0], true);
+      if (cpiData.runtimeLocationWithActiveIFlow.length == 0) {
+        log.warn("Previously selected runtime location " + cpiData.runtimeLocationId + " is not available anymore and no runtime location with active IFlow found. Please deploy the IFlow or check your environment.");
+        setRuntimeLocation({ id: "cloudintegration" });
+      } else if (!cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id === cpiData.runtimeLocationId)) {
+        if (cpiData.runtimeLocationWithActiveIFlow.length > 0) {
+          showToast("The previously selected runtime location " + cpiData.runtimeLocationId + " is not available anymore. Runtime location switched to " + cpiData.runtimeLocationWithActiveIFlow[0].id, "Runtime location switched", "warning");
+          setRuntimeLocation(cpiData.runtimeLocationWithActiveIFlow[0], true);
+        } else {
+          log.warn("Previously selected runtime location " + cpiData.runtimeLocationId + " is not available anymore and no other runtime location with active IFlow found. Please deploy the IFlow or check your environment.");
+          setRuntimeLocation({ id: "cloudintegration" });
+        }
       } else {
         //update
         setRuntimeLocation(
@@ -862,11 +914,6 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
           true
         );
       }
-    }
-
-    // Update runtime location dropdown if it exists
-    if (cpiData.functions.updateRuntimeLocationDropdown) {
-      cpiData.functions.updateRuntimeLocationDropdown();
     }
 
     if (callback) callback();
@@ -896,7 +943,7 @@ function setRuntimeLocation(location, silent = false) {
   const detail = location.detail;
   //detail might be null
 
-  cpiData.flowData = detail || {};
+  cpiData.flowData = detail || { manualSetUndeployed: true, artifactInformation: { tenantId: null, id: null, version: null } };
   cpiData.flowData.lastUpdate = new Date().toISOString();
   cpiData.tenantId = detail?.artifactInformation?.tenantId;
   cpiData.artifactId = detail?.artifactInformation?.id;
@@ -919,7 +966,7 @@ function setRuntimeLocation(location, silent = false) {
         updatedTextElem.innerHTML = "Update: Wait for refresh";
       }
       if (change) {
-        renderMessageSidebar();
+        renderMessageSidebar(false);
       }
     }
   } catch (e) {
@@ -1123,6 +1170,65 @@ var sidebar = {
       });
   },
 };
+
+//function that handles the dragging
+function dragElement(elmnt) {
+  var pos1 = 0,
+    pos2 = 0,
+    pos3 = 0,
+    pos4 = 0;
+  if (document.getElementById(elmnt.id + "header")) {
+    /* if present, the header is where you move the DIV from:*/
+    document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+  } else {
+    /* otherwise, move the DIV from anywhere inside the DIV:*/
+    elmnt.onmousedown = dragMouseDown;
+  }
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    // call a function whenever the cursor moves:
+    document.onmousemove = elementDrag;
+  }
+
+  let debounceTimeout;
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // calculate the new top and left positions
+    newtop = elmnt.offsetTop - pos2;
+    newleft = elmnt.offsetLeft - pos1;
+    maxheight = window.innerHeight - document.getElementById("cpiHelper_contentheader").offsetHeight;
+    maxwidth = window.innerWidth - document.getElementById("cpiHelper_contentheader").offsetWidth;
+    // bounding position based on max top and width. making position relative in case of resize.
+    let mouse_top = (elmnt.style.top = ((newtop < 0 || newtop >= maxheight ? (newtop < 0 ? 0 : newtop >= maxheight ? maxheight : newtop) : newtop) * 100) / window.innerHeight + "%");
+    let mouse_left = (elmnt.style.left = ((newleft < 0 || newleft >= maxwidth ? (newleft < 0 ? 0 : newleft >= maxwidth ? maxwidth : newleft) : newleft) * 100) / window.innerWidth + "%");
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+      syncChromeStoragePromise("set_ch_popup_mouse", {
+        top: mouse_top,
+        left: mouse_left,
+      });
+      log.log("popup location is stored!!");
+    }, 3000);
+  }
+
+  function closeDragElement() {
+    /* stop moving when mouse button is released:*/
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
+}
 
 function injectCss(cssStyle, id, className) {
   var style = document.createElement("style");
@@ -1523,65 +1629,6 @@ async function handleUrlChange() {
   }
 }
 
-//function that handles the dragging
-function dragElement(elmnt) {
-  var pos1 = 0,
-    pos2 = 0,
-    pos3 = 0,
-    pos4 = 0;
-  if (document.getElementById(elmnt.id + "header")) {
-    /* if present, the header is where you move the DIV from:*/
-    document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
-  } else {
-    /* otherwise, move the DIV from anywhere inside the DIV:*/
-    elmnt.onmousedown = dragMouseDown;
-  }
-
-  function dragMouseDown(e) {
-    e = e || window.event;
-    e.preventDefault();
-    // get the mouse cursor position at startup:
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    document.onmouseup = closeDragElement;
-    // call a function whenever the cursor moves:
-    document.onmousemove = elementDrag;
-  }
-
-  let debounceTimeout;
-  function elementDrag(e) {
-    e = e || window.event;
-    e.preventDefault();
-    // calculate the new cursor position:
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    // calculate the new top and left positions
-    newtop = elmnt.offsetTop - pos2;
-    newleft = elmnt.offsetLeft - pos1;
-    maxheight = window.innerHeight - document.getElementById("cpiHelper_contentheader").offsetHeight;
-    maxwidth = window.innerWidth - document.getElementById("cpiHelper_contentheader").offsetWidth;
-    // bounding position based on max top and width. making position relative in case of resize.
-    let mouse_top = (elmnt.style.top = ((newtop < 0 || newtop >= maxheight ? (newtop < 0 ? 0 : newtop >= maxheight ? maxheight : newtop) : newtop) * 100) / window.innerHeight + "%");
-    let mouse_left = (elmnt.style.left = ((newleft < 0 || newleft >= maxwidth ? (newleft < 0 ? 0 : newleft >= maxwidth ? maxwidth : newleft) : newleft) * 100) / window.innerWidth + "%");
-    clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(() => {
-      syncChromeStoragePromise("set_ch_popup_mouse", {
-        top: mouse_top,
-        left: mouse_left,
-      });
-      log.log("popup location is stored!!");
-    }, 3000);
-  }
-
-  function closeDragElement() {
-    /* stop moving when mouse button is released:*/
-    document.onmouseup = null;
-    document.onmousemove = null;
-  }
-}
-
 //Visited IFlows are stored to show in the popup that appears when pressing the button in browser bar
 async function storeVisitedIflowsForPopup() {
   var url = window.location.href;
@@ -1710,7 +1757,7 @@ setInterval(async function () {
   //check if message sidebar should be refreshed
   if (autoRefreshEnabled) {
     if (nextMessageSidebarRefreshCount <= 0 || (lastTabHidden > 0 && document.hidden == false)) {
-      await refreshMessageSidebar();
+      await refreshMessageSidebar(true);
     }
   }
 
@@ -1745,7 +1792,7 @@ setInterval(async function () {
 }, 3000);
 
 var refreshbutton = null;
-async function refreshMessageSidebar() {
+async function refreshMessageSidebar(cache = true) {
   if (!refreshActive && sidebar.active) {
     log.debug("refresh message sidebar");
 
@@ -1760,7 +1807,7 @@ async function refreshMessageSidebar() {
     refreshActive = true;
     log.debug("refresh message sidebar");
     try {
-      await renderMessageSidebar();
+      await renderMessageSidebar(cache);
     } catch (err) {
       log.error(err);
     }
