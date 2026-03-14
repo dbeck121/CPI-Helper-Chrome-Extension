@@ -538,7 +538,7 @@ async function buildButtonBar() {
     var runtimeButton;
     var runtimeButtonContainer;
     // Create runtime button container with dropdown
-    if (true) {
+    if (cpiData.runtimeLocations && cpiData.runtimeLocations.length > 1) {
       //cpiData.runtimeLocations.length > 1) {
       runtimeButtonContainer = createElementFromHTML(
         `<div id="__runtime_button_container" style="display: inline-block; float: right; position: relative; margin-left: 10px;">
