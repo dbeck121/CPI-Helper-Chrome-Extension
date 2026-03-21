@@ -431,9 +431,15 @@ var formatTrace = function (input, id, traceId, filename) {
     $unformatted.toggleClass("cpiHelper_traceText_active", !isActive);
     $formatted.toggleClass("cpiHelper_traceText_active", isActive);
     $("#beautifyButton").text(isActive ? "Linearize" : "Beautify");
-    if ($formatted.text().trim() === "") {
-      editorManager = new EditorManager("cpiHelper_traceText_formatted_" + id, prettify_type(input), $("#cpihelperglobal").hasClass("ch_dark") ? "github_dark" : "textmate");
-      editorManager.setContent(prettify(input, tab_size));
+    if (isActive) {
+      requestAnimationFrame(() => {
+        if ($formatted.text().trim() === "") {
+          editorManager = new EditorManager("cpiHelper_traceText_formatted_" + id, prettify_type(input), $("#cpihelperglobal").hasClass("ch_dark") ? "github_dark" : "textmate");
+          editorManager.setContent(prettify(input, tab_size));
+        } else {
+          editorManager.resize();
+        }
+      });
     }
   };
 

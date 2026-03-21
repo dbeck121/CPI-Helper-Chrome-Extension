@@ -12,12 +12,32 @@ cpiData.tenant = document.location.host;
 cpiData.urlExtension = "";
 cpiData.runtimePathExtension = "";
 cpiData.classicUrl = false;
-cpiData.functions = {};
-cpiData.functions["popup"] = showBigPopup;
-cpiData.isEdge = false;
-cpiData.runtimeLocationId = "";
+cpiData.tenantId = null;
+
+cpiData.flowData = {};
+cpiData.flowData.artifactInformation = {};
+cpiData.flowData.artifactInformation.lastUpdate = null;
+cpiData.flowData.artifactInformation.artifactId = null;
+cpiData.flowData.artifactInformation.version = null;
+cpiData.flowData.artifactInformation.deployState = null;
+cpiData.flowData.artifactInformation.deployedOn = null;
+cpiData.flowData.artifactInformation.name = null;
+cpiData.flowData.artifactInformation.symbolicName = null;
+cpiData.flowData.artifactInformation.id = null;
+
+cpiData.flowData.logConfiguration = {};
+cpiData.flowData.logConfiguration.traceActive = null;
+
+cpiData.flowData.endpointInformation = [];
+
+//cpiData.isEdge = false;
+cpiData.runtimeLocationId = "cloudintegration";
 cpiData.runtimeLocations = [];
 cpiData.runtimeLocationWithActiveIFlow = [];
+
+cpiData.functions = {};
+cpiData.functions["popup"] = showBigPopup;
+
 let regexGetPlatform = /cfapps/;
 let regexMatch = regexGetPlatform.exec(document.location.host);
 cpiData.cpiPlatform = regexMatch !== null ? "cf" : "neo";
@@ -381,7 +401,7 @@ async function setLogLevel(logLevel, iflowId) {
 //undeploy IFlow via API call
 function undeploy(tenant = null, artifactId = null) {
   tenant ??= cpiData.tenantId;
-  artifactId ??= cpiData.artifactId;
+  artifactId ??= cpiData.flowData.artifactInformation.id;
   edgeExtension = cpiData.runtimeLocationId != "cloudintegration" ? `&runtimeLocationId=${cpiData.runtimeLocationId}` : "";
   makeCallPromise(
     "POST",
@@ -659,7 +679,7 @@ async function buildButtonBar() {
 
       const btn = document.getElementById("button134345-BDI-content");
       btn.classList.toggle("cpiHelper_powertrace");
-      const objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`;
+      const objName = `${cpiData.integrationFlowId}_${cpiData.runtimeLocationId}_powertraceLastRefresh`;
       if (btn.classList.contains("cpiHelper_powertrace")) {
         setLogLevel("TRACE", cpiData.integrationFlowId);
         statistic("set_log_level", "TRACE");
@@ -818,6 +838,22 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
             ? respJson.artifactInformations
             : null;
         if (artifact) {
+          // collect information about current tenant and artifact if runtime location matches the selected one. this is needed to avoid another call to get the artifact information later, because we already have it here
+          if (cpiData.runtimeLocationId && loc.id == cpiData.runtimeLocationId) {
+            cpiData.tenantId = artifact.tenantId || null;
+            cpiData.flowData.artifactInformation.lastUpdate = new Date().toISOString();
+            cpiData.flowData.artifactInformation.artifactId = artifact.id || null;
+            cpiData.flowData.artifactInformation.version = artifact.version || null;
+            cpiData.flowData.artifactInformation.deployState = artifact.deployState || null;
+            cpiData.flowData.artifactInformation.deployedOn = artifact.deployedOn || null;
+            cpiData.flowData.artifactInformation.name = artifact.name || null;
+            cpiData.flowData.artifactInformation.symbolicName = artifact.symbolicName || null;
+            cpiData.flowData.artifactInformation.id = artifact.id || null;
+            cpiData.flowData.artifactInformation.semanticState = artifact.semanticState || null;
+            cpiData.flowData.artifactInformation.deployedBy = artifact.deployedBy || null;
+            cpiData.flowData.manualSetUndeployed = false;
+          }
+
           runtimeLocationWithActiveIFlow.push({
             id: loc.id,
             state: loc.state,
@@ -829,6 +865,11 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
       } catch (locError) {
         log.warn("Error fetching runtime location " + loc.id + ": ", locError);
         continue;
+      }
+
+      if (runtimeLocationWithActiveIFlow.length == 0) {
+        cpiData.flowData.manualSetUndeployed = true;
+        log.warn("No runtime location with active IFlow found for location " + loc.id);
       }
     }
 
@@ -844,6 +885,7 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
       }
     });
 
+    /*
     runtimeLocationWithActiveIFlowTemp = [];
     for (const loc of runtimeLocationWithActiveIFlow) {
       try {
@@ -895,7 +937,14 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
       }
     }
 
-    if (cpiData.runtimeLocationId) {
+    setRuntimeLocation(
+      cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id === cpiData.runtimeLocationId),
+      true
+    );
+
+    */
+
+    /*   if (cpiData.runtimeLocationId) {
       if (cpiData.runtimeLocationWithActiveIFlow.length == 0) {
         log.warn("Previously selected runtime location " + cpiData.runtimeLocationId + " is not available anymore and no runtime location with active IFlow found. Please deploy the IFlow or check your environment.");
         setRuntimeLocation({ id: "cloudintegration" });
@@ -915,6 +964,7 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
         );
       }
     }
+      */
 
     if (callback) callback();
   } catch (error) {
@@ -940,14 +990,6 @@ function setRuntimeLocation(location, silent = false) {
   } else {
     cpiData.runtimePathExtension = "";
   }
-  const detail = location.detail;
-  //detail might be null
-
-  cpiData.flowData = detail || { manualSetUndeployed: true, artifactInformation: { tenantId: null, id: null, version: null } };
-  cpiData.flowData.lastUpdate = new Date().toISOString();
-  cpiData.tenantId = detail?.artifactInformation?.tenantId;
-  cpiData.artifactId = detail?.artifactInformation?.id;
-  cpiData.version = detail?.artifactInformation?.version;
 
   log.debug(`Runtime location set to: ${cpiData.runtimeLocationId}`);
 
@@ -977,6 +1019,54 @@ function setRuntimeLocation(location, silent = false) {
   if (!silent) {
     showToast(`Runtime location set to: ${cpiData.runtimeLocationId}`, "info");
   }
+}
+
+async function getIflowInfoExtended(silent = true) {
+  runtimeLocationWithActiveIFlowTemp = [];
+  for (const loc of cpiData.runtimeLocations) {
+    try {
+      // 4. Detaildaten holen
+      const detailResp = await makeCallPromiseV2(
+        "GET",
+        "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + cpiData.flowData.artifactInformation?.id + "&runtimeLocationId=" + loc.id,
+        null,
+        "application/json",
+        null,
+        null,
+        null,
+        silent
+      );
+
+      if (!detailResp.successful) {
+        log.warn("Error fetching detail for location " + loc.id + ": " + detailResp.message);
+        continue;
+      }
+
+      const detail = JSON.parse(detailResp.responseText);
+
+      runtimeLocationWithActiveIFlowTemp.push({
+        detail: detail,
+        artifact: detail.artifactInformation,
+        artifactId: detail.artifactInformation?.id,
+        tenantId: detail.artifactInformation?.tenantId,
+        version: detail.artifactInformation?.version,
+        id: loc.id,
+        state: loc.state,
+        type: loc.type,
+        typeId: loc.typeId,
+      });
+
+      if (loc.id === cpiData.runtimeLocationId) {
+        cpiData.flowData.endpointInformation = detail.endpointInformation || null;
+        cpiData.flowData.logConfiguration = detail.logConfiguration || null;
+      }
+    } catch (detailError) {
+      log.warn("Error fetching detail for location " + loc.id + ": ", detailError);
+      continue;
+    }
+  }
+
+  cpiData.runtimeLocationWithActiveIFlow = runtimeLocationWithActiveIFlowTemp;
 }
 
 async function getIflowInfoNeo(callback, silent = false, cache = true) {
@@ -1688,7 +1778,7 @@ async function refreshPowerTrace() {
 
   var powertraceText = "";
 
-  var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`;
+  var objName = `${cpiData.integrationFlowId}_${cpiData.runtimeLocationId}_powertraceLastRefresh`;
   var timeAsStringOrNull = await storageGetPromise(objName);
 
   if (timeAsStringOrNull != null && timeAsStringOrNull != undefined) {
@@ -1701,10 +1791,17 @@ async function refreshPowerTrace() {
       // if button list already exists (e.g. after url change), reapply class to button
       var btn = document.getElementById("button134345-BDI-content");
       if (btn != undefined && !btn.classList.contains("cpiHelper_powertrace")) {
-        btn.classList.toggle("cpiHelper_powertrace");
+        btn.classList.add("cpiHelper_powertrace");
       }
     }
+  } else {
+    // if button list already exists (e.g. after url change), reapply class to button
+    var btn = document.getElementById("button134345-BDI-content");
+    if (btn != undefined && !btn.classList.contains("cpiHelper_powertrace")) {
+      btn.classList.remove("cpiHelper_powertrace");
+    }
   }
+
   return powertraceText;
 }
 
@@ -1763,7 +1860,7 @@ setInterval(async function () {
 
   //check if trace should be refreshed again
   //check if value in storage exists and time is longer than 9 (overlap) and less than 20 minutes (upper limit in order to not auto-reactivate the trace after a longer break)
-  var objName = `${cpiData.integrationFlowId}_powertraceLastRefresh`;
+  var objName = `${cpiData.integrationFlowId}_${cpiData.runtimeLocationId}_powertraceLastRefresh`;
   var timeAsStringOrNull = await storageGetPromise(objName);
   if (timeAsStringOrNull != null && timeAsStringOrNull != undefined) {
     var now = new Date().getTime();

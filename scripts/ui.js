@@ -286,6 +286,7 @@ ${licenseText}
 async function openIflowInfoPopup() {
   async function getInfoContent() {
     await getIflowInfo(null, false, false);
+    await getIflowInfoExtended();
 
     var x = document.createElement("div");
     x.classList.add("cpiHelper_infoPopUp_content");
