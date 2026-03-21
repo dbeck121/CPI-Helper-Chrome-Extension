@@ -45,7 +45,7 @@ It is open source so feel free to check the source code.
 ## Changelog
 
 ### 3.24.0
-
+- [Feature] Now working with different runtimes like Edge Integration Cell. Thanks to [Philippe Addor](https://www.linkedin.com/in/philippeaddor/) and [Riteek Khaul](https://github.com/riteek1997)
 - [Plugin] New "Environment Traffic Light"Plugin shows an indicator about your landscape. Special thanks to [Aman Anand](https://github.com/heyamananand).
 - [Plugin] GroovyDebugX IDE Plugin works now with Groovy Script v2 Elements. Special thanks to [Sunil Pharswan](https://linkedin.com/in/sunilph).
 
