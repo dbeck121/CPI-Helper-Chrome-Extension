@@ -309,13 +309,20 @@ async function openIflowInfoPopup() {
     x.appendChild(createElementFromHTML(textElement));
     textElement = `<div class="cpiHelper_infoPopUp_items">
       <div>Name: ${cpiData?.flowData?.artifactInformation?.name}</div>
+      <div>Runtime: ${cpiData.runtimeLocationId}</div>
       <div>SymbolicName: ${cpiData?.flowData?.artifactInformation?.symbolicName}</div>
+      <div>DeploymentState: ${cpiData?.flowData?.artifactInformation?.deployState}</div>
+      ${
+        cpiData?.flowData?.artifactInformation?.deployState !== "UNDEPLOYED"
+          ? `
       <div>Trace: ${cpiData?.flowData?.logConfiguration?.traceActive}</div>
       <div>DeployedVersion: ${cpiData?.flowData?.artifactInformation?.version}</div>
       <div>DeployedOn: ${deployedOn}</div>
-      <div>DeploymentState: ${cpiData?.flowData?.artifactInformation?.deployState}</div>
       <div>SemanticState: ${cpiData?.flowData?.artifactInformation?.semanticState}</div>
       <div>DeployedBy: ${cpiData?.flowData?.artifactInformation?.deployedBy}</div>
+      `
+          : ""
+      }
     </div>`;
 
     x.appendChild(createElementFromHTML(textElement));

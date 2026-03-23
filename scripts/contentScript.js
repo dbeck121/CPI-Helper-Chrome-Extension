@@ -762,7 +762,7 @@ async function getIflowInfo(callback, silent = false, cache = true) {
   if (deploymentText) {
     let deployState = cpiData?.flowData?.artifactInformation?.deployState;
     if (!deployState || deployState == "") {
-      deployState = cpiData?.flowData?.manualSetUndeployed ? "Undeployed" : "UNKNOWN";
+      deployState = cpiData?.flowData?.manualSetUndeployed ? "UNDEPLOYED" : "UNKNOWN";
     }
 
     let statusColor = getStatusColorCode(deployState);
@@ -871,6 +871,9 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
       if (runtimeLocationWithActiveIFlow.length == 0) {
         cpiData.flowData.manualSetUndeployed = true;
         log.warn("No runtime location with active IFlow found for location " + loc.id);
+        cpiData.flowData.artifactInformation.deployState = "UNDEPLOYED";
+        cpiData.flowData.artifactInformation.deployedOn = null;
+        cpiData.flowData.artifactInformation.deployedBy = null;
       }
     }
 
@@ -994,7 +997,7 @@ async function setRuntimeLocation(location, silent = false) {
     if (deploymentText) {
       let deployState = cpiData?.flowData?.artifactInformation?.deployState;
       if (!deployState || deployState == "") {
-        deployState = cpiData?.flowData?.manualSetUndeployed ? "Undeployed" : "UNKNOWN";
+        deployState = cpiData?.flowData?.manualSetUndeployed ? "UNDEPLOYED" : "UNKNOWN";
       }
 
       let statusColor = getStatusColorCode(deployState);
