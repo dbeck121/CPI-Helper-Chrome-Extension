@@ -107,7 +107,7 @@ async function clickTrace(e) {
     }
 
     if (object.traceType == "trace") {
-      let elements = await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + traceId + ")/$value", true);
+      let elements = await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/TraceMessages(" + traceId + ")/$value", true);
       html = formatTrace(elements, object.runId + "_" + object.childCount, traceId);
     }
 
