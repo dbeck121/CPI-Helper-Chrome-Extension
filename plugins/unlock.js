@@ -19,7 +19,7 @@ var plugin = {
       //removes or rather deletes the lock on this artifact
       button.addEventListener("click", async () => {
         //prepare unlock
-        const urlForResourceId = `/${pluginHelper.urlExtension}odata/api/v1/IntegrationDesigntimeLocks?$format=json`;
+        const urlForResourceId = `/${pluginHelper.urlExtension + cpiData.runtimePathExtension}odata/api/v1/IntegrationDesigntimeLocks?$format=json`;
         var dataOfDesigntimeLocks = JSON.parse(await makeCallPromise("GET", urlForResourceId, false)).d.results;
 
         //get resourceid by matching the artifactid
@@ -112,7 +112,7 @@ var plugin = {
 
               //unlock artifact if locked
               if (lock?.ResourceId != undefined && choice == true) {
-                var urlForUnlock = `/${pluginHelper.urlExtension}odata/api/v1/IntegrationDesigntimeLocks(ResourceId='${lock?.ResourceId}')`;
+                var urlForUnlock = `/${pluginHelper.urlExtension + cpiData.runtimePathExtension}odata/api/v1/IntegrationDesigntimeLocks(ResourceId='${lock?.ResourceId}')`;
                 await makeCallPromise("DELETE", urlForUnlock, false, null, null, true);
                 showToast("The artifact has been unlocked", "", "success");
               } else if (choice == true && lock?.ResourceId == undefined) {

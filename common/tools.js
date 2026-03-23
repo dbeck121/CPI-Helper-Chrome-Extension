@@ -220,17 +220,16 @@ async function makeCallPromise(method, url, useCache, accept, payload, includeXc
 
   if (cache) {
     log.debug("makeCallPromise cache hit");
-    return cache;
+    return cache.responseText;
   }
 
   var xhr = await makeCallPromiseXHR(method, url, accept, payload, includeXcsrf, contentType, (showInfo = true));
 
   if (xhr.status >= 200 && xhr.status < 300) {
-    if (useCache && typeof useCache == "boolean") {
-      httpCache.set(method + url, xhr.responseText);
-    }
-    if (useCache && typeof useCache == "number") {
-      httpCache.set(method + url, xhr.responseText, useCache);
+    if (typeof useCache == "boolean") {
+      httpCache.set(method + url, { responseText: xhr.responseText, status: xhr.status, statusText: xhr.statusText });
+    } else {
+      httpCache.set(method + url, { responseText: xhr.responseText, status: xhr.status, statusText: xhr.statusText }, useCache);
     }
     return xhr.responseText;
   }
@@ -238,7 +237,40 @@ async function makeCallPromise(method, url, useCache, accept, payload, includeXc
   return {
     status: xhr.status,
     statusText: xhr.statusText,
+    responseText: xhr.responseText,
+    successful: false,
   };
+}
+
+async function makeCallPromiseV2(method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo = true) {
+  log.debug("makeCallPromise: ", method, url, useCache, accept, payload, includeXcsrf, contentType, showInfo);
+
+  var cache;
+
+  //check if useCache is boolean or number
+  if ((typeof useCache == "boolean" && useCache == true) || (typeof useCache == "number" && useCache > 0)) {
+    cache = httpCache.get(method + url);
+  }
+
+  if (cache) {
+    log.debug("makeCallPromise cache hit");
+    return cache;
+  }
+
+  var xhr = await makeCallPromiseXHR(method, url, accept, payload, includeXcsrf, contentType, (showInfo = true)).catch((error) => {
+    return { successful: false, status: error.status, statusText: error.statusText, responseText: error.responseText };
+  });
+
+  if (xhr.status >= 200 && xhr.status < 300) {
+    if (typeof useCache == "number") {
+      httpCache.set(method + url, { successful: true, responseText: xhr.responseText, status: xhr.status, statusText: xhr.statusText }, useCache);
+    } else {
+      httpCache.set(method + url, { successful: true, responseText: xhr.responseText, status: xhr.status, statusText: xhr.statusText });
+    }
+    return { successful: true, responseText: xhr.responseText, status: xhr.status, statusText: xhr.statusText };
+  }
+
+  return xhr;
 }
 
 let absolutePath = function (href) {
@@ -399,9 +431,15 @@ var formatTrace = function (input, id, traceId, filename) {
     $unformatted.toggleClass("cpiHelper_traceText_active", !isActive);
     $formatted.toggleClass("cpiHelper_traceText_active", isActive);
     $("#beautifyButton").text(isActive ? "Linearize" : "Beautify");
-    if ($formatted.text().trim() === "") {
-      editorManager = new EditorManager("cpiHelper_traceText_formatted_" + id, prettify_type(input), $("#cpihelperglobal").hasClass("ch_dark") ? "github_dark" : "textmate");
-      editorManager.setContent(prettify(input, tab_size));
+    if (isActive) {
+      requestAnimationFrame(() => {
+        if ($formatted.text().trim() === "") {
+          editorManager = new EditorManager("cpiHelper_traceText_formatted_" + id, prettify_type(input), $("#cpihelperglobal").hasClass("ch_dark") ? "github_dark" : "textmate");
+          editorManager.setContent(prettify(input, tab_size));
+        } else {
+          editorManager.resize();
+        }
+      });
     }
   };
 
@@ -668,7 +706,7 @@ function hexToHsl(hex, values = false) {
   var g = parseInt(result[2], 16);
   var b = parseInt(result[3], 16);
   var cssString = "";
-  (r /= 255), (g /= 255), (b /= 255);
+  ((r /= 255), (g /= 255), (b /= 255));
   var max = Math.max(r, g, b),
     min = Math.min(r, g, b);
   var h,
