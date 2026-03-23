@@ -762,7 +762,7 @@ async function getIflowInfo(callback, silent = false, cache = true) {
   if (deploymentText) {
     let deployState = cpiData?.flowData?.artifactInformation?.deployState;
     if (!deployState || deployState == "") {
-      deployState = cpiData?.flowData?.manualSetUndeployed ? "UNDEPLOYED" : "UNKNOWN";
+      deployState = "UNKNOWN";
     }
 
     let statusColor = getStatusColorCode(deployState);
@@ -867,14 +867,13 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
         log.warn("Error fetching runtime location " + loc.id + ": ", locError);
         continue;
       }
+    }
 
-      if (runtimeLocationWithActiveIFlow.length == 0) {
-        cpiData.flowData.manualSetUndeployed = true;
-        log.warn("No runtime location with active IFlow found for location " + loc.id);
-        cpiData.flowData.artifactInformation.deployState = "UNDEPLOYED";
-        cpiData.flowData.artifactInformation.deployedOn = null;
-        cpiData.flowData.artifactInformation.deployedBy = null;
-      }
+    if (cpiData.runtimeLocationId && !runtimeLocationWithActiveIFlow.find((loc) => loc.id == cpiData.runtimeLocationId)) {
+      log.warn("No active IFlow found for location " + cpiData.runtimeLocationId);
+      cpiData.flowData.artifactInformation.deployState = "UNDEPLOYED";
+      cpiData.flowData.artifactInformation.deployedOn = null;
+      cpiData.flowData.artifactInformation.deployedBy = null;
     }
 
     //check that there are no dublicates in runtimeLocationWithActiveIFlow, if yes, log it and remove duplicates
@@ -990,18 +989,6 @@ async function setRuntimeLocation(location, silent = false) {
     let messageList = document.getElementById("messageList");
     if (messageList) {
       messageList.innerHTML = "";
-    }
-
-    //update text and color of deployment status in message sidebar if element is there
-    let deploymentText = document.getElementById("deploymentText");
-    if (deploymentText) {
-      let deployState = cpiData?.flowData?.artifactInformation?.deployState;
-      if (!deployState || deployState == "") {
-        deployState = cpiData?.flowData?.manualSetUndeployed ? "UNDEPLOYED" : "UNKNOWN";
-      }
-
-      let statusColor = getStatusColorCode(deployState);
-      deploymentText.innerHTML = `<span style="color:${statusColor}">${deployState}</span>`;
     }
   }
 
