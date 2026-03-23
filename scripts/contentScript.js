@@ -974,7 +974,7 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
   }
 }
 
-function setRuntimeLocation(location, silent = false) {
+async function setRuntimeLocation(location, silent = false) {
   change = false;
   //check if this is a change of runtime location
   if (cpiData.runtimeLocationId && cpiData.runtimeLocationId !== location.id) {
@@ -1009,7 +1009,15 @@ function setRuntimeLocation(location, silent = false) {
         updatedTextElem.innerHTML = "Update: Wait for refresh";
       }
       if (change) {
-        renderMessageSidebar(false);
+        await getIflowInfo(null, true, false);
+
+        //reset all entries in message sidebar to avoid issues with different runtime locations
+        let messageList = document.getElementById("messageList");
+        if (messageList) {
+          messageList.innerHTML = "";
+        }
+
+        await renderMessageSidebar(false);
       }
     }
   } catch (e) {
