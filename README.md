@@ -44,7 +44,7 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
-### 3.24.0
+### 3.24.2
 
 - [Feature] Experimental - Now working with different runtimes like Edge Integration Cell. Thanks to [Nic Frigius](https://www.contiva.com), [Philippe Addor](https://www.linkedin.com/in/philippeaddor/) and [Riteek Khaul](https://github.com/riteek1997)
 - [Plugin] New "Environment Traffic Light" Plugin shows an indicator about your landscape. Special thanks to [Aman Anand](https://github.com/heyamananand).
