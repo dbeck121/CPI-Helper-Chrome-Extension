@@ -988,6 +988,18 @@ async function setRuntimeLocation(location, silent = false) {
     if (messageList) {
       messageList.innerHTML = "";
     }
+
+    //update text and color of deployment status in message sidebar if element is there
+    let deploymentText = document.getElementById("deploymentText");
+    if (deploymentText) {
+      let deployState = cpiData?.flowData?.artifactInformation?.deployState;
+      if (!deployState || deployState == "") {
+        deployState = cpiData?.flowData?.manualSetUndeployed ? "Undeployed" : "UNKNOWN";
+      }
+
+      let statusColor = getStatusColorCode(deployState);
+      deploymentText.innerHTML = `<span style="color:${statusColor}">${deployState}</span>`;
+    }
   }
 
   cpiData.runtimeLocationId = location.id;
