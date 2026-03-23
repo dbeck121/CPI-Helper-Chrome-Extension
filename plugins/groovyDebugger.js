@@ -315,8 +315,8 @@ async function getArtifactIdDirectly() {
       const artifact = Array.isArray(listData.artifactInformations)
         ? listData.artifactInformations.find((e) => e.symbolicName === cpiData.integrationFlowId)
         : listData.artifactInformations?.symbolicName === cpiData.integrationFlowId
-        ? listData.artifactInformations
-        : null;
+          ? listData.artifactInformations
+          : null;
 
       if (!artifact) {
         throw new Error("Integration Flow not found in list");
@@ -342,8 +342,8 @@ async function getArtifactIdDirectly() {
       const artifact = Array.isArray(listData.artifactInformations)
         ? listData.artifactInformations.find((e) => e.symbolicName === cpiData.integrationFlowId)
         : listData.artifactInformations?.symbolicName === cpiData.integrationFlowId
-        ? listData.artifactInformations
-        : null;
+          ? listData.artifactInformations
+          : null;
 
       if (!artifact) {
         throw new Error("Integration Flow not found in list");
@@ -531,7 +531,9 @@ async function fetchGroovyDebugData(runInfo, groovyStep) {
     var childCount = groovyStep.ChildCount;
 
     // Get trace messages for this step
-    var traceData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + runId + "',ChildCount=" + childCount + ")/TraceMessages?$format=json", true)).d.results;
+    var traceData = JSON.parse(
+      await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + runId + "',ChildCount=" + childCount + ")/TraceMessages?$format=json", true)
+    ).d.results;
 
     var traceInfo = traceData.find((trace) => trace.TraceId);
 
@@ -546,7 +548,7 @@ async function fetchGroovyDebugData(runInfo, groovyStep) {
     // Get properties
     var properties = {};
     try {
-      var propsData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + traceId + ")/ExchangeProperties?$format=json", true)).d.results;
+      var propsData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/TraceMessages(" + traceId + ")/ExchangeProperties?$format=json", true)).d.results;
       propsData.forEach((prop) => {
         properties[prop.Name] = prop.Value;
       });
@@ -559,7 +561,9 @@ async function fetchGroovyDebugData(runInfo, groovyStep) {
     // Get run step data with properties for Log and Info tabs
     var runStepData = {};
     try {
-      runStepData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + runId + "',ChildCount=" + childCount + ")/?$expand=RunStepProperties&$format=json", true)).d;
+      runStepData = JSON.parse(
+        await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + runId + "',ChildCount=" + childCount + ")/?$expand=RunStepProperties&$format=json", true)
+      ).d;
     } catch (e) {
       log.log("No run step data for this step");
     }
@@ -600,7 +604,7 @@ async function createGroovyDebugContent(data) {
   // Lazy load body content when Body tab is activated
   let bodyContent = async () => {
     try {
-      let payload = await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + data.traceId + ")/$value", true);
+      let payload = await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/TraceMessages(" + data.traceId + ")/$value", true);
       return formatTrace(payload || "No payload", "groovyDebugBody", null, "payload.txt");
     } catch (error) {
       log.error("Error fetching body content:", error);
@@ -611,7 +615,7 @@ async function createGroovyDebugContent(data) {
   // Lazy load headers content when Headers tab is activated
   let headersContent = async () => {
     try {
-      let headersData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + data.traceId + ")/Properties?$format=json", true)).d.results;
+      let headersData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/TraceMessages(" + data.traceId + ")/Properties?$format=json", true)).d.results;
       let headers = {};
       headersData.forEach((header) => {
         headers[header.Name] = header.Value;
