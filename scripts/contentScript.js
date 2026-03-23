@@ -752,9 +752,9 @@ async function buildButtonBar() {
 async function getIflowInfo(callback, silent = false, cache = true) {
   result = null;
   if (cpiData.cpiPlatform == "cf") {
-    result = getIflowInfoCf(callback, silent, cache);
+    result = await getIflowInfoCf(callback, silent, cache);
   } else if (cpiData.cpiPlatform == "neo") {
-    result = getIflowInfoNeo(callback, silent, cache);
+    result = await getIflowInfoNeo(callback, silent, cache);
   }
 
   //update text and color of deployment status in message sidebar if element is there
