@@ -983,6 +983,11 @@ async function setRuntimeLocation(location, silent = false) {
     lastCompletedLogStart = getLastCompletedLogStart();
     cpiData.messageSidebar.lastMessageHashList = [];
     lastMessageResponses = [];
+    //reset all entries in message sidebar to avoid issues with different runtime locations
+    let messageList = document.getElementById("messageList");
+    if (messageList) {
+      messageList.innerHTML = "";
+    }
   }
 
   cpiData.runtimeLocationId = location.id;
@@ -1010,12 +1015,6 @@ async function setRuntimeLocation(location, silent = false) {
       }
       if (change) {
         await getIflowInfo(null, true, false);
-
-        //reset all entries in message sidebar to avoid issues with different runtime locations
-        let messageList = document.getElementById("messageList");
-        if (messageList) {
-          messageList.innerHTML = "";
-        }
 
         await renderMessageSidebar(false);
       }
