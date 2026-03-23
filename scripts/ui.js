@@ -666,7 +666,7 @@ async function openIflowInfoPopup() {
 function openTrace(MessageGuid) {
   log.debug("MessageGuid");
   //we have to get the RunID first
-  makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$format=json", false)
+  makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$format=json", false)
     .then((responseText) => {
       var resp = JSON.parse(responseText);
       var status = resp.d.results[0].OverallState;
@@ -676,14 +676,7 @@ function openTrace(MessageGuid) {
         var runId = resp.d.results[0].Id;
       }
 
-      let url =
-        "/" +
-        cpiData.urlExtension +
-        'shell/monitoring/MessageProcessingRun/%7B"parentContext":%7B"MessageMonitor":%7B"artifactKey":"__ALL__MESSAGE_PROVIDER","artifactName":"All%20Artifacts"%7D%7D,"messageProcessingLog":"' +
-        MessageGuid +
-        '","RunId":"' +
-        runId +
-        '"%7D';
+      let url = "/" + cpiData.urlExtension + "shell/monitoring/MessageProcessingRun/" + encodeURIComponent(JSON.stringify({ edge: { runtimeLocationId: cpiData.runtimeLocationId }, messageProcessingLog: MessageGuid, RunId: runId }));
       window.open(url, "_blank");
     })
     .catch((e) => {

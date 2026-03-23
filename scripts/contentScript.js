@@ -142,7 +142,7 @@ async function renderMessageSidebar(cache = true) {
   let updatedText = document.getElementById("cpiHelper_sidebar_refresh_text");
 
   if (updatedText) {
-    if (cpiData.runtimeLocationId && cpiData.runtimeLocationId !== "cloudintegration" && cpiData.runtimeLocationId !== "undefined" && cpiData.runtimeLocationWithActiveIFlow && cpiData.runtimeLocationWithActiveIFlow.length == 1) {
+    if (cpiData.runtimeLocationId && cpiData.runtimeLocations && cpiData.runtimeLocations.length > 1) {
       updatedText.innerHTML = "Runtime: " + cpiData.runtimeLocationId + "<br>Update: " + new Date().toLocaleTimeString("de-DE");
     } else {
       // hide runtime info when only cloudintegration is available
@@ -233,9 +233,7 @@ async function renderMessageSidebar(cache = true) {
           }
 
           let infoButton = createElementFromHTML(
-            `<button title='show logs in new tab' id='info--${i}' class='${
-              cpiData.urlExtension && !resp[i].AlternateWebLink.replace("https://", "").match(cpiTypeRegexp) ? resp[i].AlternateWebLink.replace("443/shell", "443/" + cpiData.urlExtension + "shell") : resp[i].AlternateWebLink
-            } ${flash}'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>`
+            `<button title='show logs in new tab' id='info--${i}' class='${resp[i].MessageGuid} ${flash}'><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>`
           );
 
           let logButton = createElementFromHTML(
@@ -306,12 +304,13 @@ async function renderMessageSidebar(cache = true) {
 
           //timebutton merged in statusicon.
           messageList.appendChild(createRow([statusicon, logButton, infoButton, traceButton, quickInlineTraceButton, ...pluginButtons], resp[i].MessageGuid));
+
           infoButton.addEventListener("click", (a) => {
             statistic("messagebar_btn_info_click");
-            let url = a.currentTarget.classList[0];
-            if (url.match(cpiTypeRegexp)) {
-              url = url.replace("/itspaces", "");
-            }
+            let messageGuid = a.currentTarget.classList[0];
+
+            url = "/" + cpiData.urlExtension + "shell/monitoring/Messages/" + encodeURIComponent(JSON.stringify({ edge: { runtimeLocationId: cpiData.runtimeLocationId }, identifier: messageGuid }));
+
             window.open(url, "_blank");
           });
 
@@ -475,7 +474,7 @@ function updateRuntimeLocationDropdown(traceDropdownMenu = null) {
       const isActive = cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id === location.id);
       const checkmark = isSelected ? "✓ " : "&nbsp;&nbsp;";
       const bgColor = isSelected && isActive ? "#c8e6c9" : isSelected ? "#e3f2fd" : "";
-      dropdownItems += `<div class="__trace_dropdown_item" data-location-id="${location.id}" style="padding: 4px 10px; cursor: pointer; font-size: 13px; background: ${bgColor}; ${isSelected ? "font-weight: bold;" : ""}">${checkmark}${location.id}${isActive ? " (Deployed)" : " (Not Deployed)"}</div>`;
+      dropdownItems += `<div class="__trace_dropdown_item" data-location-id="${location.id}" style="padding: 4px 10px; cursor: pointer; font-size: 13px; background: ${bgColor}; ${isSelected ? "font-weight: bold;" : ""}">${checkmark}${location.id}</div>`;
     });
   } else {
     dropdownItems = `<div class="__trace_dropdown_item" style="padding: 4px 10px; cursor: default; font-size: 13px; color: #888;">No runtime locations</div>`;
@@ -621,7 +620,6 @@ async function buildButtonBar() {
     );
 
     area.style.textAlign = "right";
-    var breakLine = document.createElement("br");
     document.querySelector("[id*='--searchStep-I']").accessKey = "s";
     area = document.querySelector("[id*='--iflowObjectPageHeader-actions']");
     if (!area) {
@@ -636,14 +634,17 @@ async function buildButtonBar() {
     // ensure the container sits above other elements and is positioned for its dropdowns
     buttonbarDiv.style.position = "relative";
     buttonbarDiv.style.zIndex = "4";
-    buttonbarDiv.appendChild(moreButton);
-    buttonbarDiv.appendChild(infobutton);
-    buttonbarDiv.appendChild(messagebutton);
-    buttonbarDiv.appendChild(tracebutton);
+    buttonbarDiv.style.display = "flex";
+    buttonbarDiv.style.flexWrap = "wrap";
+    buttonbarDiv.style.justifyContent = "flex-end";
 
-    buttonbarDiv.appendChild(breakLine);
+    buttonbarDiv.appendChild(tracebutton);
+    buttonbarDiv.appendChild(messagebutton);
+    buttonbarDiv.appendChild(infobutton);
+    buttonbarDiv.appendChild(moreButton);
 
     if (runtimeButtonContainer) {
+      runtimeButtonContainer.style.flexBasis = "100%";
       buttonbarDiv.appendChild(runtimeButtonContainer);
     }
 
@@ -1002,7 +1003,7 @@ function setRuntimeLocation(location, silent = false) {
   try {
     const updatedTextElem = document.getElementById("cpiHelper_sidebar_refresh_text");
     if (updatedTextElem) {
-      if (cpiData.runtimeLocationId && cpiData.runtimeLocationId !== "cloudintegration" && cpiData.runtimeLocationId !== "undefined" && cpiData.runtimeLocationWithActiveIFlow && cpiData.runtimeLocationWithActiveIFlow.length > 1) {
+      if (cpiData.runtimeLocationId && cpiData.runtimeLocations && cpiData.runtimeLocations.length > 1) {
         updatedTextElem.innerHTML = "Runtime: " + cpiData.runtimeLocationId + "<br>Update: Wait for refresh";
       } else {
         updatedTextElem.innerHTML = "Update: Wait for refresh";

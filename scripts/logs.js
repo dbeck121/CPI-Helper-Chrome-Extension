@@ -295,7 +295,7 @@ createPersistLogsContent = async (messageId) => {
         label: "Log",
         content: async (input) => {
           return formatTrace(
-            await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageStoreEntries('" + input.item + "')/$value", false),
+            await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/MessageStoreEntries('" + input.item + "')/$value", false),
             "cpiHelper_persistLogsItem" + input.item,
             null,
             `${cpiData.integrationFlowId}_persist_${input.name}_${cpiData.logEnd}`
@@ -308,7 +308,7 @@ createPersistLogsContent = async (messageId) => {
       {
         label: "Properties",
         content: async (input) => {
-          let elements = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/MessageStoreEntries('" + input.item + "')/Properties?$format=json", true)).d.results;
+          let elements = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/MessageStoreEntries('" + input.item + "')/Properties?$format=json", true)).d.results;
           return formatHeadersAndPropertiesToTable(elements);
         },
         item: input.item,
