@@ -16,13 +16,13 @@ var plugin = {
     onClick: async (pluginHelper, settings, runInfo, active) => {
       // Data Prep for table
       // Get correlationId of current message
-      const urlForCorrelationId = `/${pluginHelper.urlExtension}odata/api/v1/MessageProcessingLogs?$format=json&$filter=MessageGuid eq '${runInfo.messageGuid}'`;
+      const urlForCorrelationId = `/${pluginHelper.urlExtension + cpiData.runtimePathExtension}odata/api/v1/MessageProcessingLogs?$format=json&$filter=MessageGuid eq '${runInfo.messageGuid}'`;
       var dataOfCurrentMessage = JSON.parse(await makeCallPromise("GET", urlForCorrelationId, false)).d.results;
 
       // Get data for table
       // Order by LogStart so we know in what order it started
-      const urlForPathData = `/${pluginHelper.urlExtension}odata/api/v1/MessageProcessingLogs?$format=json&$filter=CorrelationId eq '${dataOfCurrentMessage[0].CorrelationId}'&$orderby=LogStart`;
-      var dataForTable = JSON.parse(await makeCallPromise("GET", urlForPathData, false)).d.results;
+      const urlForPathData = `/${pluginHelper.urlExtension + cpiData.runtimePathExtension}odata/api/v1/MessageProcessingLogs?$format=json&$filter=CorrelationId eq '${dataOfCurrentMessage[0].CorrelationId}'&$orderby=LogStart`;
+      var dataForTable = JSON.parse(await makeCallPromise("GET", encodeURI(urlForPathData), false)).d.results;
 
       // Popup
       var popupContent = document.createElement("div");
