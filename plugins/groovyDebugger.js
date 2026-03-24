@@ -1,4 +1,3 @@
-// Global function for the popup button
 if (!window.groovyDebugSendToIDE) {
   /**
    * Global function for sending Groovy debug data to external IDE.
@@ -16,14 +15,19 @@ if (!window.groovyDebugSendToIDE) {
     const domain = new URL(ideUrl).hostname;
 
     // Load last-used transfer preferences (defaults: body+script on, properties+headers off)
+    const [_body, _script, _props, _hdrs] = await Promise.all([
+      getStorageValue("groovyDebugger", "transferBody", "browser"),
+      getStorageValue("groovyDebugger", "transferScript", "browser"),
+      getStorageValue("groovyDebugger", "transferProperties", "browser"),
+      getStorageValue("groovyDebugger", "transferHeaders", "browser"),
+    ]);
     const prefs = {
-      body: !!((await getStorageValue("groovyDebugger", "transferBody", "browser")) ?? true),
-      script: !!((await getStorageValue("groovyDebugger", "transferScript", "browser")) ?? true),
-      properties: !!((await getStorageValue("groovyDebugger", "transferProperties", "browser")) ?? false),
-      headers: !!((await getStorageValue("groovyDebugger", "transferHeaders", "browser")) ?? false),
+      body: _body !== "" ? !!_body : true,
+      script: _script !== "" ? !!_script : true,
+      properties: _props !== "" ? !!_props : false,
+      headers: _hdrs !== "" ? !!_hdrs : false,
     };
 
-    // Create custom confirmation popup
     const popupContent = `
       <div class="ui warning message">
         <div class="header">
@@ -71,37 +75,30 @@ if (!window.groovyDebugSendToIDE) {
       fullscreen: false,
       large: false,
       callback: () => {
-        // Add custom buttons to the actions div
         let actionsDiv = $("#cpiHelper_semanticui_modal .actions");
-        actionsDiv.empty(); // Remove default close button
+        actionsDiv.empty();
 
-        // Cancel button
         let cancelBtn = $('<div class="ui button">Cancel</div>');
         cancelBtn.on("click", () => {
           $("#cpiHelper_semanticui_modal").modal("hide");
         });
         actionsDiv.append(cancelBtn);
 
-        // Continue button
         let continueBtn = $('<div class="ui positive button"><i class="rocket icon"></i>Continue</div>');
 
-        // Enable/disable Continue based on whether any checkbox is checked
         const updateContinueButton = () => {
           const anyChecked = $("#transfer-body input").prop("checked") || $("#transfer-properties input").prop("checked") || $("#transfer-headers input").prop("checked") || $("#transfer-script input").prop("checked");
           continueBtn.toggleClass("disabled", !anyChecked).prop("disabled", !anyChecked);
         };
 
-        // Sync the checked CSS class on the wrapper when native input changes
         $("#cpiHelper_semanticui_modal .ui.checkbox input").on("change", function () {
           $(this).closest(".ui.checkbox").toggleClass("checked", $(this).prop("checked"));
           updateContinueButton();
         });
 
-        // Initial state (body + script pre-checked so Continue starts enabled)
         updateContinueButton();
 
         continueBtn.on("click", async () => {
-          // Get selected data types
           const transferOptions = {
             body: $("#transfer-body input").prop("checked"),
             properties: $("#transfer-properties input").prop("checked"),
@@ -109,7 +106,6 @@ if (!window.groovyDebugSendToIDE) {
             script: $("#transfer-script input").prop("checked"),
           };
 
-          // Save selections for next time (parallel)
           await Promise.all([
             syncChromeStoragePromise(getStoragePath("groovyDebugger", "transferBody", "browser"), transferOptions.body),
             syncChromeStoragePromise(getStoragePath("groovyDebugger", "transferScript", "browser"), transferOptions.script),
@@ -137,26 +133,6 @@ if (!window.groovyDebugSendToIDE) {
   };
 }
 
-/**
- * Groovy Debugger Plugin Configuration
- * A CPI Helper plugin that enables debugging of Groovy scripts by extracting runtime trace data
- * and providing visual step highlighting with one-click transfer to external Groovy IDE.
- * @typedef {Object} GroovyDebuggerPlugin
- * @property {string} metadataVersion - Plugin metadata version
- * @property {string} id - Unique plugin identifier
- * @property {string} name - Display name of the plugin
- * @property {string} version - Plugin version
- * @property {string} author - Plugin author name
- * @property {string} email - Plugin author email
- * @property {string} website - Plugin author website
- * @property {string} description - HTML description of plugin functionality
- * @property {Object} settings - Plugin settings (currently empty)
- * @property {Object} messageSidebarButton - Sidebar button configuration
- * @property {Object} messageSidebarButton.icon - Icon configuration for the button
- * @property {string} messageSidebarButton.title - Tooltip text for the button
- * @property {Function} messageSidebarButton.onClick - Click handler function
- * @property {Function} messageSidebarButton.condition - Function to determine button visibility
- */
 var plugin = {
   metadataVersion: "1.0.0",
   id: "groovyDebugger",
@@ -801,7 +777,7 @@ async function resolveTransferData(debugData, transferOptions) {
     payload = debugData.payload || "";
     if (!payload && debugData.traceId) {
       try {
-        payload = await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + debugData.traceId + ")/$value", true);
+        payload = await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/TraceMessages(" + debugData.traceId + ")/$value", true);
       } catch (e) {
         log.error("Error fetching payload for IDE:", e);
       }
@@ -813,7 +789,7 @@ async function resolveTransferData(debugData, transferOptions) {
     headers = debugData.headers || {};
     if (Object.keys(headers).length === 0 && debugData.traceId) {
       try {
-        const headersData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + debugData.traceId + ")/Properties?$format=json", true)).d.results;
+        const headersData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/TraceMessages(" + debugData.traceId + ")/Properties?$format=json", true)).d.results;
         headersData.forEach((h) => {
           headers[h.Name] = h.Value;
         });
@@ -898,11 +874,9 @@ async function sendToContivaIDE(settings, debugData, transferOptions = { body: t
  * @returns {Promise<string>} URL-encoded standard Base64 string
  */
 async function compressToContivaBase64(contivaData) {
-  // Step 1: JSON stringify
   const jsonString = JSON.stringify(contivaData);
 
-  // Step 2: Create ZIP archive using JSZip (already loaded by the extension)
-  //         Use epoch date (new Date(0)) for deterministic output
+  // Use epoch date (new Date(0)) for deterministic ZIP output
   const zip = new JSZip();
   zip.file("data.json", jsonString, { date: new Date(0) });
   const zipBytes = await zip.generateAsync({
@@ -911,22 +885,19 @@ async function compressToContivaBase64(contivaData) {
     compressionOptions: { level: 9 },
   });
 
-  // Step 3: Gzip compress the ZIP using pako (pako_deflate.min.js is already loaded)
-  //         mtime: 0 keeps the gzip header deterministic
+  // mtime: 0 keeps the gzip header deterministic
   const gzipped = pako.gzip(zipBytes, { level: 9, mtime: 0 });
 
-  // Step 4: Standard Base64 encode (NOT URL-safe — keep + and /)
+  // Standard Base64 — NOT URL-safe (keep + and /)
   let binary = "";
   for (let i = 0; i < gzipped.length; i++) {
     binary += String.fromCharCode(gzipped[i]);
   }
   let base64 = btoa(binary);
 
-  // Step 5: Ensure standard Base64 padding
   const paddingNeeded = (4 - (base64.length % 4)) % 4;
   base64 += "=".repeat(paddingNeeded);
 
-  // Step 6: URL-encode (+→%2B, /→%2F, =→%3D)
   return encodeURIComponent(base64);
 }
 
@@ -938,17 +909,12 @@ async function compressToContivaBase64(contivaData) {
  * @returns {string} Compressed and Base64URL encoded string
  */
 function compressToBase64(dataString) {
-  // Step A: Convert the JSON string into a Uint8Array (binary data)
   const dataBytes = new TextEncoder().encode(dataString);
 
-  // Step B: Compress using pako.deflateRaw()
-  // This creates the raw Deflate stream without Zlib/Gzip headers.
-  const compressedBytes = pako.deflateRaw(dataBytes, { level: 9 }); // level 9 is max compression
+  // Raw Deflate stream — no Zlib/Gzip headers
+  const compressedBytes = pako.deflateRaw(dataBytes, { level: 9 });
 
-  // Step C: Base64URL Encode the compressed binary data
-  const encodedString = uint8ArrayToBase64Url(compressedBytes);
-
-  return encodedString;
+  return uint8ArrayToBase64Url(compressedBytes);
 }
 
 /**
@@ -959,16 +925,12 @@ function compressToBase64(dataString) {
  * @returns {string} Base64URL encoded string
  */
 function uint8ArrayToBase64Url(bytes) {
-  // Convert Uint8Array to a binary string
   let binaryString = "";
   bytes.forEach((byte) => {
     binaryString += String.fromCharCode(byte);
   });
 
-  // Standard Base64 encoding using the built-in browser function
   let base64 = btoa(binaryString);
-
-  // Convert to URL-safe format and remove padding
   let base64Url = base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 
   return base64Url;

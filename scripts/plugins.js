@@ -229,9 +229,6 @@ async function createPluginPopupUI(plugin) {
 
           var savedRadioValue = await getStorageValue(plugin.id, key, plugin.settings[key].scope);
 
-          // Track outerDivs that depend on this radio for showWhen toggling
-          var radioLinkedInputs = {};
-
           for (var option of plugin.settings[key].options) {
             var radioWrapper = document.createElement("div");
             radioWrapper.classList = "field";
