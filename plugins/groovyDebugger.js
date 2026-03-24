@@ -1,17 +1,29 @@
 if (!window.groovyDebugSendToIDE) {
   /**
-   * Global function for sending Groovy debug data to external IDE.
-   * Called from the popup button when user wants to debug externally.
+   * Global function for sending Groovy debug data to an external IDE.
+   * Reads the current IDE selection fresh from chrome.storage.sync on every call
+   * so changes made in the settings popup take effect immediately without a page reload.
+   * Exits early with an error toast if no IDE has been selected in plugin settings.
+   * Shows a confirmation dialog letting the user choose which data to transfer
+   * (body, script, properties, headers), then dispatches to sendToContivaIDE or
+   * sendToExternalIDE based on the selected IDE URL.
    * @async
    * @function groovyDebugSendToIDE
    * @global
-   * @returns {Promise<void>} Resolves when debug data is sent successfully
+   * @returns {Promise<void>} Resolves when the IDE tab has been opened, or returns
+   *   early if no IDE is selected or no debug data is available.
    */
   window.groovyDebugSendToIDE = async function () {
-    const settings = window.groovyDebuggerData?.settings || {};
-    const ideSelection = settings["groovyDebugger---ideSelection"] || "https://groovyide.com/cpi/share/v1/";
+    const settings = await getPluginSettings("groovyDebugger");
+    const ideSelection = settings["groovyDebugger---ideSelection"] || "";
+
+    if (!ideSelection) {
+      showToast("No IDE selected. Please choose an IDE from the GroovyDebugX plugin settings.", "Groovy Debugger", "Error");
+      return;
+    }
+
     const customUrl = settings["groovyDebugger---customIdeUrl"] || "";
-    const ideUrl = ideSelection === "custom" ? customUrl.trim() || "https://groovyide.com/cpi/share/v1/" : ideSelection === "contiva" ? "https://ide.contiva.com/cpi/script/debug" : ideSelection;
+    const ideUrl = ideSelection === "custom" ? customUrl.trim() || "https://groovyide.com/cpi/share/v1/" : ideSelection;
     const domain = new URL(ideUrl).hostname;
 
     // Load last-used transfer preferences (defaults: body+script on, properties+headers off)
@@ -113,13 +125,28 @@ if (!window.groovyDebugSendToIDE) {
             syncChromeStoragePromise(getStoragePath("groovyDebugger", "transferHeaders", "browser"), transferOptions.headers),
           ]);
 
+          // Re-read settings at click time so any IDE change made while the dialog
+          // was open (Bug 3) is picked up without requiring a page reload.
+          const latestSettings = await getPluginSettings("groovyDebugger");
+          const latestIdeSelection = latestSettings["groovyDebugger---ideSelection"] || "";
+
           $("#cpiHelper_semanticui_modal").modal("hide");
+
+          if (!latestIdeSelection) {
+            showToast("No IDE selected. Please choose an IDE from the GroovyDebugX plugin settings.", "Groovy Debugger", "Error");
+            return;
+          }
+
           const debugData = window.currentGroovyDebugData;
+          if (!debugData) {
+            showToast("No debug data available. Please click a Groovy step first.", "Groovy Debugger", "Error");
+            return;
+          }
           try {
-            if (ideSelection === "contiva") {
-              await sendToContivaIDE(settings, debugData, transferOptions);
+            if (latestIdeSelection === "https://ide.contiva.com/cpi/script/debug") {
+              await sendToContivaIDE(latestSettings, debugData, transferOptions);
             } else {
-              await sendToExternalIDE(settings, debugData, transferOptions);
+              await sendToExternalIDE(latestSettings, debugData, transferOptions);
             }
             showToast("Debug data sent to IDE", "Success");
           } catch (e) {
@@ -149,8 +176,8 @@ var plugin = {
       type: "radio",
       scope: "browser",
       options: [
-        { value: "https://groovyide.com/cpi/share/v1/", label: "GroovyIDE.com", default: true },
-        { value: "contiva", label: "Contiva IDE (ide.contiva.com)" },
+        { value: "https://groovyide.com/cpi/share/v1/", label: "GroovyIDE (groovyide.com)", default: true },
+        { value: "https://ide.contiva.com/cpi/script/debug", label: "Contiva IDE (ide.contiva.com)" },
         { value: "custom", label: "Custom URL" },
       ],
     },
@@ -682,7 +709,6 @@ function formatInfoContent(inputList) {
   }
 
   var stepStart = new Date(parseInt(inputList.StepStart.substr(6, 13)));
-  stepStart.setTime(stepStart.getTime() - stepStart.getTimezoneOffset() * 60 * 1000);
 
   valueList.push({
     Name: "Start Time",
@@ -691,7 +717,6 @@ function formatInfoContent(inputList) {
 
   if (inputList.StepStop) {
     var stepStop = new Date(parseInt(inputList.StepStop.substr(6, 13)));
-    stepStop.setTime(stepStop.getTime() - stepStop.getTimezoneOffset() * 60 * 1000);
     valueList.push({
       Name: "End Time",
       Value: stepStop.toISOString().substr(0, 23),
@@ -805,8 +830,11 @@ async function resolveTransferData(debugData, transferOptions) {
 }
 
 /**
- * Sends debug data to an external Groovy IDE for debugging.
- * Compresses and encodes the data before opening in a new tab/window.
+ * Sends debug data to an external Groovy IDE (GroovyIDE.com or a custom URL).
+ * The target URL is read from settings: if ideSelection is "custom" the user-supplied
+ * customIdeUrl is used, otherwise ideSelection itself is the URL.
+ * Data is compressed with pako deflateRaw and encoded as Base64URL before being
+ * appended to the IDE URL and opened in a new tab.
  * @async
  * @function sendToExternalIDE
  * @param {Object} settings - Plugin settings
@@ -816,7 +844,7 @@ async function resolveTransferData(debugData, transferOptions) {
  * @param {boolean} transferOptions.properties - Whether to transfer properties
  * @param {boolean} transferOptions.headers - Whether to transfer headers
  * @param {boolean} transferOptions.script - Whether to transfer script
- * @returns {Promise<void>} Resolves when IDE is opened
+ * @returns {Promise<void>} Resolves when the IDE tab has been opened
  */
 async function sendToExternalIDE(settings, debugData, transferOptions = { body: true, properties: true, headers: true, script: true }) {
   const ideSelection = settings["groovyDebugger---ideSelection"] || "https://groovyide.com/cpi/share/v1/";
@@ -838,8 +866,9 @@ async function sendToExternalIDE(settings, debugData, transferOptions = { body: 
 
 /**
  * Converts CPI Helper debug data to Contiva format and opens in Contiva IDE.
+ * The target URL is read from settings (ideSelection), falling back to the
+ * default Contiva URL if not set.
  * Contiva encoding: JSON → ZIP (JSZip) → Gzip (pako) → standard Base64 → URL-encode.
- * URL: https://ide.contiva.com/cpi/script/debug?data={encoded}
  * @async
  * @function sendToContivaIDE
  * @param {Object} settings - Plugin settings
@@ -847,7 +876,7 @@ async function sendToExternalIDE(settings, debugData, transferOptions = { body: 
  * @param {Object} transferOptions - Which data types to transfer
  */
 async function sendToContivaIDE(settings, debugData, transferOptions = { body: true, properties: true, headers: true, script: true }) {
-  const contivaUrl = "https://ide.contiva.com/cpi/script/debug";
+  const contivaUrl = settings["groovyDebugger---ideSelection"] || "https://ide.contiva.com/cpi/script/debug";
 
   const { groovyScript, payload, headers, properties } = await resolveTransferData(debugData, transferOptions);
 
