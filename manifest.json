@@ -71,6 +71,7 @@
         "/plugins/timeline.js",
         "/plugins/traceModifer.js",
         "/plugins/groovyDebugger.js",
+        "/plugins/xsltDebugX.js",
         "/plugins/removeApacheUpdateMessage.js",
         "/plugins/messageidlogs.js",
         "/plugins/connectivityCredentialsManager.js",
