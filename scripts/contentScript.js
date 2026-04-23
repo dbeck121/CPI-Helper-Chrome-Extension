@@ -824,20 +824,45 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
     runtimeLocationWithActiveIFlow = [];
     for (const loc of cpiData.runtimeLocations) {
       try {
-        const locIdParam = "?runtimeLocationId=" + loc.id;
-        const resp = await makeCallPromiseV2("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand" + locIdParam, cacheValue, null, null, null, null, silent);
+        const symbolicName = cpiData.integrationFlowId;
+        const resp = await makeCallPromiseV2(
+          "GET",
+          `/api/v1/IntegrationRuntimeArtifacts('${symbolicName}')?$format=json&$select=Id,Version,Status,DeployedOn,DeployedBy,SemanticState,TenantId`,
+          cacheValue,
+          "application/json",
+          null,
+          null,
+          null,
+          silent
+        );
 
         if (!resp.successful) {
-          log.warn("Error fetching integration components for runtime location " + loc.id + ": " + resp.message);
+          // 404 means IFlow not deployed on this runtime location (expected)
+          if (resp.status === 404) {
+            log.debug(`IFlow ${symbolicName} not found on runtime location ${loc.id}`);
+            continue;
+          }
+          // Other errors (500, network issues, etc.)
+          log.warn(`Error fetching artifact for runtime location ${loc.id}: ${resp.statusText}`);
           continue;
         }
 
-        const respJson = new XmlToJson().parse(resp.responseText)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
-        const artifact = Array.isArray(respJson.artifactInformations)
-          ? respJson.artifactInformations.find((e) => e.symbolicName == cpiData.integrationFlowId)
-          : respJson.artifactInformations?.symbolicName == cpiData.integrationFlowId
-            ? respJson.artifactInformations
-            : null;
+        const respJson = JSON.parse(resp.responseText);
+        const artifact = respJson.d;  // OData v4 wraps data in 'd' property
+
+        // Map OData field names to plugin's expected structure
+        if (artifact) {
+          artifact.symbolicName = symbolicName;
+          artifact.id = artifact.Id;
+          artifact.version = artifact.Version;
+          artifact.deployState = artifact.Status;
+          artifact.deployedOn = artifact.DeployedOn;
+          artifact.deployedBy = artifact.DeployedBy;
+          artifact.semanticState = artifact.SemanticState;
+          artifact.tenantId = artifact.TenantId;
+          artifact.name = artifact.Name || symbolicName;  // Fallback to symbolicName if Name not present
+        }
+
         if (artifact) {
           // collect information about current tenant and artifact if runtime location matches the selected one. this is needed to avoid another call to get the artifact information later, because we already have it here
           if (cpiData.runtimeLocationId && loc.id == cpiData.runtimeLocationId) {
