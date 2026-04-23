@@ -827,7 +827,7 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
     for (const loc of cpiData.runtimeLocations) {
       try {
         const symbolicName = cpiData.integrationFlowId;
-        const resp = await makeCallPromiseV2("GET", `/api/v1/IntegrationRuntimeArtifacts('${symbolicName}')?$format=json`, cacheValue, "application/json", null, null, null, silent);
+        const resp = await makeCallPromiseV2("GET", `/api/v1/IntegrationRuntimeArtifacts('${symbolicName}')?$format=json`, cacheValue, "application/json", null, null, null, !silent);
 
         if (!resp.successful) {
           // 404 means IFlow not deployed on this runtime location (expected)
