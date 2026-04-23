@@ -47,8 +47,12 @@ defines the settings and appearance in plugin popup
  | textinput | "text": "Tenant URL"                                   | a textfield that is stored for each tenant  | tenant  |
  | textinput | "text": "Iflow xy"                                     | a textfield that is stored for each iflow   | iflow   |
  | textinput | "text": "general"                                      | a textfield that is stored for each browser | browser |
+ | textinput | "text": "URL", "placeholder": "https://example.com"   | optional placeholder shown when field is empty; works on any textinput scope | any |
  | checkbox  | "text": "xyz"                                          | a checkbox that is stored for each browser  | browser |
+ | radio     | "text": "Pick an option", "options": [{value, label, default?}] | a radio button group; one option can be marked default: true; stored per browser | browser |
  | icon      | "src" : "/images/plugin_logos/[your Image Source].png" | image for plugin page                       | NA      |
+
+**`showWhen`** (optional) — any setting can include `"showWhen": { "key": "<settingKey>", "value": "<settingValue>" }` to conditionally show it only when another setting in the same plugin equals the specified value. Commonly used to reveal a custom URL textinput only when a `radio` is set to `"custom"`.
 
 ### messageSidebarButton: 
 if you want to add a button to message sidebar
@@ -113,6 +117,23 @@ var plugin = {
         "textField2": { "text": "Iflow xy", "type": "textinput", scope: "iflow" }, //a textfield that is stored for each iflow
         "textField3": { "text": "general", "type": "textinput", scope: "browser" }, //a textfield that is stored for each browser
         "checkbox1": { "text": "xyz", "type": "checkbox", scope: "browser" }, //a checkbox that is stored for each browser
+        "radioField1": { 
+            "text": "Pick an option", 
+            "type": "radio", 
+            scope: "browser",           // radio is always browser-scoped
+            "options": [
+                { value: "option1", label: "Option 1", default: true }, // default: true marks the pre-selected option
+                { value: "option2", label: "Option 2" },
+                { value: "custom",  label: "Custom URL" }
+            ]
+        },
+        "customUrl1": { 
+            "text": "Custom URL", 
+            "type": "textinput", 
+            scope: "browser",
+            "placeholder": "https://your-custom-ide.com/share/",
+            "showWhen": { "key": "radioField1", "value": "custom" } // only visible when radioField1 === "custom"
+        },
         "icon": { "type": "icon", "src": "/images/plugin_logos/[your Image Source].png" } // image for plugin page
     },
 
