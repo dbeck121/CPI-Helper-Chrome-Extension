@@ -1151,7 +1151,7 @@ async function getIflowInfoExtended(silent = true) {
         null,
         null,
         null,
-        silent
+        !silent
       );
 
       if (!detailResp.successful) {
