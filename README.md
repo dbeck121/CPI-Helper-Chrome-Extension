@@ -44,7 +44,7 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
-### 3.23.0
+### 3.25.0
 
 - [Plugin] GroovyDebugX now also with Contiva Groovy IDE. Special thanks to [Sunil Pharswan](https://linkedin.com/in/sunilph).
 - [Fix] Better backend performance. Thanks to SAP and [Ankit Dusad](https://github.com/ankdusad)
