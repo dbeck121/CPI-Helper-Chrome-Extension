@@ -1,20 +1,6 @@
 if (!window.xsltDebugSendToIDE) {
-  /**
-   * Global function for sending XSLT debug data to an external IDE.
-   * Reads the current IDE selection fresh from chrome.storage.sync on every call
-   * so changes made in the settings popup take effect immediately without a page reload.
-   * Exits early with an error toast if no IDE has been selected in plugin settings.
-   * Shows a confirmation dialog letting the user choose which data to transfer
-   * (body, script, properties, headers), then dispatches to sendToXSLTIDE.
-   * @async
-   * @function xsltDebugSendToIDE
-   * @global
-   * @returns {Promise<void>} Resolves when the IDE tab has been opened, or returns
-   *   early if no IDE is selected or no debug data is available.
-   */
   window.xsltDebugSendToIDE = async function (debugDataOverride) {
     const settings = await getPluginSettings("xsltDebugX");
-    // Default to the built-in IDE if user hasn't visited settings yet
     const ideSelection = settings["xsltDebugX---ideSelection"] || "https://xsltdebugx.pages.dev/";
 
     const customUrl = settings["xsltDebugX---customIdeUrl"] || "";
@@ -27,7 +13,6 @@ if (!window.xsltDebugSendToIDE) {
       return;
     }
 
-    // Load last-used transfer preferences (defaults: body+script on, properties+headers off)
     const [_body, _script, _props, _hdrs] = await Promise.all([
       getStorageValue("xsltDebugX", "transferBody", "browser"),
       getStorageValue("xsltDebugX", "transferScript", "browser"),
@@ -108,7 +93,7 @@ if (!window.xsltDebugSendToIDE) {
           continueBtn.toggleClass("disabled", !anyChecked).prop("disabled", !anyChecked);
         };
 
-        // Initialize Semantic UI toggle checkboxes
+        // Semantic UI requires explicit .checkbox() initialization for toggle behavior
         $("#cpiHelper_semanticui_modal .ui.checkbox").checkbox({
           onChange: updateContinueButton,
         });
@@ -130,8 +115,7 @@ if (!window.xsltDebugSendToIDE) {
             syncChromeStoragePromise(getStoragePath("xsltDebugX", "transferHeaders", "browser"), transferOptions.headers),
           ]);
 
-          // Re-read settings at click time so any IDE change made while the dialog
-          // was open is picked up without requiring a page reload.
+          // Re-read settings so any IDE change made while the dialog was open takes effect
           const latestSettings = await getPluginSettings("xsltDebugX");
 
           $("#cpiHelper_semanticui_modal").modal("hide");
@@ -155,7 +139,29 @@ if (!window.xsltDebugSendToIDE) {
   };
 }
 
+// Map to preserve SAP's native onclick handlers before we overwrite them
 const xsltOriginalHandlers = new Map();
+
+async function getXSLTArtifactId() {
+  const listResponse = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", false, null, null, null, null, true);
+  const listData = new XmlToJson().parse(listResponse)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
+  const artifact = Array.isArray(listData.artifactInformations)
+    ? listData.artifactInformations.find((e) => e.symbolicName === cpiData.integrationFlowId)
+    : listData.artifactInformations?.symbolicName === cpiData.integrationFlowId
+      ? listData.artifactInformations
+      : null;
+
+  if (!artifact) {
+    throw new Error("Integration Flow not found in list");
+  }
+
+  if (cpiData.cpiPlatform === "neo") {
+    const detailResponse = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + artifact.id, 60, "application/json", null, null, null, true);
+    return JSON.parse(detailResponse).artifactInformation.id;
+  }
+
+  return artifact.id;
+}
 
 var plugin = {
   metadataVersion: "1.0.0",
@@ -192,17 +198,12 @@ var plugin = {
       resetXSLTHighlighting();
 
       if (!active) {
-        return; // Deselected, just clear and exit
-      }
-
-      // Get artifactId directly via API call (function defined in groovyDebugger.js, always loaded)
-      if (typeof getArtifactIdDirectly !== "function") {
-        showToast("Required helper function not available. Ensure the GroovyDebugX plugin is enabled.", "XSLT Debugger", "Error");
         return;
       }
+
       let artifactId;
       try {
-        artifactId = await getArtifactIdDirectly();
+        artifactId = await getXSLTArtifactId();
       } catch (error) {
         log.error("XSLT Debugger: error fetching artifactId:", error);
         showToast("Could not fetch iFlow structure - " + error.message, "XSLT Debugger", "Error");
@@ -220,14 +221,12 @@ var plugin = {
       try {
         const iFlowUrl = "https://" + pluginHelper.tenant + "/api/1.0/iflows/" + artifactId;
 
-        // Fetch the iFlow JSON structure
         const response = await fetch(iFlowUrl);
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const iFlowData = await response.json();
 
-        // Extract XSLT mapping elements
         const xsltElements = extractXSLTElements(iFlowData);
 
         if (xsltElements.length === 0) {
@@ -238,11 +237,10 @@ var plugin = {
 
         log.log("XSLT Debugger: Found " + xsltElements.length + " XSLT mapping elements");
 
-        // Reset any existing highlighting
         resetXSLTHighlighting();
 
-        // Get trace elements to identify which XSLT steps have been executed
         await createInlineTraceElements(runInfo.messageGuid, false);
+        // Snapshot: inlineTraceElements is a global that other calls can mutate
         const traceElementsCopy = [...inlineTraceElements];
         if (!traceElementsCopy.length) {
           $("#cpiHelper_waiting_model").modal("hide");
@@ -250,7 +248,6 @@ var plugin = {
           return;
         }
 
-        // Find XSLT elements that have corresponding trace data
         const xsltElementsWithTrace = xsltElements.filter((element) => {
           const matchingTraceElements = traceElementsCopy.filter((traceElement) => {
             const traceId = traceElement.StepId || traceElement.ModelStepId;
@@ -265,10 +262,8 @@ var plugin = {
           return;
         }
 
-        // Highlight only XSLT mapping elements that have trace data
         applyXSLTHighlighting(xsltElementsWithTrace);
 
-        // Store data for click handling
         window.xsltDebuggerData = {
           settings: settings,
           runInfo: runInfo,
@@ -297,11 +292,6 @@ var plugin = {
   },
 };
 
-/**
- * Resets all XSLT highlighting and removes click handlers from BPMN shape elements.
- * Clears the fill color and cursor styles from all elements.
- * @function resetXSLTHighlighting
- */
 function resetXSLTHighlighting() {
   document.querySelectorAll("g[id^='BPMNShape_'] rect.activity").forEach((rect) => {
     rect.style.fill = "";
@@ -313,13 +303,6 @@ function resetXSLTHighlighting() {
   xsltOriginalHandlers.clear();
 }
 
-/**
- * Extracts XSLT mapping elements from the integration flow JSON data.
- * Filters elements to find only those with displayName "XSLT Mapping".
- * @function extractXSLTElements
- * @param {Object} iFlowData - The integration flow JSON structure
- * @returns {Array} Array of XSLT mapping elements with id, displayName, mappingPath, and filename
- */
 function extractXSLTElements(iFlowData) {
   if (!iFlowData.propertyViewModel?.listOfDefaultFlowElementModel) {
     return [];
@@ -340,12 +323,6 @@ function extractXSLTElements(iFlowData) {
     });
 }
 
-/**
- * Applies green highlighting to found XSLT elements on the BPMN diagram.
- * Sets fill color to green (#13af00) for visual indication of debuggable steps.
- * @function applyXSLTHighlighting
- * @param {Array} xsltElements - Array of XSLT mapping elements to highlight
- */
 function applyXSLTHighlighting(xsltElements) {
   xsltElements.forEach((element) => {
     const selector = `g#BPMNShape_${element.id}`;
@@ -360,17 +337,6 @@ function applyXSLTHighlighting(xsltElements) {
   });
 }
 
-/**
- * Sets up click handlers for highlighted XSLT elements.
- * When clicked, displays debug popup with trace data for the selected XSLT step.
- * @function setupXSLTClickHandlers
- * @param {Object} settings - Plugin settings
- * @param {Object} runInfo - Runtime information for the message
- * @param {Array} xsltElements - Array of XSLT mapping elements
- * @param {Object} iFlowData - Integration flow JSON data
- * @param {string} artifactId - Artifact identifier
- * @param {string} tenant - Tenant name
- */
 function setupXSLTClickHandlers(settings, runInfo, xsltElements, iFlowData, artifactId, tenant) {
   xsltElements.forEach((element) => {
     const selector = `g#BPMNShape_${element.id}`;
@@ -397,7 +363,7 @@ function setupXSLTClickHandlers(settings, runInfo, xsltElements, iFlowData, arti
             };
           }
 
-          // Store script fetching info for lazy loading
+          // Lazy-load script info so click handler can fetch XSLT source on demand
           debugData.scriptInfo = {
             tenant: tenant,
             artifactId: artifactId,
@@ -422,15 +388,6 @@ function setupXSLTClickHandlers(settings, runInfo, xsltElements, iFlowData, arti
   });
 }
 
-/**
- * Attempts to get trace data for a specific XSLT element using pre-fetched trace elements.
- * @async
- * @function tryGetXSLTTraceDataForElement
- * @param {Object} runInfo - Runtime information for the message
- * @param {Object} element - XSLT element to find trace data for
- * @param {Array} inlineTraceElements - Array of pre-fetched trace elements
- * @returns {Promise<Object|null>} Debug data object if found, null otherwise
- */
 async function tryGetXSLTTraceDataForElement(runInfo, element, inlineTraceElements) {
   try {
     if (!inlineTraceElements?.length) {
@@ -453,22 +410,12 @@ async function tryGetXSLTTraceDataForElement(runInfo, element, inlineTraceElemen
   }
 }
 
-/**
- * Fetches debug data for a specific XSLT step from the CPI API.
- * Retrieves trace messages, exchange properties, and run step information.
- * @async
- * @function fetchXSLTDebugData
- * @param {Object} runInfo - Runtime information containing message GUID
- * @param {Object} xsltStep - Trace element data for the XSLT step
- * @returns {Promise<Object|null>} Complete debug data object or null if failed
- */
 async function fetchXSLTDebugData(runInfo, xsltStep) {
   try {
     var messageGuid = runInfo.messageGuid;
     var runId = xsltStep.RunId;
     var childCount = xsltStep.ChildCount;
 
-    // Get trace messages for this step
     var traceData = JSON.parse(
       await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + runId + "',ChildCount=" + childCount + ")/TraceMessages?$format=json", true)
     ).d.results;
@@ -481,7 +428,6 @@ async function fetchXSLTDebugData(runInfo, xsltStep) {
 
     var traceId = traceInfo.TraceId;
 
-    // Get exchange properties
     var properties = {};
     try {
       var propsData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/TraceMessages(" + traceId + ")/ExchangeProperties?$format=json", true)).d.results;
@@ -492,7 +438,7 @@ async function fetchXSLTDebugData(runInfo, xsltStep) {
       log.log("No properties for this XSLT step");
     }
 
-    // Get run step data with properties for Log and Info tabs
+    // RunStepProperties contains the Log tab data; $expand fetches it in one call
     var runStepData = {};
     try {
       runStepData = JSON.parse(
@@ -518,20 +464,12 @@ async function fetchXSLTDebugData(runInfo, xsltStep) {
   }
 }
 
-/**
- * Creates the HTML content for the XSLT debug popup with multiple tabs.
- * Uses lazy loading for performance - content is fetched only when tabs are activated.
- * @async
- * @function createXSLTDebugContent
- * @param {Object} data - Debug data object containing trace information
- * @returns {Promise<string>} HTML content for the debug popup tabs
- */
 async function createXSLTDebugContent(data) {
-  // Lazy load body content when Body tab is activated
   let bodyContent = async () => {
     if (!data.traceId) return "<div>No trace data available for this step.</div>";
     try {
       let payload = await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/TraceMessages(" + data.traceId + ")/$value", true);
+      // Cache fetched payload on debugData so IDE transfer can reuse it
       if (typeof payload === "string" && payload) {
         data.payload = payload;
       }
@@ -542,7 +480,6 @@ async function createXSLTDebugContent(data) {
     }
   };
 
-  // Lazy load headers content when Headers tab is activated
   let headersContent = async () => {
     if (!data.traceId) return "<div>No trace data available for this step.</div>";
     try {
@@ -571,7 +508,6 @@ async function createXSLTDebugContent(data) {
       : []
   );
 
-  // Lazy load XSLT script content when Script tab is activated
   let scriptContent = async () => {
     try {
       const scriptUrl = resolveXSLTScriptUrl(data.scriptInfo);
@@ -593,10 +529,8 @@ async function createXSLTDebugContent(data) {
     }
   };
 
-  // Get Log content from stored run step data
   let logContent = formatXSLTLogContent(data.runStepData?.RunStepProperties?.results || []);
 
-  // Get Info content from stored run step data
   let infoContent = formatXSLTInfoContent(data.runStepData || {});
 
   let objects = [
@@ -610,18 +544,11 @@ async function createXSLTDebugContent(data) {
 
   let tabsContent = await createTabHTML(objects, "xsltDebugTabs");
 
-  // Store data globally for button access
   window.currentXSLTDebugData = data;
 
   return tabsContent;
 }
 
-/**
- * Formats log content from run step properties into an HTML table.
- * @function formatXSLTLogContent
- * @param {Array} inputList - Array of log entries with Name and Value properties
- * @returns {string} HTML table string containing formatted log content
- */
 function formatXSLTLogContent(inputList) {
   inputList = inputList.sort(function (a, b) {
     return a.Name.toLowerCase() > b.Name.toLowerCase() ? 1 : -1;
@@ -636,13 +563,6 @@ function formatXSLTLogContent(inputList) {
   return result;
 }
 
-/**
- * Formats run step information into an HTML table showing execution details.
- * Calculates and displays start/end times and duration information.
- * @function formatXSLTInfoContent
- * @param {Object} inputList - Run step data containing execution information
- * @returns {string} HTML table string containing formatted execution information
- */
 function formatXSLTInfoContent(inputList) {
   const valueList = [];
 
@@ -650,6 +570,7 @@ function formatXSLTInfoContent(inputList) {
     return "<div class='ui message'>No execution info available for this step.</div>";
   }
 
+  // CPI timestamps are OData /Date(epoch)/ format
   var stepStart = new Date(parseInt(inputList.StepStart.substr(6, 13)));
 
   valueList.push({
@@ -692,28 +613,12 @@ function formatXSLTInfoContent(inputList) {
   return result;
 }
 
-/**
- * Resolves the full XSLT resource fetch URL from scriptInfo.
- * Uses the CPI resource API endpoint for XSLT mapping files.
- * API: /api/1.0/iflows/{artifactId}/resource/{filename}?resourceLocation=mapping&resourcePersistenceType=&artifactType=
- * @function resolveXSLTScriptUrl
- * @param {Object} scriptInfo - Script metadata with tenant, artifactId, filename
- * @returns {string|null} Full URL to fetch the XSLT script, or null if unavailable
- */
+// API: /api/1.0/iflows/{artifactId}/resource/{filename}?resourceLocation=mapping
 function resolveXSLTScriptUrl(scriptInfo) {
   if (!scriptInfo?.filename) return null;
   return `https://${scriptInfo.tenant}/api/1.0/iflows/${scriptInfo.artifactId}/resource/${encodeURIComponent(scriptInfo.filename)}?resourceLocation=mapping&resourcePersistenceType=&artifactType=`;
 }
 
-/**
- * Gathers and lazy-fetches all transfer data (script, payload, headers, properties)
- * based on the transfer options selected by the user.
- * @async
- * @function resolveXSLTTransferData
- * @param {Object} debugData - Complete debug data object
- * @param {Object} transferOptions - Which data types to transfer
- * @returns {Promise<{xsltScript: string, payload: string, headers: Object, properties: Object}>}
- */
 async function resolveXSLTTransferData(debugData, transferOptions) {
   let xsltScript = "";
   if (transferOptions.script) {
@@ -769,19 +674,7 @@ async function resolveXSLTTransferData(debugData, transferOptions) {
   return { xsltScript, payload, headers, properties };
 }
 
-/**
- * Sends XSLT debug data to an external XSLT IDE.
- * The target URL is read from settings: if ideSelection is "custom" the user-supplied
- * customIdeUrl is used, otherwise ideSelection itself is the URL.
- * Data is encoded using pako.deflateRaw compression + URL-safe base64 and appended
- * as a #share/ hash fragment so the IDE can decode it on load.
- * @async
- * @function sendToXSLTIDE
- * @param {Object} settings - Plugin settings
- * @param {Object} debugData - Complete debug data object
- * @param {Object} transferOptions - Options for which data types to transfer
- * @returns {Promise<void>} Resolves when the IDE tab has been opened
- */
+// Compress with pako.deflateRaw + URL-safe base64 (matches xsltdebugx.pages.dev #share/ format)
 async function sendToXSLTIDE(settings, debugData, transferOptions = { body: true, properties: true, headers: true, script: true }) {
   const ideSelection = settings["xsltDebugX---ideSelection"] || "https://xsltdebugx.pages.dev/";
   const customUrl = settings["xsltDebugX---customIdeUrl"] || "";
@@ -801,7 +694,6 @@ async function sendToXSLTIDE(settings, debugData, transferOptions = { body: true
     properties: Object.keys(properties).map(name => ({ name, value: properties[name] })),
   };
 
-  // Compress with pako.deflateRaw + URL-safe base64 (matches xsltdebugx.pages.dev share format)
   const bytes      = new TextEncoder().encode(JSON.stringify(sharePayload));
   const compressed = pako.deflateRaw(bytes, { level: 9 });
   const CHUNK = 8192;
