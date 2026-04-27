@@ -55,25 +55,25 @@ if (!window.groovyDebugSendToIDE) {
         <div class="ui form">
           <div class="grouped fields">
             <div class="field">
-              <div class="ui checkbox ${prefs.body ? "checked" : ""}" id="transfer-body">
+              <div class="ui toggle checkbox" id="transfer-body">
                 <input type="checkbox" name="transfer-body" ${prefs.body ? "checked" : ""}>
                 <label>Message Body <em>(may contain sensitive data)</em></label>
               </div>
             </div>
             <div class="field">
-              <div class="ui checkbox ${prefs.script ? "checked" : ""}" id="transfer-script">
+              <div class="ui toggle checkbox" id="transfer-script">
                 <input type="checkbox" name="transfer-script" ${prefs.script ? "checked" : ""}>
                 <label>Groovy Script <em>(source code)</em></label>
               </div>
             </div>
             <div class="field">
-              <div class="ui checkbox ${prefs.properties ? "checked" : ""}" id="transfer-properties">
+              <div class="ui toggle checkbox" id="transfer-properties">
                 <input type="checkbox" name="transfer-properties" ${prefs.properties ? "checked" : ""}>
                 <label>Properties <em>(may contain configuration data)</em></label>
               </div>
             </div>
             <div class="field">
-              <div class="ui checkbox ${prefs.headers ? "checked" : ""}" id="transfer-headers">
+              <div class="ui toggle checkbox" id="transfer-headers">
                 <input type="checkbox" name="transfer-headers" ${prefs.headers ? "checked" : ""}>
                 <label>Headers <em>(may contain security & metadata)</em></label>
               </div>
@@ -103,9 +103,8 @@ if (!window.groovyDebugSendToIDE) {
           continueBtn.toggleClass("disabled", !anyChecked).prop("disabled", !anyChecked);
         };
 
-        $("#cpiHelper_semanticui_modal .ui.checkbox input").on("change", function () {
-          $(this).closest(".ui.checkbox").toggleClass("checked", $(this).prop("checked"));
-          updateContinueButton();
+        $("#cpiHelper_semanticui_modal .ui.checkbox").checkbox({
+          onChange: updateContinueButton,
         });
 
         updateContinueButton();

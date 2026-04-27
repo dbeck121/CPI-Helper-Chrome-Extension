@@ -12,14 +12,20 @@ if (!window.xsltDebugSendToIDE) {
    * @returns {Promise<void>} Resolves when the IDE tab has been opened, or returns
    *   early if no IDE is selected or no debug data is available.
    */
-  window.xsltDebugSendToIDE = async function () {
+  window.xsltDebugSendToIDE = async function (debugDataOverride) {
     const settings = await getPluginSettings("xsltDebugX");
     // Default to the built-in IDE if user hasn't visited settings yet
     const ideSelection = settings["xsltDebugX---ideSelection"] || "https://xsltdebugx.pages.dev/";
 
     const customUrl = settings["xsltDebugX---customIdeUrl"] || "";
     const ideUrl = ideSelection === "custom" ? customUrl.trim() || "https://xsltdebugx.pages.dev/" : ideSelection;
-    const domain = new URL(ideUrl).hostname;
+    let domain;
+    try {
+      domain = new URL(ideUrl).hostname;
+    } catch (e) {
+      showToast("Invalid IDE URL: " + ideUrl, "XSLT Debugger", "Error");
+      return;
+    }
 
     // Load last-used transfer preferences (defaults: body+script on, properties+headers off)
     const [_body, _script, _props, _hdrs] = await Promise.all([
@@ -45,30 +51,30 @@ if (!window.xsltDebugSendToIDE) {
           <i class="info circle icon"></i>
           <strong>Privacy Notice:</strong> The selected data may contain sensitive business information. Proceed with caution.
         </div>
-        <p><strong>Destination:</strong> ${domain}</p>
+        <p><strong>Destination:</strong> ${htmlEscape(domain)}</p>
         <p>Select which data you want to transfer to the external XSLT WebIDE:</p>
         <div class="ui form">
           <div class="grouped fields">
             <div class="field">
-              <div class="ui checkbox ${prefs.body ? "checked" : ""}" id="xslt-transfer-body">
+              <div class="ui toggle checkbox" id="xslt-transfer-body">
                 <input type="checkbox" name="xslt-transfer-body" ${prefs.body ? "checked" : ""}>
                 <label>Message Body <em>(may contain sensitive data)</em></label>
               </div>
             </div>
             <div class="field">
-              <div class="ui checkbox ${prefs.script ? "checked" : ""}" id="xslt-transfer-script">
+              <div class="ui toggle checkbox" id="xslt-transfer-script">
                 <input type="checkbox" name="xslt-transfer-script" ${prefs.script ? "checked" : ""}>
                 <label>XSLT Script <em>(source code)</em></label>
               </div>
             </div>
             <div class="field">
-              <div class="ui checkbox ${prefs.properties ? "checked" : ""}" id="xslt-transfer-properties">
+              <div class="ui toggle checkbox" id="xslt-transfer-properties">
                 <input type="checkbox" name="xslt-transfer-properties" ${prefs.properties ? "checked" : ""}>
                 <label>Properties <em>(may contain configuration data)</em></label>
               </div>
             </div>
             <div class="field">
-              <div class="ui checkbox ${prefs.headers ? "checked" : ""}" id="xslt-transfer-headers">
+              <div class="ui toggle checkbox" id="xslt-transfer-headers">
                 <input type="checkbox" name="xslt-transfer-headers" ${prefs.headers ? "checked" : ""}>
                 <label>Headers <em>(may contain security & metadata)</em></label>
               </div>
@@ -102,9 +108,9 @@ if (!window.xsltDebugSendToIDE) {
           continueBtn.toggleClass("disabled", !anyChecked).prop("disabled", !anyChecked);
         };
 
-        $("#cpiHelper_semanticui_modal .ui.checkbox input").on("change", function () {
-          $(this).closest(".ui.checkbox").toggleClass("checked", $(this).prop("checked"));
-          updateContinueButton();
+        // Initialize Semantic UI toggle checkboxes
+        $("#cpiHelper_semanticui_modal .ui.checkbox").checkbox({
+          onChange: updateContinueButton,
         });
 
         updateContinueButton();
@@ -130,7 +136,7 @@ if (!window.xsltDebugSendToIDE) {
 
           $("#cpiHelper_semanticui_modal").modal("hide");
 
-          const debugData = window.currentXSLTDebugData;
+          const debugData = debugDataOverride || window.currentXSLTDebugData;
           if (!debugData) {
             showToast("No debug data available. Please click an XSLT step first.", "XSLT Debugger", "Error");
             return;
@@ -148,6 +154,8 @@ if (!window.xsltDebugSendToIDE) {
     });
   };
 }
+
+const xsltOriginalHandlers = new Map();
 
 var plugin = {
   metadataVersion: "1.0.0",
@@ -235,7 +243,8 @@ var plugin = {
 
         // Get trace elements to identify which XSLT steps have been executed
         await createInlineTraceElements(runInfo.messageGuid, false);
-        if (!inlineTraceElements?.length) {
+        const traceElementsCopy = [...inlineTraceElements];
+        if (!traceElementsCopy.length) {
           $("#cpiHelper_waiting_model").modal("hide");
           showToast("No trace data found for this message", "XSLT Debugger", "Warning");
           return;
@@ -243,7 +252,7 @@ var plugin = {
 
         // Find XSLT elements that have corresponding trace data
         const xsltElementsWithTrace = xsltElements.filter((element) => {
-          const matchingTraceElements = inlineTraceElements.filter((traceElement) => {
+          const matchingTraceElements = traceElementsCopy.filter((traceElement) => {
             const traceId = traceElement.StepId || traceElement.ModelStepId;
             return traceId === element.id;
           });
@@ -267,7 +276,7 @@ var plugin = {
           iFlowData: iFlowData,
           iFlowUrl: iFlowUrl,
           artifactId: artifactId,
-          inlineTraceElements: inlineTraceElements,
+          inlineTraceElements: traceElementsCopy,
         };
 
         setupXSLTClickHandlers(settings, runInfo, xsltElementsWithTrace, iFlowData, artifactId, pluginHelper.tenant);
@@ -299,8 +308,9 @@ function resetXSLTHighlighting() {
   });
   document.querySelectorAll("g[id^='BPMNShape_']").forEach((element) => {
     element.style.cursor = "";
-    element.onclick = null;
+    element.onclick = xsltOriginalHandlers.get(element.id) || null;
   });
+  xsltOriginalHandlers.clear();
 }
 
 /**
@@ -367,6 +377,9 @@ function setupXSLTClickHandlers(settings, runInfo, xsltElements, iFlowData, arti
     const targetElement = document.querySelector(selector);
 
     if (targetElement) {
+      if (!xsltOriginalHandlers.has(targetElement.id)) {
+        xsltOriginalHandlers.set(targetElement.id, targetElement.onclick);
+      }
       targetElement.style.cursor = "pointer";
       targetElement.onclick = async (event) => {
         event.stopPropagation();
@@ -396,7 +409,7 @@ function setupXSLTClickHandlers(settings, runInfo, xsltElements, iFlowData, arti
             callback: () => {
               let actionsDiv = $("#cpiHelper_semanticui_modal .actions");
               let debugBtn = $('<div class="ui positive button"><i class="rocket icon"></i>Debug Externally</div>');
-              debugBtn.on("click", () => window.xsltDebugSendToIDE());
+              debugBtn.on("click", () => window.xsltDebugSendToIDE(debugData));
               actionsDiv.prepend(debugBtn);
             },
           });
@@ -519,6 +532,9 @@ async function createXSLTDebugContent(data) {
     if (!data.traceId) return "<div>No trace data available for this step.</div>";
     try {
       let payload = await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/TraceMessages(" + data.traceId + ")/$value", true);
+      if (typeof payload === "string" && payload) {
+        data.payload = payload;
+      }
       return formatTrace(payload || "No payload", "xsltDebugBody", null, "payload.txt");
     } catch (error) {
       log.error("Error fetching XSLT body content:", error);
@@ -535,6 +551,7 @@ async function createXSLTDebugContent(data) {
       headersData.forEach((header) => {
         headers[header.Name] = header.Value;
       });
+      data.headers = headers;
       return formatHeadersAndPropertiesToTable(
         Object.keys(headers)
           .sort()
@@ -561,8 +578,13 @@ async function createXSLTDebugContent(data) {
       let xsltScriptContent = "<!-- XSLT script content not available -->";
       if (scriptUrl) {
         const scriptResponse = await fetch(scriptUrl);
-        const scriptData = await scriptResponse.json();
-        xsltScriptContent = scriptData.content || "<!-- XSLT script content not available -->";
+        if (scriptResponse.ok) {
+          const scriptData = await scriptResponse.json();
+          if (scriptData.content) {
+            xsltScriptContent = scriptData.content;
+            data.xsltScript = xsltScriptContent;
+          }
+        }
       }
       return formatTrace(xsltScriptContent, "xsltDebugScript", null, "script.xsl");
     } catch (error) {
@@ -608,7 +630,7 @@ function formatXSLTLogContent(inputList) {
   <thead><tr class="blue"><th>Name</th><th>Value</th></tr></thead>
   <tbody>`;
   inputList.forEach((item) => {
-    result += "<tr><td>" + item.Name + '</td><td style="word-break: break-all;">' + item.Value + "</td></tr>";
+    result += "<tr><td>" + htmlEscape(item.Name) + '</td><td style="word-break: break-all;">' + htmlEscape(item.Value) + "</td></tr>";
   });
   result += "</tbody></table>";
   return result;
@@ -664,7 +686,7 @@ function formatXSLTInfoContent(inputList) {
   let result = `<table class='ui basic striped selectable compact table'><thead><tr class="blue"><th>Name</th><th>Value</th></tr></thead>
   <tbody>`;
   valueList.forEach((item) => {
-    result += "<tr><td>" + item.Name + '</td><td style="word-break: break-all;">' + item.Value + "</td></tr>";
+    result += "<tr><td>" + htmlEscape(item.Name) + '</td><td style="word-break: break-all;">' + htmlEscape(String(item.Value)) + "</td></tr>";
   });
   result += "</tbody></table>";
   return result;
@@ -695,15 +717,19 @@ function resolveXSLTScriptUrl(scriptInfo) {
 async function resolveXSLTTransferData(debugData, transferOptions) {
   let xsltScript = "";
   if (transferOptions.script) {
-    const scriptUrl = resolveXSLTScriptUrl(debugData.scriptInfo);
-    if (scriptUrl) {
-      try {
-        const scriptResponse = await fetch(scriptUrl);
-        const scriptData = await scriptResponse.json();
-        xsltScript = scriptData.content || "";
-      } catch (e) {
-        log.error("Error fetching XSLT script for IDE:", e);
-        xsltScript = "";
+    xsltScript = debugData.xsltScript || "";
+    if (!xsltScript) {
+      const scriptUrl = resolveXSLTScriptUrl(debugData.scriptInfo);
+      if (scriptUrl) {
+        try {
+          const scriptResponse = await fetch(scriptUrl);
+          if (scriptResponse.ok) {
+            const scriptData = await scriptResponse.json();
+            xsltScript = scriptData.content || "";
+          }
+        } catch (e) {
+          log.error("Error fetching XSLT script for IDE:", e);
+        }
       }
     }
   }
@@ -713,7 +739,10 @@ async function resolveXSLTTransferData(debugData, transferOptions) {
     payload = debugData.payload || "";
     if (!payload && debugData.traceId) {
       try {
-        payload = await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/TraceMessages(" + debugData.traceId + ")/$value", true);
+        const result = await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/TraceMessages(" + debugData.traceId + ")/$value", true);
+        if (typeof result === "string") {
+          payload = result;
+        }
       } catch (e) {
         log.error("Error fetching payload for XSLT IDE:", e);
       }
@@ -757,6 +786,11 @@ async function sendToXSLTIDE(settings, debugData, transferOptions = { body: true
   const ideSelection = settings["xsltDebugX---ideSelection"] || "https://xsltdebugx.pages.dev/";
   const customUrl = settings["xsltDebugX---customIdeUrl"] || "";
   const ideUrl = ideSelection === "custom" ? customUrl.trim() || "https://xsltdebugx.pages.dev/" : ideSelection;
+
+  if (typeof pako === "undefined") {
+    showToast("Compression library not loaded. Please reload the page.", "XSLT Debugger", "Error");
+    return;
+  }
 
   const { xsltScript, payload, headers, properties } = await resolveXSLTTransferData(debugData, transferOptions);
 
