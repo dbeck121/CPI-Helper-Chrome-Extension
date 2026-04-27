@@ -116,6 +116,10 @@ class SimpleCache {
     return cachedItem.data;
   }
 
+  delete(id) {
+    this.cache.delete(id);
+  }
+
   // Method to clean up expired entries
   cleanUp() {
     const currentTime = Date.now();
@@ -257,7 +261,9 @@ async function makeCallPromiseV2(method, url, useCache, accept, payload, include
     return cache;
   }
 
-  var xhr = await makeCallPromiseXHR(method, url, accept, payload, includeXcsrf, contentType, (showInfo = true)).catch((error) => {
+  var xhr = await makeCallPromiseXHR(method, url, accept, payload, includeXcsrf, contentType, showInfo).catch((error) => {
+    httpCache.delete(method + url); // In case of error, ensure that the cache is cleared for this entry
+
     return { successful: false, status: error.status, statusText: error.statusText, responseText: error.responseText };
   });
 
@@ -619,6 +625,7 @@ function getStatusColorCode(status, isDarkMode = !$("html").hasClass("sapUiTheme
     ABANDONED: isDarkMode ? "#788fa6" : "#a9b4be",
     STORED: isDarkMode ? "#30914c" : "#6dad1f",
     DEPLOYED: isDarkMode ? "#30914c" : "#6dad1f",
+    STARTED: isDarkMode ? "#30914c" : "#6dad1f",
     COMPLETED: isDarkMode ? "#30914c" : "#6dad1f",
     default: isDarkMode ? "#788fa6" : "#a9b4be",
   };

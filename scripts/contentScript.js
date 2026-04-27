@@ -398,9 +398,11 @@ async function setLogLevel(logLevel, iflowId) {
 }
 
 //undeploy IFlow via API call
-function undeploy(tenant = null, artifactId = null) {
+async function undeploy(tenant = null, artifactId = null) {
+  //to get tenant and artifactid.
+  await getIflowInfoExtended();
   tenant ??= cpiData.tenantId;
-  artifactId ??= cpiData.flowData.artifactInformation.id;
+  artifactId ??= cpiData.artifactUuid;
   edgeExtension = cpiData.runtimeLocationId != "cloudintegration" ? `&runtimeLocationId=${cpiData.runtimeLocationId}` : "";
   makeCallPromise(
     "POST",
@@ -824,24 +826,37 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
     runtimeLocationWithActiveIFlow = [];
     for (const loc of cpiData.runtimeLocations) {
       try {
-        const locIdParam = "?runtimeLocationId=" + loc.id;
-        const resp = await makeCallPromiseV2("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand" + locIdParam, cacheValue, null, null, null, null, silent);
+        const symbolicName = cpiData.integrationFlowId;
+        const resp = await makeCallPromiseV2("GET", `/api/v1/IntegrationRuntimeArtifacts('${symbolicName}')?$format=json`, cacheValue, "application/json", null, null, null, !silent);
 
         if (!resp.successful) {
-          log.warn("Error fetching integration components for runtime location " + loc.id + ": " + resp.message);
+          // 404 means IFlow not deployed on this runtime location (expected)
+          if (resp.status === 404) {
+            log.debug(`IFlow ${symbolicName} not found on runtime location ${loc.id}`);
+            continue;
+          }
+          // Other errors (500, network issues, etc.)
+          log.warn(`Error fetching artifact for runtime location ${loc.id}: ${resp.statusText}`);
           continue;
         }
 
-        const respJson = new XmlToJson().parse(resp.responseText)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
-        const artifact = Array.isArray(respJson.artifactInformations)
-          ? respJson.artifactInformations.find((e) => e.symbolicName == cpiData.integrationFlowId)
-          : respJson.artifactInformations?.symbolicName == cpiData.integrationFlowId
-            ? respJson.artifactInformations
-            : null;
+        const respJson = JSON.parse(resp.responseText);
+        const artifact = respJson.d; // OData v4 wraps data in 'd' property
+
+        // Map OData field names to plugin's expected structure
+        if (artifact) {
+          artifact.symbolicName = symbolicName;
+          artifact.id = artifact.Id;
+          artifact.version = artifact.Version;
+          artifact.deployState = artifact.Status;
+          artifact.deployedOn = artifact.DeployedOn;
+          artifact.deployedBy = artifact.DeployedBy;
+          artifact.name = artifact.Name || symbolicName; // Fallback to symbolicName if Name not present
+        }
+
         if (artifact) {
           // collect information about current tenant and artifact if runtime location matches the selected one. this is needed to avoid another call to get the artifact information later, because we already have it here
           if (cpiData.runtimeLocationId && loc.id == cpiData.runtimeLocationId) {
-            cpiData.tenantId = artifact.tenantId || null;
             cpiData.flowData.artifactInformation.lastUpdate = new Date().toISOString();
             cpiData.flowData.artifactInformation.artifactId = artifact.id || null;
             cpiData.flowData.artifactInformation.version = artifact.version || null;
@@ -1032,19 +1047,111 @@ async function setRuntimeLocation(location, silent = false) {
 }
 
 async function getIflowInfoExtended(silent = true) {
-  runtimeLocationWithActiveIFlowTemp = [];
+  id = null;
+  if (cpiData.cpiPlatform == "neo") {
+    cpiData.flowData.artifactInformation?.id;
+  }
+
+  if (cpiData.cpiPlatform == "cf") {
+    //we do this to get tenant and artifact uuid
+
+    runtimeLocationWithActiveIFlowTemp = [];
+
+    try {
+      //Get Runtime Locations
+      const runtimeLocResp = await makeCallPromiseV2("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.srv.web.cf.RuntimeLocationListCommand", null, null, null, null, null, silent);
+
+      if (!runtimeLocResp.successful) {
+        throw "Error fetching runtime locations: " + runtimeLocResp.message;
+        return false;
+      }
+
+      const runtimeLocJson = new XmlToJson().parse(runtimeLocResp.responseText)["com.sap.it.op.srv.web.cf.RuntimeLocationListResponse"];
+
+      //collect list of runtime locations
+      if (runtimeLocJson.runtimeLocations?.length) {
+        cpiData.runtimeLocations = runtimeLocJson.runtimeLocations.map((loc) => {
+          return {
+            id: loc.id,
+            state: loc.state,
+            type: loc.type,
+            typeId: loc.typeId,
+          };
+        });
+      } else {
+        cpiData.runtimeLocations = [{ id: runtimeLocJson.runtimeLocations.id, state: runtimeLocJson.runtimeLocations.state, type: runtimeLocJson.runtimeLocations.type, typeId: runtimeLocJson.runtimeLocations.typeId }];
+      }
+
+      // filter for active runtime locations
+      cpiData.runtimeLocations = cpiData.runtimeLocations.filter((loc) => loc.state.toUpperCase() == "ACTIVE");
+
+      if (cpiData.runtimeLocations.length == 0) {
+        throw "No active runtime locations found. Please check your environment.";
+      }
+
+      //iterate all runtime locations to find the ones that have active iflows
+      if (!cpiData.runtimeLocationWithActiveIFlow || cpiData.runtimeLocationWithActiveIFlow.length == 0) {
+      } else {
+        cpiData.runtimeLocationWithActiveIFlow = [];
+      }
+
+      runtimeLocationWithActiveIFlow = [];
+      for (const loc of cpiData.runtimeLocations) {
+        try {
+          const locIdParam = "?runtimeLocationId=" + loc.id;
+          const resp = await makeCallPromiseV2("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand" + locIdParam, null, null, null, null, null, silent);
+
+          if (!resp.successful) {
+            log.warn("Error fetching integration components for runtime location " + loc.id + ": " + resp.message);
+            continue;
+          }
+
+          const respJson = new XmlToJson().parse(resp.responseText)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
+          const artifact = Array.isArray(respJson.artifactInformations)
+            ? respJson.artifactInformations.find((e) => e.symbolicName == cpiData.integrationFlowId)
+            : respJson.artifactInformations?.symbolicName == cpiData.integrationFlowId
+              ? respJson.artifactInformations
+              : null;
+          if (artifact) {
+            // collect information about current tenant and artifact if runtime location matches the selected one. this is needed to avoid another call to get the artifact information later, because we already have it here
+            if (cpiData.runtimeLocationId && loc.id == cpiData.runtimeLocationId) {
+              cpiData.tenantId = artifact.tenantId || null;
+              id = artifact.id || null;
+            }
+
+            runtimeLocationWithActiveIFlow.push({
+              id: loc.id,
+              state: loc.state,
+              type: loc.type,
+              typeId: loc.typeId,
+              artifact: artifact,
+            });
+          }
+        } catch (locError) {
+          log.warn("Error fetching runtime location " + loc.id + ": ", locError);
+          continue;
+        }
+      }
+    } catch (error) {
+      log.error("Error getting Iflow Info: ", error);
+      if (!silent) showToast("Error: " + JSON.stringify(error));
+    }
+  }
+
+  cpiData.artifactUuid = id;
+
   for (const loc of cpiData.runtimeLocations) {
     try {
       // 4. Detaildaten holen
       const detailResp = await makeCallPromiseV2(
         "GET",
-        "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + cpiData.flowData.artifactInformation?.id + "&runtimeLocationId=" + loc.id,
+        "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + id + "&runtimeLocationId=" + loc.id,
         null,
         "application/json",
         null,
         null,
         null,
-        silent
+        !silent
       );
 
       if (!detailResp.successful) {
