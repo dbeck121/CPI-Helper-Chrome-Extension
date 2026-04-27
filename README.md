@@ -46,7 +46,8 @@ It is open source so feel free to check the source code.
 
 ### 3.25.0
 
-- [Plugin] GroovyDebugX now also with Contiva Groovy IDE. Special thanks to [Sunil Pharswan](https://linkedin.com/in/sunilph).
+- [Plugin] GroovyDebugX now also with Contiva Groovy IDE and has many improvements. Special thanks to [Sunil Pharswan](https://linkedin.com/in/sunilph).
+- [Plugin] New xsltDebugX Plugin to debug XSLT. Special thanks to [Sunil Pharswan](https://linkedin.com/in/sunilph).
 - [Fix] Better backend performance. Thanks to SAP and [Ankit Dusad](https://github.com/ankdusad)
 
 ### 3.24.3
