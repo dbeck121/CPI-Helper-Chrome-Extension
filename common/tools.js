@@ -169,6 +169,9 @@ async function makeCallPromiseXHR(method, url, accept, payload, includeXcsrf, co
       xhr.setRequestHeader("X-CSRF-Token", xcsrf);
     }
 
+    xhr.setRequestHeader("X-CPI-Helper-Client", "extension");
+    xhr.setRequestHeader("X-CPI-Helper-Version", chrome.runtime.getManifest().version);
+
     xhr.onload = function () {
       if (this.status >= 200 && this.status < 300) {
         showInfo ? workingIndicator(false) : {};
