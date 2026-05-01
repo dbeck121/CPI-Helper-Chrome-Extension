@@ -80,19 +80,17 @@ async function whatsNewCheck(showOnlyOnce = true) {
   
      <div class="ui header">This release is sponsored by Figaf </div>
 
-<p>If you want to improve the operation of your Edge Integration Cell, Figaf can help you with more information, including:</p>
-<div class="ui bulleted list">
-  <div class="item">Deploy/undeploy iFlows and dependent objects</div>
-  <div class="item">Handle transport of iFlows</div>
-  <div class="item">Test all your EIC iFlows as in normal operation</div>
-  <div class="item">Monitor and alerting also on Edge</div>
-</div>
+<p>Big Go-Live? Figaf Handles It.</p>
+<p>One of our customers tested, transported, and deployed 1,000+ integration objects on Edge Integration Cell in just a few hours. ⚡</p>
+<p>That's the power of the Figaf DevOps Suite: automated testing, governed transports, and rapid deployment across SAP PI/PO, SAP Integration Suite, and Edge Integration Cell.</p>
+<p>Big go-lives shouldn't be scary.               
+<a href="https://figaf.com/cpihelper26" target="_blank"><u>👉 Read more</u></a> about how Figaf manages transports</div>
+</p>
+
 
                     </div>
                      <div class="sixteen wide column" style="paddingTop: '0px'">
-               
-<a href="https://figaf.com/cpihelper25" target="_blank"><u>Read more</u></a> about Figaf and start the right way!</div>
-                </div>
+                 </div>
             </div>
             <h3 class="ui header">
                 <i class="bell icon"></i>

@@ -1,37 +1,36 @@
-// Global function for the popup button
 if (!window.groovyDebugSendToIDE) {
-  /**
-   * Global function for sending Groovy debug data to external IDE.
-   * Called from the popup button when user wants to debug externally.
-   * @async
-   * @function groovyDebugSendToIDE
-   * @global
-   * @returns {Promise<void>} Resolves when debug data is sent successfully
-   */
-  window.groovyDebugSendToIDE = async function () {
-    const settings = window.groovyDebuggerData?.settings || {};
-    const ideUrl = settings["groovyDebugger---externalIdeUrl"] || "https://groovyide.com/cpi/share/v1/";
-    const domain = new URL(ideUrl).hostname;
+  window.groovyDebugSendToIDE = async function (debugDataOverride) {
+    const settings = await getPluginSettings("groovyDebugger");
+    const ideSelection = settings["groovyDebugger---ideSelection"] || "";
 
-    // Load saved user preferences for checkbox states using plugin settings
-    const loadTransferPreferences = async () => {
-      const body = (await getStorageValue("groovyDebugger", "transferBody", "browser")) ?? true;
-      const script = (await getStorageValue("groovyDebugger", "transferScript", "browser")) ?? true;
-      const properties = (await getStorageValue("groovyDebugger", "transferProperties", "browser")) ?? false;
-      const headers = (await getStorageValue("groovyDebugger", "transferHeaders", "browser")) ?? false;
+    if (!ideSelection) {
+      showToast("No IDE selected. Please choose an IDE from the GroovyDebugX plugin settings.", "Groovy Debugger", "Error");
+      return;
+    }
 
-      return {
-        body: body,
-        script: script,
-        properties: properties,
-        headers: headers,
-      };
+    const customUrl = settings["groovyDebugger---customIdeUrl"] || "";
+    const ideUrl = ideSelection === "custom" ? customUrl.trim() || "https://groovyide.com/cpi/share/v1/" : ideSelection;
+    let domain;
+    try {
+      domain = new URL(ideUrl).hostname;
+    } catch (e) {
+      showToast("Invalid IDE URL: " + ideUrl, "Groovy Debugger", "Error");
+      return;
+    }
+
+    const [_body, _script, _props, _hdrs] = await Promise.all([
+      getStorageValue("groovyDebugger", "transferBody", "browser"),
+      getStorageValue("groovyDebugger", "transferScript", "browser"),
+      getStorageValue("groovyDebugger", "transferProperties", "browser"),
+      getStorageValue("groovyDebugger", "transferHeaders", "browser"),
+    ]);
+    const prefs = {
+      body: _body !== "" ? !!_body : true,
+      script: _script !== "" ? !!_script : true,
+      properties: _props !== "" ? !!_props : false,
+      headers: _hdrs !== "" ? !!_hdrs : false,
     };
 
-    // Load saved user preferences for checkbox states
-    const userPreferences = await loadTransferPreferences();
-
-    // Create custom confirmation popup
     const popupContent = `
       <div class="ui warning message">
         <div class="header">
@@ -42,31 +41,31 @@ if (!window.groovyDebugSendToIDE) {
           <i class="info circle icon"></i>
           <strong>Privacy Notice:</strong> The selected data may contain sensitive business information. Proceed with caution.
         </div>
-        <p><strong>Destination:</strong> ${domain}</p>
+        <p><strong>Destination:</strong> ${htmlEscape(domain)}</p>
         <p>Select which data you want to transfer to the external Groovy WebIDE:</p>
         <div class="ui form">
           <div class="grouped fields">
             <div class="field">
-              <div class="ui checkbox" id="transfer-body">
-                <input type="checkbox" name="transfer-body" ${userPreferences.body ? "checked" : ""}>
+              <div class="ui toggle checkbox" id="transfer-body">
+                <input type="checkbox" name="transfer-body" ${prefs.body ? "checked" : ""}>
                 <label>Message Body <em>(may contain sensitive data)</em></label>
               </div>
             </div>
             <div class="field">
-              <div class="ui checkbox" id="transfer-script">
-                <input type="checkbox" name="transfer-script" ${userPreferences.script ? "checked" : ""}>
+              <div class="ui toggle checkbox" id="transfer-script">
+                <input type="checkbox" name="transfer-script" ${prefs.script ? "checked" : ""}>
                 <label>Groovy Script <em>(source code)</em></label>
               </div>
             </div>
             <div class="field">
-              <div class="ui checkbox" id="transfer-properties">
-                <input type="checkbox" name="transfer-properties" ${userPreferences.properties ? "checked" : ""}>
+              <div class="ui toggle checkbox" id="transfer-properties">
+                <input type="checkbox" name="transfer-properties" ${prefs.properties ? "checked" : ""}>
                 <label>Properties <em>(may contain configuration data)</em></label>
               </div>
             </div>
             <div class="field">
-              <div class="ui checkbox" id="transfer-headers">
-                <input type="checkbox" name="transfer-headers" ${userPreferences.headers ? "checked" : ""}>
+              <div class="ui toggle checkbox" id="transfer-headers">
+                <input type="checkbox" name="transfer-headers" ${prefs.headers ? "checked" : ""}>
                 <label>Headers <em>(may contain security & metadata)</em></label>
               </div>
             </div>
@@ -79,60 +78,70 @@ if (!window.groovyDebugSendToIDE) {
       fullscreen: false,
       large: false,
       callback: () => {
-        // Add custom buttons to the actions div
         let actionsDiv = $("#cpiHelper_semanticui_modal .actions");
-        actionsDiv.empty(); // Remove default close button
+        actionsDiv.empty();
 
-        // Cancel button
         let cancelBtn = $('<div class="ui button">Cancel</div>');
         cancelBtn.on("click", () => {
           $("#cpiHelper_semanticui_modal").modal("hide");
         });
         actionsDiv.append(cancelBtn);
 
-        // Continue button
         let continueBtn = $('<div class="ui positive button"><i class="rocket icon"></i>Continue</div>');
 
-        // Function to check if any checkbox is selected and enable/disable continue button
         const updateContinueButton = () => {
-          const anyChecked = $("#transfer-body input").is(":checked") || $("#transfer-properties input").is(":checked") || $("#transfer-headers input").is(":checked") || $("#transfer-script input").is(":checked");
-
-          if (anyChecked) {
-            continueBtn.removeClass("disabled");
-            continueBtn.prop("disabled", false);
-          } else {
-            continueBtn.addClass("disabled");
-            continueBtn.prop("disabled", true);
-          }
+          const anyChecked = $("#transfer-body input").prop("checked") || $("#transfer-properties input").prop("checked") || $("#transfer-headers input").prop("checked") || $("#transfer-script input").prop("checked");
+          continueBtn.toggleClass("disabled", !anyChecked).prop("disabled", !anyChecked);
         };
 
-        // Add event listeners to all checkboxes to update continue button state
-        $("#transfer-body input, #transfer-properties input, #transfer-headers input, #transfer-script input").on("change", updateContinueButton);
+        $("#cpiHelper_semanticui_modal .ui.checkbox").checkbox({
+          onChange: updateContinueButton,
+        });
 
-        // Initial check
         updateContinueButton();
 
         continueBtn.on("click", async () => {
-          // Get selected data types
           const transferOptions = {
-            body: $("#transfer-body input").is(":checked"),
-            properties: $("#transfer-properties input").is(":checked"),
-            headers: $("#transfer-headers input").is(":checked"),
-            script: $("#transfer-script input").is(":checked"),
+            body: $("#transfer-body input").prop("checked"),
+            properties: $("#transfer-properties input").prop("checked"),
+            headers: $("#transfer-headers input").prop("checked"),
+            script: $("#transfer-script input").prop("checked"),
           };
 
-          // Save user preferences for next time using plugin settings
-          await syncChromeStoragePromise(getStoragePath("groovyDebugger", "transferBody", "browser"), transferOptions.body);
-          await syncChromeStoragePromise(getStoragePath("groovyDebugger", "transferScript", "browser"), transferOptions.script);
-          await syncChromeStoragePromise(getStoragePath("groovyDebugger", "transferProperties", "browser"), transferOptions.properties);
-          await syncChromeStoragePromise(getStoragePath("groovyDebugger", "transferHeaders", "browser"), transferOptions.headers);
+          await Promise.all([
+            syncChromeStoragePromise(getStoragePath("groovyDebugger", "transferBody", "browser"), transferOptions.body),
+            syncChromeStoragePromise(getStoragePath("groovyDebugger", "transferScript", "browser"), transferOptions.script),
+            syncChromeStoragePromise(getStoragePath("groovyDebugger", "transferProperties", "browser"), transferOptions.properties),
+            syncChromeStoragePromise(getStoragePath("groovyDebugger", "transferHeaders", "browser"), transferOptions.headers),
+          ]);
+
+          // Re-read settings so any IDE change made while the dialog was open takes effect
+          const latestSettings = await getPluginSettings("groovyDebugger");
+          const latestIdeSelection = latestSettings["groovyDebugger---ideSelection"] || "";
 
           $("#cpiHelper_semanticui_modal").modal("hide");
-          const debugData = window.currentGroovyDebugData;
-          await sendToExternalIDE(settings, debugData, transferOptions);
-          showToast(`Debug data sent to IDE`, "Success");
-          // Close the main debug popup after sending
-          $("#cpiHelper_semanticui_modal").modal("hide");
+
+          if (!latestIdeSelection) {
+            showToast("No IDE selected. Please choose an IDE from the GroovyDebugX plugin settings.", "Groovy Debugger", "Error");
+            return;
+          }
+
+          const debugData = debugDataOverride || window.currentGroovyDebugData;
+          if (!debugData) {
+            showToast("No debug data available. Please click a Groovy step first.", "Groovy Debugger", "Error");
+            return;
+          }
+          try {
+            if (latestIdeSelection === "https://ide.contiva.com/cpi/script/debug") {
+              await sendToContivaIDE(latestSettings, debugData, transferOptions);
+            } else {
+              await sendToExternalIDE(latestSettings, debugData, transferOptions);
+            }
+            showToast("Debug data sent to IDE", "Success");
+          } catch (e) {
+            log.error("Error sending to IDE:", e);
+            showToast("Failed to send to IDE: " + e.message, "Groovy Debugger", "Error");
+          }
         });
         actionsDiv.append(continueBtn);
       },
@@ -140,26 +149,6 @@ if (!window.groovyDebugSendToIDE) {
   };
 }
 
-/**
- * Groovy Debugger Plugin Configuration
- * A CPI Helper plugin that enables debugging of Groovy scripts by extracting runtime trace data
- * and providing visual step highlighting with one-click transfer to external Groovy IDE.
- * @typedef {Object} GroovyDebuggerPlugin
- * @property {string} metadataVersion - Plugin metadata version
- * @property {string} id - Unique plugin identifier
- * @property {string} name - Display name of the plugin
- * @property {string} version - Plugin version
- * @property {string} author - Plugin author name
- * @property {string} email - Plugin author email
- * @property {string} website - Plugin author website
- * @property {string} description - HTML description of plugin functionality
- * @property {Object} settings - Plugin settings (currently empty)
- * @property {Object} messageSidebarButton - Sidebar button configuration
- * @property {Object} messageSidebarButton.icon - Icon configuration for the button
- * @property {string} messageSidebarButton.title - Tooltip text for the button
- * @property {Function} messageSidebarButton.onClick - Click handler function
- * @property {Function} messageSidebarButton.condition - Function to determine button visibility
- */
 var plugin = {
   metadataVersion: "1.0.0",
   id: "groovyDebugger",
@@ -171,11 +160,23 @@ var plugin = {
   description:
     "<b>GroovyDebugX</b> streamlines Groovy debugging by automating runtime trace extraction. With visual step highlighting and one-click data transfer to <b>Groovy WebIDE</b>, it eliminates manual data entry and accelerates your integration development.<br><br><b>Note</b>: Requires the message to be processed in <b>Trace Mode</b> to capture and transfer runtime data.",
   settings: {
-    externalIdeUrl: { text: "External IDE URL", type: "textinput", scope: "browser" },
-    transferBody: { text: "Transfer Message Body by default", type: "checkbox", scope: "browser" },
-    transferScript: { text: "Transfer Groovy Script by default", type: "checkbox", scope: "browser" },
-    transferProperties: { text: "Transfer Properties by default", type: "checkbox", scope: "browser" },
-    transferHeaders: { text: "Transfer Headers by default", type: "checkbox", scope: "browser" },
+    ideSelection: {
+      text: "External Groovy IDE",
+      type: "radio",
+      scope: "browser",
+      options: [
+        { value: "https://groovyide.com/cpi/share/v1/", label: "GroovyIDE (groovyide.com)", default: true },
+        { value: "https://ide.contiva.com/cpi/script/debug", label: "Contiva IDE (ide.contiva.com)" },
+        { value: "custom", label: "Custom URL" },
+      ],
+    },
+    customIdeUrl: {
+      text: "Custom IDE URL",
+      type: "textinput",
+      scope: "browser",
+      placeholder: "https://your-custom-ide.com/share/",
+      showWhen: { key: "ideSelection", value: "custom" },
+    },
   },
   messageSidebarButton: {
     icon: { text: "{}", type: "text" },
@@ -184,36 +185,35 @@ var plugin = {
       resetGroovyHighlighting();
 
       if (!active) {
-        return; // Deselected, just clear and exit
+        return;
       }
 
-      // Get artifactId directly via API call
-      const artifactId = await getArtifactIdDirectly();
-      console.log("Direct API call artifactId:", artifactId);
+      let artifactId;
+      try {
+        artifactId = await getArtifactIdDirectly();
+      } catch (error) {
+        log.error("Groovy Debugger: error fetching artifactId:", error);
+        showToast("Could not fetch iFlow structure - " + error.message, "Groovy Debugger", "Error");
+        return;
+      }
+      log.log("Groovy Debugger: artifactId=" + artifactId);
 
-      //console.log(pluginHelper);
-      //console.log(runInfo);
+      if (!artifactId) {
+        showToast("Could not fetch iFlow structure - make sure you're on an integration flow page", "Groovy Debugger", "Error");
+        return;
+      }
 
       showWaitingPopup("Fetching iFlow data, trace information and highlighting Groovy steps with data...", "ui blue");
 
       try {
         const iFlowUrl = "https://" + pluginHelper.tenant + "/api/1.0/iflows/" + artifactId;
 
-        if (!artifactId) {
-          $("#cpiHelper_waiting_model").modal("hide");
-          showToast("Could not fetch iFlow structure - make sure you're on an integration flow page", "Groovy Debugger", "Error");
-          return;
-        }
-
-        // Fetch the iFlow JSON structure
         const response = await fetch(iFlowUrl);
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const iFlowData = await response.json();
-        //console.log(iFlowData);
 
-        // Extract groovy script elements
         const groovyElements = extractGroovyElements(iFlowData);
 
         if (groovyElements.length === 0) {
@@ -224,20 +224,19 @@ var plugin = {
 
         log.log("Groovy Debugger: Found " + groovyElements.length + " groovy script elements");
 
-        // Reset any existing highlighting
         resetGroovyHighlighting();
 
-        // Get trace elements to identify which groovy steps have been executed
-        const logRuns = await createInlineTraceElements(runInfo.messageGuid, false);
-        if (!logRuns || !inlineTraceElements?.length) {
+        await createInlineTraceElements(runInfo.messageGuid, false);
+        // Snapshot: inlineTraceElements is a global that other calls can mutate
+        const traceElementsCopy = [...inlineTraceElements];
+        if (!traceElementsCopy.length) {
           $("#cpiHelper_waiting_model").modal("hide");
           showToast("No trace data found for this message", "Groovy Debugger", "Warning");
           return;
         }
 
-        // Find groovy elements that have corresponding trace data
         const groovyElementsWithTrace = groovyElements.filter((element) => {
-          const matchingTraceElements = inlineTraceElements.filter((traceElement) => {
+          const matchingTraceElements = traceElementsCopy.filter((traceElement) => {
             const traceId = traceElement.StepId || traceElement.ModelStepId;
             return traceId === element.id;
           });
@@ -250,10 +249,8 @@ var plugin = {
           return;
         }
 
-        // Highlight only groovy script elements that have trace data
         applyGroovyHighlighting(groovyElementsWithTrace);
 
-        // Store data for click handling
         window.groovyDebuggerData = {
           settings: settings,
           runInfo: runInfo,
@@ -261,7 +258,7 @@ var plugin = {
           iFlowData: iFlowData,
           iFlowUrl: iFlowUrl,
           artifactId: artifactId,
-          inlineTraceElements: inlineTraceElements,
+          inlineTraceElements: traceElementsCopy,
         };
 
         setupGroovyClickHandlers(settings, runInfo, groovyElementsWithTrace, iFlowData, artifactId, pluginHelper.tenant);
@@ -282,46 +279,35 @@ var plugin = {
   },
 };
 
-/**
- * Resets all Groovy highlighting and removes click handlers from BPMN shape elements.
- * Clears the fill color and cursor styles from all elements.
- * @function resetGroovyHighlighting
- */
+// Map to preserve SAP's native onclick handlers before we overwrite them
+const groovyOriginalHandlers = new Map();
+
 function resetGroovyHighlighting() {
   document.querySelectorAll("g[id^='BPMNShape_'] rect.activity").forEach((rect) => {
-    rect.style.fill = ""; // Reset fill for all elements
+    rect.style.fill = "";
   });
-  // Remove click handlers and cursor style from all BPMN shape elements
   document.querySelectorAll("g[id^='BPMNShape_']").forEach((element) => {
     element.style.cursor = "";
-    element.onclick = null;
+    element.onclick = groovyOriginalHandlers.get(element.id) || null;
   });
+  groovyOriginalHandlers.clear();
 }
 
-/**
- * Retrieves the artifact ID directly via API call for the current integration flow.
- * Handles both Neo and Cloud Foundry platforms with different API approaches.
- * @async
- * @function getArtifactIdDirectly
- * @returns {Promise<string>} The artifact ID of the integration flow
- * @throws {Error} If the integration flow is not found or API call fails
- */
 async function getArtifactIdDirectly() {
   try {
+    const listResponse = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", false, null, null, null, null, true);
+    const listData = new XmlToJson().parse(listResponse)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
+    const artifact = Array.isArray(listData.artifactInformations)
+      ? listData.artifactInformations.find((e) => e.symbolicName === cpiData.integrationFlowId)
+      : listData.artifactInformations?.symbolicName === cpiData.integrationFlowId
+        ? listData.artifactInformations
+        : null;
+
+    if (!artifact) {
+      throw new Error("Integration Flow not found in list");
+    }
+
     if (cpiData.cpiPlatform === "neo") {
-      // For Neo platform
-      const listResponse = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", false, null, null, null, null, true);
-      const listData = new XmlToJson().parse(listResponse)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
-      const artifact = Array.isArray(listData.artifactInformations)
-        ? listData.artifactInformations.find((e) => e.symbolicName === cpiData.integrationFlowId)
-        : listData.artifactInformations?.symbolicName === cpiData.integrationFlowId
-          ? listData.artifactInformations
-          : null;
-
-      if (!artifact) {
-        throw new Error("Integration Flow not found in list");
-      }
-
       const detailResponse = await makeCallPromise(
         "GET",
         "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + artifact.id,
@@ -332,40 +318,16 @@ async function getArtifactIdDirectly() {
         null,
         true
       );
-      const detailData = JSON.parse(detailResponse);
-
-      return detailData.artifactInformation.id;
-    } else {
-      // For CF platform - simplified version
-      const listResponse = await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand", false, null, null, null, null, true);
-      const listData = new XmlToJson().parse(listResponse)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
-      const artifact = Array.isArray(listData.artifactInformations)
-        ? listData.artifactInformations.find((e) => e.symbolicName === cpiData.integrationFlowId)
-        : listData.artifactInformations?.symbolicName === cpiData.integrationFlowId
-          ? listData.artifactInformations
-          : null;
-
-      if (!artifact) {
-        throw new Error("Integration Flow not found in list");
-      }
-
-      return artifact.id; // For CF, the artifact id from list might be sufficient
+      return JSON.parse(detailResponse).artifactInformation.id;
     }
+
+    return artifact.id;
   } catch (error) {
     log.error("Error getting artifactId directly:", error);
     throw error;
   }
 }
 
-/**
- * Extracts Groovy script elements from the integration flow JSON data.
- * Filters elements to find only those with displayName "Groovy Script".
- * @function extractGroovyElements
- * @param {Object} iFlowData - The integration flow JSON structure
- * @param {Object} iFlowData.propertyViewModel - Property view model containing flow elements
- * @param {Array} iFlowData.propertyViewModel.listOfDefaultFlowElementModel - Array of flow elements
- * @returns {Array} Array of Groovy script elements with id, displayName, scriptFunction, and script properties
- */
 function extractGroovyElements(iFlowData) {
   if (!iFlowData.propertyViewModel?.listOfDefaultFlowElementModel) {
     return [];
@@ -381,56 +343,38 @@ function extractGroovyElements(iFlowData) {
     }));
 }
 
-/**
- * Applies green highlighting to found Groovy elements on the BPMN diagram.
- * Sets fill color to green (#13af00) for visual indication of debuggable steps.
- * @function applyGroovyHighlighting
- * @param {Array} groovyElements - Array of Groovy script elements to highlight
- * @param {Object} groovyElements[].id - Unique identifier of the element
- */
 function applyGroovyHighlighting(groovyElements) {
   groovyElements.forEach((element) => {
     const selector = `g#BPMNShape_${element.id}`;
     const targetElement = document.querySelector(selector);
 
     if (targetElement) {
-      // Find the rect inside the g element and apply fill color
       const rectElement = targetElement.querySelector("rect.activity");
       if (rectElement) {
-        rectElement.style.fill = "#13af00"; // Apply green fill for groovy steps
+        rectElement.style.fill = "#13af00";
       }
     }
   });
 }
 
-/**
- * Sets up click handlers for highlighted Groovy elements.
- * When clicked, displays debug popup with trace data for the selected Groovy step.
- * @function setupGroovyClickHandlers
- * @param {Object} settings - Plugin settings
- * @param {Object} runInfo - Runtime information for the message
- * @param {Array} groovyElements - Array of Groovy script elements
- * @param {Object} iFlowData - Integration flow JSON data
- * @param {string} artifactId - Artifact identifier
- * @param {string} tenant - Tenant name
- */
 function setupGroovyClickHandlers(settings, runInfo, groovyElements, iFlowData, artifactId, tenant) {
   groovyElements.forEach((element) => {
     const selector = `g#BPMNShape_${element.id}`;
     const targetElement = document.querySelector(selector);
 
     if (targetElement) {
+      if (!groovyOriginalHandlers.has(targetElement.id)) {
+        groovyOriginalHandlers.set(targetElement.id, targetElement.onclick);
+      }
       targetElement.style.cursor = "pointer";
       targetElement.onclick = async (event) => {
         event.stopPropagation();
         event.preventDefault();
 
         try {
-          // Try to get trace data for this element if available
           let debugData = await tryGetTraceDataForElement(runInfo, element, window.groovyDebuggerData.inlineTraceElements);
 
           if (!debugData) {
-            // Create basic debug data if no trace available
             debugData = {
               messageGuid: runInfo.messageGuid,
               stepId: element.id,
@@ -440,30 +384,22 @@ function setupGroovyClickHandlers(settings, runInfo, groovyElements, iFlowData, 
               timestamp: new Date().toISOString(),
             };
           } else {
-            // Set initial placeholder for script content (will be lazy loaded)
             debugData.groovyScript = "// Script content not available";
-            debugData.scriptFunction = element.scriptFunction || "processData";
           }
 
-          // Store script fetching info for lazy loading
+          // Lazy-load script info so click handler can fetch Groovy source on demand
           debugData.scriptInfo = {
             tenant: tenant,
             artifactId: artifactId,
             scriptPath: element.script,
           };
 
-          // Check if there's meaningful data to display
-          if ((!debugData.payload || debugData.payload === "") && Object.keys(debugData.headers || {}).length === 0 && Object.keys(debugData.properties || {}).length === 0) {
-            showToast("No debug data available for this Groovy step", "Warning");
-            return;
-          }
-
           showBigPopup(await createGroovyDebugContent(debugData), `Groovy Debug Data - ${element.displayName || element.id}`, {
             fullscreen: false,
             callback: () => {
               let actionsDiv = $("#cpiHelper_semanticui_modal .actions");
               let debugBtn = $('<div class="ui positive button"><i class="rocket icon"></i>Debug Externally</div>');
-              debugBtn.on("click", () => window.groovyDebugSendToIDE());
+              debugBtn.on("click", () => window.groovyDebugSendToIDE(debugData));
               actionsDiv.prepend(debugBtn);
             },
           });
@@ -476,61 +412,34 @@ function setupGroovyClickHandlers(settings, runInfo, groovyElements, iFlowData, 
   });
 }
 
-/**
- * Attempts to get trace data for a specific element using pre-fetched trace elements.
- * Matches trace elements by StepId or ModelStepId to find corresponding execution data.
- * @async
- * @function tryGetTraceDataForElement
- * @param {Object} runInfo - Runtime information for the message
- * @param {Object} element - Groovy element to find trace data for
- * @param {string} element.id - Unique identifier of the element
- * @param {Array} inlineTraceElements - Array of pre-fetched trace elements
- * @returns {Promise<Object|null>} Debug data object if found, null otherwise
- */
 async function tryGetTraceDataForElement(runInfo, element, inlineTraceElements) {
   try {
-    // Use the pre-fetched trace elements instead of fetching again
     if (!inlineTraceElements?.length) {
-      return null; // No trace data available
+      return null;
     }
 
-    // Find trace elements that match this groovy element by ID
     const matchingTraceElements = inlineTraceElements.filter((traceElement) => {
       const traceId = traceElement.StepId || traceElement.ModelStepId;
       return traceId === element.id;
     });
 
     if (matchingTraceElements.length === 0) {
-      return null; // Step wasn't executed in this trace
+      return null;
     }
 
-    // Get debug data for the first matching trace element
-    return await fetchGroovyDebugData(runInfo, matchingTraceElements[0]);
+    return await fetchGroovyDebugData(runInfo, matchingTraceElements[0], element.scriptFunction);
   } catch (error) {
     log.error("Error getting trace data for element:", error);
     return null;
   }
 }
 
-/**
- * Fetches debug data for a specific Groovy step from the CPI API.
- * Retrieves trace messages, properties, and run step information.
- * @async
- * @function fetchGroovyDebugData
- * @param {Object} runInfo - Runtime information containing message GUID
- * @param {Object} groovyStep - Trace element data for the Groovy step
- * @param {string} groovyStep.RunId - Run identifier
- * @param {number} groovyStep.ChildCount - Child count
- * @param {string} groovyStep.StepId - Step identifier
- * @returns {Promise<Object|null>} Complete debug data object or null if failed
- */
-async function fetchGroovyDebugData(runInfo, groovyStep) {
+async function fetchGroovyDebugData(runInfo, groovyStep, scriptFunction) {
   try {
     var messageGuid = runInfo.messageGuid;
     var runId = groovyStep.RunId;
     var childCount = groovyStep.ChildCount;
 
-    // Get trace messages for this step
     var traceData = JSON.parse(
       await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/MessageProcessingLogRunSteps(RunId='" + runId + "',ChildCount=" + childCount + ")/TraceMessages?$format=json", true)
     ).d.results;
@@ -543,9 +452,6 @@ async function fetchGroovyDebugData(runInfo, groovyStep) {
 
     var traceId = traceInfo.TraceId;
 
-    // Payload will be fetched lazily when Body tab is activated
-
-    // Get properties
     var properties = {};
     try {
       var propsData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/TraceMessages(" + traceId + ")/ExchangeProperties?$format=json", true)).d.results;
@@ -556,9 +462,7 @@ async function fetchGroovyDebugData(runInfo, groovyStep) {
       log.log("No properties for this step");
     }
 
-    // Headers will be fetched lazily when Headers tab is activated
-
-    // Get run step data with properties for Log and Info tabs
+    // RunStepProperties contains the Log tab data; $expand fetches it in one call
     var runStepData = {};
     try {
       runStepData = JSON.parse(
@@ -568,7 +472,7 @@ async function fetchGroovyDebugData(runInfo, groovyStep) {
       log.log("No run step data for this step");
     }
 
-    var groovyScript = "// Groovy script content not available via API\n// Please check your integration flow for the actual script";
+    var groovyScript = "// Script content not available";
 
     return {
       messageGuid: messageGuid,
@@ -579,7 +483,7 @@ async function fetchGroovyDebugData(runInfo, groovyStep) {
       properties: properties,
       runStepData: runStepData,
       groovyScript: groovyScript,
-      scriptFunction: "processData", // Will be overridden by element.scriptFunction
+      scriptFunction: scriptFunction || "processData",
       timestamp: new Date().toISOString(),
     };
   } catch (error) {
@@ -588,23 +492,14 @@ async function fetchGroovyDebugData(runInfo, groovyStep) {
   }
 }
 
-/**
- * Creates the HTML content for the Groovy debug popup with multiple tabs.
- * Uses lazy loading for performance - content is fetched only when tabs are activated.
- * @async
- * @function createGroovyDebugContent
- * @param {Object} data - Debug data object containing trace information
- * @param {string} data.traceId - The trace message ID
- * @param {Object} data.properties - Exchange properties
- * @param {Object} data.runStepData - Run step execution data
- * @param {Object} data.scriptInfo - Script metadata for lazy loading
- * @returns {Promise<string>} HTML content for the debug popup tabs
- */
 async function createGroovyDebugContent(data) {
-  // Lazy load body content when Body tab is activated
   let bodyContent = async () => {
     try {
       let payload = await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/TraceMessages(" + data.traceId + ")/$value", true);
+      // Cache fetched payload on debugData so IDE transfer can reuse it
+      if (typeof payload === "string" && payload) {
+        data.payload = payload;
+      }
       return formatTrace(payload || "No payload", "groovyDebugBody", null, "payload.txt");
     } catch (error) {
       log.error("Error fetching body content:", error);
@@ -612,7 +507,6 @@ async function createGroovyDebugContent(data) {
     }
   };
 
-  // Lazy load headers content when Headers tab is activated
   let headersContent = async () => {
     try {
       let headersData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/TraceMessages(" + data.traceId + ")/Properties?$format=json", true)).d.results;
@@ -620,6 +514,7 @@ async function createGroovyDebugContent(data) {
       headersData.forEach((header) => {
         headers[header.Name] = header.Value;
       });
+      data.headers = headers;
       return formatHeadersAndPropertiesToTable(
         Object.keys(headers)
           .sort()
@@ -639,26 +534,20 @@ async function createGroovyDebugContent(data) {
       : []
   );
 
-  // Lazy load script content when Script tab is activated
   let scriptContent = async () => {
     try {
+      const scriptUrl = resolveScriptUrl(data.scriptInfo);
       let groovyScriptContent = "// Script content not available";
-      if (data.scriptInfo && data.scriptInfo.scriptPath) {
-        let scriptPath = data.scriptInfo.scriptPath;
-        let isV2Path = scriptPath.includes("/v2/");
-        let scriptVersionParam = isV2Path ? "?scriptVersion=v2" : "";
-        if (isV2Path) {
-          scriptPath = scriptPath.replace("/script/v2/", "/");
-        } else if (scriptPath.startsWith("/script/")) {
-          scriptPath = scriptPath.replace("/script/", "/");
-        }
-        const scriptUrl = "https://" + data.scriptInfo.tenant + "/api/1.0/iflows/" + data.scriptInfo.artifactId + "/script/" + scriptPath + scriptVersionParam;
+      if (scriptUrl) {
         const scriptResponse = await fetch(scriptUrl);
-        const scriptData = await scriptResponse.json();
-        groovyScriptContent = scriptData.content || "// Script content not available";
+        if (scriptResponse.ok) {
+          const scriptData = await scriptResponse.json();
+          if (scriptData.content) {
+            groovyScriptContent = scriptData.content;
+            data.groovyScript = groovyScriptContent;
+          }
+        }
       }
-
-      // Use formatTrace function like the Body section for full editor functionality
       return formatTrace(groovyScriptContent, "groovyDebugScript", null, "script.groovy");
     } catch (error) {
       log.error("Error fetching script content:", error);
@@ -666,10 +555,8 @@ async function createGroovyDebugContent(data) {
     }
   };
 
-  // Get Log content from stored run step data
   let logContent = formatLogContent(data.runStepData?.RunStepProperties?.results || []);
 
-  // Get Info content from stored run step data
   let infoContent = formatInfoContent(data.runStepData || {});
 
   let objects = [
@@ -683,52 +570,34 @@ async function createGroovyDebugContent(data) {
 
   let tabsContent = await createTabHTML(objects, "groovyDebugTabs");
 
-  // Store data globally for button access
   window.currentGroovyDebugData = data;
 
   return tabsContent;
 }
 
-/**
- * Formats log content from run step properties into an HTML table.
- * Sorts the log entries alphabetically by name.
- * @function formatLogContent
- * @param {Array} inputList - Array of log entries with Name and Value properties
- * @returns {string} HTML table string containing formatted log content
- */
 function formatLogContent(inputList) {
   inputList = inputList.sort(function (a, b) {
     return a.Name.toLowerCase() > b.Name.toLowerCase() ? 1 : -1;
   });
-  result = `<table class='ui basic striped selectable compact table'>
+  let result = `<table class='ui basic striped selectable compact table'>
   <thead><tr class="blue"><th>Name</th><th>Value</th></tr></thead>
   <tbody>`;
   inputList.forEach((item) => {
-    result += "<tr><td>" + item.Name + '</td><td style="word-break: break-all;">' + item.Value + "</td></tr>";
+    result += "<tr><td>" + htmlEscape(item.Name) + '</td><td style="word-break: break-all;">' + htmlEscape(item.Value) + "</td></tr>";
   });
   result += "</tbody></table>";
   return result;
 }
 
-/**
- * Formats run step information into an HTML table showing execution details.
- * Calculates and displays start/end times and duration information.
- * @function formatInfoContent
- * @param {Object} inputList - Run step data containing execution information
- * @param {string} inputList.StepStart - Start time in Microsoft JSON date format
- * @param {string} [inputList.StepStop] - End time in Microsoft JSON date format (optional)
- * @param {string} inputList.BranchId - Branch identifier
- * @param {string} inputList.RunId - Run identifier
- * @param {string} inputList.StepId - Step identifier
- * @param {string} inputList.ModelStepId - Model step identifier
- * @param {number} inputList.ChildCount - Child count
- * @returns {string} HTML table string containing formatted execution information
- */
 function formatInfoContent(inputList) {
-  valueList = [];
+  const valueList = [];
 
+  if (!inputList?.StepStart) {
+    return "<div class='ui message'>No execution info available for this step.</div>";
+  }
+
+  // CPI timestamps are OData /Date(epoch)/ format
   var stepStart = new Date(parseInt(inputList.StepStart.substr(6, 13)));
-  stepStart.setTime(stepStart.getTime() - stepStart.getTimezoneOffset() * 60 * 1000);
 
   valueList.push({
     Name: "Start Time",
@@ -737,7 +606,6 @@ function formatInfoContent(inputList) {
 
   if (inputList.StepStop) {
     var stepStop = new Date(parseInt(inputList.StepStop.substr(6, 13)));
-    stepStop.setTime(stepStop.getTime() - stepStop.getTimezoneOffset() * 60 * 1000);
     valueList.push({
       Name: "End Time",
       Value: stepStop.toISOString().substr(0, 23),
@@ -766,70 +634,56 @@ function formatInfoContent(inputList) {
 
   valueList.push({ Name: "ChildCount", Value: inputList.ChildCount });
 
-  result = `<table class='ui basic striped selectable compact table'><thead><tr class="blue"><th>Name</th><th>Value</th></tr></thead>
+  let result = `<table class='ui basic striped selectable compact table'><thead><tr class="blue"><th>Name</th><th>Value</th></tr></thead>
   <tbody>`;
   valueList.forEach((item) => {
-    result += "<tr><td>" + item.Name + '</td><td style="word-break: break-all;">' + item.Value + "</td></tr>";
+    result += "<tr><td>" + htmlEscape(item.Name) + '</td><td style="word-break: break-all;">' + htmlEscape(String(item.Value)) + "</td></tr>";
   });
   result += "</tbody></table>";
   return result;
 }
 
-/**
- * Sends debug data to an external Groovy IDE for debugging.
- * Compresses and encodes the data before opening in a new tab/window.
- * @async
- * @function sendToExternalIDE
- * @param {Object} settings - Plugin settings (currently unused)
- * @param {Object} debugData - Complete debug data object
- * @param {Object} transferOptions - Options for which data types to transfer
- * @param {boolean} transferOptions.body - Whether to transfer message body
- * @param {boolean} transferOptions.properties - Whether to transfer properties
- * @param {boolean} transferOptions.headers - Whether to transfer headers
- * @param {boolean} transferOptions.script - Whether to transfer script
- * @returns {Promise<void>} Resolves when IDE is opened
- */
-async function sendToExternalIDE(settings, debugData, transferOptions = { body: true, properties: true, headers: true, script: true }) {
-  var ideUrl = settings["groovyDebugger---externalIdeUrl"] || "https://groovyide.com/cpi/share/v1/";
+// Handles /script/v2/ path variant used by newer iFlow versions
+function resolveScriptUrl(scriptInfo) {
+  if (!scriptInfo?.scriptPath) return null;
+  let scriptPath = scriptInfo.scriptPath;
+  const isV2Path = scriptPath.includes("/v2/");
+  const versionParam = isV2Path ? "?scriptVersion=v2" : "";
+  scriptPath = isV2Path ? scriptPath.replace("/script/v2/", "/") : scriptPath.replace(/^\/script\//, "/");
+  return `https://${scriptInfo.tenant}/api/1.0/iflows/${scriptInfo.artifactId}/script/${scriptPath}${versionParam}`;
+}
 
-  // Use actual debug data based on transfer options
+async function resolveTransferData(debugData, transferOptions) {
   let groovyScript = "";
   if (transferOptions.script) {
-    groovyScript = debugData.groovyScript;
-    // If script not fetched yet (lazy loading), fetch it now
-    if (groovyScript === "// Script content not available" && debugData.scriptInfo) {
-      try {
-        if (debugData.scriptInfo.scriptPath) {
-          let scriptPath = debugData.scriptInfo.scriptPath;
-          let isV2Path = scriptPath.includes("/v2/");
-          let scriptVersionParam = isV2Path ? "?scriptVersion=v2" : "";
-          if (isV2Path) {
-            scriptPath = scriptPath.replace("/script/v2/", "/");
-          } else if (scriptPath.startsWith("/script/")) {
-            scriptPath = scriptPath.replace("/script/", "/");
-          }
-          const scriptUrl = "https://" + debugData.scriptInfo.tenant + "/api/1.0/iflows/" + debugData.scriptInfo.artifactId + "/script/" + scriptPath + scriptVersionParam;
+    groovyScript = debugData.groovyScript || "";
+    if (!groovyScript || groovyScript === "// Script content not available") {
+      const scriptUrl = resolveScriptUrl(debugData.scriptInfo);
+      if (scriptUrl) {
+        try {
           const scriptResponse = await fetch(scriptUrl);
-          const scriptData = await scriptResponse.json();
-          groovyScript = scriptData.content || "// Script content not available";
+          if (scriptResponse.ok) {
+            const scriptData = await scriptResponse.json();
+            groovyScript = scriptData.content || "";
+          }
+        } catch (e) {
+          log.error("Error fetching script for IDE:", e);
         }
-      } catch (error) {
-        log.error("Error fetching script for IDE:", error);
-        groovyScript = "// Script content not available";
       }
     }
   }
 
   let payload = "";
   if (transferOptions.body) {
-    payload = debugData.payload;
-    // If payload not fetched yet (lazy loading), fetch it now
+    payload = debugData.payload || "";
     if (!payload && debugData.traceId) {
       try {
-        payload = await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + debugData.traceId + ")/$value", true);
-      } catch (error) {
-        log.error("Error fetching payload for IDE:", error);
-        payload = "";
+        const result = await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/TraceMessages(" + debugData.traceId + ")/$value", true);
+        if (typeof result === "string") {
+          payload = result;
+        }
+      } catch (e) {
+        log.error("Error fetching payload for IDE:", e);
       }
     }
   }
@@ -837,92 +691,113 @@ async function sendToExternalIDE(settings, debugData, transferOptions = { body: 
   let headers = {};
   if (transferOptions.headers) {
     headers = debugData.headers || {};
-    // If headers not fetched yet (lazy loading), fetch them now
-    if ((!headers || Object.keys(headers).length === 0) && debugData.traceId) {
+    if (Object.keys(headers).length === 0 && debugData.traceId) {
       try {
-        let headersData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "odata/api/v1/TraceMessages(" + debugData.traceId + ")/Properties?$format=json", true)).d.results;
-        headers = {};
-        headersData.forEach((header) => {
-          headers[header.Name] = header.Value;
+        const headersData = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/TraceMessages(" + debugData.traceId + ")/Properties?$format=json", true)).d.results;
+        headersData.forEach((h) => {
+          headers[h.Name] = h.Value;
         });
-      } catch (error) {
-        log.error("Error fetching headers for IDE:", error);
-        headers = {};
+      } catch (e) {
+        log.error("Error fetching headers for IDE:", e);
       }
     }
   }
 
-  let properties = {};
-  if (transferOptions.properties) {
-    properties = debugData.properties || {};
+  const properties = transferOptions.properties ? debugData.properties || {} : {};
+
+  return { groovyScript, payload, headers, properties };
+}
+
+async function sendToExternalIDE(settings, debugData, transferOptions = { body: true, properties: true, headers: true, script: true }) {
+  const ideSelection = settings["groovyDebugger---ideSelection"] || "https://groovyide.com/cpi/share/v1/";
+  const customUrl = settings["groovyDebugger---customIdeUrl"] || "";
+  const ideUrl = ideSelection === "custom" ? customUrl.trim() || "https://groovyide.com/cpi/share/v1/" : ideSelection;
+
+  if (typeof pako === "undefined") {
+    showToast("Compression library not loaded. Please reload the page.", "Groovy Debugger", "Error");
+    return;
   }
 
-  // Build the JSON structure from actual debug data
-  let dataObject = {
-    input: {
-      body: payload,
-      headers: headers,
-      properties: properties,
-    },
-    script: {
-      code: groovyScript,
-      function: debugData.scriptFunction || "processData",
-    },
+  const { groovyScript, payload, headers, properties } = await resolveTransferData(debugData, transferOptions);
+
+  const dataObject = {
+    input: { body: payload, headers: headers, properties: properties },
+    script: { code: groovyScript, function: debugData.scriptFunction || "processData" },
   };
 
-  let dataString = JSON.stringify(dataObject);
-
-  // Compress and encode
-  let encoded;
-  encoded = await compressToBase64(dataString);
-  // Make URL-safe and remove padding
+  let encoded = await compressToBase64(JSON.stringify(dataObject));
   encoded = encoded.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 
-  var fullUrl = ideUrl + encoded;
-
-  // Open in new tab/window
-  window.open(fullUrl, "_blank");
+  window.open(ideUrl + encoded, "_blank");
 }
 
-/**
- * Compresses a data string using pako deflateRaw and encodes to Base64URL.
- * Used for compressing debug data before sending to external IDE.
- * @function compressToBase64
- * @param {string} dataString - JSON string to compress and encode
- * @returns {string} Compressed and Base64URL encoded string
- */
+// Contiva encoding: JSON -> ZIP (JSZip) -> Gzip (pako) -> standard Base64 -> URL-encode
+async function sendToContivaIDE(settings, debugData, transferOptions = { body: true, properties: true, headers: true, script: true }) {
+  const contivaUrl = settings["groovyDebugger---ideSelection"] || "https://ide.contiva.com/cpi/script/debug";
+
+  if (typeof pako === "undefined" || typeof JSZip === "undefined") {
+    showToast("Compression libraries not loaded. Please reload the page.", "Groovy Debugger", "Error");
+    return;
+  }
+
+  const { groovyScript, payload, headers, properties } = await resolveTransferData(debugData, transferOptions);
+
+  const contivaData = {
+    currentSessionType: "groovy",
+    scriptInput: payload,
+    script: groovyScript,
+    functionName: debugData.scriptFunction || "processData",
+    headers: headers,
+    properties: properties,
+  };
+
+  const encoded = await compressToContivaBase64(contivaData);
+  window.open(contivaUrl + "?data=" + encoded, "_blank");
+}
+
+async function compressToContivaBase64(contivaData) {
+  const jsonString = JSON.stringify(contivaData);
+
+  // epoch date for deterministic ZIP output
+  const zip = new JSZip();
+  zip.file("data.json", jsonString, { date: new Date(0) });
+  const zipBytes = await zip.generateAsync({
+    type: "uint8array",
+    compression: "DEFLATE",
+    compressionOptions: { level: 9 },
+  });
+
+  // mtime: 0 for deterministic gzip header
+  const gzipped = pako.gzip(zipBytes, { level: 9, mtime: 0 });
+
+  // Standard Base64 (NOT URL-safe) — Contiva expects + and /
+  let binary = "";
+  for (let i = 0; i < gzipped.length; i++) {
+    binary += String.fromCharCode(gzipped[i]);
+  }
+  let base64 = btoa(binary);
+
+  const paddingNeeded = (4 - (base64.length % 4)) % 4;
+  base64 += "=".repeat(paddingNeeded);
+
+  return encodeURIComponent(base64);
+}
+
 function compressToBase64(dataString) {
-  // Step A: Convert the JSON string into a Uint8Array (binary data)
   const dataBytes = new TextEncoder().encode(dataString);
 
-  // Step B: Compress using pako.deflateRaw()
-  // This creates the raw Deflate stream without Zlib/Gzip headers.
-  const compressedBytes = pako.deflateRaw(dataBytes, { level: 9 }); // level 9 is max compression
+  const compressedBytes = pako.deflateRaw(dataBytes, { level: 9 });
 
-  // Step C: Base64URL Encode the compressed binary data
-  const encodedString = uint8ArrayToBase64Url(compressedBytes);
-
-  return encodedString;
+  return uint8ArrayToBase64Url(compressedBytes);
 }
 
-/**
- * Converts a Uint8Array to a Base64URL encoded string.
- * Used for URL-safe encoding of binary data.
- * @function uint8ArrayToBase64Url
- * @param {Uint8Array} bytes - Binary data to encode
- * @returns {string} Base64URL encoded string
- */
 function uint8ArrayToBase64Url(bytes) {
-  // Convert Uint8Array to a binary string
   let binaryString = "";
   bytes.forEach((byte) => {
     binaryString += String.fromCharCode(byte);
   });
 
-  // Standard Base64 encoding using the built-in browser function
   let base64 = btoa(binaryString);
-
-  // Convert to URL-safe format and remove padding
   let base64Url = base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 
   return base64Url;
