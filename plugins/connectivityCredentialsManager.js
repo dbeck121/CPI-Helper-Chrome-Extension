@@ -1024,6 +1024,7 @@ function createUI() {
 
     // Find or create right area in header bar
     let rightArea = header.querySelector('.sapMBarRight');
+    let useFlexPush = false;
     if (!rightArea) {
         const barMiddle = header.querySelector('.sapMBarMiddle');
         if (barMiddle && barMiddle.parentNode) {
@@ -1031,6 +1032,13 @@ function createUI() {
             rightArea.className = 'sapMBarRight sapMBarContainer';
             barMiddle.parentNode.appendChild(rightArea);
         }
+    }
+
+    // New Integration Suite shell: header is a sapMTB flex toolbar containing only
+    // the breadcrumb. Inject directly into the toolbar and push our controls right.
+    if (!rightArea) {
+        rightArea = header.querySelector('.sapMTB') || header.firstElementChild;
+        useFlexPush = !!rightArea;
     }
 
     if (!rightArea) {
@@ -1048,6 +1056,7 @@ function createUI() {
         padding-left: 0.5rem;
         border-left: 1px solid rgba(0, 0, 0, 0.1);
         height: 2.5rem;
+        ${useFlexPush ? 'margin-left: auto;' : ''}
     `;
     
     // Save button
