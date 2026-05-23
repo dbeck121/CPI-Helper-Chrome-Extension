@@ -62,6 +62,16 @@ jobs:
           run-id: ${{ steps.dev_run.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Build release notes from whatsNewLog.js
+        run: |
+          {
+            echo "## What's new in v${VERSION}"
+            echo
+            awk '/const whats_new_log = `/{flag=1; next} /^`;/{flag=0} flag' whatsNew/whatsNewLog.js
+          } > release_body.md
+          echo "--- Release notes preview ---"
+          cat release_body.md
+
       - name: Create or update GitHub Release
         uses: softprops/action-gh-release@v3
         env:
@@ -69,5 +79,5 @@ jobs:
         with:
           tag_name: "${{ env.CLEAN_VERSION }}"
           name: "${{ env.CLEAN_VERSION }}"
-          body: "Release created with version ${{ env.VERSION }}"
+          body_path: release_body.md
           files: dist/*.zip
