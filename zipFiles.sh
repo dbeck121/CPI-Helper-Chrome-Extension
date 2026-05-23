@@ -71,10 +71,10 @@ create_zip() {
     log_message "ZIP file created: $BIN_DIR/$output_zip"
 }
 
-manifest_version=$(jq -r '.manifest_version' manifest.json)
-# version=$(jq -r '.version' manifest.json)
-echo "Manifest version is: $manifest_version"
+version=$(jq -r '.version' manifest.json)
+echo "Extension version: $version"
 
-create_zip "$MANIFEST" "CPI_Helper_Extension_manifestv${manifest_version}.zip"
+zip_name="CPI_Helper_Extension_v${version}.zip"
+create_zip "$MANIFEST" "$zip_name"
 
-log_message "Both CPI_Helper_Extension_v3.zip and moved to bin."
+log_message "$zip_name moved to bin."
