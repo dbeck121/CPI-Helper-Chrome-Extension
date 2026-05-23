@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Extract version from manifest.json
         run: |
@@ -55,19 +55,29 @@ jobs:
           echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
 
       - name: Download zip artifact from dev build
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: cpi-helper-extension
           path: dist
           run-id: ${{ steps.dev_run.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Build release notes from whatsNewLog.js
+        run: |
+          {
+            echo "## What's new in v${VERSION}"
+            echo
+            awk '/const whats_new_log = `/{flag=1; next} /^`;/{flag=0} flag' whatsNew/whatsNewLog.js
+          } > release_body.md
+          echo "--- Release notes preview ---"
+          cat release_body.md
+
       - name: Create or update GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: "${{ env.CLEAN_VERSION }}"
           name: "${{ env.CLEAN_VERSION }}"
-          body: "Release created with version ${{ env.VERSION }}"
+          body_path: release_body.md
           files: dist/*.zip
