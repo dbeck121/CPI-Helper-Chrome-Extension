@@ -11,6 +11,10 @@ on:
     branches:
       - dev
 
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
