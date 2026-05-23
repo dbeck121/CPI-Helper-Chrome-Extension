@@ -1,35 +1,28 @@
-# Name: Build and Release from Dev
-# Trigger: Pushes to `dev`.
-# Action:  Runs zipFiles.sh to produce release artifacts in dist/, then
-#          creates (or updates) the GitHub Release matching manifest.json's
-#          version and uploads the zips as release assets.
-#
-# Note: dist/ is gitignored, so artifacts live only inside the runner.
-# Builds and the release step run in the same job so no cross-workflow
-# artifact handover is needed.
+# Name: Release on main
+# Trigger: Pushes to `main` (typically a merged PR from dev).
+# Action:  Reads version from manifest.json, downloads the zip artifact
+#          built by the most recent successful "Build extension on dev"
+#          run, then creates/updates the matching GitHub Release with
+#          that zip as an asset.
 
-name: Build and Release from Dev
+name: Release on main
 
 on:
   push:
     branches:
-      - dev
+      - main
 
 permissions:
   contents: write
+  actions: read
 
 jobs:
-  build_and_release:
+  release:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Build zip artifacts
-        run: |
-          chmod +x ./zipFiles.sh
-          ./zipFiles.sh
 
       - name: Extract version from manifest.json
         run: |
@@ -41,6 +34,33 @@ jobs:
           fi
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "CLEAN_VERSION=$CLEAN_VERSION" >> "$GITHUB_ENV"
+
+      - name: Find latest successful dev build
+        id: dev_run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID=$(gh run list \
+            --workflow="Build extension on dev" \
+            --branch=dev \
+            --status=success \
+            --limit=1 \
+            --json databaseId \
+            --jq '.[0].databaseId')
+          if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
+            echo "No successful dev build found — cannot release."
+            exit 1
+          fi
+          echo "Using dev run ID: $RUN_ID"
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Download zip artifact from dev build
+        uses: actions/download-artifact@v4
+        with:
+          name: cpi-helper-extension
+          path: dist
+          run-id: ${{ steps.dev_run.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create or update GitHub Release
         uses: softprops/action-gh-release@v2
