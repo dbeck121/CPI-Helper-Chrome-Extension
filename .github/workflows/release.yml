@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Extract version from manifest.json
         run: |
@@ -55,7 +55,7 @@ jobs:
           echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
 
       - name: Download zip artifact from dev build
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: cpi-helper-extension
           path: dist
@@ -63,7 +63,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create or update GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
