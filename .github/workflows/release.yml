@@ -1,81 +1,73 @@
-# Name: Create Release from Manifest
-# Developer: incpi & dbeck121
-# Description:
-# Automation: The workflow automates file generation, commits changes, and creates a GitHub release from manifest.json.
-# Trigger: It triggers on pushes to the main branch, running a script to generate and commit files.
-# -----------------------------------------If above fails below will not execute ---------------------------------------------
-# Release: It extracts the version, finds ZIP files in the bin directory, and attaches them to the release, streamlining the process.
-#__________________________________________________________________________________________________________________________
+# Name: Release on main
+# Trigger: Pushes to `main` (typically a merged PR from dev).
+# Action:  Reads version from manifest.json, downloads the zip artifact
+#          built by the most recent successful "Build extension on dev"
+#          run, then creates/updates the matching GitHub Release with
+#          that zip as an asset.
 
-name: Create Release from Manifest
+name: Release on main
 
 on:
-  workflow_run:
-    workflows: ["Create Zip file from Dev"]
-    types:
-      - completed
+  push:
     branches:
-      - dev
+      - main
+
+permissions:
+  contents: write
+  actions: read
 
 jobs:
   release:
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: write
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "16"
-
-      #  This step uses jq to extract the version field from the manifest.json file
       - name: Extract version from manifest.json
-        id: get_version
         run: |
           VERSION=$(jq -r '.version' manifest.json)
-
-          # Check if the version is already in the format 1.1.1
           if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            CLEAN_VERSION="$VERSION"  # Use the version as is
+            CLEAN_VERSION="$VERSION"
           else
-            CLEAN_VERSION=$(echo "$VERSION" | awk -F. '{print $1"."$2"."$3}')  # Clean to 1.1.1
+            CLEAN_VERSION=$(echo "$VERSION" | awk -F. '{print $1"."$2"."$3}')
           fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "CLEAN_VERSION=$CLEAN_VERSION" >> "$GITHUB_ENV"
 
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "CLEAN_VERSION=$CLEAN_VERSION" >> $GITHUB_ENV
-
-      # Looks for the zip file within the bin folder
-      - name: Find zip files in bin
-        id: find_zips
+      - name: Find latest successful dev build
+        id: dev_run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ZIP_FILES=$(find ./bin -type f -name "*.zip" | tr '\n' '|')  # Create a pipe-separated list
-          echo "Found zip files: $ZIP_FILES"
-          echo "ZIP_FILES=$ZIP_FILES" >> $GITHUB_ENV
+          RUN_ID=$(gh run list \
+            --workflow="Build extension on dev" \
+            --branch=dev \
+            --status=success \
+            --limit=1 \
+            --json databaseId \
+            --jq '.[0].databaseId')
+          if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
+            echo "No successful dev build found — cannot release."
+            exit 1
+          fi
+          echo "Using dev run ID: $RUN_ID"
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
 
-      # Utilizes softprops/action-gh-release@v1 to create a release with the version as the tag and release name
-      - name: Create GitHub Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
+      - name: Download zip artifact from dev build
+        uses: actions/download-artifact@v4
+        with:
+          name: cpi-helper-extension
+          path: dist
+          run-id: ${{ steps.dev_run.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create or update GitHub Release
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: "${{ env.CLEAN_VERSION }}"
-          name: "${{ env.CLEAN_VERSION }}" # Release name
+          name: "${{ env.CLEAN_VERSION }}"
           body: "Release created with version ${{ env.VERSION }}"
-
-        # Ensures that the zip file is uploaded with the correct name and content type
-      - name: Attach zip files to release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          IFS='|' read -r -a ZIP_ARRAY <<< "${{ env.ZIP_FILES }}"  # Split the pipe-separated list into an array
-          for ZIP_FILE in "${ZIP_ARRAY[@]}"; do
-            ZIP_BASENAME=$(basename "$ZIP_FILE")  # Get the clean zip file name
-            echo "Attaching $ZIP_BASENAME"
-            gh release upload "${{ env.CLEAN_VERSION }}" "$ZIP_FILE" --clobber 
-          done
+          files: dist/*.zip
