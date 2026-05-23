@@ -1,15 +1,17 @@
-# Name: Create Release from Manifest
-# Trigger: Successful completion of "Create Zip file from Dev" on `dev`.
-# Action:  Reads version from manifest.json, creates a GitHub Release for
-#          that version and uploads all zips found in bin/ as assets.
+# Name: Build and Release from Dev
+# Trigger: Pushes to `dev`.
+# Action:  Runs zipFiles.sh to produce release artifacts in dist/, then
+#          creates (or updates) the GitHub Release matching manifest.json's
+#          version and uploads the zips as release assets.
+#
+# Note: dist/ is gitignored, so artifacts live only inside the runner.
+# Builds and the release step run in the same job so no cross-workflow
+# artifact handover is needed.
 
-name: Create Release from Manifest
+name: Build and Release from Dev
 
 on:
-  workflow_run:
-    workflows: ["Create Zip file from Dev"]
-    types:
-      - completed
+  push:
     branches:
       - dev
 
@@ -17,16 +19,19 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  build_and_release:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Build zip artifacts
+        run: |
+          chmod +x ./zipFiles.sh
+          ./zipFiles.sh
+
       - name: Extract version from manifest.json
-        id: get_version
         run: |
           VERSION=$(jq -r '.version' manifest.json)
           if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -37,14 +42,7 @@ jobs:
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "CLEAN_VERSION=$CLEAN_VERSION" >> "$GITHUB_ENV"
 
-      - name: Find zip files in bin
-        id: find_zips
-        run: |
-          ZIP_FILES=$(find ./bin -type f -name "*.zip" | tr '\n' '|')
-          echo "Found zip files: $ZIP_FILES"
-          echo "ZIP_FILES=$ZIP_FILES" >> "$GITHUB_ENV"
-
-      - name: Create GitHub Release
+      - name: Create or update GitHub Release
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -52,15 +50,4 @@ jobs:
           tag_name: "${{ env.CLEAN_VERSION }}"
           name: "${{ env.CLEAN_VERSION }}"
           body: "Release created with version ${{ env.VERSION }}"
-
-      - name: Attach zip files to release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          IFS='|' read -r -a ZIP_ARRAY <<< "${{ env.ZIP_FILES }}"
-          for ZIP_FILE in "${ZIP_ARRAY[@]}"; do
-            if [ -z "$ZIP_FILE" ]; then continue; fi
-            ZIP_BASENAME=$(basename "$ZIP_FILE")
-            echo "Attaching $ZIP_BASENAME"
-            gh release upload "${{ env.CLEAN_VERSION }}" "$ZIP_FILE" --clobber
-          done
+          files: dist/*.zip

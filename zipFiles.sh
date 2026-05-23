@@ -4,7 +4,7 @@ set -e
 
 MANIFEST="manifest.json"
 
-BIN_DIR="./bin"
+DIST_DIR="./dist"
 
 log_message() {
     local message="$1"
@@ -19,16 +19,16 @@ cp README.md docs/readme/README.md
 log_message "----------------------"
 log_message "Starting zip creation process"
 
-if [ ! -d "$BIN_DIR" ]; then
-    log_message "Creating bin directory..."
-    mkdir -p "$BIN_DIR"
+if [ ! -d "$DIST_DIR" ]; then
+    log_message "Creating dist directory..."
+    mkdir -p "$DIST_DIR"
 fi
 
 
-if [ -d "$BIN_DIR" ]; then
+if [ -d "$DIST_DIR" ]; then
   # delete all files and subdirectories in the directory
-  log_message "deleting zip files from bin directory..."
-  rm -rf "$BIN_DIR"/*
+  log_message "deleting zip files from dist directory..."
+  rm -rf "$DIST_DIR"/*
 fi
 
 create_zip() {
@@ -51,7 +51,7 @@ create_zip() {
     name="${name//,/}"
     name="${name// /_}"
 
-    exclusions=("./docs/*" ".DS_Store" "*.json_*" "./node_modules" "./images/v[1-3]/*" "*.sh" "./bin" "./bin/*" "*.json_*" "./.*")
+    exclusions=("./docs/*" ".DS_Store" "*.json_*" "./node_modules" "./images/v[1-3]/*" "*.sh" "./dist" "./dist/*" "*.json_*" "./.*")
 
     exclude_args=()
     for pattern in "${exclusions[@]}"; do
@@ -66,9 +66,9 @@ create_zip() {
         exit 1
     fi
 
-    echo "$files_to_zip" | zip -@ "$BIN_DIR/$output_zip"
+    echo "$files_to_zip" | zip -@ "$DIST_DIR/$output_zip"
 
-    log_message "ZIP file created: $BIN_DIR/$output_zip"
+    log_message "ZIP file created: $DIST_DIR/$output_zip"
 }
 
 version=$(jq -r '.version' manifest.json)
@@ -77,4 +77,4 @@ echo "Extension version: $version"
 zip_name="CPI_Helper_Extension_v${version}.zip"
 create_zip "$MANIFEST" "$zip_name"
 
-log_message "$zip_name moved to bin."
+log_message "$zip_name moved to dist."
