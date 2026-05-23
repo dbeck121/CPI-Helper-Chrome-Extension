@@ -1,0 +1,37 @@
+# Name: Build extension on dev
+# Trigger: Pushes to `dev` (typically a merged PR).
+# Action:  Runs zipFiles.sh to produce dist/CPI_Helper_Extension_v<version>.zip
+#          and uploads it as a workflow artifact so the release workflow
+#          on main can pick it up.
+
+name: Build extension on dev
+
+on:
+  push:
+    branches:
+      - dev
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build zip artifact
+        run: |
+          chmod +x ./zipFiles.sh
+          ./zipFiles.sh
+
+      - name: Upload zip as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpi-helper-extension
+          path: dist/*.zip
+          if-no-files-found: error
+          retention-days: 90
