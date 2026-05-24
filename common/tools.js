@@ -289,16 +289,13 @@ let absolutePath = function (href) {
 };
 
 function downloadFile(fileContent, format, filename) {
-  // Create a Blob with the file content
   const blob = new Blob([fileContent], { type: "text/plain" });
   const url = URL.createObjectURL(blob);
-  const link = $("<a></a>")
-    .attr({
-      href: url,
-      download: `${filename}.${format == "text" ? "txt" : format}`,
-    })
-    .appendTo("body");
-  link[0].click();
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${filename}.${format == "text" ? "txt" : format}`;
+  document.body.appendChild(link);
+  link.click();
   link.remove();
   URL.revokeObjectURL(url);
 }
@@ -414,7 +411,7 @@ var formatTrace = function (input, id, traceId, filename) {
   };
 
   var themeButton = document.createElement("button");
-  themeButton.innerText = `${$("#cpihelperglobal").hasClass("ch_dark") ? "Dark" : "Light"} Editor`;
+  themeButton.innerText = `${document.getElementById("cpihelperglobal")?.classList.contains("ch_dark") ? "Dark" : "Light"} Editor`;
   themeButton.onclick = (event) => {
     themeButton.innerText = `${editorManager.toggleTheme() ? "Dark" : "Light"} Editor`;
   };
@@ -434,16 +431,17 @@ var formatTrace = function (input, id, traceId, filename) {
   var beautifyButton = document.createElement("button");
   beautifyButton.innerText = "Beautify";
   beautifyButton.onclick = (event) => {
-    var $unformatted = $("#cpiHelper_traceText_unformatted_" + id);
-    var $formatted = $("#cpiHelper_traceText_formatted_" + id);
-    var isActive = $unformatted.hasClass("cpiHelper_traceText_active");
-    $unformatted.toggleClass("cpiHelper_traceText_active", !isActive);
-    $formatted.toggleClass("cpiHelper_traceText_active", isActive);
-    $("#beautifyButton").text(isActive ? "Linearize" : "Beautify");
+    const unformatted = document.getElementById("cpiHelper_traceText_unformatted_" + id);
+    const formatted = document.getElementById("cpiHelper_traceText_formatted_" + id);
+    const isActive = unformatted.classList.contains("cpiHelper_traceText_active");
+    unformatted.classList.toggle("cpiHelper_traceText_active", !isActive);
+    formatted.classList.toggle("cpiHelper_traceText_active", isActive);
+    beautifyButton.textContent = isActive ? "Linearize" : "Beautify";
     if (isActive) {
       requestAnimationFrame(() => {
-        if ($formatted.text().trim() === "") {
-          editorManager = new EditorManager("cpiHelper_traceText_formatted_" + id, prettify_type(input), $("#cpihelperglobal").hasClass("ch_dark") ? "github_dark" : "textmate");
+        if (formatted.textContent.trim() === "") {
+          const isDark = document.getElementById("cpihelperglobal")?.classList.contains("ch_dark");
+          editorManager = new EditorManager("cpiHelper_traceText_formatted_" + id, prettify_type(input), isDark ? "github_dark" : "textmate");
           editorManager.setContent(prettify(input, tab_size));
         } else {
           editorManager.resize();
@@ -617,7 +615,7 @@ function getStatusColor(status) {
       return "grey";
   }
 }
-function getStatusColorCode(status, isDarkMode = !$("html").hasClass("sapUiTheme-sap_horizon_dark")) {
+function getStatusColorCode(status, isDarkMode = !document.documentElement.classList.contains("sapUiTheme-sap_horizon_dark")) {
   const colors = {
     PROCESSING: isDarkMode ? "#e76500" : "#f7bf00",
     STARTING: isDarkMode ? "#e76500" : "#f7bf00",
