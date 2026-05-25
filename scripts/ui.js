@@ -99,10 +99,13 @@ function _cpiOpenModal(modalEl, options = {}) {
   modalEl.style.display = "block";
 
   // Semantic UI's modal('show') used to position the element via inline
-  // styles. Replicate the centering manually — fullscreen modals sit near
-  // the top with a small margin, all others are centered both axes.
+  // styles. Replicate the centering and ensure overflow stays inside the
+  // modal: flex column + scrolling content with flex:1 + min-height:0.
   modalEl.style.position = "fixed";
   modalEl.style.zIndex = "1001";
+  modalEl.style.display = "flex";
+  modalEl.style.flexDirection = "column";
+  modalEl.style.maxWidth = "calc(100vw - 4em)";
   if (modalEl.classList.contains("fullscreen")) {
     modalEl.style.top = "1em";
     modalEl.style.left = "50%";
@@ -113,6 +116,15 @@ function _cpiOpenModal(modalEl, options = {}) {
     modalEl.style.left = "50%";
     modalEl.style.transform = "translate(-50%, -50%)";
     modalEl.style.maxHeight = "90vh";
+  }
+  // Make the scrollable content area actually scroll within the modal
+  // (rather than letting the modal box overflow the viewport).
+  const scrollingContent = modalEl.querySelector(".scrolling.content");
+  if (scrollingContent) {
+    scrollingContent.style.flex = "1 1 auto";
+    scrollingContent.style.minHeight = "0";
+    scrollingContent.style.overflow = "auto";
+    scrollingContent.style.maxHeight = "none";
   }
 
   // Watch for external state changes (e.g., a plugin calling
