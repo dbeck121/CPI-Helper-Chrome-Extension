@@ -98,24 +98,28 @@ function _cpiOpenModal(modalEl, options = {}) {
   modalEl.classList.add("active", "visible");
   modalEl.style.display = "block";
 
-  // Semantic UI's modal('show') used to position the element via inline
-  // styles. Replicate the centering and ensure overflow stays inside the
-  // modal: flex column + scrolling content with flex:1 + min-height:0.
+  // Anchor the modal to the top of the viewport with explicit top + max-height
+  // bounds rather than transform-centering. The vertical-center approach
+  // (top: 50%; translate(-50%, -50%)) is fragile because if the content
+  // somehow overrides max-height, the top half of the modal disappears
+  // above the screen. Pinning top guarantees the modal is always fully
+  // visible regardless of how tall its content tries to be.
   modalEl.style.position = "fixed";
   modalEl.style.zIndex = "1001";
   modalEl.style.display = "flex";
   modalEl.style.flexDirection = "column";
+  modalEl.style.left = "50%";
+  modalEl.style.transform = "translateX(-50%)";
   modalEl.style.maxWidth = "calc(100vw - 4em)";
+  modalEl.style.margin = "0";
+  modalEl.style.bottom = "auto";
+  modalEl.style.height = "auto";
   if (modalEl.classList.contains("fullscreen")) {
     modalEl.style.top = "1em";
-    modalEl.style.left = "50%";
-    modalEl.style.transform = "translateX(-50%)";
     modalEl.style.maxHeight = "calc(100vh - 2em)";
   } else {
-    modalEl.style.top = "50%";
-    modalEl.style.left = "50%";
-    modalEl.style.transform = "translate(-50%, -50%)";
-    modalEl.style.maxHeight = "90vh";
+    modalEl.style.top = "3vh";
+    modalEl.style.maxHeight = "94vh";
   }
   // Make the scrollable content area actually scroll within the modal
   // (rather than letting the modal box overflow the viewport).
