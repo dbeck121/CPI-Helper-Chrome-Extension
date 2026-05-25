@@ -101,7 +101,7 @@ var plugin = {
                         </div>
                     </div>`;
 
-          $.modal("confirm", "Lock Details", info, async function (choice) {
+          cpiConfirm("Lock Details", info, async function (choice) {
             try {
               dataOfDesigntimeLocks = JSON.parse(await makeCallPromise("GET", urlForResourceId, false)).d.results;
 

@@ -908,9 +908,143 @@ function openTrace(MessageGuid) {
     });
 }
 
-// ---- compatibility shim for the modal hide() pattern used by plugins -------
-// Many plugins call `$('#cpiHelper_semanticui_modal').modal('hide')` directly.
-// jQuery + Semantic UI are still loaded in this phase, so those calls keep
-// working untouched. The MutationObserver registered in _cpiOpenModal will
-// pick up the resulting class change and run any onHidden callback the core
-// passed in.
+// ---- public modal helpers (for plugins) -----------------------------------
+// Plugins should call these instead of `$('#x').modal('hide')` /
+// `.modal('show')`. They accept either an element or an element id.
+
+function cpiCloseModal(target) {
+  const el = typeof target === "string" ? document.getElementById(target) : target;
+  if (el) _cpiCloseModal(el);
+}
+
+function cpiOpenModal(target, options) {
+  const el = typeof target === "string" ? document.getElementById(target) : target;
+  if (el) _cpiOpenModal(el, options || {});
+}
+
+// ---- public Semantic-UI-style tab init (for plugin popups) -----------------
+// Wires `.tabular.menu .item` and `.ui.tab` markup so clicking a tab item
+// activates the matching panel by data-tab. Replacement for the
+// Semantic UI behaviour previously invoked via `$('.tabular.menu .item').tab()`.
+
+function cpiInitTabs(scope) {
+  const root = scope || document;
+  const items = root.querySelectorAll(".tabular.menu .item[data-tab]");
+  if (!items.length) return;
+
+  // Find the nearest container shared by items + panels so panels with the
+  // same data-tab in unrelated tab groups don't get cross-activated.
+  const findGroupRoot = (item) => {
+    const menu = item.closest(".tabular.menu");
+    return (menu && menu.parentElement) || root;
+  };
+
+  items.forEach((item) => {
+    if (item._cpiTabBound) return;
+    item._cpiTabBound = true;
+    item.addEventListener("click", (e) => {
+      e.preventDefault();
+      const groupRoot = findGroupRoot(item);
+      const tabName = item.getAttribute("data-tab");
+      const menu = item.closest(".tabular.menu");
+      menu.querySelectorAll(".item[data-tab]").forEach((it) => it.classList.remove("active"));
+      item.classList.add("active");
+      groupRoot.querySelectorAll(".ui.tab[data-tab]").forEach((panel) => {
+        panel.classList.toggle("active", panel.getAttribute("data-tab") === tabName);
+      });
+    });
+  });
+}
+
+// ---- public confirm dialog (for plugin use) --------------------------------
+// Replacement for Semantic UI's `$.modal('confirm', title, content, callback)`.
+// Renders into the existing cpiHelper_semanticui_modal element and calls
+// `callback(true|false)` once the user picks OK or Cancel.
+
+function cpiConfirm(title, content, callback) {
+  const modal = document.getElementById("cpiHelper_semanticui_modal");
+  if (!modal) {
+    const ok = window.confirm(typeof content === "string" ? content : title);
+    if (typeof callback === "function") callback(ok);
+    return;
+  }
+
+  modal.className = "cpiHelper ui modal";
+  modal.innerHTML = `
+    <i class="close icon" style="color: var(--cpi-text-color);"></i>
+    <div class="header">${title || "Confirm"}</div>
+    <div class="scrolling content"><div class="description"></div></div>
+    <div class="actions">
+      <div class="ui button" data-cpi-action="cancel">Cancel</div>
+      <div class="deny ui button positive" data-cpi-action="ok">OK</div>
+    </div>`;
+
+  const desc = modal.querySelector(".description");
+  if (typeof content === "string") {
+    desc.innerHTML = content;
+  } else if (content instanceof Node) {
+    desc.appendChild(content);
+  }
+
+  let decided = false;
+  const decide = (value) => {
+    if (decided) return;
+    decided = true;
+    _cpiCloseModal(modal);
+    if (typeof callback === "function") callback(value);
+  };
+
+  modal.querySelector('[data-cpi-action="ok"]').addEventListener("click", () => decide(true));
+  modal.querySelector('[data-cpi-action="cancel"]').addEventListener("click", () => decide(false));
+
+  _cpiOpenModal(modal, {
+    blurring: true,
+    onHidden: () => {
+      // If closed via dimmer/ESC/X without picking, treat as cancel.
+      if (!decided) {
+        decided = true;
+        if (typeof callback === "function") callback(false);
+      }
+    },
+  });
+}
+
+// ---- public table sort (for plugin tables) ---------------------------------
+// Tiny vanilla replacement for the jquery-tablesort plugin we used to load
+// from lib/semanticui/tablesort.js. Click a <th> to sort by that column;
+// click again to reverse. Pass either a scope element or no arg for the
+// whole document. Pass `numeric: true` to coerce values to numbers.
+
+function cpiInitTableSort(scopeOrTable) {
+  const tables = !scopeOrTable
+    ? document.querySelectorAll("table")
+    : scopeOrTable.tagName === "TABLE"
+      ? [scopeOrTable]
+      : scopeOrTable.querySelectorAll("table");
+
+  tables.forEach((table) => {
+    if (table._cpiSortBound) return;
+    table._cpiSortBound = true;
+    const headerCells = table.querySelectorAll("thead th, tr:first-child th");
+    headerCells.forEach((th, colIndex) => {
+      th.style.cursor = "pointer";
+      th.addEventListener("click", () => {
+        const tbody = table.tBodies[0] || table;
+        const rows = Array.from(tbody.rows).filter((r) => r.parentElement === tbody && !r.querySelector("th"));
+        const asc = th._cpiSortAsc !== true;
+        th._cpiSortAsc = asc;
+        const getCell = (row) => (row.cells[colIndex] ? row.cells[colIndex].textContent.trim() : "");
+        const looksNumeric = rows.every((r) => /^-?\d+(\.\d+)?$/.test(getCell(r)) || getCell(r) === "");
+        rows.sort((a, b) => {
+          const av = getCell(a);
+          const bv = getCell(b);
+          if (looksNumeric) {
+            return (parseFloat(av || "0") - parseFloat(bv || "0")) * (asc ? 1 : -1);
+          }
+          return av.localeCompare(bv) * (asc ? 1 : -1);
+        });
+        rows.forEach((r) => tbody.appendChild(r));
+      });
+    });
+  });
+}

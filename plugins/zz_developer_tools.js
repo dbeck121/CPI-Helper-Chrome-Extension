@@ -63,7 +63,7 @@ var plugin = {
           callback: async () => {
             var localStorage = await chrome.storage.local.get();
             var syncStorage = await chrome.storage.sync.get();
-            $(".tabular.menu .item").tab();
+            cpiInitTabs();
             document.getElementById("cpiHelper_zz_developer_tools_localStorage").innerText = JSON.stringify(localStorage, null, 2);
             document.getElementById("cpiHelper_zz_developer_tools_syncStorage").innerText = JSON.stringify(syncStorage, null, 2);
           },

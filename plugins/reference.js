@@ -168,7 +168,7 @@ var plugin = {
         pluginHelper.functions.popup(x, "Reference", {
           fullscreen: false,
           callback: async () => {
-            $(".tabular.menu .item").tab();
+            cpiInitTabs();
           },
         });
       });
