@@ -574,7 +574,7 @@ function tenantIdentityChanges() {
           // if (!isDarkmode) {
           //     isDarkmode = (local['darkmodeOnStartup'])
           // }
-          $("html").attr("class", isDarkmode ? "ch_dark" : "ch_light");
+          document.documentElement.className = isDarkmode ? "ch_dark" : "ch_light";
           tenantColor.value = hostData.color = adjustColorLimiter(tenantColor.value, isDarkmode ? 80 : 20, 25, !theme["CPIhelperThemeInfo"]);
           tenantColor.dispatchEvent(new Event("change"));
           console.log(tenantColor.value);
@@ -759,7 +759,7 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
     if (key === "CPIhelperThemeInfo") {
       //|| key === "darkmodeOnStartup"
       var theme = changes[key];
-      $("html").attr("class", !theme.newValue ? "ch_dark" : "ch_light");
+      document.documentElement.className = !theme.newValue ? "ch_dark" : "ch_light";
       document.querySelector("#colorSelect").dispatchEvent(new Event("change"));
       document.querySelector(":root").style.setProperty("--cpi-text-color", theme ? "#000000" : "#ffffff");
     }
@@ -779,16 +779,25 @@ async function main() {
 
 main().catch((e) => console.error(e));
 
+// Vanilla tab switching: activate menu item + matching .tab panel by data-tab
+function activateTab(tabName) {
+  document.querySelectorAll(".top.menu .item[data-tab]").forEach((it) => {
+    it.classList.toggle("active", it.getAttribute("data-tab") === tabName);
+  });
+  document.querySelectorAll(".ui.tab[data-tab]").forEach((panel) => {
+    panel.classList.toggle("active", panel.getAttribute("data-tab") === tabName);
+  });
+}
+
 // Activate tab on hover
-$(".top .item").on("mouseenter", function () {
-  $(this).tab("change tab", $(this).attr("id"));
+document.querySelectorAll(".top .item[data-tab]").forEach((item) => {
+  item.addEventListener("mouseenter", () => activateTab(item.getAttribute("data-tab")));
 });
 
-// Initialize tabs
+// Initialize with stored or default tab
 const tab_choice = localStorage.getItem("tab-choice-select") || "one";
 console.log(tab_choice);
-$(`.top.menu data-tab[${tab_choice}]`).addClass("active");
-$(".top.menu .item").tab("change tab", tab_choice);
+activateTab(tab_choice);
 
-// Initialize dropdown
-$(".ui.dropdown").dropdown("show");
+// Native <select id="tab-choice-select"> works without Semantic UI's
+// dropdown JS; no initialization needed.
