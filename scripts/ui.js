@@ -98,10 +98,10 @@ function _cpiEnsureGlobalListeners() {
 function _cpiOpenModal(modalEl, options = {}) {
   _cpiEnsureGlobalListeners();
 
-  // Create the dimmer as a full-viewport flex container that scrolls
-  // vertically. The modal becomes a flex child of the dimmer — that way
-  // sizing and positioning are handled by flex layout rather than fragile
-  // position/transform math on the modal itself.
+  // The dimmer is `position: fixed` filling the visible viewport. Its
+  // height equals the actual browser window — we never use `vh` units
+  // here because `100vh` can differ from the visible window in iframe
+  // contexts, with browser zoom, and on tall layouts.
   let dimmer = document.querySelector(".ui.page.dimmer.modals.active.visible");
   if (!dimmer) {
     dimmer = document.createElement("div");
@@ -114,11 +114,16 @@ function _cpiOpenModal(modalEl, options = {}) {
       "bottom: 0",
       "z-index: 1000",
       "display: flex",
-      "align-items: flex-start",
+      // `safe center` centers vertically when the modal fits and falls
+      // back to flex-start if the modal is taller than the dimmer —
+      // prevents the top of the modal from being cut off above the
+      // viewport. (Chrome 93+; MV3 requires Chrome 88, so users on 88-92
+      // get plain `center` which can clip — acceptable tail-case.)
+      "align-items: safe center",
       "justify-content: center",
       "overflow-y: auto",
       "overflow-x: hidden",
-      "padding: 2vh 1em",
+      "padding: 1em",
     ].join("; ");
     document.body.appendChild(dimmer);
   }
@@ -126,9 +131,9 @@ function _cpiOpenModal(modalEl, options = {}) {
     document.body.classList.add("blurring", "dimmable", "dimmed");
   }
 
-  // Remember where the modal lived so we can put it back on close; this
-  // matters because removing the dimmer would otherwise drop the modal
-  // out of the DOM and break future getElementById lookups.
+  // Remember the modal's home parent so we can put it back on close;
+  // otherwise removing the dimmer would drop the modal out of the DOM
+  // and break future getElementById lookups.
   if (!modalEl._cpiOriginalParent) {
     modalEl._cpiOriginalParent = modalEl.parentElement;
   }
@@ -138,11 +143,10 @@ function _cpiOpenModal(modalEl, options = {}) {
 
   modalEl.classList.add("active", "visible");
 
-  // Modal as a flex column child of the dimmer — natural width up to a
-  // cap, natural height up to a cap. When the modal would be taller than
-  // the viewport the dimmer scrolls; when shorter, it sits near the top
-  // (align-items: flex-start avoids the "top cut off" failure mode of
-  // align-items: center when content overflows).
+  // Modal sizing relative to the dimmer (which equals the actual visible
+  // viewport via position:fixed). Using percent values rather than vh
+  // means the cap follows the real browser window, not the layout
+  // viewport which can be much larger in some contexts.
   modalEl.style.position = "relative";
   modalEl.style.top = "";
   modalEl.style.left = "";
@@ -154,11 +158,11 @@ function _cpiOpenModal(modalEl, options = {}) {
   modalEl.style.display = "flex";
   modalEl.style.flexDirection = "column";
   modalEl.style.flexShrink = "0";
-  modalEl.style.maxWidth = "min(1280px, 100%)";
+  modalEl.style.maxWidth = modalEl.classList.contains("fullscreen") ? "100%" : "min(1280px, 100%)";
   modalEl.style.width = modalEl.classList.contains("fullscreen") ? "100%" : "";
-  // Cap the modal so .scrolling.content scrolls internally rather than
-  // making the dimmer scroll for every long popup.
-  modalEl.style.maxHeight = modalEl.classList.contains("fullscreen") ? "calc(100vh - 4vh)" : "calc(100vh - 4vh)";
+  // 100% of the dimmer = real visible viewport. Modal will never exceed
+  // browser window even if a child sets a huge min-height.
+  modalEl.style.maxHeight = "100%";
 
   const scrollingContent = modalEl.querySelector(".scrolling.content");
   if (scrollingContent) {
