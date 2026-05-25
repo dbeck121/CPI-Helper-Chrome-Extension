@@ -78,34 +78,41 @@ if (!window.groovyDebugSendToIDE) {
       fullscreen: false,
       large: false,
       callback: () => {
-        let actionsDiv = $("#cpiHelper_semanticui_modal .actions");
-        actionsDiv.empty();
+        const modalEl = document.getElementById("cpiHelper_semanticui_modal");
+        const actionsDiv = modalEl.querySelector(".actions");
+        actionsDiv.replaceChildren();
 
-        let cancelBtn = $('<div class="ui button">Cancel</div>');
-        cancelBtn.on("click", () => {
-          $("#cpiHelper_semanticui_modal").modal("hide");
+        const cancelBtn = createElementFromHTML('<div class="ui button">Cancel</div>');
+        cancelBtn.addEventListener("click", () => {
+          cpiCloseModal("cpiHelper_semanticui_modal");
         });
-        actionsDiv.append(cancelBtn);
+        actionsDiv.appendChild(cancelBtn);
 
-        let continueBtn = $('<div class="ui positive button"><i class="rocket icon"></i>Continue</div>');
+        const continueBtn = createElementFromHTML('<div class="ui positive button"><i class="rocket icon"></i>Continue</div>');
 
-        const updateContinueButton = () => {
-          const anyChecked = $("#transfer-body input").prop("checked") || $("#transfer-properties input").prop("checked") || $("#transfer-headers input").prop("checked") || $("#transfer-script input").prop("checked");
-          continueBtn.toggleClass("disabled", !anyChecked).prop("disabled", !anyChecked);
+        const isInputChecked = (containerId) => {
+          const input = document.querySelector(`#${containerId} input`);
+          return !!(input && input.checked);
         };
 
-        $("#cpiHelper_semanticui_modal .ui.checkbox").checkbox({
-          onChange: updateContinueButton,
+        const updateContinueButton = () => {
+          const anyChecked =
+            isInputChecked("transfer-body") || isInputChecked("transfer-properties") || isInputChecked("transfer-headers") || isInputChecked("transfer-script");
+          continueBtn.classList.toggle("disabled", !anyChecked);
+        };
+
+        modalEl.querySelectorAll(".ui.checkbox input[type='checkbox']").forEach((input) => {
+          input.addEventListener("change", updateContinueButton);
         });
 
         updateContinueButton();
 
-        continueBtn.on("click", async () => {
+        continueBtn.addEventListener("click", async () => {
           const transferOptions = {
-            body: $("#transfer-body input").prop("checked"),
-            properties: $("#transfer-properties input").prop("checked"),
-            headers: $("#transfer-headers input").prop("checked"),
-            script: $("#transfer-script input").prop("checked"),
+            body: isInputChecked("transfer-body"),
+            properties: isInputChecked("transfer-properties"),
+            headers: isInputChecked("transfer-headers"),
+            script: isInputChecked("transfer-script"),
           };
 
           await Promise.all([
@@ -119,7 +126,7 @@ if (!window.groovyDebugSendToIDE) {
           const latestSettings = await getPluginSettings("groovyDebugger");
           const latestIdeSelection = latestSettings["groovyDebugger---ideSelection"] || "";
 
-          $("#cpiHelper_semanticui_modal").modal("hide");
+          cpiCloseModal("cpiHelper_semanticui_modal");
 
           if (!latestIdeSelection) {
             showToast("No IDE selected. Please choose an IDE from the GroovyDebugX plugin settings.", "Groovy Debugger", "Error");
@@ -217,7 +224,7 @@ var plugin = {
         const groovyElements = extractGroovyElements(iFlowData);
 
         if (groovyElements.length === 0) {
-          $("#cpiHelper_waiting_model").modal("hide");
+          cpiCloseModal("cpiHelper_waiting_model");
           showToast("No Groovy Script steps found in this integration flow", "Groovy Debugger", "Warning");
           return;
         }
@@ -230,7 +237,7 @@ var plugin = {
         // Snapshot: inlineTraceElements is a global that other calls can mutate
         const traceElementsCopy = [...inlineTraceElements];
         if (!traceElementsCopy.length) {
-          $("#cpiHelper_waiting_model").modal("hide");
+          cpiCloseModal("cpiHelper_waiting_model");
           showToast("No trace data found for this message", "Groovy Debugger", "Warning");
           return;
         }
@@ -244,7 +251,7 @@ var plugin = {
         });
 
         if (groovyElementsWithTrace.length === 0) {
-          $("#cpiHelper_waiting_model").modal("hide");
+          cpiCloseModal("cpiHelper_waiting_model");
           showToast("No Groovy steps with trace data found in this message", "Groovy Debugger", "Warning");
           return;
         }
@@ -263,12 +270,12 @@ var plugin = {
 
         setupGroovyClickHandlers(settings, runInfo, groovyElementsWithTrace, iFlowData, artifactId, pluginHelper.tenant);
 
-        $("#cpiHelper_waiting_model").modal("hide");
+        cpiCloseModal("cpiHelper_waiting_model");
         showToast("Groovy steps with data highlighted - click on any highlighted Groovy step to debug", "Success");
       } catch (error) {
         log.error("Error in Groovy Debugger:", error);
         showToast("Error: " + error.message, "Groovy Debugger", "Error");
-        $("#cpiHelper_waiting_model").modal("hide");
+        cpiCloseModal("cpiHelper_waiting_model");
       }
     },
     condition: (pluginHelper, settings, runInfo) => {
@@ -397,9 +404,9 @@ function setupGroovyClickHandlers(settings, runInfo, groovyElements, iFlowData, 
           showBigPopup(await createGroovyDebugContent(debugData), `Groovy Debug Data - ${element.displayName || element.id}`, {
             fullscreen: false,
             callback: () => {
-              let actionsDiv = $("#cpiHelper_semanticui_modal .actions");
-              let debugBtn = $('<div class="ui positive button"><i class="rocket icon"></i>Debug Externally</div>');
-              debugBtn.on("click", () => window.groovyDebugSendToIDE(debugData));
+              const actionsDiv = document.querySelector("#cpiHelper_semanticui_modal .actions");
+              const debugBtn = createElementFromHTML('<div class="ui positive button"><i class="rocket icon"></i>Debug Externally</div>');
+              debugBtn.addEventListener("click", () => window.groovyDebugSendToIDE(debugData));
               actionsDiv.prepend(debugBtn);
             },
           });

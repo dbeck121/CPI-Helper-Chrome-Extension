@@ -73,39 +73,47 @@ if (!window.xsltDebugSendToIDE) {
       fullscreen: false,
       large: false,
       callback: () => {
-        let actionsDiv = $("#cpiHelper_semanticui_modal .actions");
-        actionsDiv.empty();
+        const modalEl = document.getElementById("cpiHelper_semanticui_modal");
+        const actionsDiv = modalEl.querySelector(".actions");
+        actionsDiv.replaceChildren();
 
-        let cancelBtn = $('<div class="ui button">Cancel</div>');
-        cancelBtn.on("click", () => {
-          $("#cpiHelper_semanticui_modal").modal("hide");
+        const cancelBtn = createElementFromHTML('<div class="ui button">Cancel</div>');
+        cancelBtn.addEventListener("click", () => {
+          cpiCloseModal("cpiHelper_semanticui_modal");
         });
-        actionsDiv.append(cancelBtn);
+        actionsDiv.appendChild(cancelBtn);
 
-        let continueBtn = $('<div class="ui positive button"><i class="rocket icon"></i>Continue</div>');
+        const continueBtn = createElementFromHTML('<div class="ui positive button"><i class="rocket icon"></i>Continue</div>');
+
+        const isInputChecked = (containerId) => {
+          const input = document.querySelector(`#${containerId} input`);
+          return !!(input && input.checked);
+        };
 
         const updateContinueButton = () => {
           const anyChecked =
-            $("#xslt-transfer-body input").prop("checked") ||
-            $("#xslt-transfer-properties input").prop("checked") ||
-            $("#xslt-transfer-headers input").prop("checked") ||
-            $("#xslt-transfer-script input").prop("checked");
-          continueBtn.toggleClass("disabled", !anyChecked).prop("disabled", !anyChecked);
+            isInputChecked("xslt-transfer-body") ||
+            isInputChecked("xslt-transfer-properties") ||
+            isInputChecked("xslt-transfer-headers") ||
+            isInputChecked("xslt-transfer-script");
+          continueBtn.classList.toggle("disabled", !anyChecked);
         };
 
-        // Semantic UI requires explicit .checkbox() initialization for toggle behavior
-        $("#cpiHelper_semanticui_modal .ui.checkbox").checkbox({
-          onChange: updateContinueButton,
+        // Wire change events on the underlying inputs (we no longer rely on
+        // Semantic UI's `.checkbox({onChange})` init — vanilla HTML labels
+        // already forward clicks to their associated input).
+        modalEl.querySelectorAll(".ui.checkbox input[type='checkbox']").forEach((input) => {
+          input.addEventListener("change", updateContinueButton);
         });
 
         updateContinueButton();
 
-        continueBtn.on("click", async () => {
+        continueBtn.addEventListener("click", async () => {
           const transferOptions = {
-            body: $("#xslt-transfer-body input").prop("checked"),
-            properties: $("#xslt-transfer-properties input").prop("checked"),
-            headers: $("#xslt-transfer-headers input").prop("checked"),
-            script: $("#xslt-transfer-script input").prop("checked"),
+            body: isInputChecked("xslt-transfer-body"),
+            properties: isInputChecked("xslt-transfer-properties"),
+            headers: isInputChecked("xslt-transfer-headers"),
+            script: isInputChecked("xslt-transfer-script"),
           };
 
           await Promise.all([
@@ -118,7 +126,7 @@ if (!window.xsltDebugSendToIDE) {
           // Re-read settings so any IDE change made while the dialog was open takes effect
           const latestSettings = await getPluginSettings("xsltDebugX");
 
-          $("#cpiHelper_semanticui_modal").modal("hide");
+          cpiCloseModal("cpiHelper_semanticui_modal");
 
           const debugData = debugDataOverride || window.currentXSLTDebugData;
           if (!debugData) {
@@ -230,7 +238,7 @@ var plugin = {
         const xsltElements = extractXSLTElements(iFlowData);
 
         if (xsltElements.length === 0) {
-          $("#cpiHelper_waiting_model").modal("hide");
+          cpiCloseModal("cpiHelper_waiting_model");
           showToast("No XSLT Mapping steps found in this integration flow", "XSLT Debugger", "Warning");
           return;
         }
@@ -243,7 +251,7 @@ var plugin = {
         // Snapshot: inlineTraceElements is a global that other calls can mutate
         const traceElementsCopy = [...inlineTraceElements];
         if (!traceElementsCopy.length) {
-          $("#cpiHelper_waiting_model").modal("hide");
+          cpiCloseModal("cpiHelper_waiting_model");
           showToast("No trace data found for this message", "XSLT Debugger", "Warning");
           return;
         }
@@ -257,7 +265,7 @@ var plugin = {
         });
 
         if (xsltElementsWithTrace.length === 0) {
-          $("#cpiHelper_waiting_model").modal("hide");
+          cpiCloseModal("cpiHelper_waiting_model");
           showToast("No XSLT steps with trace data found in this message", "XSLT Debugger", "Warning");
           return;
         }
@@ -276,12 +284,12 @@ var plugin = {
 
         setupXSLTClickHandlers(settings, runInfo, xsltElementsWithTrace, iFlowData, artifactId, pluginHelper.tenant);
 
-        $("#cpiHelper_waiting_model").modal("hide");
+        cpiCloseModal("cpiHelper_waiting_model");
         showToast("XSLT steps with data highlighted - click on any highlighted XSLT step to debug", "Success");
       } catch (error) {
         log.error("Error in XSLT Debugger:", error);
         showToast("Error: " + error.message, "XSLT Debugger", "Error");
-        $("#cpiHelper_waiting_model").modal("hide");
+        cpiCloseModal("cpiHelper_waiting_model");
       }
     },
     condition: (pluginHelper, settings, runInfo) => {
@@ -373,9 +381,9 @@ function setupXSLTClickHandlers(settings, runInfo, xsltElements, iFlowData, arti
           showBigPopup(await createXSLTDebugContent(debugData), `XSLT Debug Data - ${element.name || element.displayName || element.id}`, {
             fullscreen: false,
             callback: () => {
-              let actionsDiv = $("#cpiHelper_semanticui_modal .actions");
-              let debugBtn = $('<div class="ui positive button"><i class="rocket icon"></i>Debug Externally</div>');
-              debugBtn.on("click", () => window.xsltDebugSendToIDE(debugData));
+              const actionsDiv = document.querySelector("#cpiHelper_semanticui_modal .actions");
+              const debugBtn = createElementFromHTML('<div class="ui positive button"><i class="rocket icon"></i>Debug Externally</div>');
+              debugBtn.addEventListener("click", () => window.xsltDebugSendToIDE(debugData));
               actionsDiv.prepend(debugBtn);
             },
           });
