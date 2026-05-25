@@ -98,6 +98,23 @@ function _cpiOpenModal(modalEl, options = {}) {
   modalEl.classList.add("active", "visible");
   modalEl.style.display = "block";
 
+  // Semantic UI's modal('show') used to position the element via inline
+  // styles. Replicate the centering manually — fullscreen modals sit near
+  // the top with a small margin, all others are centered both axes.
+  modalEl.style.position = "fixed";
+  modalEl.style.zIndex = "1001";
+  if (modalEl.classList.contains("fullscreen")) {
+    modalEl.style.top = "1em";
+    modalEl.style.left = "50%";
+    modalEl.style.transform = "translateX(-50%)";
+    modalEl.style.maxHeight = "calc(100vh - 2em)";
+  } else {
+    modalEl.style.top = "50%";
+    modalEl.style.left = "50%";
+    modalEl.style.transform = "translate(-50%, -50%)";
+    modalEl.style.maxHeight = "90vh";
+  }
+
   // Watch for external state changes (e.g., a plugin calling
   // `$('#cpiHelper_semanticui_modal').modal('hide')`).
   const observer = new MutationObserver(() => {
@@ -299,6 +316,12 @@ async function showBigPopup(
           <div class="${buttonParameters.join(" ")}">${icon}${parameters.closeText}</div>
         </div>
       `;
+
+  // Close button (.deny) — Semantic UI auto-bound this; we have to wire it ourselves.
+  const denyBtn = modal.querySelector(".actions .deny");
+  if (denyBtn) {
+    denyBtn.addEventListener("click", () => _cpiCloseModal(modal));
+  }
 
   if (maxcount > 0) {
     ["negative", "positive"].forEach((cls, index) => {
