@@ -129,6 +129,17 @@ function _cpiOpenModal(modalEl, options = {}) {
     scrollingContent.style.minHeight = "0";
     scrollingContent.style.overflow = "auto";
     scrollingContent.style.maxHeight = "none";
+    // .scrolling.content owns its scroll; the modal box clips overflow so
+    // the visual stays inside max-height even if a child sets a larger
+    // min-height (the #cpiHelper_bigPopup_content_semanticui div uses
+    // inline `min-height: 50vh`).
+    modalEl.style.overflow = "hidden";
+  } else {
+    // Fallback for modals without the Semantic-UI .scrolling.content
+    // structure: let the modal itself scroll so content can never escape
+    // the viewport.
+    modalEl.style.overflowY = "auto";
+    modalEl.style.overflowX = "hidden";
   }
 
   // Watch for external state changes (e.g., a plugin calling
