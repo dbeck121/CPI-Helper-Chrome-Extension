@@ -541,17 +541,19 @@ function genratedata(markdownContent) {
 }
 
 function copySectionUpdatye() {
-  $(".copy-button").on("click", function () {
-    const codeText = $(this).parent().find("code").text();
-    navigator.clipboard.writeText(codeText).then(
-      function () {
-        showToast("Copied to clipboard!", "", "success");
-      },
-      function (err) {
-        log.error("Could not copy text: ", err);
-        showToast("Failed to copy!", "", "error");
-      }
-    );
+  document.querySelectorAll(".copy-button").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const codeText = this.parentElement?.querySelector("code")?.textContent || "";
+      navigator.clipboard.writeText(codeText).then(
+        function () {
+          showToast("Copied to clipboard!", "", "success");
+        },
+        function (err) {
+          log.error("Could not copy text: ", err);
+          showToast("Failed to copy!", "", "error");
+        }
+      );
+    });
   });
 }
 
@@ -573,7 +575,7 @@ var plugin = {
       pluginHelper.functions.popup(genratedata(markdownContent), "Reference", {
         fullscreen: true,
         callback: async () => {
-          $(".tabular.menu .item").tab();
+          cpiInitTabs();
           copySectionUpdatye();
         },
       });
@@ -589,7 +591,7 @@ var plugin = {
       pluginHelper.functions.popup(genratedata(markdownContent), "Reference", {
         fullscreen: true,
         callback: async () => {
-          $(".tabular.menu .item").tab();
+          cpiInitTabs();
           copySectionUpdatye();
         },
       });

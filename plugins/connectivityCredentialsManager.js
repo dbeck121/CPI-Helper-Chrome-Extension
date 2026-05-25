@@ -1179,7 +1179,7 @@ function showHelpDialog() {
                 `;
                 
                 document.getElementById('helpCloseBtn')?.addEventListener('click', () => {
-                    $('#cpiHelper_semanticui_modal').modal('hide');
+                    cpiCloseModal('cpiHelper_semanticui_modal');
                 });
             }
         }, 100);
@@ -1229,7 +1229,7 @@ function showSaveDialog() {
                 `;
                 
                 document.getElementById('saveCancelBtn')?.addEventListener('click', () => {
-                    $('#cpiHelper_semanticui_modal').modal('hide');
+                    cpiCloseModal('cpiHelper_semanticui_modal');
                 });
                 
                 document.getElementById('saveProfileBtn')?.addEventListener('click', async () => {
@@ -1244,7 +1244,7 @@ function showSaveDialog() {
                     
                     if (saved) {
                         showNotification('Profile saved', `"${profileName}" saved successfully`, 'success');
-                        $('#cpiHelper_semanticui_modal').modal('hide');
+                        cpiCloseModal('cpiHelper_semanticui_modal');
                     } else {
                         showNotification('Save failed', 'Could not save profile', 'error');
                     }
@@ -1370,7 +1370,7 @@ async function showLoadDialog() {
                     
                     if (profile && profile.type === currentTab) {
                         // Hide the modal immediately
-                        $('#cpiHelper_semanticui_modal').modal('hide');
+                        cpiCloseModal('cpiHelper_semanticui_modal');
                         
                         // Show busy indicator
                         showBusyIndicator(profileName, profile.data);
@@ -1570,12 +1570,12 @@ function showProfileDetails(profile) {
                 
                 // Add event listeners
                 document.getElementById('profileDetailsBackBtn')?.addEventListener('click', () => {
-                    $('#cpiHelper_semanticui_modal').modal('hide');
+                    cpiCloseModal('cpiHelper_semanticui_modal');
                     setTimeout(showManageDialog, 300);
                 });
                 
                 document.getElementById('profileDetailsCloseBtn')?.addEventListener('click', () => {
-                    $('#cpiHelper_semanticui_modal').modal('hide');
+                    cpiCloseModal('cpiHelper_semanticui_modal');
                 });
             }
         }, 100);
@@ -1672,7 +1672,7 @@ async function showManageDialog() {
                         const deleted = await deleteProfileFromStorage(profileName);
                         if (deleted) {
                             showNotification('Profile deleted', `"${profileName}" deleted`, 'success');
-                            $('#cpiHelper_semanticui_modal').modal('hide');
+                            cpiCloseModal('cpiHelper_semanticui_modal');
                             // Refresh the dialog
                             setTimeout(showManageDialog, 500);
                         }

@@ -1,11 +1,13 @@
 function extendSettingsPane() {
   // only press button if pane not yet expanded
-  var minButton = $('[id $="iflowSplitter-bar0-min-btn-img"]');
-  if (minButton.length == 0) {
-    //console.log("minButton not visible - expanding pane to " + "${newHeightInPct}" + "%");
+  var minButton = document.querySelector('[id$="iflowSplitter-bar0-min-btn-img"]');
+  if (!minButton) {
     console.log("Settings Pane expanded by CPI Helper Plugin");
-    window.sap.ui.getCore().byId($('[id $="--iflowSplitter-bar0-restore-btn"]').eq(0).attr("id")).firePress();
-    var s = window.sap.ui.getCore().byId($('[id^="__xmlview"][id$="-iflowSplitter"]').eq(0).attr("id"));
+    const restoreBtn = document.querySelector('[id$="--iflowSplitter-bar0-restore-btn"]');
+    if (restoreBtn) window.sap.ui.getCore().byId(restoreBtn.id).firePress();
+    const splitter = document.querySelector('[id^="__xmlview"][id$="-iflowSplitter"]');
+    if (!splitter) return;
+    var s = window.sap.ui.getCore().byId(splitter.id);
     s.getContentAreas()[0].setLayoutData(
       new sap.ui.layout.SplitterLayoutData({
         size: "${(100-newHeightInPct) + " % "}",

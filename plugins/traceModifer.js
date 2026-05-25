@@ -1,38 +1,20 @@
 clearalldata = () => {
-  $.modal("confirm", {
-    title: "Are you sure to clear data?",
-    handler: async (choice) => {
-      if (choice) {
-        chrome.storage.local.get(null, (items) => {
-          for (i of Object.keys(items)) {
-            if (i.startsWith("traceModifer_")) {
-              chrome.storage.local.remove([i], () => {
-                var error = chrome.runtime.lastError;
-                if (error) {
-                  console.error(error);
-                }
-              });
-              $.toast({
-                displayTime: 2000,
-                title: "Trace Modifer",
-                message: i.replace("traceModifer_", "") + " is removed",
-                showProgress: "bottom",
-                classProgress: "red",
-                class: $("html").hasClass("sapUiTheme-sap_horizon_dark") ? " ch_dark " : "",
-              });
+  cpiConfirm("Are you sure to clear data?", "", async (choice) => {
+    if (!choice) return;
+    chrome.storage.local.get(null, (items) => {
+      for (i of Object.keys(items)) {
+        if (i.startsWith("traceModifer_")) {
+          chrome.storage.local.remove([i], () => {
+            var error = chrome.runtime.lastError;
+            if (error) {
+              console.error(error);
             }
-          }
-        });
-        $.toast({
-          displayTime: 2000,
-          title: "Trace Modifer",
-          message: "All data cleared",
-          showProgress: "bottom",
-          classProgress: "green",
-          class: $("html").hasClass("sapUiTheme-sap_horizon_dark") ? " ch_dark " : "",
-        });
+          });
+          showToast(i.replace("traceModifer_", "") + " is removed", "Trace Modifer");
+        }
       }
-    },
+    });
+    showToast("All data cleared", "Trace Modifer");
   });
 };
 
