@@ -30,6 +30,16 @@ function _cpiTeardownDimmerIfIdle() {
   }
 }
 
+function _cpiRestoreModalToHome(modalEl) {
+  // Move the modal back to its original parent (#cpihelperglobal) so that
+  // getElementById lookups keep finding it after we remove the dimmer.
+  const home = modalEl._cpiOriginalParent || document.getElementById("cpihelperglobal");
+  if (home && modalEl.parentElement !== home) {
+    home.appendChild(modalEl);
+  }
+  delete modalEl._cpiOriginalParent;
+}
+
 function _cpiCloseModal(modalEl, viaExternalChange = false) {
   if (!modalEl || modalEl._cpiClosing) return;
   modalEl._cpiClosing = true;
@@ -52,6 +62,9 @@ function _cpiCloseModal(modalEl, viaExternalChange = false) {
     }
   }
 
+  // Move modal back to its home before tearing down the dimmer (otherwise
+  // removing the dimmer would remove the modal element from the DOM too).
+  _cpiRestoreModalToHome(modalEl);
   _cpiTeardownDimmerIfIdle();
   delete modalEl._cpiClosing;
 }
@@ -85,59 +98,78 @@ function _cpiEnsureGlobalListeners() {
 function _cpiOpenModal(modalEl, options = {}) {
   _cpiEnsureGlobalListeners();
 
+  // Create the dimmer as a full-viewport flex container that scrolls
+  // vertically. The modal becomes a flex child of the dimmer — that way
+  // sizing and positioning are handled by flex layout rather than fragile
+  // position/transform math on the modal itself.
   let dimmer = document.querySelector(".ui.page.dimmer.modals.active.visible");
   if (!dimmer) {
     dimmer = document.createElement("div");
     dimmer.className = "ui page dimmer modals transition visible active";
+    dimmer.style.cssText = [
+      "position: fixed",
+      "top: 0",
+      "left: 0",
+      "right: 0",
+      "bottom: 0",
+      "z-index: 1000",
+      "display: flex",
+      "align-items: flex-start",
+      "justify-content: center",
+      "overflow-y: auto",
+      "overflow-x: hidden",
+      "padding: 2vh 1em",
+    ].join("; ");
     document.body.appendChild(dimmer);
   }
   if (options.blurring !== false) {
     document.body.classList.add("blurring", "dimmable", "dimmed");
   }
 
-  modalEl.classList.add("active", "visible");
-  modalEl.style.display = "block";
+  // Remember where the modal lived so we can put it back on close; this
+  // matters because removing the dimmer would otherwise drop the modal
+  // out of the DOM and break future getElementById lookups.
+  if (!modalEl._cpiOriginalParent) {
+    modalEl._cpiOriginalParent = modalEl.parentElement;
+  }
+  if (modalEl.parentElement !== dimmer) {
+    dimmer.appendChild(modalEl);
+  }
 
-  // Anchor the modal to the top of the viewport with explicit top + max-height
-  // bounds rather than transform-centering. The vertical-center approach
-  // (top: 50%; translate(-50%, -50%)) is fragile because if the content
-  // somehow overrides max-height, the top half of the modal disappears
-  // above the screen. Pinning top guarantees the modal is always fully
-  // visible regardless of how tall its content tries to be.
-  modalEl.style.position = "fixed";
+  modalEl.classList.add("active", "visible");
+
+  // Modal as a flex column child of the dimmer — natural width up to a
+  // cap, natural height up to a cap. When the modal would be taller than
+  // the viewport the dimmer scrolls; when shorter, it sits near the top
+  // (align-items: flex-start avoids the "top cut off" failure mode of
+  // align-items: center when content overflows).
+  modalEl.style.position = "relative";
+  modalEl.style.top = "";
+  modalEl.style.left = "";
+  modalEl.style.right = "";
+  modalEl.style.bottom = "";
+  modalEl.style.transform = "";
+  modalEl.style.margin = "0";
   modalEl.style.zIndex = "1001";
   modalEl.style.display = "flex";
   modalEl.style.flexDirection = "column";
-  modalEl.style.left = "50%";
-  modalEl.style.transform = "translateX(-50%)";
-  modalEl.style.maxWidth = "calc(100vw - 4em)";
-  modalEl.style.margin = "0";
-  modalEl.style.bottom = "auto";
-  modalEl.style.height = "auto";
-  if (modalEl.classList.contains("fullscreen")) {
-    modalEl.style.top = "1em";
-    modalEl.style.maxHeight = "calc(100vh - 2em)";
-  } else {
-    modalEl.style.top = "3vh";
-    modalEl.style.maxHeight = "94vh";
-  }
-  // Make the scrollable content area actually scroll within the modal
-  // (rather than letting the modal box overflow the viewport).
+  modalEl.style.flexShrink = "0";
+  modalEl.style.maxWidth = "min(1280px, 100%)";
+  modalEl.style.width = modalEl.classList.contains("fullscreen") ? "100%" : "";
+  // Cap the modal so .scrolling.content scrolls internally rather than
+  // making the dimmer scroll for every long popup.
+  modalEl.style.maxHeight = modalEl.classList.contains("fullscreen") ? "calc(100vh - 4vh)" : "calc(100vh - 4vh)";
+
   const scrollingContent = modalEl.querySelector(".scrolling.content");
   if (scrollingContent) {
     scrollingContent.style.flex = "1 1 auto";
     scrollingContent.style.minHeight = "0";
     scrollingContent.style.overflow = "auto";
     scrollingContent.style.maxHeight = "none";
-    // .scrolling.content owns its scroll; the modal box clips overflow so
-    // the visual stays inside max-height even if a child sets a larger
-    // min-height (the #cpiHelper_bigPopup_content_semanticui div uses
-    // inline `min-height: 50vh`).
     modalEl.style.overflow = "hidden";
   } else {
-    // Fallback for modals without the Semantic-UI .scrolling.content
-    // structure: let the modal itself scroll so content can never escape
-    // the viewport.
+    // Plugin-built modal without .scrolling.content: let the modal itself
+    // scroll. The dimmer's outer scroll is the second line of defense.
     modalEl.style.overflowY = "auto";
     modalEl.style.overflowX = "hidden";
   }
@@ -434,13 +466,6 @@ async function showBigPopup(
 
   _cpiOpenModal(modal, {
     blurring: true,
-    onShow: () => {
-      // Re-anchor: if anything detached the modal from #cpihelperglobal, put it back.
-      const globalEl = document.getElementById("cpihelperglobal");
-      if (globalEl && modal.parentElement !== globalEl) {
-        globalEl.appendChild(modal);
-      }
-    },
     onHidden: () => {
       if (parameters.onclose instanceof Function) parameters.onclose();
     },
