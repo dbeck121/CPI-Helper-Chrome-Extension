@@ -195,30 +195,54 @@ function showToast(message, title, type = "") {
   const isDark = document.documentElement.classList.contains("sapUiTheme-sap_horizon_dark");
   const container = _cpiEnsureToastContainer();
 
-  const toast = document.createElement("div");
-  const typeClasses = type ? type.trim().split(/\s+/).join(" ") : "";
-  toast.className = `ui floating toast ${typeClasses} ${isDark ? "ch_dark" : ""}`.trim();
-  toast.style.cssText = "pointer-events: auto; transition: opacity 250ms ease-out;";
+  // Inline styles — Semantic UI's .ui.toast has `display: none` in its CSS
+  // (it expects its own JS to manage visibility), so styling our toast via
+  // those classes hides it. Use self-contained inline styles instead.
+  const typeColors = {
+    success: { bg: "#21ba45", fg: "#ffffff", bar: "rgba(255,255,255,0.55)" },
+    error:   { bg: "#db2828", fg: "#ffffff", bar: "rgba(255,255,255,0.55)" },
+    warning: { bg: "#f2711c", fg: "#ffffff", bar: "rgba(255,255,255,0.55)" },
+    info:    { bg: "#2185d0", fg: "#ffffff", bar: "rgba(255,255,255,0.55)" },
+  };
+  const t = (type || "").trim().toLowerCase();
+  const c = typeColors[t] || {
+    bg: isDark ? "#2c2f33" : "#ffffff",
+    fg: isDark ? "#f5f5f5" : "#1a1a1a",
+    bar: isDark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.25)",
+  };
 
-  const content = document.createElement("div");
-  content.className = "content";
+  const toast = document.createElement("div");
+  toast.style.cssText = [
+    "pointer-events: auto",
+    `background: ${c.bg}`,
+    `color: ${c.fg}`,
+    "padding: 0.875em 1.25em 0.75em",
+    "border-radius: 0.28em",
+    "box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25)",
+    "min-width: 280px",
+    "max-width: 100%",
+    "cursor: pointer",
+    "transition: opacity 250ms ease-out",
+    "font-family: inherit",
+    "font-size: 0.95rem",
+    "line-height: 1.4",
+    "display: block",
+  ].join("; ");
+
   if (title) {
     const headerEl = document.createElement("div");
-    headerEl.className = "header";
+    headerEl.style.cssText = "font-weight: 700; margin-bottom: 0.2em;";
     headerEl.textContent = title;
-    content.appendChild(headerEl);
+    toast.appendChild(headerEl);
   }
   const messageEl = document.createElement("div");
-  messageEl.className = "message";
   messageEl.textContent = message != null ? String(message) : "";
-  content.appendChild(messageEl);
-  toast.appendChild(content);
+  toast.appendChild(messageEl);
 
   const progress = document.createElement("div");
-  progress.className = "ui bottom attached active progress";
+  progress.style.cssText = "height: 3px; margin: 0.625em -1.25em -0.75em; background: rgba(0, 0, 0, 0.12); border-radius: 0 0 0.28em 0.28em; overflow: hidden;";
   const bar = document.createElement("div");
-  bar.className = "bar";
-  bar.style.cssText = "width: 100%; transition: width 3s linear;";
+  bar.style.cssText = `height: 100%; width: 100%; background: ${c.bar}; transition: width 3s linear;`;
   progress.appendChild(bar);
   toast.appendChild(progress);
 
@@ -589,7 +613,7 @@ async function openIflowInfoPopup() {
             f.className = "contentText";
             f.innerText = `${element.endpointInstances[i]?.endpointCategory}: ${element.endpointInstances[i]?.endpointUrl}`;
             var quickCopyToClipboardButton = createElementFromHTML(
-              "<button class='cpiHelper_inlineInfo-button' ><span data-sap-ui-icon-content='' data-text='" +
+              "<button class='cpiHelper_inlineInfo-button' ><span data-sap-ui-icon-content='' data-text='" +
                 `${element.endpointInstances[i]?.endpointUrl}` +
                 "' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>"
             );
@@ -649,14 +673,14 @@ async function openIflowInfoPopup() {
         let tdfunctions = document.createElement("td");
         tdfunctions.style.whiteSpace = "nowrap";
 
-        let showButton = createElementFromHTML("<button><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
+        let showButton = createElementFromHTML("<button><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
 
         tdfunctions.appendChild(showButton);
 
-        let downloadButton = createElementFromHTML("<button><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
+        let downloadButton = createElementFromHTML("<button><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
         tdfunctions.appendChild(downloadButton);
 
-        let deleteButton = createElementFromHTML("<button><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
+        let deleteButton = createElementFromHTML("<button><span data-sap-ui-icon-content='' class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>");
         tdfunctions.appendChild(deleteButton);
 
         tr.appendChild(tdfunctions);
