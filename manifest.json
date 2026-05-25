@@ -80,7 +80,14 @@
         "/scripts/plugins.js",
         "/scripts/Mode-Script.js",
         "/scripts/inline-trace.js",
-        "/scripts/contentScript.js"
+        "/scripts/contentScript/state.js",
+        "/scripts/contentScript/utils.js",
+        "/scripts/contentScript/artifactContext.js",
+        "/scripts/contentScript/iflowInfo.js",
+        "/scripts/contentScript/iflowControls.js",
+        "/scripts/contentScript/messageSidebar.js",
+        "/scripts/contentScript/buttonBar.js",
+        "/scripts/contentScript/bootstrap.js"
       ],
       "css": [
         "/lib/semanticui/semantic.min.css",
