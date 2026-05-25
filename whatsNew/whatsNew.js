@@ -216,34 +216,24 @@ async function whatsNewCheck(showOnlyOnce = true) {
       closeText: "OK",
       iconInButton: "checkmark",
       callback: () => {
-        $("#cpiHelper_whatsnew_tabs .item").tab({
-          context: $("#cpiHelper_bigPopup_content_semanticui"),
-        });
-        $(".cpihelper83782").popup({
-          inline: true,
-          hoverable: true,
-          position: "bottom left",
-          delay: {
-            show: 300,
-            hide: 800,
-          },
-        });
-        $(".cpihelperFigafScreenshot").on("click", function () {
-          const overlay = $(`
-            <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-              <div style="max-width: 90vw; max-height: 90vh; overflow: auto; background: white; padding: 10px; border-radius: 5px;">
-                <img src="${FIGAF_VIBE_SCREENSHOT}" style="width: auto; height: auto; max-width: none;" />
+        cpiInitTabs(document.getElementById("cpiHelper_bigPopup_content_semanticui"));
+        // The Semantic UI .popup() on .cpihelper83782 had no data-content
+        // wired up, so we no longer initialise tooltips here.
+        document.querySelectorAll(".cpihelperFigafScreenshot").forEach((trigger) => {
+          trigger.addEventListener("click", () => {
+            const overlay = createElementFromHTML(`
+              <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: opacity 300ms ease; opacity: 1;">
+                <div style="max-width: 90vw; max-height: 90vh; overflow: auto; background: white; padding: 10px; border-radius: 5px;">
+                  <img src="${FIGAF_VIBE_SCREENSHOT}" style="width: auto; height: auto; max-width: none;" />
+                </div>
               </div>
-            </div>
-          `);
-
-          overlay.on("click", function () {
-            $(this).fadeOut(300, function () {
-              $(this).remove();
+            `);
+            overlay.addEventListener("click", () => {
+              overlay.style.opacity = "0";
+              setTimeout(() => overlay.remove(), 300);
             });
+            document.body.appendChild(overlay);
           });
-
-          $("body").append(overlay);
         });
       },
       onclose: async () => {
@@ -367,7 +357,7 @@ async function recrutingPopup(force = false) {
         await storageSetPromise(obj);
         log.log("recruting popup timestamp set to today + " + days + " days");
 
-        $("#cpiHelper_semanticui_modal").modal("hide");
+        cpiCloseModal("cpiHelper_semanticui_modal");
       };
       return button;
     };
@@ -382,7 +372,7 @@ async function recrutingPopup(force = false) {
     nextStepButtion.onclick = async function () {
       statistic("recrutingPopup", "nextStep");
       window.open("https://kangoolutions.com/karriere/", "_blank");
-      $("#cpiHelper_semanticui_modal").modal("hide");
+      cpiCloseModal("cpiHelper_semanticui_modal");
     };
 
     //create br

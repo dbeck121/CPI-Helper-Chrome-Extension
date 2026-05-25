@@ -244,6 +244,13 @@ function showToast(message, title, type = "") {
   }, 3000);
 }
 
+// Remove all currently-visible toasts. Replacement for the
+// `$('.ui.toast').toast('close')` pattern used in legacy code.
+function cpiClearToasts() {
+  const container = document.getElementById("cpiHelper_toast_container");
+  if (container) container.replaceChildren();
+}
+
 // ---- waiting popup ---------------------------------------------------------
 
 function showWaitingPopup(content = undefined, classname = "small", title = "CPI Helper Is thinking", time = undefined) {
@@ -929,13 +936,14 @@ function cpiOpenModal(target, options) {
 
 function cpiInitTabs(scope) {
   const root = scope || document;
-  const items = root.querySelectorAll(".tabular.menu .item[data-tab]");
+  // Accept any Semantic-UI-style menu container (.tabular.menu, .secondary.menu, etc.)
+  const items = root.querySelectorAll(".menu .item[data-tab]");
   if (!items.length) return;
 
   // Find the nearest container shared by items + panels so panels with the
   // same data-tab in unrelated tab groups don't get cross-activated.
   const findGroupRoot = (item) => {
-    const menu = item.closest(".tabular.menu");
+    const menu = item.closest(".menu");
     return (menu && menu.parentElement) || root;
   };
 
@@ -946,8 +954,8 @@ function cpiInitTabs(scope) {
       e.preventDefault();
       const groupRoot = findGroupRoot(item);
       const tabName = item.getAttribute("data-tab");
-      const menu = item.closest(".tabular.menu");
-      menu.querySelectorAll(".item[data-tab]").forEach((it) => it.classList.remove("active"));
+      const menu = item.closest(".menu");
+      if (menu) menu.querySelectorAll(".item[data-tab]").forEach((it) => it.classList.remove("active"));
       item.classList.add("active");
       groupRoot.querySelectorAll(".ui.tab[data-tab]").forEach((panel) => {
         panel.classList.toggle("active", panel.getAttribute("data-tab") === tabName);

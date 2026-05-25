@@ -6,11 +6,11 @@
 
 var inlineTraceRunning = false;
 async function clickTrace(e) {
-  $("[ch_inline_active]").removeAttr("ch_inline_active");
+  document.querySelectorAll("[ch_inline_active]").forEach((el) => el.removeAttribute("ch_inline_active"));
   if (inlineTraceRunning) {
     return;
   }
-  if ($(".cpiHelper_inlineInfo").length === 0) {
+  if (document.querySelectorAll(".cpiHelper_inlineInfo").length === 0) {
     showToast("Inline trace has been turned off");
     return;
   }
@@ -151,10 +151,10 @@ async function clickTrace(e) {
   var logleveldata = JSON.parse(await makeCallPromise("GET", `/${cpiData.urlExtension}${cpiData.runtimePathExtension}odata/api/v1/MessageProcessingLogs('${messageguid}')?$format=json`, true)).d;
 
   if (logleveldata.LogLevel != "TRACE") {
-    $("#cpiHelper_waiting_model").modal("hide");
+    cpiCloseModal("cpiHelper_waiting_model");
     showToast("Trace is not enabled", "your log level is" + logleveldata.LogLevel, "warning");
   } else if (logleveldata.LogLevel == "TRACE" && new Date(parseInt(logleveldata.LogEnd.replace(/\D/g, "")) + 1.05 * 60 * 60000) < new Date()) {
-    $("#cpiHelper_waiting_model").modal("hide");
+    cpiCloseModal("cpiHelper_waiting_model");
     showToast("Trace is expired", "1 hour is already passed", "warning");
   } else {
     //Trace
@@ -259,8 +259,8 @@ async function clickTrace(e) {
 
 async function hideInlineTrace() {
   activeInlineItem = null;
-  $("[ch_inline_active]").removeAttr("ch_inline_active");
-  $("[inline_cpi_child]").removeAttr("inline_cpi_child");
+  document.querySelectorAll("[ch_inline_active]").forEach((el) => el.removeAttribute("ch_inline_active"));
+  document.querySelectorAll("[inline_cpi_child]").forEach((el) => el.removeAttribute("inline_cpi_child"));
 
   var classesToBeDeleted = [".cpiHelper_inlineInfo", ".cpiHelper_inlineInfo_error", ".cpiHelper_avg", ".cpiHelper_belowavg", ".cpiHelper_inlineInfo-active", ".cpiHelper_aboveavg", ".cpiHelper_max", ".cpiHelper_min"];
   onClicKElements.forEach((element) => (element.onclick = null));

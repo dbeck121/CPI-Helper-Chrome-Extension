@@ -1,34 +1,35 @@
 function navigationButton() {
   //main Frame
-  if ($("#__cpihelper").length === 0) {
+  if (!document.getElementById("__cpihelper")) {
     log.log("adding navigation for main page");
-    cloudbutton = $(`<button id="__cpihelper" aria-label="CPI Helper" title="CPI Helper" class="sapMBtnBase sapMBtn sapMBarChild">
+    const cloudbutton = createElementFromHTML(`<button id="__cpihelper" aria-label="CPI Helper" title="CPI Helper" class="sapMBtnBase sapMBtn sapMBarChild">
         <span id="__cpihelper-inner" class="sapMBtnInner sapMBtnHoverable sapMFocusable sapMBtnIconFirst sapMBtnTransparent">
           <span id="__cpihelper-img" data-sap-ui="__cpihelper-img" role="presentation" aria-hidden="true" data-sap-ui-icon-content="&#xe21d" class="sapUiIcon sapMBtnCustomIcon sapMBtnIcon sapMBtnIconLeft" style="font-family: SAP-icons;"></span>
         </span>
         <span id="__cpihelper-tooltip" class="sapUiInvisibleText">CPI Helper</span>
       </button>`);
-    $("#shell--toolHeader").children().eq(3).after(cloudbutton);
-    $("#__cpihelper").on(
-      "click",
-      async () =>
-        await showBigPopup(
-          `<div class="ui blue secondary pointing centered fluid menu">
+    const toolHeader = document.getElementById("shell--toolHeader");
+    const fourthChild = toolHeader ? toolHeader.children[3] : null;
+    if (fourthChild) {
+      fourthChild.insertAdjacentElement("afterend", cloudbutton);
+    }
+    document.getElementById("__cpihelper")?.addEventListener("click", async () => {
+      await showBigPopup(
+        `<div class="ui blue secondary pointing centered fluid menu">
     <div class="active item" data-tab="homepage">Search Credentials & Log Mode</div>
     </div>
-    <div data-tab="homepage" class="ui loading tab"><div id="GlobalCH_Tab1"></div></div>`,
-          "",
-          {
-            fullscreen: true,
-            callback: async () => {
-              $("#cpiHelper_bigPopup_content_semanticui .blue.menu.secondary .item").tab();
-              await fromInitialLoadingTo();
-            },
-          }
-        ).then(async (e) => {
-          await defaultdebug();
-        })
-    );
+    <div data-tab="homepage" class="ui active loading tab"><div id="GlobalCH_Tab1"></div></div>`,
+        "",
+        {
+          fullscreen: true,
+          callback: async () => {
+            cpiInitTabs(document.getElementById("cpiHelper_bigPopup_content_semanticui"));
+            await fromInitialLoadingTo();
+          },
+        }
+      );
+      await defaultdebug();
+    });
   }
 }
 /*const icons = chrome.runtime.getManifest().icons | chrome.runtime.getURL(icons['16'])*/
@@ -65,15 +66,15 @@ async function getSecurityNamelist() {
 }
 
 async function fromInitialLoadingTo() {
-  const data_content = $(`
+  const data_content = createElementFromHTML(`
     <div class="ui container form-container" style='margin:1em'>
      <h3 class="ui header">Find Credentials from Security Matrials:</h3>
       <div class="ui search">
         <div class="ui icon input">
-          <input class="prompt" type="text" placeholder="Search Credentials...">
+          <input class="prompt" type="text" placeholder="Search Credentials..." style="width: 100%;">
           <i class="search icon"></i>
         </div>
-        <div class="results"></div>
+        <div class="results" style="position: relative; max-height: 320px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 0.25rem; background: white; margin-top: 0.25rem; display: none;"></div>
       </div>
       <h3 class="ui header">Log Mode Selector for CPI Helper:</h3>
       <div class="ui container">
@@ -111,14 +112,49 @@ async function fromInitialLoadingTo() {
           </div>
       </div>
     </div>`);
-  $("#GlobalCH_Tab1").append(data_content);
-  $("#GlobalCH_Tab1").parent().removeClass("loading");
-  $(".ui.search").search({
-    source: await getSecurityNamelist(),
-    preserveHTML: false,
-    onSelect: (result, resp) => copyText(result.title),
-    searchFields: ["title"],
-    type: "category",
-    minCharacters: 1,
+  const tab1 = document.getElementById("GlobalCH_Tab1");
+  if (tab1) {
+    tab1.appendChild(data_content);
+    if (tab1.parentElement) tab1.parentElement.classList.remove("loading");
+  }
+
+  const source = await getSecurityNamelist();
+  const searchInput = data_content.querySelector(".ui.search input.prompt");
+  const resultsDiv = data_content.querySelector(".ui.search .results");
+
+  const renderResults = (query) => {
+    resultsDiv.replaceChildren();
+    if (!query || query.length < 1) {
+      resultsDiv.style.display = "none";
+      return;
+    }
+    const lower = query.toLowerCase();
+    const matches = source.filter((s) => s.title && s.title.toLowerCase().includes(lower)).slice(0, 50);
+    if (!matches.length) {
+      resultsDiv.style.display = "none";
+      return;
+    }
+    matches.forEach((m) => {
+      const item = document.createElement("div");
+      item.className = "result";
+      item.style.cssText = "padding: 0.5rem 0.75rem; cursor: pointer; border-bottom: 1px solid #f0f0f0;";
+      item.textContent = m.category ? `${m.title}  —  ${m.category.replace(/\n/g, " ")}` : m.title;
+      item.addEventListener("mouseenter", () => (item.style.background = "#f5f5f5"));
+      item.addEventListener("mouseleave", () => (item.style.background = ""));
+      item.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        copyText(m.title);
+        searchInput.value = m.title;
+        resultsDiv.style.display = "none";
+      });
+      resultsDiv.appendChild(item);
+    });
+    resultsDiv.style.display = "block";
+  };
+
+  searchInput.addEventListener("input", () => renderResults(searchInput.value.trim()));
+  searchInput.addEventListener("blur", () => setTimeout(() => (resultsDiv.style.display = "none"), 150));
+  searchInput.addEventListener("focus", () => {
+    if (searchInput.value.trim()) renderResults(searchInput.value.trim());
   });
 }

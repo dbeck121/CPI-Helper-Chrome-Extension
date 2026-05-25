@@ -42,9 +42,11 @@
       }
 
       if (changes["darkmodeOnStartup"]) {
-        $("#cpihelperglobal")
-          .removeClass("ch_dark ch_light")
-          .addClass(!changes[key].newValue ? "ch_dark" : "ch_light");
+        const globalEl = document.getElementById("cpihelperglobal");
+        if (globalEl) {
+          globalEl.classList.remove("ch_dark", "ch_light");
+          globalEl.classList.add(!changes[key].newValue ? "ch_dark" : "ch_light");
+        }
       }
     });
   }
@@ -187,7 +189,7 @@
   function setHeaderColor(color) {
     //sync header with popup header
     const root = document.querySelector(":root");
-    let theme = $("html").hasClass("sapUiTheme-sap_horizon");
+    let theme = document.documentElement.classList.contains("sapUiTheme-sap_horizon");
     root.style.setProperty("--cpi-custom-color", adjustColorLimiter(color, !theme ? 80 : 20, 25, !theme));
     // Set the theme color meta tag
     let themeColorElement = document.querySelector("meta[name='theme-color']");

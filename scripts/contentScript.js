@@ -271,7 +271,7 @@ async function renderMessageSidebar(cache = true) {
 
           statusicon.onclick = async (e) => {
             if (e.currentTarget.classList.contains("cpiHelper_sidebar_iconbutton")) {
-              $(".ui.toast").toast("close");
+              cpiClearToasts();
               e.currentTarget.classList.remove("cpiHelper_sidebar_iconbutton");
             } else {
               document.querySelectorAll(".cpiHelper_sidebar_iconbutton").forEach((i) => i.classList.remove("cpiHelper_sidebar_iconbutton"));
@@ -430,25 +430,27 @@ cpiData.functions.undeploy = undeploy;
 
 // inject breadcrumbs for package if missing
 function addBreadcrumbs() {
-  const crumbs = $('nav[id*="breadcrumbs"]').find("ol:first-child").find("li");
-  if (crumbs) {
-    if (crumbs.length == 1) {
-      const regex = /(.+\/contentpackage\/)(.+?)\/.*/;
-      const url = document.location.href;
-      var regexMatch;
-      var packageUrl;
-      var packageName;
-      if ((regexMatch = regex.exec(url)) !== null) {
-        packageUrl = regexMatch[1] + regexMatch[2] + "?section=ARTIFACTS";
-        packageUrl = regexMatch[1] + regexMatch[2];
-        if (!packageUrl.includes("?section=ARTIFACTS")) {
-          packageUrl += "?section=ARTIFACTS";
-        }
-        packageName = regexMatch[2];
+  const breadcrumbsNav = document.querySelector('nav[id*="breadcrumbs"]');
+  if (!breadcrumbsNav) return;
+  const ol = breadcrumbsNav.querySelector("ol");
+  if (!ol) return;
+  const crumbs = ol.querySelectorAll("li");
+  if (crumbs.length === 1) {
+    const regex = /(.+\/contentpackage\/)(.+?)\/.*/;
+    const url = document.location.href;
+    var regexMatch;
+    var packageUrl;
+    var packageName;
+    if ((regexMatch = regex.exec(url)) !== null) {
+      packageUrl = regexMatch[1] + regexMatch[2] + "?section=ARTIFACTS";
+      packageUrl = regexMatch[1] + regexMatch[2];
+      if (!packageUrl.includes("?section=ARTIFACTS")) {
+        packageUrl += "?section=ARTIFACTS";
       }
-      const newLi = $(`<li class="sapMBreadcrumbsItem"><a href="${packageUrl}" tabindex="0" class="sapMLnk sapMLnkMaxWidth">${packageName}</a><span class="sapMBreadcrumbsSeparator">/</span></li>`);
-      crumbs.prepend(newLi);
+      packageName = regexMatch[2];
     }
+    const newLi = createElementFromHTML(`<li class="sapMBreadcrumbsItem"><a href="${packageUrl}" tabindex="0" class="sapMLnk sapMLnkMaxWidth">${packageName}</a><span class="sapMBreadcrumbsSeparator">/</span></li>`);
+    crumbs[0].insertAdjacentElement("afterbegin", newLi);
   }
 }
 
@@ -1540,34 +1542,25 @@ async function popupTable(message) {
   return popupHTML;
 }
 function apireserror(message) {
-  $(".ui.toast").toast("close");
-  $.toast({
-    message: "Please wait while we prepare...",
-    position: "bottom right",
-    showProgress: "bottom",
-    class: $("html").hasClass("sapUiTheme-sap_horizon_dark") ? " ch_dark " : "",
-    onVisible: async () =>
-      popupTable(message)
-        .then((message) => {
-          $(".ui.toast").toast("close");
-          $.toast({
-            closeIcon: true,
-            showProgress: "top",
-            classProgress: "blue",
-            progressUp: true,
-            position: "bottom right",
-            class: $("html").hasClass("sapUiTheme-sap_horizon_dark") ? " ch_dark " : "",
-            displayTime: 5000,
-            onRemove: () => {
-              document.querySelectorAll(".cpiHelper_sidebar_iconbutton").forEach((i) => i.classList.remove("cpiHelper_sidebar_iconbutton"));
-            },
-            message: message,
-          });
-        })
-        .catch((error) => {
-          log.error("Error loading data:", error);
-        }),
-  });
+  cpiClearToasts();
+  showToast("Please wait while we prepare...");
+  // onVisible used to chain the popupTable call after the toast became
+  // visible; with vanilla DOM the toast is in the document by the next
+  // microtask, so we just kick off the work right away.
+  Promise.resolve()
+    .then(() => popupTable(message))
+    .then((resolved) => {
+      cpiClearToasts();
+      showToast(resolved);
+      // onRemove cleanup ran when Semantic UI auto-removed the toast.
+      // showToast auto-dismisses after 3s; schedule the matching cleanup.
+      setTimeout(() => {
+        document.querySelectorAll(".cpiHelper_sidebar_iconbutton").forEach((i) => i.classList.remove("cpiHelper_sidebar_iconbutton"));
+      }, 3000);
+    })
+    .catch((error) => {
+      log.error("Error loading data:", error);
+    });
 }
 
 function lookupError(message) {
@@ -1948,8 +1941,9 @@ setInterval(async function () {
     addBreadcrumbs();
   }
   // theme information synchronous storage
-  if (callChromeStoragePromise("CPIhelperThemeInfo") == $("html").hasClass("sapUiTheme-sap_horizon_dark")) {
-    await syncChromeStoragePromise("CPIhelperThemeInfo", $("html").hasClass("sapUiTheme-sap_horizon_dark"));
+  const isHtmlDark = document.documentElement.classList.contains("sapUiTheme-sap_horizon_dark");
+  if (callChromeStoragePromise("CPIhelperThemeInfo") == isHtmlDark) {
+    await syncChromeStoragePromise("CPIhelperThemeInfo", isHtmlDark);
   }
   log.debug("check for button bar");
   try {

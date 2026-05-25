@@ -84,13 +84,13 @@ function downloadLog() {
   }
 }
 
-function adjustLogLevelByTime(timeout = $("#timeout").val()) {
+function adjustLogLevelByTime(timeout = document.getElementById("timeout")?.value) {
   let defaultLogLevel = String(levelMap[log.level]);
   let timerId = null;
   if (timerId) {
     clearTimeout(timerId);
   } else {
-    log.level = $("#logLevel").val();
+    log.level = document.getElementById("logLevel")?.value;
     log.log(String(levelMap[log.level]) + " mode active " + timeout + " ms");
     showToast(String(levelMap[log.level]) + " is activated for " + timeout + " ms");
     if (log.level === ulog.levels.debug) {
@@ -100,22 +100,34 @@ function adjustLogLevelByTime(timeout = $("#timeout").val()) {
       log.level = defaultLogLevel;
       showToast(String(levelMap[log.level]) + " Switched Back.");
       timerId = null;
-      $("#logLevel").dropdown("set selected", defaultLogLevel);
+      const sel = document.getElementById("logLevel");
+      if (sel) sel.value = defaultLogLevel;
     }, parseInt(timeout) * 1000);
+  }
+}
+
+function _cpiOnReady(fn) {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", fn);
+  } else {
+    fn();
   }
 }
 
 //default set:
 async function defaultdebug() {
-  $("#logLevel").dropdown("set selected", String(levelMap[log.level]));
-  $("#timeout").dropdown("set selected", "60");
-  $(document).ready(function () {
-    $("#downloadButton").on("click", (e) => {
+  const logLevelSel = document.getElementById("logLevel");
+  if (logLevelSel) logLevelSel.value = String(levelMap[log.level]);
+  const timeoutSel = document.getElementById("timeout");
+  if (timeoutSel) timeoutSel.value = "60";
+
+  _cpiOnReady(function () {
+    document.getElementById("downloadButton")?.addEventListener("click", (e) => {
       downloadLog();
       log.log("clear logs after download");
     });
-    $("#debug-form").on("submit", (event) => {
-      timeout = parseInt($("#timeout").val());
+    document.getElementById("debug-form")?.addEventListener("submit", (event) => {
+      timeout = parseInt(document.getElementById("timeout")?.value);
       log.debug(`timeout is ${timeout}`);
       event.preventDefault();
       adjustLogLevelByTime();
