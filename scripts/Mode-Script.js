@@ -15,13 +15,16 @@ function navigationButton() {
         await showBigPopup(
           `<div class="ui blue secondary pointing centered fluid menu">
     <div class="active item" data-tab="homepage">Search Credentials & Log Mode</div>
+    <div class="item" data-tab="plugins">Plugins</div>
     </div>
-    <div data-tab="homepage" class="ui loading tab"><div id="GlobalCH_Tab1"></div></div>`,
+    <div data-tab="homepage" class="ui loading tab"><div id="GlobalCH_Tab1"></div></div>
+    <div data-tab="plugins" class="ui tab"><div id="GlobalCH_TabPlugins"></div></div>`,
           "",
           {
             fullscreen: true,
             callback: async () => {
               $("#cpiHelper_bigPopup_content_semanticui .blue.menu.secondary .item").tab();
+              $("#GlobalCH_TabPlugins").append(await createContentNodeForPlugins());
               await fromInitialLoadingTo();
             },
           }
