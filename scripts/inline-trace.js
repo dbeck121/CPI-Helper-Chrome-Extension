@@ -354,47 +354,15 @@ async function showInlineTrace(MessageGuid, checked = false) {
 
     inlineTraceElements.forEach((run) => {
       try {
-        let target;
-        let element;
-        let flag = true;
-        //    let target = element.children[getChild(element, ["g"])];
-        //    target = target.children[getChild(target, ["rect", "circle", "path"])];
-
-        if (/StartEvent/.test(run.ModelStepId)) {
-          element = document.getElementById("BPMNShape_" + run.ModelStepId);
-          target = element.children[0].children[0];
-          flag = false;
+        const resolved = resolveInlineTraceNode(run);
+        if (!resolved) {
+          log.log("no diagram element found for " + run.StepId + " / " + run.ModelStepId);
+          return;
         }
+        const element = resolved.element;
+        const target = resolved.target;
+        const flag = resolved.clickable;
 
-        if (/EndEvent/.test(run.StepId)) {
-          element = document.getElementById("BPMNShape_" + run.StepId);
-          target = element.children[0].children[0];
-        }
-
-        if (/ServiceTask/.test(run.StepId)) {
-          element = document.getElementById("BPMNShape_" + run.StepId);
-          target = element.children[getChild(element, ["g"])].children[0];
-        }
-
-        if (/CallActivity/.test(run.StepId)) {
-          element = document.getElementById("BPMNShape_" + run.StepId);
-          target = element.children[getChild(element, ["g"])].children[0];
-        }
-
-        if (/MessageFlow_\d+/.test(run.ModelStepId) && /#/.test(run.ModelStepId) != true) {
-          element = document.getElementById("BPMNEdge_" + run.ModelStepId);
-          target = element.children[getChild(element, ["text"], "shapeText")];
-        }
-
-        if (/ExclusiveGateway/.test(run.ModelStepId)) {
-          element = document.getElementById("BPMNShape_" + run.ModelStepId);
-          target = element.children[getChild(element, ["g"])].children[0];
-        }
-
-        if (/ParallelGateway/.test(run.ModelStepId)) {
-          element = document.getElementById("BPMNShape_" + run.ModelStepId);
-          target = element.children[getChild(element, ["g"])].children[0];
-        }
         element.setAttribute("inline_cpi_child", run.ChildCount);
         target.classList.add("cpiHelper_inlineInfo");
         //     target.addEventListener("onclick", function abc(event) { clickTrace(event); });
@@ -446,6 +414,81 @@ async function showInlineTrace(MessageGuid, checked = false) {
       return resolve(true);
     });
   });
+}
+
+/**
+ * Resolves the diagram element and the SVG element to highlight for one trace step.
+ *
+ * The node type used to be derived with regexes over the step id (/ServiceTask/,
+ * /CallActivity/, /ExclusiveGateway/, ...). That only holds for the ids SAP
+ * generates automatically. As soon as an iFlow uses custom element ids
+ * (CA_DSGet, GW_Ready, MF_SG) no regex matches, `element` stays undefined and
+ * nothing gets highlighted, even though the elements are present in the DOM.
+ *
+ * The element is now looked up by id, and the highlight target is derived from
+ * the SVG structure, which is the same for every node type.
+ *
+ * @param {object} run - a trace step (StepId, ModelStepId, ...).
+ * @returns {{element: Element, target: Element, clickable: boolean}|null} null when the step has no counterpart in the diagram.
+ */
+function resolveInlineTraceNode(run) {
+  const candidates = [];
+  const addCandidate = function (prefix, raw) {
+    if (raw === null || raw === undefined) {
+      return;
+    }
+    const value = String(raw);
+    if (!value) {
+      return;
+    }
+    candidates.push(prefix + value);
+    //some step ids carry an instance suffix, e.g. "MF_SG#1787289935763"
+    if (value.indexOf("#") > -1) {
+      candidates.push(prefix + value.split("#")[0]);
+    }
+  };
+
+  addCandidate("BPMNShape_", run.ModelStepId);
+  addCandidate("BPMNShape_", run.StepId);
+  addCandidate("BPMNEdge_", run.ModelStepId);
+  addCandidate("BPMNEdge_", run.StepId);
+
+  let element = null;
+  for (const id of candidates) {
+    element = document.getElementById(id);
+    if (element) {
+      break;
+    }
+  }
+  if (!element) {
+    return null;
+  }
+
+  let target = null;
+  if (element.id.indexOf("BPMNEdge_") === 0) {
+    //on message flows the text label is the element that gets coloured
+    let index = getChild(element, ["text"], "shapeText");
+    if (index === null) {
+      index = getChild(element, ["text"]);
+    }
+    target = index === null ? null : element.children[index];
+  } else {
+    //on shapes the first <g> child wraps the rect/circle that gets coloured.
+    //a <title> child is not always present, so a fixed index is not reliable.
+    const groupIndex = getChild(element, ["g"]);
+    if (groupIndex !== null && element.children[groupIndex].children.length > 0) {
+      target = element.children[groupIndex].children[0];
+    } else {
+      const shapeIndex = getChild(element, ["rect", "circle", "path", "polygon"]);
+      target = shapeIndex === null ? null : element.children[shapeIndex];
+    }
+  }
+  if (!target) {
+    return null;
+  }
+
+  //the start event opens no popup: there is no content "before" the start of the flow
+  return { element: element, target: target, clickable: !/StartEvent/i.test(element.id) };
 }
 
 function getChild(node, childNames, childClass = null) {
