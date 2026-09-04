@@ -375,7 +375,7 @@ async function runPluginHeartbeat() {
     var settings = await getPluginSettings(plugin.id);
     if (settings[plugin.id + "---isActive"] === true) {
       if (plugin["heartbeat"]) {
-        await plugin["heartbeat"](plugin, settings);
+        await plugin["heartbeat"](cpiData, settings);
       }
     }
   }
