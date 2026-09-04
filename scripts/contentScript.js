@@ -1660,8 +1660,13 @@ async function getArtifactFullName() {
   const intval2 = setInterval(() => {
     executionCount++;
 
-    artifactName = document.querySelectorAll(".sapUxAPObjectPageHeaderTitleText");
-    artifactName = artifactName[artifactName.length - 1]?.innerText; // get last element since some pages contain a hidden, first, page header with wrong text in it.
+    if (cpiData.currentArtifactType == "Package") {
+        artifactName = document.querySelectorAll('[id*=idObjectPageHeaderTitle-left-inner] > div > div > span')[0].innerText; // package
+    }
+    else {
+        artifactName = document.querySelectorAll(".sapUxAPObjectPageHeaderTitleText"); // iflow
+        artifactName = artifactName[artifactName.length - 1]?.innerText; // get last element since some pages contain a hidden, first, page header with wrong text in it.
+    }
 
     if (artifactName != undefined || executionCount >= 30) {
       // Stop the interval once the element is found or after ~30 seconds if not found (then it will use the ID for the history instead)
