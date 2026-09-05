@@ -80,11 +80,9 @@ async function whatsNewCheck(showOnlyOnce = true) {
   
      <div class="ui header">This release is sponsored by Figaf </div>
 
-<p>Big Go-Live? Figaf Handles It.</p>
-<p>One of our customers tested, transported, and deployed 1,000+ integration objects on Edge Integration Cell in just a few hours. ⚡</p>
-<p>That's the power of the Figaf DevOps Suite: automated testing, governed transports, and rapid deployment across SAP PI/PO, SAP Integration Suite, and Edge Integration Cell.</p>
-<p>Big go-lives shouldn't be scary.               
-<a href="https://figaf.com/cpihelper26" target="_blank"><u>👉 Read more</u></a> about how Figaf manages transports</div>
+<p>Why rebuild hundreds of mappings that already work?</p>
+<p>Moving to SAP Integration Suite does not mean you have to rebuild everything as MAGs from day one. Keep what works. Modernize where it adds value.</p>
+<p><a href="https://figaf.com/cpihelper27" target="_blank"><u>👉 Read the 10 things to know</u></a> before you start</div>
 </p>
 
 
