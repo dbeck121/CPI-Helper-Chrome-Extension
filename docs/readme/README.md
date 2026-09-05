@@ -44,6 +44,13 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.26.0
+
+- [Feature] New Plugins tab in the global CPI Helper popup. Special thanks to [Alexander Aigner](https://github.com/aaigi)
+- [Improvement] Better plugin feature stability. Thanks to [Alexander Aigner](https://github.com/aaigi)
+- [Fix] Visited packages were only displayed as "Design" after a recent SAP update. Thanks to [Philippe Addor](https://github.com/fippu82)
+- [Fix] Inline trace now works with iFlows that use custom BPMN element ids. Thanks to [mjhidalgo](https://github.com/mjhidalgo)
+
 ### 3.25.0
 
 - [Plugin] GroovyDebugX now also with Contiva Groovy IDE and has many improvements. Special thanks to [Sunil Pharswan](https://linkedin.com/in/sunilph).
