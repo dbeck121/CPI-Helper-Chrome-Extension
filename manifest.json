@@ -76,6 +76,7 @@
         "/plugins/connectivityCredentialsManager.js",
         "/plugins/zz_developer_tools.js",
         "/plugins/iFlowSearcher.js",
+        "/plugins/keepAlive.js",
         "/scripts/ui.js",
         "/scripts/logs.js",
         "/whatsNew/whatsNewLog.js",
