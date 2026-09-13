@@ -24,6 +24,13 @@ var plugin = {
    */
   heartbeat: async (pluginHelper, settings) => {
     const existingToolbar = document.getElementById("cpi-sort-toolbar-container");
+    // The MPL table only exists below /monitoring/ (see contentScript.js, shell/monitoring/Messages).
+    // Everywhere else we leave before scanning the DOM, because the heartbeat runs every 3 seconds.
+    if (!document.location.pathname.includes('/monitoring/')) {
+      forgetMessagesTable();
+      if (existingToolbar) existingToolbar.remove();
+      return;
+    }
     // Inject self-contained styles into document.head
     injectPluginStyles();
     // Check if the SAP CPI Messages table is present on the active screen
@@ -428,12 +435,15 @@ let sortRules = [{ field: '', direction: 'asc' }];
 function normalizeText(text) {
   return (text || '').replace(/\s+/g, ' ').trim().toLowerCase();
 }
+const HEADER_NOISE_SELECTOR = '.cpi-sort-icon, .sapUiPseudoInvisibleText, .sapUiInvisibleText, [aria-hidden="true"]';
 function getHeaderText(th) {
   if (!th) return '';
+  // Deep-cloning every header cell on every heartbeat is wasteful, and most cells carry no noise.
+  if (!th.querySelector(HEADER_NOISE_SELECTOR)) {
+    return (th.textContent || '').replace(/\s+/g, ' ').trim();
+  }
   const clone = th.cloneNode(true);
-  const elementsToRemove = clone.querySelectorAll(
-    '.cpi-sort-icon, .sapUiPseudoInvisibleText, .sapUiInvisibleText, [aria-hidden="true"]'
-  );
+  const elementsToRemove = clone.querySelectorAll(HEADER_NOISE_SELECTOR);
   elementsToRemove.forEach((el) => el.remove());
   return (clone.textContent || '').replace(/\s+/g, ' ').trim();
 }
@@ -489,7 +499,15 @@ function parseDateTimeMs(str) {
   }
   return -1;
 }
+let cachedMessagesTable = null;
+function forgetMessagesTable() {
+  cachedMessagesTable = null;
+}
 function findMessagesTable() {
+  // The scan below is the expensive part of the heartbeat, so reuse the last hit
+  // until SAP replaces the table.
+  if (cachedMessagesTable && cachedMessagesTable.isConnected) return cachedMessagesTable;
+  cachedMessagesTable = null;
   const tables = document.querySelectorAll('table');
   for (const table of tables) {
     const headers = table.querySelectorAll('th');
@@ -505,7 +523,10 @@ function findMessagesTable() {
         }
       }
     }
-    if (matchCount >= 3) return table;
+    if (matchCount >= 3) {
+      cachedMessagesTable = table;
+      return table;
+    }
   }
   return null;
 }
