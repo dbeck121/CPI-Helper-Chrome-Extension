@@ -44,6 +44,11 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
+### 3.27.0
+
+- [Plugin] New Version History plugin: view the version history of an iFlow and revert to an earlier version directly in the editor. Special thanks to [Gregor Schütz](https://github.com/DevGregor)
+- [Improvement] Updated plugin metadata for Timeline, Unlock and Credential Helper. Thanks to [Gregor Schütz](https://github.com/DevGregor)
+
 ### 3.26.0
 
 - [Feature] New Plugins tab in the global CPI Helper popup. Special thanks to [Alexander Aigner](https://github.com/aaigi)
