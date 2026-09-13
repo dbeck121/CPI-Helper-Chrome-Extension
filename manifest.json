@@ -78,6 +78,7 @@
         "/plugins/versionHistory.js",
         "/plugins/zz_developer_tools.js",
         "/plugins/iFlowSearcher.js",
+        "/plugins/mplSorter.js",
         "/scripts/ui.js",
         "/scripts/logs.js",
         "/whatsNew/whatsNewLog.js",
