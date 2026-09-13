@@ -26,8 +26,7 @@
       const baseName = nameWithExtension.slice(0, -".groovy".length);
 
       if (!/^[A-Za-z_][A-Za-z0-9_.-]*$/.test(baseName) || baseName.includes("..")) {
-        throw new Error("Use a Groovy file name starting with a letter or underscore. Only letters, numbers, dot, dash
-        and underscore are allowed.");
+        throw new Error("Use a Groovy file name starting with a letter or underscore. Only letters, numbers, dot, dash and underscore are allowed.");
       }
 
       return nameWithExtension;
@@ -86,29 +85,24 @@
       }
 
       const workspaceRoot = getWorkspaceApiRoot(pluginHelper);
-      const workspacesResponse = await makeCallPromiseV2("GET", `${workspaceRoot}/`, false, "application/json", null,
-      false, null, false);
+      const workspacesResponse = await makeCallPromiseV2("GET", `${workspaceRoot}/`, false, "application/json", null, false, null, false);
       if (!workspacesResponse.successful) {
         throwRequestError(workspacesResponse, "Could not read the integration packages.", `${workspaceRoot}/`);
       }
 
-      const workspaces = parseJsonResponse(workspacesResponse, "SAP returned an unreadable integration package list.",
-      `${workspaceRoot}/`);
-      const workspace = Array.isArray(workspaces) ? workspaces.find((item) => item.technicalName === packageId) :
-      null;
+      const workspaces = parseJsonResponse(workspacesResponse, "SAP returned an unreadable integration package list.", `${workspaceRoot}/`);
+      const workspace = Array.isArray(workspaces) ? workspaces.find((item) => item.technicalName === packageId) : null;
       if (!workspace?.id) {
         throw new Error(`The integration package '${packageId}' was not found in the current workspace.`);
       }
 
       const artifactsUrl = `${workspaceRoot}/${encodePathSegment(workspace.id)}/artifacts/`;
-      const artifactsResponse = await makeCallPromiseV2("GET", artifactsUrl, false, "application/json", null, false,
-      null, false);
+      const artifactsResponse = await makeCallPromiseV2("GET", artifactsUrl, false, "application/json", null, false, null, false);
       if (!artifactsResponse.successful) {
         throwRequestError(artifactsResponse, "Could not read the integration package artifacts.", artifactsUrl);
       }
 
-      const artifacts = parseJsonResponse(artifactsResponse, "SAP returned an unreadable artifact list.",
-      artifactsUrl);
+      const artifacts = parseJsonResponse(artifactsResponse, "SAP returned an unreadable artifact list.", artifactsUrl);
       const artifact = Array.isArray(artifacts) ? artifacts.find((item) => item.tooltip === integrationFlowId) : null;
       const entityId = artifact?.entityID || artifact?.id;
       if (!entityId) {
@@ -121,8 +115,7 @@
 
     async function ensureScriptDoesNotExist(entityBaseUrl, integrationFlowId, fileName) {
       const scriptsUrl = `${entityBaseUrl}/iflows/${encodePathSegment(integrationFlowId)}/script/?extension=.groovy`;
-      const response = await makeCallPromiseV2("GET", scriptsUrl, false, "application/json", null, false, null,
-      false);
+      const response = await makeCallPromiseV2("GET", scriptsUrl, false, "application/json", null, false, null, false);
       if (!response.successful) {
         throwRequestError(response, "Could not read the existing Groovy files.", scriptsUrl);
       }
@@ -133,8 +126,7 @@
       }
 
       const requestedBaseName = fileName.slice(0, -".groovy".length).toLowerCase();
-      const alreadyExists = scripts.some((script) => String(script.fileName || "").toLowerCase() ===
-      requestedBaseName);
+      const alreadyExists = scripts.some((script) => String(script.fileName || "").toLowerCase() === requestedBaseName);
       if (alreadyExists) {
         throw new Error(`The file '${fileName}' already exists in this iFlow.`);
       }
@@ -144,10 +136,8 @@
       const { entityBaseUrl } = await resolveWorkspaceContext(pluginHelper, integrationFlowId);
       await ensureScriptDoesNotExist(entityBaseUrl, integrationFlowId, fileName);
 
-      const scriptUrl = `${entityBaseUrl}/iflows/${encodePathSegment(integrationFlowId)}/script/
-      ${encodePathSegment(fileName)}`;
-      const createResponse = await makeCallPromiseV2("PUT", scriptUrl, false, "application/json",
-      JSON.stringify({ content: DEFAULT_GROOVY_TEMPLATE }), true, "application/json", true);
+      const scriptUrl = `${entityBaseUrl}/iflows/${encodePathSegment(integrationFlowId)}/script/${encodePathSegment(fileName)}`;
+      const createResponse = await makeCallPromiseV2("PUT", scriptUrl, false, "application/json", JSON.stringify({ content: DEFAULT_GROOVY_TEMPLATE }), true, "application/json", true);
       if (!createResponse.successful) {
         throwRequestError(createResponse, "SAP did not create the Groovy file.", scriptUrl);
       }
@@ -158,8 +148,7 @@
         resourceName: fileName,
         resourceType: "script",
       };
-      const draftResponse = await makeCallPromiseV2("POST", draftUrl, false, "application/json",
-      JSON.stringify(draftPayload), true, "application/json", true);
+      const draftResponse = await makeCallPromiseV2("POST", draftUrl, false, "application/json", JSON.stringify(draftPayload), true, "application/json", true);
       if (!draftResponse.successful) {
         throwRequestError(draftResponse, "The Groovy file was created, but SAP could not save its draft.", draftUrl);
       }
@@ -213,8 +202,7 @@
           setStatus(status, `Creating '${fileName}' ...`, "info");
 
           await createGroovyResource(pluginHelper, integrationFlowId, fileName);
-          setStatus(status, `Created '${fileName}'. Refresh the iFlow resources to display the new file.`,
-          "positive");
+          setStatus(status, `Created '${fileName}'. Refresh the iFlow resources to display the new file.`, "positive");
           showToast(`Created ${fileName}`, "Groovy resource", "success");
         } catch (error) {
           setStatus(status, error.message || "Could not create the Groovy resource.", "negative");
@@ -253,9 +241,10 @@
       author: "Björn Konzmann",
       website: "https://github.com/dbeck121/CPI-Helper-Chrome-Extension",
       email: "",
-      description: "Adds a Create File button to the message sidebar. It creates a named Groovy resource in the
-      current integration flow.",
+      settings: {},
+      description: "Adds a Create File button to the message sidebar. It creates a named Groovy resource in the current integration flow.",
       messageSidebarContent: {
+        static: true,
         onRender: (pluginHelper) => {
           const wrapper = document.createElement("div");
           const button = document.createElement("button");

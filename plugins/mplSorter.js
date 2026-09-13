@@ -3,6 +3,8 @@
  * Adds easy, flexible column sorting directly to the SAP CPI Messages monitoring table.
  * Features an authentic SAPUI5 Multi-Select Value Help dialog with priority numbering.
  */
+// Wrapped in an IIFE: content scripts share one global scope, so helper names must not leak.
+(() => {
 // ============================================================================
 // 1. PLUGIN REGISTRATION & CONFIGURATION
 // ============================================================================
@@ -423,7 +425,6 @@ function injectPluginStyles() {
 // ============================================================================
 const TABLE_IDENTIFIER_KEYWORDS = ['artifact', 'status', 'updated', 'type', 'time', 'sender', 'receiver', 'message'];
 let sortRules = [{ field: '', direction: 'asc' }];
-let isSorting = false;
 function normalizeText(text) {
   return (text || '').replace(/\s+/g, ' ').trim().toLowerCase();
 }
@@ -697,16 +698,15 @@ function applyMultiSortToTable(showNotification = true) {
       validRules.push({ field: r.field, direction: r.direction, colIndex: info.index, thElement: info.thElement });
     }
   }
-  isSorting = true;
   let groups = getRowGroups(tbody);
   if (validRules.length === 0) {
     groups.sort((a, b) => a.originalIndex - b.originalIndex);
-    if (showNotification) showToast('Sort reset to original order');
+    if (showNotification) showSortToast('Sort reset to original order');
   } else {
     groups.sort((a, b) => compareGroupsMulti(a, b, validRules, table));
     if (showNotification) {
       const summary = validRules.map((r, i) => `${i + 1}. ${r.field} (${r.direction.toUpperCase()})`).join(' ➔ ');
-      showToast(`Sorted: ${summary}`);
+      showSortToast(`Sorted: ${summary}`);
     }
   }
   const fragment = document.createDocumentFragment();
@@ -715,9 +715,8 @@ function applyMultiSortToTable(showNotification = true) {
     group.subRows.forEach((subRow) => fragment.appendChild(subRow));
   });
   tbody.appendChild(fragment);
-  setTimeout(() => { isSorting = false; }, 100);
 }
-function showToast(message) {
+function showSortToast(message) {
   let toast = document.querySelector('.cpi-sort-toast');
   if (!toast) {
     toast = document.createElement('div');
@@ -1091,3 +1090,4 @@ function initializeSorter() {
   injectToolbar(table);
   syncDropdownFields();
 }
+})();
