@@ -3,13 +3,11 @@ var plugin = {
   id: "unlock",
   name: "unlock plugin",
   version: "1.0.0",
-  author: "Gregor Schütz, AGILITA AG",
-  website: "https://www.agilita.ch/",
-  email: "gregor.schuetz@agilita.ch",
+  author: "Gregor Schütz",
+  website: "",
+  email: "gregor.b.schuetz@gmail.com",
   description: "Adds an unlock button to the message sidebar.",
-  settings: {
-    icon: { type: "icon", src: "/images/plugin_logos/AGILITAAG_Logo.jpg" },
-  },
+  settings: {},
   messageSidebarContent: {
     onRender: (pluginHelper) => {
       //prepare button

@@ -132,7 +132,9 @@ div#cpiHelper_semanticui_modal {
 
 #cpiHelper_sidebar_popup.hide_popup {
   visibility: hidden;
-  animation: visibility 0s linear 0.5s, cpiHelper_sidebar_popup_fadeout 0.5s;
+  animation:
+    visibility 0s linear 0.5s,
+    cpiHelper_sidebar_popup_fadeout 0.5s;
 }
 
 @keyframes cpiHelper_sidebar_popup_fadein {
@@ -177,7 +179,9 @@ div#cpiHelper_semanticui_modal {
   width: fit-content;
   border: 0;
   border-radius: 10px;
-  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+  box-shadow:
+    0 1px 2px 0 rgba(60, 64, 67, 0.3),
+    0 1px 3px 1px rgba(60, 64, 67, 0.15);
   opacity: 1 !important;
 }
 
@@ -361,7 +365,9 @@ div#cpiHelper_semanticui_modal {
   cursor: pointer;
   font-weight: bold;
   color: #7f7f7f;
-  transition: background 0.1s, color 0.1s;
+  transition:
+    background 0.1s,
+    color 0.1s;
   text-align: center;
 }
 
@@ -371,7 +377,9 @@ div#cpiHelper_semanticui_modal {
   cursor: pointer;
   font-weight: bold;
   color: #7f7f7f;
-  transition: background 0.1s, color 0.1s;
+  transition:
+    background 0.1s,
+    color 0.1s;
   text-align: center;
 }
 
@@ -572,6 +580,45 @@ fieldset {
 
 .ui.modal > .content {
   color: #000;
+}
+
+#cpihelperglobal .ui.modal > .close {
+  color: var(--cpi-text-color) !important;
+  opacity: 0.8;
+  right: 1rem;
+  top: 1rem;
+  z-index: 2;
+}
+
+#cpihelperglobal .ui.modal > .header {
+  padding-right: 3rem;
+}
+
+.version-revert-modal {
+  width: 520px !important;
+  max-width: calc(100vw - 2rem) !important;
+}
+
+.version-revert-modal > .content {
+  padding: 1.5rem !important;
+}
+
+.version-revert-modal .ui.form input,
+.version-revert-modal .ui.form textarea {
+  box-sizing: border-box;
+  max-width: 100%;
+  width: 100%;
+}
+
+.version-revert-modal .ui.form textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+.version-revert-modal > .actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
 }
 
 /* whatsnew change log css */

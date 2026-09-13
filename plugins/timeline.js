@@ -3,13 +3,11 @@ var plugin = {
   id: "timeline",
   name: "Timeline",
   version: "1.0.1",
-  author: "Gregor Schütz, AGILITA AG",
-  website: "https://www.agilita.ch/",
-  email: "gregor.schuetz@agilita.ch",
+  author: "Gregor Schütz",
+  website: "",
+  email: "gregor.b.schuetz@gmail.com",
   description: "<br><b>(Trace not needed)</b></br> Displays the timeline of a message.",
-  settings: {
-    icon: { type: "icon", src: "/images/plugin_logos/AGILITAAG_Logo.jpg" },
-  },
+  settings: {},
   messageSidebarButton: {
     icon: { type: "icon", text: "xe088" },
     title: "display timeline",
