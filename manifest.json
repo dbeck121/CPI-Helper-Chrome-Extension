@@ -59,6 +59,7 @@
         "/plugins/reference.js",
         "/plugins/undeploy.js",
         "/plugins/groovyref.js",
+        "/plugins/createNamedGroovyScript.js",
         "/plugins/unlock.js",
         "/plugins/example.js",
         "/plugins/credentialHelper.js",
@@ -122,7 +123,10 @@
         "plugins/settingsPaneResizer-inject.js",
         "docs/LICENSE"
       ],
-      "matches": ["https://*.hana.ondemand.com/*", "https://*.platform.sapcloud.cn/*"]
+      "matches": [
+        "https://*.hana.ondemand.com/*",
+        "https://*.platform.sapcloud.cn/*"
+      ]
     }
   ],
   "manifest_version": 3
