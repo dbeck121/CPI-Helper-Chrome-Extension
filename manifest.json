@@ -61,7 +61,6 @@
         "/plugins/groovyref.js",
         "/plugins/createNamedGroovyScript.js",
         "/plugins/unlock.js",
-        "/plugins/example.js",
         "/plugins/credentialHelper.js",
         "/plugins/environmentTrafficLight.js",
         "/plugins/cpitransporter.js",
