@@ -10,7 +10,7 @@ function showRevertConfirmation(tenant, workspace, artifact, version, currentVer
     <i class="close icon"></i>
     <div class="header">Revert Version</div>
     <div class="content">
-      ${currentVersionIsDraft ? '<div class="ui icon negative message"><i class="info circle icon" title="Information" aria-label="Information"></i><div class="content"><strong>The current version is a draft. Reverting it will cause the draft to be lost.</strong><div class="ui checkbox"><input id="version-revert-draft-acknowledgement" type="checkbox"><label for="version-revert-draft-acknowledgement">I acknowledge that the draft will be lost.</label></div></div></div>' : ""}
+      ${currentVersionIsDraft ? '<div class="ui icon negative message"><i class="info circle icon" title="Information" aria-label="Information"></i><div class="content"><strong>The current version is a draft. Reverting it will cause the draft to be lost.</strong><div class="ui checkbox cpi-checkbox"><input id="version-revert-draft-acknowledgement" type="checkbox"><label for="version-revert-draft-acknowledgement">I acknowledge that the draft will be lost.</label></div></div></div>' : ""}
       <div class="ui form">
         <div class="field">
           <label for="version-revert-semantic">Semantic Version</label>
@@ -39,6 +39,7 @@ function showRevertConfirmation(tenant, workspace, artifact, version, currentVer
 
   const modalContainer = document.querySelector("#cpihelperglobal") || document.body;
   modalContainer.appendChild(modal);
+  $(modal).find(".ui.checkbox").checkbox();
   const $modal = $(modal);
   let returnToVersionHistory = false;
   $modal.modal({
