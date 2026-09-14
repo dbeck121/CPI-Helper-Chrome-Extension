@@ -1,3 +1,7 @@
+// Escape server-provided values before they are interpolated into HTML.
+const escapeHtml = (value) =>
+  String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character]));
+
 // Confirm the target version and allow its editable fields to be reviewed.
 function showRevertConfirmation(tenant, workspace, artifact, version, currentVersion) {
   const currentVersionIsDraft = currentVersion.state === "workingcopy";
@@ -108,7 +112,7 @@ var plugin = {
         const urlForArtifactsInWorkspace = `https://${pluginHelper.tenant}/api/1.0/workspace/${workspace}/artifacts`;
         // Find the current iFlow artifact in that workspace.
         var dataOfArtifactsInWorkspace = JSON.parse(await makeCallPromise("GET", urlForArtifactsInWorkspace, false));
-        const artifact = dataOfArtifactsInWorkspace.find((entry) => entry.name === pluginHelper.currentIflowId).id;
+        const artifact = dataOfArtifactsInWorkspace.find((entry) => entry.name === pluginHelper.currentIflowName).id;
 
         const urlForVersionHistory = `https://${pluginHelper.tenant}/api/1.0/workspace/${workspace}/artifacts/${artifact}?versionhistory=true&webdav=REPORT`;
         // Load the artifact's version history.

@@ -6,7 +6,7 @@
       "id": "cpi_helper@dbeck121"
     }
   },
-  "version": "3.26.0",
+  "version": "3.27.0",
 
   "description": "Extends the SAP Cloud Platform Integration with some useful features to improve usability.",
   "author": "Dominic Beckbauer",
@@ -59,8 +59,8 @@
         "/plugins/reference.js",
         "/plugins/undeploy.js",
         "/plugins/groovyref.js",
+        "/plugins/createNamedGroovyScript.js",
         "/plugins/unlock.js",
-        "/plugins/example.js",
         "/plugins/credentialHelper.js",
         "/plugins/environmentTrafficLight.js",
         "/plugins/cpitransporter.js",
@@ -78,6 +78,7 @@
         "/plugins/versionHistory.js",
         "/plugins/zz_developer_tools.js",
         "/plugins/iFlowSearcher.js",
+        "/plugins/mplSorter.js",
         "/scripts/ui.js",
         "/scripts/logs.js",
         "/whatsNew/whatsNewLog.js",
@@ -121,7 +122,10 @@
         "plugins/settingsPaneResizer-inject.js",
         "docs/LICENSE"
       ],
-      "matches": ["https://*.hana.ondemand.com/*", "https://*.platform.sapcloud.cn/*"]
+      "matches": [
+        "https://*.hana.ondemand.com/*",
+        "https://*.platform.sapcloud.cn/*"
+      ]
     }
   ],
   "manifest_version": 3
