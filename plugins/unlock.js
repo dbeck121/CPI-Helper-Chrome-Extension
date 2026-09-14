@@ -113,6 +113,7 @@ var plugin = {
                 var urlForUnlock = `/${pluginHelper.urlExtension + cpiData.runtimePathExtension}odata/api/v1/IntegrationDesigntimeLocks(ResourceId='${lock?.ResourceId}')`;
                 await makeCallPromise("DELETE", urlForUnlock, false, null, null, true);
                 showToast("The artifact has been unlocked", "", "success");
+                setTimeout(() => window.location.reload(), 1000);
               } else if (choice == true && lock?.ResourceId == undefined) {
                 showToast("The artifact is not locked");
               }
