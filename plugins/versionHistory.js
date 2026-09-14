@@ -7,7 +7,7 @@ function showRevertConfirmation(tenant, workspace, artifact, version, currentVer
     <i class="close icon"></i>
     <div class="header">Revert Version</div>
     <div class="content">
-      ${currentVersionIsDraft ? '<div class="ui negative message"><strong>Info: The current version is a draft. Reverting it will cause the draft to be lost.</strong><div class="ui checkbox"><input id="version-revert-draft-acknowledgement" type="checkbox"><label for="version-revert-draft-acknowledgement">I acknowledge that the draft will be lost.</label></div></div>' : ""}
+      ${currentVersionIsDraft ? '<div class="ui icon negative message"><i class="info circle icon" title="Information" aria-label="Information"></i><div class="content"><strong>The current version is a draft. Reverting it will cause the draft to be lost.</strong><div class="ui checkbox"><input id="version-revert-draft-acknowledgement" type="checkbox"><label for="version-revert-draft-acknowledgement">I acknowledge that the draft will be lost.</label></div></div></div>' : ""}
       <div class="ui form">
         <div class="field">
           <label for="version-revert-semantic">Semantic Version</label>
@@ -137,7 +137,7 @@ var plugin = {
           dataOfVersionHistory.forEach((version, index) => {
             const createdDate = new Date(Number(version.createdDate)).toLocaleString();
             const isCurrentVersion = version === currentVersion;
-            tableHtml += `<tr ${isCurrentVersion && version.state == "workingcopy" ? 'class="red"' : 'class="yellow"'}> 
+            tableHtml += `<tr ${isCurrentVersion ? (version.state == "workingcopy" ? 'class="red"' : 'class="yellow"') : ""}> 
                             <td data-label="Comment">${version.comment ?? ""}</td> 
                             <td data-label="Semantic Version">${version.semanticVersion ?? ""}</td> 
                             <td data-label="Technical Version">${version.technicalVersion ?? ""}</td> 
