@@ -1661,7 +1661,7 @@ async function getArtifactFullName() {
     executionCount++;
 
     if (cpiData.currentArtifactType == "Package") {
-        artifactName = document.querySelectorAll('[id*=idObjectPageHeaderTitle-left-inner] > div > div > span')[0].innerText; // package
+        artifactName = document.querySelectorAll('[id*=idObjectPageHeaderTitle-left-inner] > div > div > span')[0]?.innerText; // package
     }
     else {
         artifactName = document.querySelectorAll(".sapUxAPObjectPageHeaderTitleText"); // iflow
@@ -1937,7 +1937,15 @@ var lastDurationRefresh = 0; //time for a refresh of the sidebar mostly because 
 var refreshActive = false;
 
 //CPI Helper Heartbeat
-setInterval(async function () {
+var cpiHelperHeartbeatInterval = setInterval(async function () {
+  // the page keeps this interval alive after the extension was reloaded or updated, but every
+  // chrome.* call below throws from then on, so stop the heartbeat instead of failing every 3 seconds
+  if (!extensionAlive()) {
+    clearInterval(cpiHelperHeartbeatInterval);
+    log.log("CPI Helper stopped: the extension was reloaded, refresh the page to continue");
+    return;
+  }
+
   await checkURLchange(window.location.href);
 
   //check if sidebar should be deactivated because we are not on a suitable page
