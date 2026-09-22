@@ -5,13 +5,14 @@ var plugin = {
   id: "keepAlive",
   name: "Session Keep Alive",
   version: "1.0.0",
-  author: "Alexander Aigner",
+  author: "Alexander Aigner, snap Consulting, Austria",
   email: "alexander.aigner@snapconsult.com",
   website: "https://www.linkedin.com/in/alexander-aigner-at/",
   description:
     "Sends a small request to the tenant in a fixed interval so the idle session timeout does not kick in while you are reading or writing code. This only helps against <b>idle</b> timeouts. A hard maximum session lifetime cannot be extended and you will still be logged out at some point.",
 
   settings: {
+    icon: { type: "icon", src: "/images/plugin_logos/snapconsult-at.png" },
     info: {
       text: "Interval in seconds between two keep alive requests. Empty or invalid values fall back to 30 seconds. The heartbeat ticks every 3 seconds, so the effective interval is rounded up to the next multiple of 3.",
       type: "label",
