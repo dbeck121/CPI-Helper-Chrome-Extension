@@ -1,85 +1,142 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css" />
+    <!-- not deferred on purpose: applies the stored zoom level before the first paint -->
+    <script src="popup.js"></script>
+  </head>
 
-<head>
-	<!-- You MUST include jQuery before Fomantic -->
-	<script src="/lib/jQuery/jquery.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="/lib/semanticui/semantic.min.css">
-	<link rel="stylesheet" type="text/css" href="/lib/semanticui/semantic.dark.css">
-	<script src="/lib/semanticui/semantic.min.js"></script>
-	<link rel="stylesheet" href="popup.css">
-</head>
+  <body>
+    <header class="topbar" id="cpiHelper_contentheader">
+      <div class="brand">
+        <img src="/images/v4/32.png" alt="" width="20" height="20" />
+        <span>CPI Helper</span>
+      </div>
+      <nav class="tabs" role="tablist">
+        <button class="tab-btn" data-tab="one" role="tab">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M8 1.5a6.5 6.5 0 1 0 6.5 6.5" />
+            <path d="M8 4v4l2.6 1.6" />
+            <path d="M14.5 1.5v3.2h-3.2" />
+          </svg>
+          <span>Last Visited</span>
+        </button>
+        <button class="tab-btn" data-tab="two" role="tab">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M6.6 9.4a2.8 2.8 0 0 0 4 0l2.2-2.2a2.8 2.8 0 0 0-4-4l-.8.8" />
+            <path d="M9.4 6.6a2.8 2.8 0 0 0-4 0L3.2 8.8a2.8 2.8 0 0 0 4 4l.8-.8" />
+          </svg>
+          <span>Links</span>
+        </button>
+        <button class="tab-btn" data-tab="three" role="tab">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="2.2" />
+            <path
+              d="M13 8c0-.4 0-.8-.1-1.2l1.4-1-1.5-2.6-1.6.6a5 5 0 0 0-2-1.2L8.8 1H5.9L5.6 2.6a5 5 0 0 0-2 1.2L2 3.2.5 5.8l1.4 1a6 6 0 0 0 0 2.4l-1.4 1L2 12.8l1.6-.6a5 5 0 0 0 2 1.2l.3 1.6h2.9l.3-1.6a5 5 0 0 0 2-1.2l1.6.6 1.5-2.6-1.4-1c.1-.4.1-.8.1-1.2z"
+            />
+          </svg>
+          <span>Settings</span>
+        </button>
+        <button class="tab-btn" data-tab="four" role="tab">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="6.5" />
+            <path d="M8 7.2v4" />
+            <path d="M8 4.8h.01" />
+          </svg>
+          <span>Info</span>
+        </button>
+      </nav>
+      <a class="version cpihelper_version" href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank" rel="noreferrer"></a>
+    </header>
 
-<body>
-	<div class="ui top m0 secondary pointing menu" id="cpiHelper_contentheader">
-		<a class="item" id="one" data-tab="one">
-			<i class="icon"><!-- data icon added in js --></i>
-			<p>Last Visited</p>
-		</a>
-		<a class="item" id="two" data-tab="two">
-			<i class="linkify icon"></i>
-			<p>Links</p>
-		</a>
-		<a class="item" id="three" data-tab="three">
-			<i class="cog icon"></i>
-			<p>Settings</p>
-		</a>
-		<a class="item" id="four" data-tab="four">
-			<i class="info circle icon"></i>
-			<p>Info</p>
-		</a>
-		<a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank"
-			style="background-color: transparent !important;" class="right item cpihelper_version"></a>
-	</div>
-	<div class="ui bottom m0 attached active tab segment" id="lastVisitedIflows" data-tab="one">
-		<div class="ui error message">Please visit a SAP Cloud Integration page to see last visited artifacts.</div>
-	</div>
-	<div class="ui bottom m0 attached tab segment" data-tab="two">
-		<div id="tenantUrls"></div>
-		<div class="ui horizontal divider header">General Links*</div>
-		<div class="ui spaced wrapping buttons">
-			<a class="ui primary tertiary button" target="_blank"
-				href="https://help.sap.com/viewer/product/CLOUD_INTEGRATION/Cloud/">
-				SAP CPI Help</a>
-			<a class="ui primary tertiary button" target="_blank"
-				href="https://help.sap.com/viewer/product/CLOUD_INTEGRATION/Cloud/en-US?task=develop_task">
-				SAP CPI Development</a>
-			<a class="ui primary tertiary button" target="_blank"
-				href="https://blogs.sap.com/2020/03/05/cpi-chrome-plugin-to-enhance-sap-cloud-platform-integration-usability/">
-				CPI Helper Blog Post</a>
-			<a class="ui primary tertiary button" href="https://groovyide.com/cpi" target="_blank">
-				Groovy IDE</a>
-			<a class="ui primary tertiary button" target="_blank" href="https://kangoolutions.com/blog/">
-				CPI Helper Blog</a>
-			<a class="ui primary tertiary button" target="_blank"
-				href="https://help.sap.com/docs/cloud-integration/sap-cloud-integration/headers-and-exchange-properties-provided-by-integration-framework?trk=feed-detail_comments-list_comment-text">
-				List of Internal Headers and Properties</a>
-			</a>
-		</div>
-		<p>For news and interesting blog posts about SAP CI, please <b>follow our <a
-					href="https://www.linkedin.com/company/kangoolutions" target="_blank">
-					company LinkedIn-Page</a></b>.</p>
-		<p>This plugin is developed by <a href="https://www.linkedin.com/in/dominic-beckbauer-515894188/"
-				target="_blank">Dominic Beckbauer</a> and <a href="https://kangoolutions.com" target="_blank">
-				kangoolutions</a>.</p>
-		<p>Feel free to contribute on our
-			<a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">Github Page</a>.
-		</p>
-	</div>
-	<div class="ui bottom m0 attached tab segment" data-tab="three">
-		<div id="tenantSettings">
-			<div class="ui error message">Please visit a SAP Cloud Integration page to see tenant settings.</div>
-		</div>
-	</div>
-	<div class="ui bottom m0 attached tab segment" data-tab="four">
-		<div class="ui message">
-			<div class="mini header">
-				License: <a href="https://www.gnu.org/licenses/gpl-3.0.en.html#license-text" target="_blank">GNU GPL v3</a>
-			</div>
-			<p>*we are not responsible for the content of external links</p>
-		</div>
-	</div>
-	<script src="popup.js"></script>
-</body>
+    <main>
+      <section class="panel" data-tab="one" id="lastVisitedIflows" role="tabpanel">
+        <div class="notice">Please visit a SAP Cloud Integration page to see last visited artifacts.</div>
+      </section>
 
+      <section class="panel" data-tab="two" role="tabpanel">
+        <div id="tenantUrls"></div>
+
+        <h2 class="group-title">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M13.2 9.2v3.9c0 .8-.6 1.4-1.4 1.4H3.9c-.8 0-1.4-.6-1.4-1.4V5.2c0-.8.6-1.4 1.4-1.4h3.9" />
+            <path d="M10.2 1.8h4v4" />
+            <path d="M7.1 8.9l7.1-7.1" /></svg
+          >General Links<span class="group-note">*</span>
+        </h2>
+        <div class="link-grid">
+          <a class="card" target="_blank" rel="noreferrer" href="https://help.sap.com/viewer/product/CLOUD_INTEGRATION/Cloud/"
+            ><svg viewBox="0 0 16 16" aria-hidden="true">
+              <circle cx="8" cy="8" r="6.4" />
+              <path d="M6.2 6.2a1.9 1.9 0 0 1 3.7.6c0 1.3-1.9 1.9-1.9 1.9" />
+              <path d="M8 11.4h.01" /></svg
+            ><span>SAP CPI Help</span></a
+          >
+          <a class="card" target="_blank" rel="noreferrer" href="https://help.sap.com/viewer/product/CLOUD_INTEGRATION/Cloud/en-US?task=develop_task"
+            ><svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M5.6 3.6 1.9 8l3.7 4.4" />
+              <path d="M10.4 3.6 14.1 8l-3.7 4.4" /></svg
+            ><span>SAP CPI Development</span></a
+          >
+          <a class="card" target="_blank" rel="noreferrer" href="https://blogs.sap.com/2020/03/05/cpi-chrome-plugin-to-enhance-sap-cloud-platform-integration-usability/"
+            ><svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M9 1.6H4.4c-.8 0-1.4.6-1.4 1.4v10c0 .8.6 1.4 1.4 1.4h7.2c.8 0 1.4-.6 1.4-1.4V5.6z" />
+              <path d="M9 1.6v4h4" />
+              <path d="M5.6 8.8h4.8M5.6 11.4h4.8" /></svg
+            ><span>CPI Helper Blog Post</span></a
+          >
+          <a class="card" target="_blank" rel="noreferrer" href="https://groovyide.com/cpi"
+            ><svg viewBox="0 0 16 16" aria-hidden="true">
+              <rect x="1.6" y="2.6" width="12.8" height="10.8" rx="1.4" />
+              <path d="m4.6 6.2 2 1.8-2 1.8" />
+              <path d="M8.4 10.2h3" /></svg
+            ><span>Groovy IDE</span></a
+          >
+          <a class="card" target="_blank" rel="noreferrer" href="https://kangoolutions.com/blog/"
+            ><svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M2 3.6h9.6v10.2H3.4c-.8 0-1.4-.6-1.4-1.4z" />
+              <path d="M11.6 6H13c.8 0 1.4.6 1.4 1.4v5c0 .8-.6 1.4-1.4 1.4h-1.4" />
+              <path d="M4.2 6h5.2M4.2 8.6h5.2M4.2 11.2h3" /></svg
+            ><span>CPI Helper Blog</span></a
+          >
+          <a class="card" target="_blank" rel="noreferrer" href="https://help.sap.com/docs/cloud-integration/sap-cloud-integration/headers-and-exchange-properties-provided-by-integration-framework?trk=feed-detail_comments-list_comment-text"
+            ><svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M5.6 4.2h8.2M5.6 8h8.2M5.6 11.8h8.2" />
+              <path d="M2.4 4.2h.01M2.4 8h.01M2.4 11.8h.01" /></svg
+            ><span>Internal Headers and Properties</span></a
+          >
+        </div>
+
+        <div class="notice muted">
+          <p>
+            For news and interesting blog posts about SAP CI, please <b>follow our <a href="https://www.linkedin.com/company/kangoolutions" target="_blank" rel="noreferrer">company LinkedIn page</a></b
+            >.
+          </p>
+          <p>
+            This plugin is developed by <a href="https://www.linkedin.com/in/dominic-beckbauer-515894188/" target="_blank" rel="noreferrer">Dominic Beckbauer</a> and
+            <a href="https://kangoolutions.com" target="_blank" rel="noreferrer">kangoolutions</a>. Feel free to contribute on our <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank" rel="noreferrer">GitHub page</a>.
+          </p>
+        </div>
+      </section>
+
+      <section class="panel" data-tab="three" id="tenantSettings" role="tabpanel">
+        <div class="notice">Please visit a SAP Cloud Integration page to see tenant settings.</div>
+      </section>
+
+      <section class="panel" data-tab="four" role="tabpanel">
+        <h2 class="group-title">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="6.4" />
+            <path d="M8 7.2v4.1" />
+            <path d="M8 4.7h.01" /></svg
+          >About
+        </h2>
+        <div class="notice muted">
+          <p>License: <a href="https://www.gnu.org/licenses/gpl-3.0.en.html#license-text" target="_blank" rel="noreferrer">GNU GPL v3</a></p>
+          <p>*we are not responsible for the content of external links</p>
+        </div>
+      </section>
+    </main>
+  </body>
 </html>
