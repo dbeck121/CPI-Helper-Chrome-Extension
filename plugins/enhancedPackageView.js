@@ -7,12 +7,13 @@ var plugin = {
   id: "enhancedPackageView",
   name: "Enhanced Package View",
   version: "1.0.0",
-  author: "Alexander Aigner",
+  author: "Alexander Aigner, snap Consulting, Austria",
   email: "alexander.aigner@snapconsult.com",
   website: "https://www.linkedin.com/in/alexander-aigner-at/",
   description: "Adds the deployment status and two small icons (open in a new tab, copy the name) to the artifact list of a package.",
 
   settings: {
+    icon: { type: "icon", src: "/images/plugin_logos/snapconsult-at.png" },
     info: {
       text: "Every part can be switched on separately. Deploy status: the status is read from /api/v1/IntegrationRuntimeArtifacts, once per opened package and then kept until the package is left, the ⟳ button next to the search field refreshes it; the version column is colored too (green: the deployed version is the current one, orange: the deployed version is older, red: nothing is deployed) and the version and the ⓘ badge show deployed version, date and user on hover. Open in a new tab: the ↗ icon next to the name opens the artifact in a new browser tab, a normal click on the row keeps navigating in the current tab; id and type of the artifacts are read from the workspace API in the background, so the icon appears as soon as the artifact is resolved. Copy the name: the ⧉ icon copies the name of the artifact to the clipboard. Switching a part off removes its icons, the color of the version column stays until the page is reloaded.",
       type: "label",
