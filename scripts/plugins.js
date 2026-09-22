@@ -276,6 +276,42 @@ async function createPluginPopupUI(plugin) {
           subcontainer.appendChild(radioGroupDiv);
         }
 
+        if (plugin.settings[key].type == "select") {
+          var selectOuterDiv = document.createElement("div");
+          selectOuterDiv.classList = "inputbox-spacing";
+
+          var select = document.createElement("select");
+          select.id = `cpiHelper_popup_plugins-${plugin.id}-${key}`;
+          select.key = `${getStoragePath(plugin.id, key, plugin.settings[key].scope)}`;
+          select.classList = "ui dropdown";
+
+          var savedSelectValue = await getStorageValue(plugin.id, key, plugin.settings[key].scope);
+
+          for (var selectOption of plugin.settings[key].options) {
+            var optionElement = document.createElement("option");
+            optionElement.value = selectOption.value;
+            optionElement.innerText = selectOption.label;
+            optionElement.selected = savedSelectValue !== "" ? savedSelectValue == selectOption.value : selectOption.default === true;
+            select.appendChild(optionElement);
+          }
+
+          select.addEventListener("change", function () {
+            log.log(this.key + " is set to " + this.value);
+            chrome.storage.sync.set({ [this.key]: this.value });
+            // Show/hide any settings with showWhen linked to this select
+            document.querySelectorAll(`[data-show-when-key="${this.id}"]`).forEach((el) => {
+              el.style.display = el.dataset.showWhenValue === this.value ? "" : "none";
+            });
+          });
+
+          var selectDiv = document.createElement("div");
+          selectDiv.classList = "ui fluid input";
+          selectDiv.appendChild(createElementFromHTML(`<div class="ui basic label" for="cpiHelper_popup_plugins-${plugin.id}-${key}"> ${plugin.settings[key].text}</div>`));
+          selectDiv.appendChild(select);
+          selectOuterDiv.appendChild(selectDiv);
+          subcontainer.appendChild(selectOuterDiv);
+        }
+
         if (plugin.settings[key].type == "textinput") {
           var outerDiv = document.createElement("div");
           outerDiv.classList = "inputbox-spacing";
