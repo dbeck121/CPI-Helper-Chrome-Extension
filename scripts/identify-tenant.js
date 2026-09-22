@@ -52,6 +52,11 @@
   // Handles messages sent from the popup
   function handleMessages() {
     chrome.runtime.onMessage.addListener((message, sender, res) => {
+      // The browser action popup has no plugin UI of its own, it asks the page to open the big one.
+      if (message.openPlugins) {
+        createContentNodeForPlugins().then((node) => showBigPopup(node, "Plugins"));
+        res(true);
+      }
       if (message == "get") {
         getHostData(res);
       }
