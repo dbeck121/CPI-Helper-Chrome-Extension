@@ -1,8 +1,13 @@
 // after the extension is reloaded or updated the old content script keeps running against a dead
 // context and every chrome.* call throws. checked before those calls so the loops stop instead of
-// filling the console with "Extension context invalidated"
+// filling the console with "Extension context invalidated". chromium leaves chrome.runtime.id
+// undefined in that state, other engines may throw on the access itself, so catch that too
 function extensionAlive() {
-  return !!chrome.runtime?.id;
+  try {
+    return !!chrome.runtime?.id;
+  } catch (error) {
+    return false;
+  }
 }
 
 async function Themesync() {
