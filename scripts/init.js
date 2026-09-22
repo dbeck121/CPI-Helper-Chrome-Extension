@@ -5,6 +5,13 @@ function extensionAlive() {
   return !!chrome.runtime?.id;
 }
 
+// Semantic UI defaults to detachable modals: the first bare .modal("hide") initializes the module
+// with the defaults and moves #cpiHelper_semanticui_modal out of #cpihelperglobal into a page level
+// dimmer. The modal then shows outside its themed container, so the first popup open only dims the
+// page instead of showing content. Non-detachable is what every explicit .modal({...}) call here
+// already asks for, so make it the default for the bare hide calls too.
+$.fn.modal.settings.detachable = false;
+
 async function Themesync() {
   if (!extensionAlive()) return;
   // const { darkmodeonstartup } = await chrome.storage.sync.get('darkmodeonstartup');
