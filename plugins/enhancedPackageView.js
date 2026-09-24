@@ -15,7 +15,7 @@ var plugin = {
   settings: {
     icon: { type: "icon", src: "/images/plugin_logos/snapconsult-at.png" },
     info: {
-      text: "Every part can be switched on separately. Deploy status: the status is read per artifact from /api/1.0/deployedartifacts, once per artifact of the opened package and then kept until the package is left, the ⟳ button next to the search field refreshes it; the version column is colored too (green: the deployed version is the current one, orange: the deployed version is older, red: nothing is deployed) and the version and the ⓘ badge show deployed version, date and user on hover. Open in a new tab: the ↗ icon next to the name opens the artifact in a new browser tab, a normal click on the row keeps navigating in the current tab; id and type of the artifacts are read from the workspace API in the background, so the icon appears as soon as the artifact is resolved. Copy the name: the ⧉ icon copies the name of the artifact to the clipboard. Switching a part off removes its icons, the color of the version column stays until the page is reloaded.",
+      text: "Every part can be switched on separately. Deploy status: the status is read per artifact from /api/1.0/deployedartifacts, once per artifact of the opened package and then kept until the package is left, the refresh button next to the search field refreshes it; the version column is colored too (green: the deployed version is the current one, orange: the deployed version is older, red: nothing is deployed) and the version and the status label show deployed version, date and user on hover. Open in a new tab: the icon next to the name opens the artifact in a new browser tab, a normal click on the row keeps navigating in the current tab; id and type of the artifacts are read from the workspace API in the background, so the icon appears as soon as the artifact is resolved. Copy the name: the copy icon copies the name of the artifact to the clipboard. Switching a part off removes its icons, the color of the version column stays until the page is reloaded.",
       type: "label",
     },
     deployStatus: {
@@ -114,14 +114,14 @@ function epvRenderRow(row, deployStatus, openInNewTab, copyName) {
 
   if (copyName) {
     // copyText shows the toast itself
-    epvAddIcon(row, nameElement, "cpiHelper_epvCopy", "⧉", "Copy the name to the clipboard (CPI Helper)", () => copyText(name));
+    epvAddIcon(row, nameElement, "cpiHelper_epvCopy", "copy outline", "Copy the name to the clipboard (CPI Helper)", () => copyText(name));
   }
 
   if (openInNewTab) {
     var url = epvArtifactUrl(name);
     // without a resolved artifact there is no url to open, so the icon is added once the artifacts are read
     if (url) {
-      epvAddIcon(row, nameElement, "cpiHelper_epvOpen", "↗", "Open in a new tab (CPI Helper)", () => window.open(url, "_blank"));
+      epvAddIcon(row, nameElement, "cpiHelper_epvOpen", "external alternate", "Open in a new tab (CPI Helper)", () => window.open(url, "_blank"));
     }
   }
 
@@ -131,16 +131,16 @@ function epvRenderRow(row, deployStatus, openInNewTab, copyName) {
 }
 
 // the icons sit inside the row and a click on the row navigates to the artifact, so the click must not reach the row
-function epvAddIcon(row, nameElement, className, glyph, title, action) {
+function epvAddIcon(row, nameElement, className, iconName, title, action) {
   if (row.querySelector("." + className)) {
     return;
   }
 
-  var icon = document.createElement("span");
-  icon.className = className;
-  icon.textContent = glyph;
+  var icon = document.createElement("i");
+  // "link" gives the fomantic icon the pointer cursor and the hover effect
+  icon.className = `${iconName} link icon ${className}`;
   icon.title = title;
-  icon.style.cssText = "margin-left:0.4rem;cursor:pointer;opacity:0.7;";
+  icon.style.marginLeft = "0.4rem";
   icon.addEventListener("mousedown", epvStopEvent);
   icon.addEventListener("click", (event) => {
     epvStopEvent(event);
@@ -237,7 +237,7 @@ function epvRuntimeUrl(artifact) {
 }
 
 // artifact type of the workspace API -> bundle type of the runtime API. a type missing here is not deployable on
-// its own (script collection, message mapping), so no status is asked for and no badge is shown for it. the type
+// its own (script collection, message mapping), so no status is asked for and no label is shown for it. the type
 // comes from the API, not from the type column, so a translated tenant works the same
 var epvBundleTypes = {
   IFlow: "IntegrationFlow",
@@ -254,14 +254,15 @@ var epvGreen = "#107e3e";
 var epvOrange = "#e9730c";
 var epvRed = "#bb0000";
 
+// runtime status -> fomantic label color
 var epvStatusColors = {
-  STARTED: epvGreen,
-  DEPLOYED: epvGreen,
-  STARTING: epvOrange,
-  STORED: epvOrange,
-  STOPPED: "#6a6d70",
-  ERROR: epvRed,
-  NOT_DEPLOYED: epvRed,
+  STARTED: "green",
+  DEPLOYED: "green",
+  STARTING: "orange",
+  STORED: "orange",
+  STOPPED: "grey",
+  ERROR: "red",
+  NOT_DEPLOYED: "red",
 };
 
 async function epvLoadRuntime(names, notify = false) {
@@ -315,7 +316,7 @@ async function epvLoadRuntime(names, notify = false) {
 
       epvState.runtimeRunning--;
       epvUpdateRefreshButton();
-      // render on every answer, so the badges appear one by one instead of after the last call
+      // render on every answer, so the labels appear one by one instead of after the last call
       for (var row of epvRows()) {
         epvRenderDeployStatus(row);
       }
@@ -355,6 +356,7 @@ function epvUpdateRefreshButton() {
   var button = document.querySelector(".cpiHelper_epvRefresh");
   if (button) {
     button.disabled = epvState.runtimeRunning > 0;
+    button.querySelector("i.icon")?.classList.toggle("loading", epvState.runtimeRunning > 0);
   }
 }
 
@@ -369,11 +371,11 @@ function epvAddRefreshButton() {
     return;
   }
 
+  // the shell of a SAP toolbar button, so it lines up with its neighbours, with the fomantic icon inside
   var button = document.createElement("button");
   button.className = "sapMBtnBase sapMBtn sapUiTinyMarginBegin cpiHelper_epvRefresh";
   button.title = "Refresh deploy status (CPI Helper)";
-  // no SAP icon font character, the glyph keeps working if the icon font is not loaded
-  button.innerHTML = '<span class="sapMBtnInner sapMBtnHoverable sapMFocusable sapMBtnDefault"><span class="sapMBtnContent">⟳</span></span>';
+  button.innerHTML = '<span class="sapMBtnInner sapMBtnHoverable sapMFocusable sapMBtnDefault"><span class="sapMBtnContent"><i class="sync alternate fitted icon"></i></span></span>';
   button.addEventListener("click", () => {
     epvState.runtimeByName = new Map();
     epvState.runtimeRequested = new Set();
@@ -383,6 +385,7 @@ function epvAddRefreshButton() {
     epvLoadRuntime(epvNames(), true);
   });
   toolbar.appendChild(button);
+  epvUpdateRefreshButton();
 }
 
 function epvRenderDeployStatus(row) {
@@ -414,10 +417,13 @@ function epvRenderDeployStatus(row) {
       ].join("\n")
     : "No deployed runtime artifact found for this artifact";
 
+  // a started artifact running an old version is not really green
+  var labelColor = versionDiffers && status === "STARTED" ? "orange" : epvStatusColors[status] || "grey";
+
   // the heartbeat runs every 3 seconds, so touch the dom only when something actually changed
-  var badge = row.querySelector(".cpiHelper_epvDeployStatus");
-  var signature = `${status}|${versionColor}|${tooltip}`;
-  if (badge && row.dataset.cpiHelperEpv === signature) {
+  var label = row.querySelector(".cpiHelper_epvDeployStatus");
+  var signature = `${status}|${versionColor}|${labelColor}|${tooltip}`;
+  if (label && row.dataset.cpiHelperEpv === signature) {
     return;
   }
   row.dataset.cpiHelperEpv = signature;
@@ -427,26 +433,23 @@ function epvRenderDeployStatus(row) {
     for (var element of [versionElement, ...versionElement.querySelectorAll(".sapMLnk, .sapMLnkText, .sapMText")]) {
       element.style.color = versionColor;
       element.style.fontWeight = "bold";
-      // same details as the badge, so hovering the version number is enough
+      // same details as the label, so hovering the version number is enough
       element.title = tooltip;
     }
   }
 
-  if (!badge) {
-    badge = document.createElement("span");
-    badge.className = "cpiHelper_epvDeployStatus";
-    badge.style.marginLeft = "0.5rem";
-    badge.style.fontWeight = "bold";
-    badge.style.fontSize = "0.8rem";
-    badge.style.cursor = "help";
-    infoElement.appendChild(badge);
+  if (!label) {
+    label = document.createElement("div");
+    label.style.marginLeft = "0.5rem";
+    label.style.cursor = "help";
+    infoElement.appendChild(label);
   }
 
-  // the circled i makes it obvious that hovering the badge shows details
-  badge.textContent = (artifact ? epvStatusLabel(status) : "Not deployed") + " ⓘ";
-  // a started artifact running an old version is not really green
-  badge.style.color = versionDiffers && status === "STARTED" ? epvOrange : epvStatusColors[status] || "#6a6d70";
-  badge.title = tooltip;
+  label.className = `ui mini ${labelColor} label cpiHelper_epvDeployStatus`;
+  // the info icon makes it obvious that hovering the label shows details
+  label.innerHTML = '<i class="info circle icon"></i>';
+  label.append(artifact ? epvStatusLabel(status) : "Not deployed");
+  label.title = tooltip;
 }
 
 function epvStatusLabel(status) {
