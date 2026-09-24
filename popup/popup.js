@@ -32,57 +32,56 @@ const PRESET_COLORS = {
   grey: "#767676",
 };
 
-// Inline 16x16 outline icons for the section headers. Drawn with the document color so they follow
-// the theme, and inlined instead of an icon font - a webfont for a handful of glyphs is what made
-// the old popup load megabytes on every open.
+// Icon name -> fomantic icon classes. The glyph of every class used here is copied into popup.css,
+// a new icon needs its rule from lib/semanticui/semantic.min.css there as well.
 const ICONS = {
-  bolt: `<path d="M8.8 1.5 3.5 9h3.6l-.7 5.5L12.8 7H9.1z"/>`,
-  activity: `<path d="M1.6 8h2.7l1.7-4.6L9 12.2l1.8-4.2h3"/>`,
-  sliders: `<path d="M2.4 4.6h11M2.4 11.4h11"/><circle cx="6" cy="4.6" r="1.7"/><circle cx="10.5" cy="11.4" r="1.7"/>`,
-  partners: `<circle cx="5.4" cy="5.1" r="2.2"/><path d="M1.7 13.2c0-2.2 1.7-3.7 3.7-3.7s3.7 1.5 3.7 3.7"/><circle cx="11.6" cy="6.1" r="1.8"/><path d="M10.4 9.9c2 0 3.9 1.3 3.9 3.3"/>`,
-  book: `<path d="M2.2 3.2h3.9c1 0 1.9.8 1.9 1.8v8c0-.8-.9-1.4-1.9-1.4H2.2z"/><path d="M13.8 3.2H9.9c-1 0-1.9.8-1.9 1.8v8c0-.8.9-1.4 1.9-1.4h3.9z"/>`,
-  external: `<path d="M13.2 9.2v3.9c0 .8-.6 1.4-1.4 1.4H3.9c-.8 0-1.4-.6-1.4-1.4V5.2c0-.8.6-1.4 1.4-1.4h3.9"/><path d="M10.2 1.8h4v4"/><path d="M7.1 8.9l7.1-7.1"/>`,
-  link: `<path d="M6.6 9.4a2.8 2.8 0 0 0 4 0l2.2-2.2a2.8 2.8 0 0 0-4-4l-.8.8"/><path d="M9.4 6.6a2.8 2.8 0 0 0-4 0L3.2 8.8a2.8 2.8 0 0 0 4 4l.8-.8"/>`,
-  info: `<circle cx="8" cy="8" r="6.4"/><path d="M8 7.2v4.1"/><path d="M8 4.7h.01"/>`,
-  server: `<rect x="2" y="2.3" width="12" height="5" rx="1.3"/><rect x="2" y="8.7" width="12" height="5" rx="1.3"/><path d="M4.7 4.8h.01M4.7 11.2h.01"/>`,
-  cog: `<circle cx="8" cy="8" r="2.2"/><path d="M13 8c0-.4 0-.8-.1-1.2l1.4-1-1.5-2.6-1.6.6a5 5 0 0 0-2-1.2L8.8 1H5.9L5.6 2.6a5 5 0 0 0-2 1.2L2 3.2.5 5.8l1.4 1a6 6 0 0 0 0 2.4l-1.4 1L2 12.8l1.6-.6a5 5 0 0 0 2 1.2l.3 1.6h2.9l.3-1.6a5 5 0 0 0 2-1.2l1.6.6 1.5-2.6-1.4-1c.1-.4.1-.8.1-1.2z"/>`,
-  history: `<path d="M8 1.5a6.5 6.5 0 1 0 6.5 6.5"/><path d="M8 4v4l2.6 1.6"/><path d="M14.5 1.5v3.2h-3.2"/>`,
-  archive: `<rect x="1.7" y="2.6" width="12.6" height="3.3" rx="1"/><path d="M3 6.1v6.3c0 .6.5 1 1.1 1h7.8c.6 0 1.1-.4 1.1-1V6.1"/><path d="M6.4 8.7h3.2"/>`,
-  package: `<path d="M8 1.6 14 4.8v6.4L8 14.4 2 11.2V4.8z"/><path d="M2 4.8 8 8l6-3.2"/><path d="M8 8v6.4"/>`,
-  iflow: `<rect x="1.4" y="5.6" width="4.6" height="4.8" rx="1.2"/><rect x="10" y="5.6" width="4.6" height="4.8" rx="1.2"/><path d="M6.2 8h3.6"/><path d="M8.5 6.8 9.8 8 8.5 9.2"/>`,
-  mapping: `<path d="M2 4h3.2M2 12h3.2M10.8 4H14M10.8 12H14"/><path d="M5.2 4c3.4 0 2.2 8 5.6 8"/><path d="M5.2 12c3.4 0 2.2-8 5.6-8"/>`,
-  script: `<path d="M5.6 3.6 1.9 8l3.7 4.4"/><path d="M10.4 3.6 14.1 8l-3.7 4.4"/>`,
-  table: `<rect x="1.8" y="2.9" width="12.4" height="10.2" rx="1.3"/><path d="M8 2.9v10.2M1.8 6.6h12.4"/>`,
-  envelope: `<rect x="1.7" y="3.4" width="12.6" height="9.2" rx="1.3"/><path d="m2.4 4.4 5.6 4.1 5.6-4.1"/>`,
-  rest: `<path d="M9.7 2.2 6.3 13.8"/><path d="M4.6 4.9 1.7 8l2.9 3.1"/><path d="M11.4 4.9 14.3 8l-2.9 3.1"/>`,
-  database: `<ellipse cx="8" cy="3.9" rx="5.1" ry="2.2"/><path d="M2.9 3.9v8.2c0 1.2 2.3 2.2 5.1 2.2s5.1-1 5.1-2.2V3.9"/><path d="M2.9 8c0 1.2 2.3 2.2 5.1 2.2s5.1-1 5.1-2.2"/>`,
-  alert: `<path d="M8 2.2 14.6 13.4H1.4z"/><path d="M8 6.4v3.2"/><path d="M8 11.6h.01"/>`,
-  donut: `<circle cx="8" cy="8" r="6.2"/><path d="M8 1.8V8h6.2"/>`,
-  layers: `<path d="m8 1.8 6.2 3.1L8 8 1.8 4.9z"/><path d="m1.8 8.4 6.2 3.1 6.2-3.1"/><path d="m1.8 11.5 6.2 3.1 6.2-3.1"/>`,
-  shield: `<path d="M8 1.6 13.4 3.6v4.3c0 3.1-2.2 5.3-5.4 6.5-3.2-1.2-5.4-3.4-5.4-6.5V3.6z"/>`,
-  shieldCheck: `<path d="M8 1.6 13.4 3.6v4.3c0 3.1-2.2 5.3-5.4 6.5-3.2-1.2-5.4-3.4-5.4-6.5V3.6z"/><path d="m5.8 7.8 1.6 1.6 3-3.2"/>`,
-  key: `<circle cx="5.3" cy="10.7" r="2.8"/><path d="m7.3 8.7 6-6"/><path d="m11.2 4.8 1.6 1.6"/><path d="m13.3 2.7 1.5 1.5"/>`,
-  lock: `<rect x="3.2" y="6.9" width="9.6" height="7.1" rx="1.4"/><path d="M5.4 6.9V4.8a2.6 2.6 0 0 1 5.2 0v2.1"/>`,
-  fileLock: `<path d="M8.8 1.6H4.3c-.8 0-1.4.6-1.4 1.4v10c0 .8.6 1.4 1.4 1.4h2.6"/><path d="M8.8 1.6v4h4"/><rect x="9" y="9.6" width="5" height="4.4" rx="1"/><path d="M10.2 9.6V8.4a1.3 1.3 0 0 1 2.6 0v1.2"/>`,
-  plug: `<path d="M6 1.8v4M10 1.8v4"/><path d="M4.2 5.8h7.6v2.4a3.8 3.8 0 0 1-7.6 0z"/><path d="M8 12v2.4"/>`,
-  variable: `<path d="M5.4 2.4C3.6 4 2.6 5.9 2.6 8s1 4 2.8 5.6"/><path d="M10.6 2.4c1.8 1.6 2.8 3.5 2.8 5.6s-1 4-2.8 5.6"/><path d="M6.6 6.4 9.4 9.6M9.4 6.4 6.6 9.6"/>`,
-  queue: `<rect x="1.8" y="3.4" width="3.4" height="9.2" rx="1"/><rect x="6.3" y="3.4" width="3.4" height="9.2" rx="1"/><rect x="10.8" y="3.4" width="3.4" height="9.2" rx="1"/>`,
-  hash: `<path d="M5.6 2.2 4.2 13.8M11.8 2.2l-1.4 11.6M2.4 5.6h11.2M1.9 10.4h11.2"/>`,
-  addressBook: `<rect x="3" y="1.8" width="10.2" height="12.4" rx="1.4"/><path d="M1.6 4.8h1.4M1.6 8h1.4M1.6 11.2h1.4"/><circle cx="8.1" cy="6.5" r="1.6"/><path d="M5.7 11.3c0-1.3 1.1-2.2 2.4-2.2s2.4.9 2.4 2.2"/>`,
-  userCheck: `<circle cx="6.2" cy="5.2" r="2.4"/><path d="M1.8 13.2c0-2.4 2-4 4.4-4 .9 0 1.8.2 2.5.7"/><path d="m10.4 11.4 1.5 1.5 2.5-2.9"/>`,
-  barChart: `<path d="M3.2 13.4V8.6M8 13.4V3.4M12.8 13.4V7"/>`,
-  lineChart: `<path d="M2 2.4v11.2h12"/><path d="m4.6 10.6 2.8-3.4 2.4 2 3.2-4"/>`,
-  fileText: `<path d="M9 1.6H4.4c-.8 0-1.4.6-1.4 1.4v10c0 .8.6 1.4 1.4 1.4h7.2c.8 0 1.4-.6 1.4-1.4V5.6z"/><path d="M9 1.6v4h4"/><path d="M5.6 8.8h4.8M5.6 11.4h4.8"/>`,
-  fileCheck: `<path d="M9 1.6H4.4c-.8 0-1.4.6-1.4 1.4v10c0 .8.6 1.4 1.4 1.4h7.2c.8 0 1.4-.6 1.4-1.4V5.6z"/><path d="M9 1.6v4h4"/><path d="m5.8 10.3 1.6 1.6 3-3.2"/>`,
-  fileStack: `<path d="M5.6 1.8h3.8l3 3v6.2c0 .6-.4 1-1 1H5.6c-.6 0-1-.4-1-1V2.8c0-.6.4-1 1-1z"/><path d="M9.4 1.8v3h3"/><path d="M11 12.4v1c0 .6-.4 1-1 1H3.7c-.6 0-1-.4-1-1V4.5"/>`,
-  flask: `<path d="M6.4 1.8v4.4L2.7 12a1.4 1.4 0 0 0 1.2 2.2h8.2a1.4 1.4 0 0 0 1.2-2.2L9.6 6.2V1.8z"/><path d="M5.6 1.8h4.8"/><path d="M4.5 9.4h7"/>`,
-  building: `<path d="M3 14.2V2.6c0-.6.4-1 1-1h5.4c.6 0 1 .4 1 1v11.6"/><path d="M10.4 6.4H13c.6 0 1 .4 1 1v6.8"/><path d="M2 14.2h12"/><path d="M5.4 4.6h2.6M5.4 7.4h2.6M5.4 10.2h2.6"/>`,
-  shuffle: `<path d="M2.2 4.4h2.4c.9 0 1.7.5 2.2 1.2l2 3.2c.5.8 1.3 1.2 2.2 1.2h2.4"/><path d="M2.2 11.6h2.4c.9 0 1.7-.5 2.2-1.2l2-3.2c.5-.8 1.3-1.2 2.2-1.2h2.4"/><path d="m11.8 2.6 1.8 1.8-1.8 1.8"/><path d="m11.8 8.2 1.8 1.8-1.8 1.8"/>`,
-  sitemap: `<rect x="6" y="1.6" width="4" height="3.2" rx=".8"/><rect x="1.6" y="11.2" width="4" height="3.2" rx=".8"/><rect x="10.4" y="11.2" width="4" height="3.2" rx=".8"/><path d="M8 4.8v3.4M3.6 11.2V8.2h8.8v3"/>`,
-  helpCircle: `<circle cx="8" cy="8" r="6.4"/><path d="M6.2 6.2a1.9 1.9 0 0 1 3.7.6c0 1.3-1.9 1.9-1.9 1.9"/><path d="M8 11.4h.01"/>`,
-  terminal: `<rect x="1.6" y="2.6" width="12.8" height="10.8" rx="1.4"/><path d="m4.6 6.2 2 1.8-2 1.8"/><path d="M8.4 10.2h3"/>`,
-  newspaper: `<path d="M2 3.6h9.6v10.2H3.4c-.8 0-1.4-.6-1.4-1.4z"/><path d="M11.6 6H13c.8 0 1.4.6 1.4 1.4v5c0 .8-.6 1.4-1.4 1.4h-1.4"/><path d="M4.2 6h5.2M4.2 8.6h5.2M4.2 11.2h3"/>`,
-  list: `<path d="M5.6 4.2h8.2M5.6 8h8.2M5.6 11.8h8.2"/><path d="M2.4 4.2h.01M2.4 8h.01M2.4 11.8h.01"/>`,
+  bolt: "bolt",
+  activity: "heartbeat",
+  sliders: "sliders horizontal",
+  partners: "handshake",
+  book: "book",
+  external: "external alternate",
+  link: "linkify",
+  info: "info circle",
+  server: "server",
+  cog: "cog",
+  history: "history",
+  archive: "archive",
+  package: "box",
+  iflow: "project diagram",
+  mapping: "exchange alternate",
+  script: "code",
+  table: "table",
+  envelope: "envelope",
+  rest: "cloud",
+  database: "database",
+  alert: "exclamation triangle",
+  donut: "chart pie",
+  layers: "layer group",
+  shield: "shield alternate",
+  shieldCheck: "user shield",
+  key: "key",
+  lock: "lock",
+  fileLock: "unlock",
+  plug: "plug",
+  variable: "square root alternate",
+  queue: "stream",
+  hash: "hashtag",
+  addressBook: "address book",
+  userCheck: "user check",
+  barChart: "chart bar",
+  lineChart: "chart area",
+  fileText: "file alternate",
+  fileCheck: "file signature",
+  fileStack: "copy",
+  flask: "flask",
+  building: "building",
+  shuffle: "random",
+  sitemap: "sitemap",
+  helpCircle: "question circle",
+  terminal: "terminal",
+  newspaper: "newspaper",
+  list: "list",
 };
 
 const ARTIFACT_ICONS = {
@@ -96,7 +95,7 @@ const ARTIFACT_ICONS = {
   "ODATA API": "database",
 };
 
-// <details> dropdowns - a <select> cannot render an image or an svg per option.
+// <details> dropdowns - a <select> cannot render an image or an icon per option.
 function dropdown(id, options, renderOption) {
   const items = Object.entries(options)
     .map(([value, label]) => `<button type="button" class="dd-option" data-value="${value}" aria-pressed="false">${renderOption(value, label)}</button>`)
@@ -142,7 +141,7 @@ function startTabOption(value, label) {
 }
 
 function icon(name) {
-  return ICONS[name] ? `<svg viewBox="0 0 16 16" aria-hidden="true">${ICONS[name]}</svg>` : "";
+  return ICONS[name] ? `<i class="${ICONS[name]} icon" aria-hidden="true"></i>` : "";
 }
 
 function groupTitle(name, label, { html = false } = {}) {

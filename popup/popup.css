@@ -1,5 +1,28 @@
 /* GNU GPL v3 - https://github.com/dbeck121/CPI-Helper-Chrome-Extension */
 
+/* Font and icon font of the fomantic ui build in lib/semanticui, so the popup looks like the CPI Helper
+   dialogs in the page. Only the font files are shared - semantic.min.css itself is 2 MB and would be
+   parsed again on every open, so the few rules the popup needs are copied below instead. */
+@font-face {
+  font-family: 'Lato';
+  src: url(/lib/semanticui/LatoLatin-Regular.woff2) format('woff2');
+  font-weight: 400;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: url(/lib/semanticui/LatoLatin-Bold.woff2) format('woff2');
+  font-weight: 700;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'icons';
+  src: url(/lib/semanticui/icons.woff2) format('woff2');
+  font-display: block;
+}
+
 :root {
   /* tenant accent - overwritten from JS with the configured tenant color */
   --cpi-custom-color: #354a5f;
@@ -65,7 +88,9 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
+  /* same stack as fomantic */
   font-family:
+    'Lato',
     system-ui,
     -apple-system,
     'Segoe UI',
@@ -165,15 +190,8 @@ p:last-child {
   border-bottom-color: currentColor;
 }
 
-.tab-btn svg {
-  width: 15px;
-  height: 15px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  flex: none;
+.tab-btn i.icon {
+  font-size: 14px;
 }
 
 .version {
@@ -220,15 +238,8 @@ main {
   color: var(--text-dim);
 }
 
-.group-title svg {
-  width: 14px;
-  height: 14px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  flex: none;
+.group-title i.icon {
+  font-size: 13px;
   opacity: 0.85;
 }
 
@@ -326,19 +337,12 @@ main {
   text-decoration: none;
 }
 
-.card > svg {
-  width: 15px;
-  height: 15px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  flex: none;
+.card > i.icon {
+  font-size: 14px;
   color: var(--text-dim);
 }
 
-.card:hover > svg {
+.card:hover > i.icon {
   color: var(--accent);
 }
 
@@ -347,7 +351,7 @@ main {
 }
 
 /* the colored main links carry their meaning in the icon too */
-.card.accent > svg {
+.card.accent > i.icon {
   color: var(--accent-line, var(--text-dim));
 }
 
@@ -563,17 +567,6 @@ input[type='color'] {
   list-style: none;
 }
 
-.dd > summary svg {
-  width: 14px;
-  height: 14px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  flex: none;
-}
-
 .dd > summary::-webkit-details-marker {
   display: none;
 }
@@ -618,17 +611,6 @@ input[type='color'] {
   font: inherit;
   text-align: left;
   cursor: pointer;
-}
-
-.dd-option svg {
-  width: 14px;
-  height: 14px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  flex: none;
 }
 
 .dd-option:hover {
@@ -758,4 +740,208 @@ kbd {
   border-radius: 20px;
   background: var(--bg);
   color: var(--text);
+}
+
+/* ------------------------------------------------------------------ icons */
+
+/* base rule of fomantic i.icon, without the right margin - the flex gap spaces the icons here */
+i.icon {
+  display: inline-block;
+  flex: none;
+  width: 1.18em;
+  height: 1em;
+  font-family: 'icons';
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  text-align: center;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* glyphs from semantic.min.css, only the ones the popup uses - add the rule from there for a new icon */i.icon.bolt::before {
+  content: '\f0e7';
+}
+
+i.icon.heartbeat::before {
+  content: '\f21e';
+}
+
+i.icon.sliders.horizontal::before {
+  content: '\f1de';
+}
+
+i.icon.handshake::before {
+  content: '\f2b5';
+}
+
+i.icon.book::before {
+  content: '\f02d';
+}
+
+i.icon.external.alternate::before {
+  content: '\f35d';
+}
+
+i.icon.linkify::before {
+  content: '\f0c1';
+}
+
+i.icon.info.circle::before {
+  content: '\f05a';
+}
+
+i.icon.server::before {
+  content: '\f233';
+}
+
+i.icon.cog::before {
+  content: '\f013';
+}
+
+i.icon.history::before {
+  content: '\f1da';
+}
+
+i.icon.archive::before {
+  content: '\f187';
+}
+
+i.icon.box::before {
+  content: '\f466';
+}
+
+i.icon.project.diagram::before {
+  content: '\f542';
+}
+
+i.icon.exchange.alternate::before {
+  content: '\f362';
+}
+
+i.icon.code::before {
+  content: '\f121';
+}
+
+i.icon.table::before {
+  content: '\f0ce';
+}
+
+i.icon.envelope::before {
+  content: '\f0e0';
+}
+
+i.icon.cloud::before {
+  content: '\f0c2';
+}
+
+i.icon.database::before {
+  content: '\f1c0';
+}
+
+i.icon.exclamation.triangle::before {
+  content: '\f071';
+}
+
+i.icon.chart.pie::before {
+  content: '\f200';
+}
+
+i.icon.layer.group::before {
+  content: '\f5fd';
+}
+
+i.icon.shield.alternate::before {
+  content: '\f3ed';
+}
+
+i.icon.user.shield::before {
+  content: '\f505';
+}
+
+i.icon.key::before {
+  content: '\f084';
+}
+
+i.icon.lock::before {
+  content: '\f023';
+}
+
+i.icon.unlock::before {
+  content: '\f09c';
+}
+
+i.icon.plug::before {
+  content: '\f1e6';
+}
+
+i.icon.square.root.alternate::before {
+  content: '\f698';
+}
+
+i.icon.stream::before {
+  content: '\f550';
+}
+
+i.icon.hashtag::before {
+  content: '\f292';
+}
+
+i.icon.address.book::before {
+  content: '\f2b9';
+}
+
+i.icon.user.check::before {
+  content: '\f4fc';
+}
+
+i.icon.chart.bar::before {
+  content: '\f080';
+}
+
+i.icon.file.alternate::before {
+  content: '\f15c';
+}
+
+i.icon.file.signature::before {
+  content: '\f573';
+}
+
+i.icon.copy::before {
+  content: '\f0c5';
+}
+
+i.icon.flask::before {
+  content: '\f0c3';
+}
+
+i.icon.building::before {
+  content: '\f1ad';
+}
+
+i.icon.random::before {
+  content: '\f074';
+}
+
+i.icon.sitemap::before {
+  content: '\f0e8';
+}
+
+i.icon.question.circle::before {
+  content: '\f059';
+}
+
+i.icon.terminal::before {
+  content: '\f120';
+}
+
+i.icon.newspaper::before {
+  content: '\f1ea';
+}
+
+i.icon.list::before {
+  content: '\f03a';
+}
+
+i.icon.chart.area::before {
+  content: '\f1fe';
 }
