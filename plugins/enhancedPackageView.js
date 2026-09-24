@@ -15,7 +15,7 @@ var plugin = {
   settings: {
     icon: { type: "icon", src: "/images/plugin_logos/snapconsult-at.png" },
     info: {
-      text: "Every part can be switched on separately. Deploy status: the status is read per artifact from /api/1.0/deployedartifacts, once per artifact of the opened package and then kept until the package is left, the refresh button next to the search field refreshes it; the version column is colored too (green: the deployed version is the current one, orange: the deployed version is older, red: nothing is deployed) and the version and the status label show deployed version, date and user on hover. Open in a new tab: the icon next to the name opens the artifact in a new browser tab, a normal click on the row keeps navigating in the current tab; id and type of the artifacts are read from the workspace API in the background, so the icon appears as soon as the artifact is resolved. Copy the name: the copy icon copies the name of the artifact to the clipboard. Switching a part off removes its icons, the color of the version column stays until the page is reloaded.",
+      text: "Every part can be switched on separately. Deploy status: the status is read per artifact from /api/1.0/deployedartifacts, once per artifact of the opened package and then kept until the package is left, the refresh button next to the search field refreshes it; the version column is colored too (green: the deployed version is the current one, orange: the deployed version is older, red: nothing is deployed) every runtime the artifact is deployed to gets its own status label (cloud icon: Cloud Integration, server icon: Edge Integration Cell), and the version and the labels show runtime, deployed version, date and user on hover. Open in a new tab: the icon next to the name opens the artifact in a new browser tab, a normal click on the row keeps navigating in the current tab; id and type of the artifacts are read from the workspace API in the background, so the icon appears as soon as the artifact is resolved. Copy the name: the copy icon copies the name of the artifact to the clipboard. Switching a part off removes its icons, the color of the version column stays until the page is reloaded.",
       type: "label",
     },
     deployStatus: {
@@ -121,7 +121,7 @@ function epvRenderRow(row, deployStatus, openInNewTab, copyName) {
     var url = epvArtifactUrl(name);
     // without a resolved artifact there is no url to open, so the icon is added once the artifacts are read
     if (url) {
-      epvAddIcon(row, nameElement, "cpiHelper_epvOpen", "external alternate", "Open in a new tab (CPI Helper)", () => window.open(url, "_blank"));
+      epvAddIcon(row, nameElement, "cpiHelper_epvOpen", "share square outline", "Open in a new tab (CPI Helper)", () => window.open(url, "_blank"));
     }
   }
 
@@ -137,8 +137,8 @@ function epvAddIcon(row, nameElement, className, iconName, title, action) {
   }
 
   var icon = document.createElement("i");
-  // "link" gives the fomantic icon the pointer cursor and the hover effect
-  icon.className = `${iconName} link icon ${className}`;
+  // "link" gives the fomantic icon the pointer cursor and the hover effect, "small" keeps it below the size of the name
+  icon.className = `${iconName} small link icon ${className}`;
   icon.title = title;
   icon.style.marginLeft = "0.4rem";
   icon.addEventListener("mousedown", epvStopEvent);
@@ -236,9 +236,10 @@ function epvRuntimeUrl(artifact) {
   return `/${cpiData.urlExtension}api/1.0/deployedartifacts?bundleType=${epvBundleTypes[artifact.type]}&id=${encodeURIComponent(artifact.id)}&artifactType=${artifact.type}`;
 }
 
-// artifact type of the workspace API -> bundle type of the runtime API. a type missing here is not deployable on
-// its own (script collection, message mapping), so no status is asked for and no label is shown for it. the type
-// comes from the API, not from the type column, so a translated tenant works the same
+// artifact type of the workspace API -> bundle type of the runtime API. no status is asked for and no label is shown
+// for a type missing here: message mapping, and script collection, which is deployable but the runtime API does not
+// answer for it with "ScriptCollection" as bundle type and the web ui never asks it for one. the type comes from the
+// API, not from the type column, so a translated tenant works the same
 var epvBundleTypes = {
   IFlow: "IntegrationFlow",
   RestAPI: "IntegrationFlow",
@@ -263,6 +264,15 @@ var epvStatusColors = {
   STOPPED: "grey",
   ERROR: "red",
   NOT_DEPLOYED: "red",
+};
+
+// fomantic label color -> icon and light background of the basic label. the background is a tint of the fomantic
+// color, so it works on the light and the dark SAP theme
+var epvLabelStyles = {
+  green: { icon: "check circle", background: "rgba(33, 186, 69, 0.1)" },
+  orange: { icon: "exclamation circle", background: "rgba(242, 113, 28, 0.1)" },
+  red: { icon: "times circle", background: "rgba(219, 40, 40, 0.1)" },
+  grey: { icon: "minus circle", background: "rgba(118, 118, 118, 0.1)" },
 };
 
 async function epvLoadRuntime(names, notify = false) {
@@ -327,7 +337,7 @@ async function epvLoadRuntime(names, notify = false) {
 
   // only the manual refresh gets a toast, the fetch on opening a package stays silent
   if (notify) {
-    var deployed = queue.filter((name) => epvState.runtimeByName.get(name)).length;
+    var deployed = queue.filter((name) => epvState.runtimeByName.get(name)?.length > 0).length;
     if (failed === queue.length) {
       showToast("Could not refresh the deploy status, check the log for details", "Deploy status", "error");
     } else {
@@ -336,7 +346,7 @@ async function epvLoadRuntime(names, notify = false) {
   }
 }
 
-// the runtime entry of one artifact, null when nothing is deployed, undefined when the call failed
+// the runtime entries of one artifact, one per runtime location it is deployed to, undefined when the call failed
 async function epvFetchRuntime(name) {
   var artifact = epvState.artifactsByName[name];
 
@@ -349,7 +359,7 @@ async function epvFetchRuntime(name) {
 
   // one entry per runtime location, an artifact that was never deployed still answers with an entry saying NOT_DEPLOYED
   var entries = JSON.parse(resp.responseText);
-  return entries.find((entry) => entry.deployState && entry.deployState.toUpperCase() !== "NOT_DEPLOYED") || null;
+  return entries.filter((entry) => entry.deployState && entry.deployState.toUpperCase() !== "NOT_DEPLOYED");
 }
 
 function epvUpdateRefreshButton() {
@@ -362,14 +372,14 @@ function epvUpdateRefreshButton() {
 
 // refresh button in the toolbar of the artifact list, next to search / sort / filter / group
 function epvAddRefreshButton() {
-  if (document.querySelector(".cpiHelper_epvRefresh")) {
+  // UI5 keeps pages that were left hidden in the dom, their search fields included, so only the visible one counts
+  var searchField = [...document.querySelectorAll("div.sapMHBox.sapMBarChild .sapMSF")].find((element) => element.offsetParent);
+  var toolbar = searchField?.closest("div.sapMHBox.sapMBarChild");
+  if (!toolbar || toolbar.querySelector(".cpiHelper_epvRefresh")) {
     return;
   }
-
-  var toolbar = document.querySelector("div.sapMHBox.sapMBarChild .sapMSF")?.closest("div.sapMHBox.sapMBarChild");
-  if (!toolbar) {
-    return;
-  }
+  // a button left behind in the toolbar of a hidden page
+  epvRemove(".cpiHelper_epvRefresh");
 
   // the shell of a SAP toolbar button, so it lines up with its neighbours, with the fomantic icon inside
   var button = document.createElement("button");
@@ -388,6 +398,18 @@ function epvAddRefreshButton() {
   epvUpdateRefreshButton();
 }
 
+// runtime location -> fomantic icon. an integration cell in the cloud is not known yet, it keeps the icon of its status
+function epvRuntimeIcon(entry) {
+  if (entry.runtimeLocationId === "cloudintegration") {
+    return "cloud";
+  }
+  // the design time profile of an edge integration cell is "edge-<runtime location id>"
+  if (entry.additionalProperties?.designTimeProfileId?.startsWith("edge-")) {
+    return "server";
+  }
+  return null;
+}
+
 function epvRenderDeployStatus(row) {
   var name = epvName(row);
   var infoElement = row.querySelector(".cntPkgResourceInfoPipes");
@@ -396,34 +418,39 @@ function epvRenderDeployStatus(row) {
     return;
   }
 
-  var artifact = epvState.runtimeByName.get(name);
-  // deployState says whether the artifact reached the runtime, semanticState whether the flow itself is running
-  var status = artifact ? (artifact.semanticState || artifact.deployState || "").toUpperCase() : "NOT_DEPLOYED";
+  // one entry per runtime location the artifact is deployed to, empty when it is deployed nowhere
+  var entries = epvState.runtimeByName.get(name);
   var versionElement = row.querySelector('td[id$="-cell2"]');
   var designVersion = versionElement?.textContent.trim();
-  var versionDiffers = artifact?.version && designVersion && artifact.version !== designVersion;
 
-  // green when the deployed version is the current one, orange when it drifted, red when nothing is deployed
-  var versionColor = !artifact ? epvRed : versionDiffers ? epvOrange : epvGreen;
+  var labels = entries.map((entry) => {
+    // deployState says whether the artifact reached the runtime, semanticState whether the flow itself is running
+    var status = (entry.semanticState || entry.deployState || "").toUpperCase();
+    var versionDiffers = !!(entry.version && designVersion && entry.version !== designVersion);
+    // a started artifact running an old version is not really green
+    var color = versionDiffers && status === "STARTED" ? "orange" : epvStatusColors[status] || "grey";
+    var tooltip = [
+      `Runtime: ${entry.runtimeLocationName || entry.runtimeLocationId || "-"}`,
+      `Deployed version: ${entry.version || "-"}` + (versionDiffers ? ` (design time version: ${designVersion})` : " (current)"),
+      `Status: ${epvStatusLabel(status)}`,
+      `Deploy state: ${epvStatusLabel((entry.deployState || "").toUpperCase())}`,
+      `Deployed on: ${entry.deployedOn || "-"}`,
+      `Deployed by: ${entry.deployedBy || "-"}`,
+    ].join("\n");
+    return { text: epvStatusLabel(status), color, icon: epvRuntimeIcon(entry) || epvLabelStyles[color].icon, tooltip, versionDiffers };
+  });
+  if (labels.length === 0) {
+    labels.push({ text: "Not deployed", color: "red", icon: epvLabelStyles.red.icon, tooltip: "No deployed runtime artifact found for this artifact", versionDiffers: false });
+  }
 
-  var tooltip = artifact
-    ? [
-        `Deployed version: ${artifact.version || "-"}` + (versionDiffers ? ` (design time version: ${designVersion})` : " (current)"),
-        `Status: ${epvStatusLabel(status)}`,
-        `Deploy state: ${epvStatusLabel((artifact.deployState || "").toUpperCase())}`,
-        `Deployed on: ${artifact.deployedOn || "-"}`,
-        `Deployed by: ${artifact.deployedBy || "-"}`,
-        `Runtime: ${artifact.runtimeLocationName || artifact.runtimeLocationId || "-"}`,
-      ].join("\n")
-    : "No deployed runtime artifact found for this artifact";
-
-  // a started artifact running an old version is not really green
-  var labelColor = versionDiffers && status === "STARTED" ? "orange" : epvStatusColors[status] || "grey";
+  // green when every runtime runs the current version, orange when one drifted, red when nothing is deployed
+  var versionColor = entries.length === 0 ? epvRed : labels.some((label) => label.versionDiffers) ? epvOrange : epvGreen;
+  var tooltip = labels.map((label) => label.tooltip).join("\n\n");
 
   // the heartbeat runs every 3 seconds, so touch the dom only when something actually changed
-  var label = row.querySelector(".cpiHelper_epvDeployStatus");
-  var signature = `${status}|${versionColor}|${labelColor}|${tooltip}`;
-  if (label && row.dataset.cpiHelperEpv === signature) {
+  var container = row.querySelector(".cpiHelper_epvDeployStatus");
+  var signature = versionColor + JSON.stringify(labels);
+  if (container && row.dataset.cpiHelperEpv === signature) {
     return;
   }
   row.dataset.cpiHelperEpv = signature;
@@ -433,23 +460,33 @@ function epvRenderDeployStatus(row) {
     for (var element of [versionElement, ...versionElement.querySelectorAll(".sapMLnk, .sapMLnkText, .sapMText")]) {
       element.style.color = versionColor;
       element.style.fontWeight = "bold";
-      // same details as the label, so hovering the version number is enough
+      // same details as the labels, so hovering the version number is enough
       element.title = tooltip;
     }
   }
 
-  if (!label) {
-    label = document.createElement("div");
-    label.style.marginLeft = "0.5rem";
-    label.style.cursor = "help";
-    infoElement.appendChild(label);
+  if (!container) {
+    container = document.createElement("span");
+    container.className = "cpiHelper_epvDeployStatus";
+    container.style.marginLeft = "0.5rem";
+    // the help cursor tells that hovering shows details
+    container.style.cursor = "help";
+    infoElement.appendChild(container);
   }
 
-  label.className = `ui mini ${labelColor} label cpiHelper_epvDeployStatus`;
-  // the info icon makes it obvious that hovering the label shows details
-  label.innerHTML = '<i class="info circle icon"></i>';
-  label.append(artifact ? epvStatusLabel(status) : "Not deployed");
-  label.title = tooltip;
+  // one basic label (colored border and text) on a light tint of its color per runtime, lighter than a filled label
+  container.replaceChildren(
+    ...labels.map((entry) => {
+      var label = document.createElement("span");
+      label.className = `ui basic ${entry.color} label`;
+      // sized relative to the text of the info line and with little padding, so the label is not taller than its neighbours
+      label.style.cssText = `background: ${epvLabelStyles[entry.color].background}; font-size: 0.8em; padding: 0.15em 0.45em;`;
+      label.innerHTML = `<i class="${entry.icon} icon" style="margin: 0 0.3em 0 0;"></i>`;
+      label.append(entry.text);
+      label.title = entry.tooltip;
+      return label;
+    }),
+  );
 }
 
 function epvStatusLabel(status) {
