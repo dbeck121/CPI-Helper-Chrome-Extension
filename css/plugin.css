@@ -29,20 +29,38 @@ Users are encouraged to integrate this library with care to ensure compatibility
   background: rgba(0, 0, 0, 0.1) !important;
 }
 
-[id$="--iflowPropLayout"] textarea:not([id^="Description"]) {
+[id$='--iflowPropLayout'] textarea:not([id^='Description']) {
   min-height: 10vh;
   resize: vertical;
   max-height: 70vh;
 }
 
 /* improve labels spacing in plugin stetings */
-.ui[class*="pointing below"].label {
+.ui[class*='pointing below'].label {
   margin-top: 20px;
 }
 .inputbox-spacing {
   margin: 10px;
   margin-bottom: 10px;
   margin-top: 0px;
+}
+
+.cpi-checkbox input[type='checkbox'] {
+  opacity: 0 !important;
+}
+
+.cpi-checkbox label::after {
+  content: '';
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 17px;
+  text-align: center;
+  opacity: 0;
+}
+
+.cpi-checkbox input[type='checkbox']:checked + label::after {
+  content: '\2713';
+  opacity: 1;
 }
 
 .credentialHelperDropdown-item:hover {
