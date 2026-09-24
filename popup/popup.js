@@ -217,7 +217,13 @@ function activateTab(name) {
 }
 
 function initTabs() {
-  qsa(".tab-btn").forEach((button) => button.addEventListener("click", () => activateTab(button.dataset.tab)));
+  qsa(".tab-btn").forEach((button) => {
+    button.addEventListener("click", () => activateTab(button.dataset.tab));
+    // hover switches tabs like the popup always did, read on every hover so the setting applies without reopening
+    button.addEventListener("mouseenter", () => {
+      if (localStorage.getItem("cpi_tab_click_mode") !== "true") activateTab(button.dataset.tab);
+    });
+  });
   const stored = localStorage.getItem("tab-choice-select") || "one";
   activateTab(qs(`.tab-btn[data-tab="${stored}"]`) ? stored : "one");
 }
@@ -458,6 +464,7 @@ function renderSettings(state) {
       ${segmented("refreshMessageSidebar", "Auto-refresh message sidebar", "On", "Off", state.autoRefreshMessageSidebar)}
       ${segmented("openSidebarOnStartup", "Plugin page as separate sidebar", "Yes", "No", !!state.openSidebarOnStartup)}
       ${segmented("cpi_compact_mode", "Layout of last visited", "Compact", "Cozy", compact)}
+      ${segmented("cpi_tab_click_mode", "Switch tabs on", "Hover", "Click", localStorage.getItem("cpi_tab_click_mode") !== "true")}
     </div>
 
     <details class="help" id="cpi_help_mode" ${helpOpen ? "open" : ""}>
@@ -492,6 +499,7 @@ function renderSettings(state) {
           <li><b>Auto-refresh message sidebar:</b> <span class="ok">On (default)</span> / Off.</li>
           <li><b>Plugin page as separate sidebar:</b> Yes (separate and closed) / <span class="ok">No (default, joint and open)</span>.</li>
           <li><b>Layout of last visited:</b> <span class="ok">Cozy (default)</span> shows one artifact per row, Compact fits more artifacts on the screen.</li>
+          <li><b>Switch tabs on:</b> <span class="ok">Hover (default)</span> switches the tab as soon as the mouse is over it, Click only on a click.</li>
         </ul>
       </div>
     </details>`;
@@ -534,6 +542,7 @@ function wireSettings(state) {
     localStorage.setItem("modecpi_compact_mode", String(value));
     renderLastVisited(state.visitedIflows, value);
   });
+  wireSegmented("#cpi_tab_click_mode", (hover) => localStorage.setItem("cpi_tab_click_mode", String(!hover)));
 
   wireTenantSettings(state);
 }
