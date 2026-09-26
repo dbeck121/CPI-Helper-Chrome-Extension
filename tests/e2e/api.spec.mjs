@@ -57,8 +57,12 @@ test.describe("API artifact", () => {
     await inline.dispatchEvent("mouseup");
     await expect(page.locator(".cpiHelper_toast_container .ui.toast", { hasText: "No diagram on this page" })).toBeVisible({ timeout: 30_000 });
     await inline.dispatchEvent("mouseup");
+    // the floating sidebar may cover the tab bar of the page in a small window
+    await page.locator("#sidebar_modal_close").click();
     await page.getByText("Policies", { exact: true }).first().click();
     await expect(page.locator("[id^='BPMNShape_']").first()).toBeAttached({ timeout: 30_000 });
+    await page.locator("#__buttonxy").click();
+    await inline.waitFor({ timeout: 30_000 });
     await inline.dispatchEvent("mouseup");
     await expect(page.locator(".cpiHelper_inlineInfo").first()).toBeAttached({ timeout: 30_000 });
     expect(extensionErrors).toEqual([]);

@@ -22,13 +22,16 @@
     {
       "matches": ["https://*.hana.ondemand.com/*", "https://*.platform.sapcloud.cn/*"],
       "include_globs": [
-        "https://*/itspaces",
-        "https://*/itspaces/*",
-        "https://*/itspaces?*",
-        "https://*/shell",
-        "https://*/shell/*",
-        "https://*/shell?*",
+        "https://*.hana.ondemand.com/itspaces",
+        "https://*.hana.ondemand.com/itspaces/*",
+        "https://*.hana.ondemand.com/shell",
+        "https://*.hana.ondemand.com/shell/*",
+        "https://*.platform.sapcloud.cn/itspaces",
+        "https://*.platform.sapcloud.cn/itspaces/*",
+        "https://*.platform.sapcloud.cn/shell",
+        "https://*.platform.sapcloud.cn/shell/*",
         "https://*.integrationsuite*.hana.ondemand.com/*",
+        "https://*.integrationsuite*.platform.sapcloud.cn/*",
         "https://*-tmn.hci.*.hana.ondemand.com/*"
       ],
       "js": [
