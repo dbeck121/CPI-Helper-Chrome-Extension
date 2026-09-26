@@ -50,9 +50,10 @@ defines the settings and appearance in plugin popup
  | textinput | "text": "URL", "placeholder": "https://example.com"   | optional placeholder shown when field is empty; works on any textinput scope | any |
  | checkbox  | "text": "xyz"                                          | a checkbox that is stored for each browser  | browser |
  | radio     | "text": "Pick an option", "options": [{value, label, default?}] | a radio button group; one option can be marked default: true; stored per browser | browser |
+ | select    | "text": "Interval", "options": [{value, label, default?}] | a dropdown; same options shape as radio, one option can be marked default: true | any |
  | icon      | "src" : "/images/plugin_logos/[your Image Source].png" | image for plugin page                       | NA      |
 
-**`showWhen`** (optional) — any setting can include `"showWhen": { "key": "<settingKey>", "value": "<settingValue>" }` to conditionally show it only when another setting in the same plugin equals the specified value. Commonly used to reveal a custom URL textinput only when a `radio` is set to `"custom"`.
+**`showWhen`** (optional) — any setting can include `"showWhen": { "key": "<settingKey>", "value": "<settingValue>" }` to conditionally show it only when another setting in the same plugin equals the specified value. Commonly used to reveal a custom URL textinput only when a `radio` is set to `"custom"`. A `select` toggles linked settings the same way.
 
 ### messageSidebarButton: 
 if you want to add a button to message sidebar
