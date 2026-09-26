@@ -162,26 +162,27 @@ div#cpiHelper_semanticui_modal {
 }
 
 .cpiHelper #outerFrame {
-  border: solid 1px var(--cpi-background-color);
-  background: var(--cpi-background-color);
-  color: var(--cpi-text-color);
-  padding: 10px;
+  border: 0;
+  background: var(--sapGroup_ContentBackground, var(--cpi-background-color));
+  color: var(--sapTextColor, #1d2d3e);
+  padding: 8px 10px 10px;
   box-sizing: border-box;
-  border-radius: 0px 0px 5px 5px;
+  border-radius: 0 0 10px 10px;
 }
 
+/* message popup, same look as the floating toolbar */
 #cpiHelper_content {
   position: fixed;
   z-index: 400;
-  background: var(--cpi-background-color);
+  background: var(--sapGroup_ContentBackground, var(--cpi-background-color));
   top: 25%;
   right: 0.5rem;
   width: fit-content;
-  border: 0;
+  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
   border-radius: 10px;
-  box-shadow:
-    0 1px 2px 0 rgba(60, 64, 67, 0.3),
-    0 1px 3px 1px rgba(60, 64, 67, 0.15);
+  box-shadow: var(--sapContent_Shadow2, 0 4px 16px rgba(0, 0, 0, 0.18));
+  font-family: var(--sapFontFamily, '72', Arial, sans-serif);
+  font-size: 0.8125rem;
   opacity: 1 !important;
 }
 
@@ -194,19 +195,67 @@ div#cpiHelper_semanticui_modal {
   color: var(--cpi-background-color) !important;
 }
 
+/* the header keeps the tenant color, it tells which tenant this is */
 #cpiHelper_contentheader {
-  padding: 10px;
-  cursor: move;
+  display: flex;
   align-items: center;
-  font-weight: bold;
+  gap: 2px;
+  padding: 4px 4px 4px 12px;
+  cursor: move;
+  font-weight: 600;
   z-index: 10;
   background-color: var(--cpi-custom-color);
   color: var(--cpi-text-color);
   box-sizing: border-box;
-  border-radius: 5px 5px 0px 0px;
-  display: flex;
-  justify-content: space-between;
-  border: 1px solid black;
+  border-radius: 9px 9px 0 0;
+}
+
+.cpiHelper_popupTitle {
+  flex: 1;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cpiHelper_popupHeaderButton,
+.cpiHelper_popupIconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0 !important;
+  border-radius: 6px;
+  background: transparent !important;
+  color: inherit;
+  cursor: pointer;
+}
+
+.cpiHelper_popupHeaderButton:hover {
+  background: rgba(127, 127, 127, 0.22) !important;
+}
+
+.cpiHelper_popupIconButton {
+  color: var(--sapButton_Lite_TextColor, #0064d9);
+  vertical-align: middle;
+  margin-left: 0.25em;
+}
+
+.cpiHelper_popupIconButton:hover {
+  background: var(--sapButton_Lite_Hover_Background, rgba(0, 100, 217, 0.08)) !important;
+}
+
+.cpiHelper_popupHeaderButton svg,
+.cpiHelper_popupIconButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+.cpiHelper_popupHeaderButton:focus-visible,
+.cpiHelper_popupIconButton:focus-visible,
+#cpiHelper_content #messageList button:focus-visible {
+  outline: 2px solid var(--sapContent_FocusColor, #0070f2);
+  outline-offset: 1px;
 }
 
 .cpiHelper .contentText {
@@ -648,7 +697,7 @@ fieldset {
   opacity: 0.6;
 }
 
-.cpiHelper_sidebar_refresh_icon_spin i {
+.cpiHelper_sidebar_refresh_icon_spin svg {
   animation: cpiHelper_refresh_spin 2.5s linear 1;
   color: #818181 !important;
   opacity: 0.8;
@@ -670,7 +719,7 @@ fieldset {
 }
 
 /* Verhindert das "Zurückspringen" nach der Animation */
-#cpiHelper_sidebar_refresh_icon i {
+#cpiHelper_sidebar_refresh_icon svg {
   animation-fill-mode: forwards;
 }
 
@@ -696,22 +745,69 @@ fieldset {
 }
 
 .cpiHelper_floatingToolbar_grip {
-  width: 28px;
-  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 14px;
   margin-bottom: 2px;
-  border-radius: 4px;
+  padding: 2px 4px;
+  border-radius: 6px;
   cursor: grab;
   touch-action: none;
+}
+
+.cpiHelper_floatingToolbar_dots {
+  width: 28px;
+  height: 12px;
+  flex: none;
   background: radial-gradient(circle, var(--sapContent_IconColor, #7b7b7b) 1.2px, transparent 1.6px) 0 0 / 6px 6px;
   opacity: 0.6;
+}
+
+.cpiHelper_floatingToolbar_title {
+  display: none;
+  color: var(--sapContent_LabelColor, #556b82);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_title {
+  display: inline;
+}
+
+.cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_grip {
+  justify-content: flex-start;
+  padding: 4px 8px 2px;
+}
+
+.cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_dots {
+  width: 16px;
+}
+
+.cpiHelper_floatingToolbar_kbd {
+  display: none;
+  margin-left: auto;
+  padding: 0 5px;
+  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
+  border-radius: 4px;
+  color: var(--sapContent_LabelColor, #556b82);
+  font-family: inherit;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+}
+
+.cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_kbd {
+  display: inline;
 }
 
 .cpiHelper_floatingToolbar_dragging .cpiHelper_floatingToolbar_grip {
   cursor: grabbing;
 }
 
-.cpiHelper_floatingToolbar_grip:hover,
-.cpiHelper_floatingToolbar_grip:focus-visible {
+.cpiHelper_floatingToolbar_grip:hover .cpiHelper_floatingToolbar_dots,
+.cpiHelper_floatingToolbar_grip:focus-visible .cpiHelper_floatingToolbar_dots {
   opacity: 1;
 }
 
@@ -830,9 +926,6 @@ fieldset {
   align-items: stretch;
 }
 
-.cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_grip {
-  align-self: center;
-}
 
 .cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_button {
   width: auto;
@@ -898,4 +991,77 @@ fieldset {
   font-family: inherit;
   font-size: 0.6875rem;
   line-height: 1.4;
+}
+
+/* message popup: rows and their action buttons as flat tiles like the toolbar */
+#cpiHelper_content .contentText {
+  color: var(--sapContent_LabelColor, #556b82);
+  font-size: 0.75rem;
+}
+
+#cpiHelper_content #messageList {
+  --cpi-width: 0px;
+}
+
+#cpiHelper_content #messageList > tr > td:only-child {
+  color: var(--sapContent_LabelColor, #556b82);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+#cpiHelper_content #messageList button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  margin: 1px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--sapButton_Lite_TextColor, #0064d9);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+#cpiHelper_content #messageList button:hover {
+  border: 0;
+  background: var(--sapButton_Lite_Hover_Background, rgba(0, 100, 217, 0.08));
+}
+
+/* plugin area inside the popup: flat sections instead of Fomantic menu and segments */
+#cpiHelper_content #cpiHelper_messageSidebar_pluginArea.ui.menu {
+  border: 0;
+  border-top: 1px solid var(--sapGroup_ContentBorderColor, #e5e5e5);
+  border-radius: 0 0 10px 10px;
+  box-shadow: none;
+  background: transparent;
+  padding: 6px 10px 10px;
+}
+
+#cpiHelper_content #cpiHelper_messageSidebar_pluginArea > .ui.segment {
+  margin: 6px 0 0;
+  padding: 6px 0 0;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+#cpiHelper_content #cpiHelper_messageSidebar_pluginArea .ui.tiny.header {
+  margin: 0 0 4px;
+  color: var(--sapContent_LabelColor, #556b82);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* buttons rendered by plugins into the popup get the popup's font and shape */
+#cpiHelper_content #cpiHelper_messageSidebar_pluginArea button {
+  font: inherit;
+  font-size: 0.8125rem;
+  padding: 4px 10px;
+  border-radius: 6px;
 }

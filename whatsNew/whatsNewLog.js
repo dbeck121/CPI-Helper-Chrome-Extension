@@ -3,7 +3,9 @@ const whats_new_log = `
 - [Plugin] New Version History plugin: view the version history of an iFlow and revert to an earlier version directly in the editor. Special thanks to Gregor Schütz.
 - [Plugin] New MPL Table Sorter plugin: sort the Monitor Message Processing table by one or more columns. Special thanks to Prem Sai Daggolu.
 - [Plugin] New Create named Groovy script plugin: create a Groovy resource with a name of your choice in the current iFlow. Special thanks to Björn Konzmann.
-- [Feature] New floating toolbar: Trace, Messages, Info, Runtime and More are now compact icons in a toolbar you can drag anywhere on the page. It remembers its position and no longer waits for the page header.
+- [Feature] New floating toolbar: Trace, Messages, Info, Logs, Plugins and Runtime in a toolbar you can drag anywhere on the page. Switch between a wide variant with labels and a compact one with icons only. It remembers position and variant and no longer waits for the page header.
+- [Feature] Refreshed message popup in the style of the new toolbar. The header keeps the tenant color.
+- [Improvement] APIs and MCP servers use the integration cell runtime by default.
 - [Feature] Rewritten browser action popup: faster, without jQuery and Semantic UI, and it can open the plugin settings of the current tab. Artifact names in the popup are now escaped. Special thanks to Alexander Aigner.
 - [Feature] The browser tab title shows a readable name of the current app. Thanks to Alexander Aigner.
 - [Feature] Plugins can use a select dropdown in their settings. Thanks to Alexander Aigner.

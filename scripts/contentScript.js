@@ -1213,18 +1213,16 @@ var sidebar = {
     this.active = true;
     var elem = document.createElement("div");
     elem.innerHTML = `
-    <div id="cpiHelper_contentheader" style="color:var(--cpi-text-color)" content="${hostData.count}" >
-      <span id='sidebar_modal_minimize' class='cpiHelper_closeButton_sidebar'>CPI Helper</span>
-      <span id='sidebar_modal_close' data-sap-ui-icon-content="&#xe03e" class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>
+    <div id="cpiHelper_contentheader" content="${hostData.count}" >
+      <span id='sidebar_modal_minimize' class='cpiHelper_popupTitle' title='Collapse or expand'>CPI Helper</span>
+      <button type='button' id='sidebar_modal_close' class='cpiHelper_popupHeaderButton' title='Close' aria-label='Close'>${floatingToolbarIcon("close")}</button>
     </div>
     <div id="outerFrame" >
       <div>
         <div style="padding-left:0px" id="updatedText" class="contentText">
         <span id="cpiHelper_sidebar_refresh_text" style="padding-left: 0px; padding-top: 0px;">
     </span>
-    <button id="cpiHelper_sidebar_refresh_icon" title="Refresh" style="background:none;border:none;cursor:pointer;vertical-align:middle;margin-left:0.5em;">
-      <i class="sync alternate icon"></i>
-    </button>
+    <button type="button" id="cpiHelper_sidebar_refresh_icon" class="cpiHelper_popupIconButton" title="Refresh" aria-label="Refresh">${floatingToolbarIcon("refresh")}</button>
         </div>
         <div style="padding-left:0px; padding-top:0px" id="deploymentText" class="contentText"></div>
         <div><table id="messageList" class="contentText"></table></div>

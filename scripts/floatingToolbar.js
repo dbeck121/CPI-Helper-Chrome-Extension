@@ -19,6 +19,8 @@ const FLOATING_TOOLBAR_ICONS = {
   check: '<path d="M5 12l4 4 10-10"/>',
   collapse: '<path d="M13 6l6 6-6 6"/><path d="M5 6l6 6-6 6"/>',
   expand: '<path d="M11 6l-6 6 6 6"/><path d="M19 6l-6 6 6 6"/>',
+  close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  refresh: '<path d="M20 11a8 8 0 0 0-14.9-3.5"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.9 3.5"/><path d="M20 20v-4h-4"/>',
 };
 
 function floatingToolbarIcon(name) {
@@ -92,25 +94,19 @@ function setFloatingToolbarExpanded(toolbar, expanded, persist = true) {
 }
 
 // own tooltip instead of the title attribute: the browser shows that late and unstyled.
-// in the wide variant the label is already visible, then only the shortcut hint is left
+// only in the compact variant, the wide one already shows labels and shortcuts
 function showFloatingToolbarTooltip(toolbar, target) {
   const tooltip = toolbar.querySelector(".cpiHelper_floatingToolbar_tooltip");
-  const expanded = toolbar.classList.contains("cpiHelper_floatingToolbar_expanded");
   const menu = toolbar.querySelector(".cpiHelper_floatingToolbar_menu");
-  const text = target.dataset.tooltip;
-  const key = target.accessKey;
-  if (!tooltip || !menu.hidden || (!text && !key) || (expanded && target.classList.contains("cpiHelper_floatingToolbar_button") && !key)) {
+  if (!tooltip || !menu.hidden || !target.dataset.tooltip || toolbar.classList.contains("cpiHelper_floatingToolbar_expanded")) {
     hideFloatingToolbarTooltip(toolbar);
     return;
   }
 
-  tooltip.replaceChildren();
-  if (!expanded || !target.classList.contains("cpiHelper_floatingToolbar_button")) {
-    tooltip.append(text);
-  }
-  if (key) {
+  tooltip.replaceChildren(target.dataset.tooltip);
+  if (target.accessKey) {
     const kbd = document.createElement("kbd");
-    kbd.textContent = key;
+    kbd.textContent = target.accessKey;
     tooltip.append(kbd);
   }
 
@@ -206,9 +202,16 @@ async function createFloatingToolbar(artifactId) {
   toolbar.setAttribute("aria-label", "CPI Helper");
   toolbar.dataset.artifactId = artifactId || "";
 
+  // the grip is the header of the bar: dots to drag it and, in the wide variant, the name
   const grip = document.createElement("div");
   grip.className = "cpiHelper_floatingToolbar_grip";
-  grip.dataset.tooltip = "Drag to move";
+  grip.dataset.tooltip = "CPI Helper";
+  const dots = document.createElement("span");
+  dots.className = "cpiHelper_floatingToolbar_dots";
+  const name = document.createElement("span");
+  name.className = "cpiHelper_floatingToolbar_title";
+  name.textContent = "CPI Helper";
+  grip.append(dots, name);
   grip.tabIndex = 0;
   grip.setAttribute("role", "separator");
   grip.setAttribute("aria-label", "Move CPI Helper toolbar");
@@ -281,6 +284,13 @@ function createFloatingToolbarButton({ id, icon, title, accessKey }) {
   label.className = "cpiHelper_floatingToolbar_label";
   label.textContent = title;
   button.append(iconSpan, label);
+  // the wide variant has no tooltips, so it shows the shortcut in the button
+  if (accessKey) {
+    const kbd = document.createElement("kbd");
+    kbd.className = "cpiHelper_floatingToolbar_kbd";
+    kbd.textContent = accessKey;
+    button.append(kbd);
+  }
   return button;
 }
 
