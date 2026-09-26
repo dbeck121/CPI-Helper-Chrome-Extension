@@ -55,6 +55,12 @@
   --cpih-header-text: var(--cpi-text-color, var(--cpih-text));
 }
 
+/* the hidden attribute must win over display rules (e.g. i.icon { display: inline-block }). the former Fomantic
+   build carried this rule as a CPI Helper change, the working indicator and others rely on it */
+[hidden] {
+  display: none !important;
+}
+
 /* our own elements always use border-box, the host page keeps its own model */
 #cpihelperglobal,
 #cpihelperglobal *,

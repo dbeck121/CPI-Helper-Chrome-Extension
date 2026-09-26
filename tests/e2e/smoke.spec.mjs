@@ -25,6 +25,15 @@ test.describe("iFlow", () => {
     await openIflow(page, requireEnv("CPI_IFLOW_URL", env.iflowUrl));
   });
 
+  test("working indicator is hidden when nothing loads", async ({ page, extensionErrors }) => {
+    await page.waitForTimeout(5000);
+    const hiddenButShown = await page.evaluate(() =>
+      [...document.querySelectorAll("[hidden]")].filter((element) => element.closest("#cpihelperglobal, #cpiHelper_floatingToolbar, #cpiHelper_content") && getComputedStyle(element).display !== "none").map((element) => element.id || element.className)
+    );
+    expect(hiddenButShown).toEqual([]);
+    expect(extensionErrors).toEqual([]);
+  });
+
   test("toolbar and message sidebar", async ({ page, extensionErrors }) => {
     await expect(page.locator("#__buttonxy")).toBeVisible();
     if (!(await page.locator("#cpiHelper_content").isVisible())) await page.locator("#__buttonxy").click();
