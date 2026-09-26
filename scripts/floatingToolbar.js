@@ -123,20 +123,31 @@ function hideFloatingToolbarTooltip(toolbar) {
   clearTimeout(toolbar?._cpiHelperTooltipTimer);
 }
 
+// a hint waits a bit, so moving across the bar does not flash one after the other. once one is shown the
+// neighbours follow without delay, until the mouse has been away from the bar for a moment
+const FLOATING_TOOLBAR_TOOLTIP_DELAY = 500;
+const FLOATING_TOOLBAR_TOOLTIP_WARM = 600;
+
 function bindFloatingToolbarTooltip(toolbar) {
+  let warmUntil = 0;
   const targetOf = (event) => event.target.closest?.("[data-tooltip]");
   const schedule = (target) => {
     clearTimeout(toolbar._cpiHelperTooltipTimer);
-    toolbar._cpiHelperTooltipTimer = setTimeout(() => showFloatingToolbarTooltip(toolbar, target), 150);
+    const delay = Date.now() < warmUntil ? 0 : FLOATING_TOOLBAR_TOOLTIP_DELAY;
+    toolbar._cpiHelperTooltipTimer = setTimeout(() => showFloatingToolbarTooltip(toolbar, target), delay);
   };
   toolbar.addEventListener("pointerover", (event) => {
     const target = targetOf(event);
     if (target && !toolbar.classList.contains("cpiHelper_floatingToolbar_dragging")) schedule(target);
   });
   toolbar.addEventListener("pointerout", (event) => {
-    if (targetOf(event) && !targetOf(event).contains(event.relatedTarget)) hideFloatingToolbarTooltip(toolbar);
+    const target = targetOf(event);
+    if (!target || target.contains(event.relatedTarget)) return;
+    const tooltip = toolbar.querySelector(".cpiHelper_floatingToolbar_tooltip");
+    if (tooltip && !tooltip.hidden) warmUntil = Date.now() + FLOATING_TOOLBAR_TOOLTIP_WARM;
+    hideFloatingToolbarTooltip(toolbar);
   });
-  // keyboard users get the tooltip on focus, without delay
+  // keyboard users get the hint on focus, without delay
   toolbar.addEventListener("focusin", (event) => {
     const target = targetOf(event);
     if (target && target.matches(":focus-visible")) showFloatingToolbarTooltip(toolbar, target);

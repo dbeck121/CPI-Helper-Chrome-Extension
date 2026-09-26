@@ -966,20 +966,31 @@ fieldset {
   height: 14px;
 }
 
+/* hint of the compact variant: small, in the card colors, close to the bar, fades in */
 .cpiHelper_floatingToolbar_tooltip {
   position: absolute;
-  left: calc(100% + 8px);
+  left: calc(100% + 4px);
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  background: var(--sapTooltip_Background, #1d2d3e);
-  color: var(--sapTooltip_TextColor, #fff);
-  font-size: 0.75rem;
+  gap: 5px;
+  padding: 2px 7px;
+  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
+  border-radius: 5px;
+  background: var(--sapGroup_ContentBackground, #fff);
+  color: var(--sapContent_LabelColor, #556b82);
+  font-size: 0.6875rem;
   white-space: nowrap;
   pointer-events: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  animation: cpiHelper_floatingToolbar_fadein 120ms ease-out;
+}
+
+@keyframes cpiHelper_floatingToolbar_fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* display: flex above would beat the [hidden] rule of the browser */
@@ -990,12 +1001,12 @@ fieldset {
 
 .cpiHelper_floatingToolbar_tooltip.cpiHelper_floatingToolbar_tooltip_left {
   left: auto;
-  right: calc(100% + 8px);
+  right: calc(100% + 4px);
 }
 
 .cpiHelper_floatingToolbar_tooltip kbd {
-  padding: 0 5px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 0 4px;
+  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
   border-radius: 4px;
   font-family: inherit;
   font-size: 0.6875rem;
