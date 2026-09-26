@@ -101,17 +101,20 @@ function setFloatingToolbarExpanded(toolbar, expanded, persist = true) {
 }
 
 // own tooltip instead of the title attribute: the browser shows that late and unstyled.
-// only in the compact variant, the wide one already shows labels and shortcuts
+// in the compact variant always; in the wide one only for a label that was cut, with the full name
 function showFloatingToolbarTooltip(toolbar, target) {
   const tooltip = toolbar.querySelector(".cpiHelper_floatingToolbar_tooltip");
   const popoverOpen = [...toolbar.querySelectorAll(".cpiHelper_floatingToolbar_menu, .cpiHelper_floatingToolbar_panel")].some((popover) => !popover.hidden);
-  if (!tooltip || popoverOpen || !target.dataset.tooltip || toolbar.classList.contains("cpiHelper_floatingToolbar_expanded")) {
+  const expanded = toolbar.classList.contains("cpiHelper_floatingToolbar_expanded");
+  const label = target.querySelector(".cpiHelper_floatingToolbar_label");
+  const cut = label && label.scrollWidth > label.clientWidth;
+  if (!tooltip || popoverOpen || !target.dataset.tooltip || (expanded && !cut)) {
     hideFloatingToolbarTooltip(toolbar);
     return;
   }
 
   tooltip.replaceChildren(target.dataset.tooltip);
-  if (target.accessKey) {
+  if (target.accessKey && !expanded) {
     const kbd = document.createElement("kbd");
     kbd.textContent = floatingToolbarShortcutLabel(target.accessKey);
     tooltip.append(kbd);

@@ -922,8 +922,13 @@ fieldset {
   padding: 0 12px 0 8px;
 }
 
+/* long names (plugins) are cut, the full name comes as a hint */
 .cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_label {
-  display: inline;
+  display: block;
+  min-width: 0;
+  max-width: 116px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* the variant switch sits apart from the actions */
