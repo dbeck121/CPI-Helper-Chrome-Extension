@@ -437,6 +437,13 @@ function renderSettings(state) {
     ${groupTitle("server", "Tenant Settings")}
     ${contentScriptAlive ? tenantSettingsFields() : `<div class="notice">Open a SAP Cloud Integration tab to change the tenant settings.</div>`}
 
+    ${groupTitle("plug", "Plugins")}
+    ${
+      contentScriptAlive
+        ? `<div class="settings"><div class="label">Plugin settings<span class="hint">opens in the CPI tab - the plugin page needs the full window</span></div><div class="control"><button type="button" class="btn" id="openPlugins">Open plugins</button></div></div>`
+        : `<div class="notice">Open a SAP Cloud Integration tab to manage plugins.</div>`
+    }
+
     ${groupTitle("cog", "CPI Helper Settings")}
     <div class="settings">
       <div class="label">Trace global count<span class="hint">0 shows all steps - may freeze the browser</span></div>
@@ -544,6 +551,15 @@ function wireSettings(state) {
   wireSegmented("#cpi_tab_click_mode", (hover) => localStorage.setItem("cpi_tab_click_mode", String(!hover)));
 
   wireTenantSettings(state);
+
+  // --- plugins: the plugin UI lives in the page, the popup only triggers it
+  const openPlugins = qs("#openPlugins");
+  if (openPlugins)
+    openPlugins.addEventListener("click", () => {
+      statistic("popup_btn_plugins_click");
+      askContentScript(activeTabId, { openPlugins: true });
+      window.close();
+    });
 }
 
 function wireSegmented(selector, onChange) {
