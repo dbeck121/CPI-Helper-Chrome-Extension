@@ -79,8 +79,20 @@ onClick:
  | not recommended | log.log(document.getElementById("__xmlview0--ceFileLabel-bdi").textContent) |
  | recommended     | log.log(document.querySelector('bdi[id$="--ceFileLabel-bdi"]').textContent) |
 
+### toolbarButton: 
+a button in the plugin section of the floating CPI Helper toolbar that runs an action directly, without a panel. Use it when your plugin would only render a single button anyway
+ | FIELD NAME | VALUE                                   | DESCRIPTION                                                              |
+ | ---------- | --------------------------------------- | ------------------------------------------------------------------------ |
+ | title      | "Undeploy"                              | label in the toolbar (defaults to the plugin name)                       |
+ | onClick    | (pluginHelper, settings) => {}          | runs on click, may be async                                              |
+ | icon       | "text": "xe088", "type": "icon"         | optional, same format as the messageSidebarButton icon                   |
+
+If a plugin has both `toolbarButton` and `messageSidebarContent`, only the toolbarButton is shown.
+
 ### messageSidebarContent Button: 
-gives the plugin a button in the plugin section of the floating CPI Helper toolbar. A click opens a panel next to the toolbar that shows what `onRender` returns (until 3.27 this was the plugin area of the message sidebar)
+gives the plugin a button in the plugin section of the floating CPI Helper toolbar. A click opens a panel next to the toolbar that shows what `onRender` returns (until 3.27 this was the plugin area of the message sidebar). Use it for content: forms, inputs, several buttons, text.
+
+`onRender` also runs without the panel being opened: when the toolbar is built and, unless `static` is set, on every message refresh. A plugin that returns nothing from `onRender` only uses it as a hook and gets no toolbar button.
  | FIELD NAME | VALUE                                    | DESCRIPTION                                                                                      |
  | ---------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------ |
  | onRender   | (pluginHelper, settings) => {return div} | implement and return html element                                                                |
@@ -159,6 +171,13 @@ var plugin = {
             console.log(runInfo);
             //eg runInfo.logLevel === "trace"
             return true;
+        }
+    },
+    toolbarButton: { //button in the plugin section of the toolbar that runs directly, no panel
+        "icon": { "text": "xe088", "type": "icon" }, //optional
+        "title": "Example Title", //defaults to the plugin name
+        "onClick": (pluginHelper, settings) => {
+            log.log("clicked");
         }
     },
     messageSidebarContent: { //button in the plugin section of the toolbar, onRender fills the panel it opens

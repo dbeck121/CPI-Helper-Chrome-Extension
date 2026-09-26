@@ -333,6 +333,8 @@ async function renderMessageSidebar(cache = true) {
       log.error("There was an error when processing the log entries. Process aborted. " + e);
     }
   }
+  // like before the toolbar: plugins that are not static run their onRender on every message refresh
+  await runPluginContentHooks(true);
 }
 
 function calculateMessageSidebarTimerTime(lastTabHidden, lastDurationRefresh) {
@@ -625,15 +627,30 @@ async function buildFloatingToolbar() {
       });
     }
 
-    // plugin section: one button per active plugin with messageSidebarContent, its content opens in a panel
+    // plugin section: toolbarButton plugins run their action directly, messageSidebarContent plugins open a panel
+    await runPluginContentHooks();
     addFloatingToolbarSeparator(toolbar, "Plugins");
-    for (const plugin of await getToolbarContentPlugins()) {
-      addFloatingToolbarPanelButton(toolbar, {
+    for (const { plugin, kind } of await getToolbarPlugins()) {
+      const entry = {
         id: `cpiHelperToolbarPlugin--${plugin.id}`,
         iconNode: createPluginToolbarIcon(plugin),
-        title: plugin.name,
-        render: createPluginToolbarRenderer(plugin),
-      });
+        title: plugin.toolbarButton?.title || plugin.name,
+      };
+      if (kind === "button") {
+        addFloatingToolbarButton(toolbar, {
+          ...entry,
+          onClick: async () => {
+            try {
+              await plugin.toolbarButton.onClick(cpiData, await getPluginSettings(plugin.id));
+            } catch (error) {
+              log.error(`plugin ${plugin.id}: toolbarButton.onClick failed`, error);
+              showToast("The plugin failed, see the browser console for details.", plugin.name, "error");
+            }
+          },
+        });
+      } else {
+        addFloatingToolbarPanelButton(toolbar, { ...entry, render: () => getPluginPanelContent(plugin) });
+      }
     }
     addFloatingToolbarButton(toolbar, {
       id: "__more_plugins",

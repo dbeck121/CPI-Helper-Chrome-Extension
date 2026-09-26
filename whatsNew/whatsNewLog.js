@@ -5,7 +5,7 @@ const whats_new_log = `
 - [Plugin] New Create named Groovy script plugin: create a Groovy resource with a name of your choice in the current iFlow. Special thanks to Björn Konzmann.
 - [Feature] New floating toolbar: Trace, Messages, Info, Logs, Plugins and Runtime in a toolbar you can drag anywhere on the page. Switch between a wide variant with labels and a compact one with icons only. It remembers position and variant and no longer waits for the page header.
 - [Feature] Refreshed message popup in the style of the new toolbar. The header keeps the tenant color.
-- [Feature] Plugins moved from the message popup into their own section of the toolbar. Each plugin opens its content in a panel, plugins can bring an icon (messageSidebarContent.icon).
+- [Feature] Plugins moved from the message popup into their own section of the toolbar. Plugins with a single action run it directly from the toolbar (toolbarButton), plugins with more content open it in a panel (messageSidebarContent). Both can bring their own icon.
 - [Improvement] APIs and MCP servers use the integration cell runtime by default.
 - [Feature] Rewritten browser action popup: faster, without jQuery and Semantic UI, and it can open the plugin settings of the current tab. Artifact names in the popup are now escaped. Special thanks to Alexander Aigner.
 - [Feature] The browser tab title shows a readable name of the current app. Thanks to Alexander Aigner.

@@ -4,22 +4,67 @@
 
 //creates plugin content area in message sidebar
 
-// plugins with messageSidebarContent get a button in the plugin section of the floating toolbar. what their
-// onRender returns is shown in a panel next to the toolbar (it used to be the plugin area of the message popup)
-async function getToolbarContentPlugins() {
+async function getActivePlugins() {
   const plugins = [];
   for (const plugin of pluginList) {
-    if (!plugin?.messageSidebarContent?.onRender) continue;
     const settings = await getPluginSettings(plugin.id);
     if (settings[plugin.id + "---isActive"] === true) plugins.push(plugin);
   }
   return plugins;
 }
 
-// messageSidebarContent.icon like messageSidebarButton.icon ({ type: "icon", text: "xe088" } for SAP-icons,
-// { type: "text", text: "VH" }); without it the plugin logo from settings.icon, else the initials of the name
+// last node messageSidebarContent.onRender returned per plugin, null when it returned nothing, "failed" when it threw
+var pluginContentNodes = new Map();
+
+async function renderPluginContent(plugin) {
+  const node = plugin.messageSidebarContent.onRender(cpiData, await getPluginSettings(plugin.id));
+  pluginContentNodes.set(plugin.id, node instanceof Node ? node : null);
+  return node;
+}
+
+// onRender used to run whenever the message popup rendered and some plugins rely on that: credentialHelper
+// hooks into the page, settingsPaneResizer resizes on every refresh. so it runs when the toolbar is built
+// and, for plugins that are not static, again on every message refresh
+async function runPluginContentHooks(onlyNonStatic = false) {
+  for (const plugin of await getActivePlugins()) {
+    if (!plugin.messageSidebarContent?.onRender || plugin.toolbarButton?.onClick) continue;
+    if (onlyNonStatic && plugin.messageSidebarContent.static) continue;
+    try {
+      await renderPluginContent(plugin);
+    } catch (error) {
+      // it may only fail while the page is still loading: keep the button, the panel renders again and shows the error
+      pluginContentNodes.set(plugin.id, "failed");
+      log.error(`plugin ${plugin.id}: messageSidebarContent.onRender failed`, error);
+    }
+  }
+}
+
+// content of the panel: a static plugin keeps its node, the others render again with the current data
+async function getPluginPanelContent(plugin) {
+  const cached = pluginContentNodes.get(plugin.id);
+  if (plugin.messageSidebarContent.static && cached instanceof Node) return cached;
+  return renderPluginContent(plugin);
+}
+
+// the plugin section of the floating toolbar. toolbarButton: the click runs onClick directly.
+// messageSidebarContent: the click opens a panel with what onRender returns. a plugin whose onRender returns
+// nothing only uses it as a hook and gets no button. run runPluginContentHooks() first
+async function getToolbarPlugins() {
+  const entries = [];
+  for (const plugin of await getActivePlugins()) {
+    if (plugin.toolbarButton?.onClick) {
+      entries.push({ plugin, kind: "button" });
+    } else if (plugin.messageSidebarContent?.onRender && pluginContentNodes.get(plugin.id)) {
+      entries.push({ plugin, kind: "panel" });
+    }
+  }
+  return entries;
+}
+
+// toolbarButton.icon or messageSidebarContent.icon, like messageSidebarButton.icon ({ type: "icon", text: "xe088" }
+// for SAP-icons, { type: "text", text: "VH" }); without it the plugin logo from settings.icon, else the initials
 function createPluginToolbarIcon(plugin) {
-  const icon = plugin.messageSidebarContent?.icon;
+  const icon = plugin.toolbarButton?.icon || plugin.messageSidebarContent?.icon;
   if (icon?.type === "icon" && /^x?[0-9a-f]{3,5}$/i.test(icon.text || "")) {
     const glyph = document.createElement("span");
     glyph.className = "cpiHelper_floatingToolbar_pluginIcon sapUiIcon";
@@ -53,17 +98,6 @@ function createPluginToolbarIcon(plugin) {
       .join("")
       .toUpperCase() || "?";
   return initials;
-}
-
-// static plugins render once per toolbar, the others again on every open, with the current data
-function createPluginToolbarRenderer(plugin) {
-  let staticNode = null;
-  return async () => {
-    if (plugin.messageSidebarContent.static && staticNode) return staticNode;
-    const node = plugin.messageSidebarContent.onRender(cpiData, await getPluginSettings(plugin.id));
-    if (plugin.messageSidebarContent.static) staticNode = node;
-    return node;
-  };
 }
 
 // ----------------------
