@@ -49,6 +49,7 @@ It is open source so feel free to check the source code.
 - [Plugin] New Version History plugin: view the version history of an iFlow and revert to an earlier version directly in the editor. Special thanks to [Gregor Schütz](https://github.com/DevGregor)
 - [Plugin] New MPL Table Sorter plugin: sort the Monitor Message Processing table by one or more columns. Special thanks to [Prem Sai Daggolu](https://github.com/premsaidaggolu)
 - [Plugin] New Create named Groovy script plugin: create a Groovy resource with a name of your choice in the current iFlow. Special thanks to [Björn Konzmann](https://github.com/BKonzi)
+- [Feature] New floating toolbar: Trace, Messages, Info, Runtime and More are now compact icons in a toolbar you can drag anywhere on the page. It remembers its position and no longer waits for the page header.
 - [Feature] Rewritten browser action popup: faster, without jQuery and Semantic UI, and it can open the plugin settings of the current tab. Artifact names in the popup are now escaped. Special thanks to [Alexander Aigner](https://github.com/aaigi)
 - [Feature] The browser tab title shows a readable name of the current app. Thanks to [Alexander Aigner](https://github.com/aaigi)
 - [Feature] Plugins can use a select dropdown in their settings. Thanks to [Alexander Aigner](https://github.com/aaigi)

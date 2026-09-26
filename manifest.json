@@ -86,6 +86,7 @@
         "/scripts/plugins.js",
         "/scripts/Mode-Script.js",
         "/scripts/inline-trace.js",
+        "/scripts/floatingToolbar.js",
         "/scripts/contentScript.js"
       ],
       "css": [

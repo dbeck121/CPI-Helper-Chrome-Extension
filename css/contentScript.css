@@ -673,3 +673,140 @@ fieldset {
 #cpiHelper_sidebar_refresh_icon i {
   animation-fill-mode: forwards;
 }
+
+/* floating toolbar (scripts/floatingToolbar.js). SAP theme variables, so it follows light and dark UI5 themes */
+#cpiHelper_floatingToolbar {
+  position: fixed;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background: var(--sapGroup_ContentBackground, #fff);
+  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
+  border-radius: 10px;
+  box-shadow: var(--sapContent_Shadow2, 0 4px 16px rgba(0, 0, 0, 0.18));
+  font-family: var(--sapFontFamily, '72', Arial, sans-serif);
+  user-select: none;
+}
+
+#cpiHelper_floatingToolbar.cpiHelper_floatingToolbar_dragging {
+  opacity: 0.85;
+}
+
+.cpiHelper_floatingToolbar_grip {
+  width: 28px;
+  height: 12px;
+  margin-bottom: 2px;
+  border-radius: 4px;
+  cursor: grab;
+  touch-action: none;
+  background: radial-gradient(circle, var(--sapContent_IconColor, #7b7b7b) 1.2px, transparent 1.6px) 0 0 / 6px 6px;
+  opacity: 0.6;
+}
+
+.cpiHelper_floatingToolbar_dragging .cpiHelper_floatingToolbar_grip {
+  cursor: grabbing;
+}
+
+.cpiHelper_floatingToolbar_grip:hover,
+.cpiHelper_floatingToolbar_grip:focus-visible {
+  opacity: 1;
+}
+
+.cpiHelper_floatingToolbar_button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--sapButton_Lite_TextColor, #0064d9);
+  cursor: pointer;
+}
+
+.cpiHelper_floatingToolbar_button:hover {
+  background: var(--sapButton_Lite_Hover_Background, rgba(0, 100, 217, 0.08));
+}
+
+.cpiHelper_floatingToolbar_button:focus-visible,
+.cpiHelper_floatingToolbar_grip:focus-visible,
+.cpiHelper_floatingToolbar_menuItem:focus-visible {
+  outline: 2px solid var(--sapContent_FocusColor, #0070f2);
+  outline-offset: 1px;
+}
+
+.cpiHelper_floatingToolbar_button[aria-expanded='true'] {
+  background: var(--sapButton_Lite_Active_Background, rgba(0, 100, 217, 0.16));
+}
+
+/* trace is on: red icon and a dot, like the red "Trace" text before */
+.cpiHelper_floatingToolbar_button_active {
+  color: var(--sapNegativeColor, #d32030);
+  background: var(--sapErrorBackground, rgba(211, 32, 48, 0.1));
+}
+
+.cpiHelper_floatingToolbar_button_active::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--sapNegativeColor, #d32030);
+}
+
+.cpiHelper_floatingToolbar_menu {
+  position: absolute;
+  left: calc(100% + 8px);
+  min-width: 180px;
+  padding: 4px;
+  background: var(--sapGroup_ContentBackground, #fff);
+  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
+  border-radius: 8px;
+  box-shadow: var(--sapContent_Shadow2, 0 4px 16px rgba(0, 0, 0, 0.18));
+}
+
+.cpiHelper_floatingToolbar_menu.cpiHelper_floatingToolbar_menu_left {
+  left: auto;
+  right: calc(100% + 8px);
+}
+
+.cpiHelper_floatingToolbar_menuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--sapList_TextColor, #1d2d3e);
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.cpiHelper_floatingToolbar_menuItem:hover:not(:disabled) {
+  background: var(--sapList_Hover_Background, rgba(0, 0, 0, 0.05));
+}
+
+.cpiHelper_floatingToolbar_menuItem:disabled {
+  color: var(--sapContent_DisabledTextColor, #8c8c8c);
+  cursor: default;
+}
+
+.cpiHelper_floatingToolbar_menuIcon {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
