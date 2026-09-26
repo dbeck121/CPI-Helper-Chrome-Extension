@@ -26,14 +26,12 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
 
   silentupdates = ["3.0.3", "3.14.4"];
 
-  //const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
   const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo.png");
   const FIGAF_VIBE_SCREENSHOT = chrome.runtime.getURL("images/figaf-vibe-coding/figaf vibe code org.png");
   const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
   const TOOLBAR_SCREENSHOT = chrome.runtime.getURL("images/whatsnew/4.0-toolbar.png");
   const TOOLBAR_PLUGINS_SCREENSHOT = chrome.runtime.getURL("images/whatsnew/4.0-plugins.png");
   const devtoberfestPicture = chrome.runtime.getURL("images/devtoberfestPicture.png");
-  const devtoberfestInvite = chrome.runtime.getURL("images/Devtoberfest_CPIHelper.ics");
   const md = window.markdownit();
 
   // old
@@ -170,6 +168,12 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
                 <li>Plugins are switched on and off under <b>Manage plugins</b>, the last entry of the section. The message popup shows messages only now, and the setting "Plugin page as separate sidebar" is gone.</li>
                 <li>Plugin developers: see <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension/blob/main/docs/readme/PluginREADME.md" target="_blank">toolbarButton and the new icon field</a> in the plugin documentation.</li>
             </ul>
+            <h4 class="ui header">A new payload viewer</h4>
+            <ul class="ui list">
+                <li>Trace bodies open <b>formatted right away</b>. Pretty print keeps CDATA, comments and big JSON numbers exactly as they are, Raw shows the original.</li>
+                <li><b>Drag the handle below the editor</b> to make it bigger, CPI Helper remembers the height. The fullscreen button uses the whole window, Escape leaves it.</li>
+                <li>Search, fold, wrap, font size, theme and edit sit in the toolbar above the payload.</li>
+            </ul>
             <button type="button" class="ui primary button cpihelperWhatsNewTour"><i class="map signs icon"></i>Take the tour again</button>
         </div>
         <div class="ui bottom attached tab segment" data-tab="two">
@@ -252,15 +256,12 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
       closeText: "OK",
       iconInButton: "checkmark",
       callback: () => {
-        $("#cpiHelper_whatsnew_tabs .item").tab({
-          context: $("#cpiHelper_bigPopup_content_semanticui"),
-        });
         document.querySelector(".cpihelperWhatsNewShowChanges")?.addEventListener("click", (event) => {
           event.preventDefault();
-          $("#cpiHelper_whatsnew_tabs .item").tab("change tab", "changes");
+          cpihActivateTab(document.querySelector("#cpiHelper_bigPopup_content_semanticui"), "changes");
         });
         if (initialTab) {
-          $("#cpiHelper_whatsnew_tabs .item").tab("change tab", initialTab);
+          cpihActivateTab(document.querySelector("#cpiHelper_bigPopup_content_semanticui"), initialTab);
         }
         // the tour needs the toolbar, which only exists on artifact pages
         const tourButton = document.querySelector(".cpihelperWhatsNewTour");
@@ -268,34 +269,25 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
           tourButton?.remove();
         }
         tourButton?.addEventListener("click", () => {
-          $("#cpiHelper_semanticui_modal").modal("hide");
+          cpihModal.hide("#cpiHelper_semanticui_modal");
           startToolbarTour();
         });
-        $(".cpihelper83782").popup({
-          inline: true,
-          hoverable: true,
-          position: "bottom left",
-          delay: {
-            show: 300,
-            hide: 800,
-          },
-        });
-        $(".cpihelperFigafScreenshot").on("click", function () {
-          const overlay = $(`
-            <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-              <div style="max-width: 90vw; max-height: 90vh; overflow: auto; background: white; padding: 10px; border-radius: 5px;">
-                <img src="${FIGAF_VIBE_SCREENSHOT}" style="width: auto; height: auto; max-width: none;" />
+        cpihQsa(".cpihelperFigafScreenshot").forEach((screenshot) => {
+          screenshot.addEventListener("click", function () {
+            const overlay = createElementFromHTML(`
+              <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                <div style="max-width: 90vw; max-height: 90vh; overflow: auto; background: white; padding: 10px; border-radius: 5px;">
+                  <img src="${FIGAF_VIBE_SCREENSHOT}" style="width: auto; height: auto; max-width: none;" />
+                </div>
               </div>
-            </div>
-          `);
+            `);
 
-          overlay.on("click", function () {
-            $(this).fadeOut(300, function () {
-              $(this).remove();
+            overlay.addEventListener("click", function () {
+              cpihFadeOut(this, 300);
             });
-          });
 
-          $("body").append(overlay);
+            document.body.appendChild(overlay);
+          });
         });
       },
       onclose: async () => {
@@ -325,14 +317,6 @@ async function recrutingPopup(force = false) {
   //shows a popup if browser language is German and if timestamp is not set or today is after timestamp in chrome storage
 
   //show only for a fraction of user for testing
-
-  //remove timestamps for testing
-  //await chrome.storage.local.remove("recrutingPopupTimestamp");
-  //await chrome.storage.local.remove("recrutingPopupRandomGroup");
-  //var ts = 1728995035000;
-  //var obj2 = {};
-  //obj2["recrutingPopupTimestamp"] = ts;
-  //await storageSetPromise(obj2);
 
   const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
 
@@ -419,7 +403,7 @@ async function recrutingPopup(force = false) {
         await storageSetPromise(obj);
         log.log("recruting popup timestamp set to today + " + days + " days");
 
-        $("#cpiHelper_semanticui_modal").modal("hide");
+        cpihModal.hide("#cpiHelper_semanticui_modal");
       };
       return button;
     };
@@ -434,7 +418,7 @@ async function recrutingPopup(force = false) {
     nextStepButtion.onclick = async function () {
       statistic("recrutingPopup", "nextStep");
       window.open("https://kangoolutions.com/karriere/", "_blank");
-      $("#cpiHelper_semanticui_modal").modal("hide");
+      cpihModal.hide("#cpiHelper_semanticui_modal");
     };
 
     //create br

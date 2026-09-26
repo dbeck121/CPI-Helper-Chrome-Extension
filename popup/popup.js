@@ -32,8 +32,8 @@ const PRESET_COLORS = {
   grey: "#767676",
 };
 
-// Icon name -> fomantic icon classes. The glyph of every class used here is copied into popup.css,
-// a new icon needs its rule from lib/semanticui/semantic.min.css there as well.
+// Icon name -> icon classes. The glyph of every class used here is copied into popup.css,
+// a new icon needs its codepoint there as well (Font Awesome 5 Free, see css/icons.css).
 const ICONS = {
   bolt: "bolt",
   activity: "heartbeat",

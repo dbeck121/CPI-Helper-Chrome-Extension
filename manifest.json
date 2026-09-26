@@ -20,20 +20,18 @@
   "permissions": ["storage"],
   "content_scripts": [
     {
-      "matches": [
-        "https://*.hana.ondemand.com/itspaces/*",
-        "https://*.platform.sapcloud.cn/itspaces/*",
-        "https://*.hana.ondemand.com/shell/*",
-        "https://*.platform.sapcloud.cn/shell/*"
-      ],
+      "matches": ["https://*.hana.ondemand.com/*", "https://*.platform.sapcloud.cn/*"],
       "include_globs": [
-        "https://*.hana.ondemand.com/*",
-        "https://*.platform.sapcloud.cn/*",
-        "https://*.integrationsuite.cfapps.*.hana.ondemand.com/*",
-        "https://?????-tmn.hci.*.hana.ondemand.com/*"
+        "https://*/itspaces",
+        "https://*/itspaces/*",
+        "https://*/itspaces?*",
+        "https://*/shell",
+        "https://*/shell/*",
+        "https://*/shell?*",
+        "https://*.integrationsuite*.hana.ondemand.com/*",
+        "https://*-tmn.hci.*.hana.ondemand.com/*"
       ],
       "js": [
-        "/lib/ulog/ulog-full.min.js",
         "/lib/ace/ace.min.js",
         "/lib/ace/ext-searchbox.js",
         "/lib/ace/theme-textmate.js",
@@ -45,11 +43,9 @@
         "/lib/ace/ace.js",
         "/lib/jszip/jszip.min.js",
         "/lib/xmlToJson/xmlToJson.js",
-        "/lib/jQuery/jquery.min.js",
-        "/lib/semanticui/semantic.min.js",
-        "/lib/semanticui/tablesort.js",
         "/lib/markdownit/markdown-it.min.js",
-        "/lib/pako/pako_deflate.min.js",
+        "/common/ui-kit.js",
+        "/common/formatter.js",
         "/scripts/init.js",
         "/common/logging.js",
         "/common/tools.js",
@@ -91,8 +87,8 @@
         "/scripts/contentScript.js"
       ],
       "css": [
-        "/lib/semanticui/semantic.min.css",
-        "/lib/semanticui/semantic.dark.css",
+        "/css/icons.css",
+        "/css/ui.css",
         "/css/contentScript.css",
         "/css/darkoverwrite.css",
         "/css/plugin.css"
@@ -119,7 +115,7 @@
     {
       "resources": [
         "images/favicons/*.png",
-        "lib/semanticui/*",
+        "lib/icons/*",
         "images/*",
         "plugins/settingsPaneResizer-inject.js",
         "docs/LICENSE"

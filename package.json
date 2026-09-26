@@ -1,0 +1,14 @@
+{
+  "name": "cpi-helper-dev",
+  "private": true,
+  "description": "Development tooling only, not part of the extension zip",
+  "scripts": {
+    "test": "node tests/formatter.test.js && node tests/inline-trace-custom-step-ids.js",
+    "e2e:browser": "node tests/e2e/browser.mjs",
+    "e2e": "playwright test --config tests/e2e/playwright.config.mjs",
+    "e2e:headed": "playwright test --config tests/e2e/playwright.config.mjs --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}

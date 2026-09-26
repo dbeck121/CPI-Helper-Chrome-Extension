@@ -165,9 +165,7 @@ var plugin = {
       x = createElementFromHTML(textElement);
       pluginHelper.functions.popup(x, "Reference", {
         fullscreen: false,
-        callback: async () => {
-          $(".tabular.menu .item").tab();
-        },
+        callback: async () => {},
       });
     },
   },

@@ -101,7 +101,7 @@ function setFloatingToolbarExpanded(toolbar, expanded, persist = true) {
 }
 
 // own tooltip instead of the title attribute: the browser shows that late and unstyled. the attribute is
-// data-cpi-hint and not data-tooltip, Fomantic's CSS would show a second tooltip for data-tooltip
+// data-cpi-hint and not the generic data-tooltip, so no other stylesheet on the page can attach a second tooltip to it
 // in the compact variant always; in the wide one only for a label that was cut, with the full name
 function showFloatingToolbarTooltip(toolbar, target) {
   const tooltip = toolbar.querySelector(".cpiHelper_floatingToolbar_tooltip");

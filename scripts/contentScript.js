@@ -30,7 +30,6 @@ cpiData.flowData.logConfiguration.traceActive = null;
 
 cpiData.flowData.endpointInformation = [];
 
-//cpiData.isEdge = false;
 cpiData.runtimeLocationId = "cloudintegration";
 cpiData.runtimeLocations = [];
 cpiData.runtimeLocationWithActiveIFlow = [];
@@ -65,7 +64,6 @@ cpiArtifactURIRegexp = [
 var cpiTypeRegexp = /^[^\/]*\.integrationsuite(-trial)?.*/;
 
 var cpiCollectionURIRegexp = /\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)/;
-var cpiIflowUriRegexp = /\/integrationflows\/(?<artifactId>[0-9a-zA-Z_\-.]+)/;
 
 cpiData.functions.openTrace = openTrace;
 
@@ -139,7 +137,6 @@ async function renderMessageSidebar(cache = true) {
   } catch (e) {
     log.error("There was a faulty message from CI-API. CPI Helper will ignore it: " + e);
   }
-  //    document.getElementById('iflowName').innerText = cpiData.integrationFlowId;
 
   let updatedText = document.getElementById("cpiHelper_sidebar_refresh_text");
 
@@ -178,12 +175,7 @@ async function renderMessageSidebar(cache = true) {
         messageList.innerHTML = "";
         var lastDay;
 
-        //display few :
-        // var count = parseInt(document.querySelector("head > meta[name='cpi-count']") !== null ? document.querySelector("head > meta[name='cpi-count']").content : resp.length);
-
         for (var i = 0; i < resp.length; i++) {
-          //var logStart = resp[i].LogStart == null ? "-" : resp[i].LogStart;
-
           var logStart = new Date(parseInt(resp[i].LogStart.match(/\d+/)[0]));
           var logStartFormatted = logStart.toISOString().substring(0, 19);
           var logEnd = new Date(parseInt(resp[i].LogEnd.match(/\d+/)[0]));
@@ -221,7 +213,6 @@ async function renderMessageSidebar(cache = true) {
             flash = " flash";
           }
           let loglevel = resp[i].LogLevel.toLowerCase();
-          // logLevel[0] = logLevel[0].toUpperCase();
           runInfoElement[thisMessageHash].logLevel = loglevel;
 
           let traceButton = createElementFromHTML(`<button title='jump to trace page' id='trace--${i}' class='${resp[i].MessageGuid} ${flash}'>${loglevel.substr(0, 1).toUpperCase()}</button>`);
@@ -242,8 +233,6 @@ async function renderMessageSidebar(cache = true) {
             `<button title='show log viewer on this page' id='logs--${i}' class='${resp[i].MessageGuid} ${flash}'><span data-sap-ui-icon-content=\"\" class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>`
           );
 
-          //let listItem = document.createElement("div");
-          //listItem.classList.add("cpiHelper_messageListItem")
           let statusColor = getStatusColorCode(resp[i].Status);
           let statusIcon = "xe05b";
           if (resp[i].Status == "PROCESSING") {
@@ -259,8 +248,6 @@ async function renderMessageSidebar(cache = true) {
             statusIcon = "xe23e";
           }
 
-          //listItem.style["color"] = statusColor;
-
           activeInlineItem == quickInlineTraceButton.classList[0] && quickInlineTraceButton.classList.add("cpiHelper_inlineInfo-active");
 
           let statusicon = createElementFromHTML(
@@ -273,7 +260,7 @@ async function renderMessageSidebar(cache = true) {
 
           statusicon.onclick = async (e) => {
             if (e.currentTarget.classList.contains("cpiHelper_sidebar_iconbutton")) {
-              $(".ui.toast").toast("close");
+              cpihCloseToasts();
               e.currentTarget.classList.remove("cpiHelper_sidebar_iconbutton");
             } else {
               document.querySelectorAll(".cpiHelper_sidebar_iconbutton").forEach((i) => i.classList.remove("cpiHelper_sidebar_iconbutton"));
@@ -433,7 +420,7 @@ cpiData.functions.undeploy = undeploy;
 
 // inject breadcrumbs for package if missing
 function addBreadcrumbs() {
-  const crumbs = $('nav[id*="breadcrumbs"]').find("ol:first-child").find("li");
+  const crumbs = document.querySelectorAll('nav[id*="breadcrumbs"] ol:first-child li');
   if (crumbs) {
     if (crumbs.length == 1) {
       const regex = /(.+\/contentpackage\/)(.+?)\/.*/;
@@ -449,15 +436,11 @@ function addBreadcrumbs() {
         }
         packageName = regexMatch[2];
       }
-      const newLi = $(`<li class="sapMBreadcrumbsItem"><a href="${packageUrl}" tabindex="0" class="sapMLnk sapMLnkMaxWidth">${packageName}</a><span class="sapMBreadcrumbsSeparator">/</span></li>`);
-      crumbs.prepend(newLi);
+      const newLi = createElementFromHTML(`<li class="sapMBreadcrumbsItem"><a href="${packageUrl}" tabindex="0" class="sapMLnk sapMLnkMaxWidth">${packageName}</a><span class="sapMBreadcrumbsSeparator">/</span></li>`);
+      crumbs[0].prepend(newLi);
     }
   }
 }
-
-//injected buttons are created here
-var powertrace = null;
-var recrutingTimerSet = false;
 
 // Function to update runtime location dropdown options
 function updateRuntimeLocationDropdown(traceDropdownMenu = null) {
@@ -519,14 +502,6 @@ async function buildFloatingToolbar() {
   // another artifact can have other runtime locations, so its toolbar is built from scratch
   if (!existingToolbar || existingToolbar.dataset.artifactId !== (cpiData.currentArtifactId || "")) {
     whatsNewCheck();
-
-    //timer for recruiting popup in some seconds
-    if (recrutingTimerSet == false) {
-      setTimeout(() => {
-        //     recrutingPopup();
-      }, 600000);
-      recrutingTimerSet = true;
-    }
 
     var toolbar = await createFloatingToolbar(cpiData.currentArtifactId);
 
@@ -769,40 +744,37 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
       cacheValue = false;
     }
 
-    runtimeLocationWithActiveIFlow = [];
-    for (const loc of cpiData.runtimeLocations) {
+    // the OData API has no runtime location parameter, one call answers for the selected location.
+    // it used to run once per location with the same url and the result never reached cpiData
+    const activeLocations = [];
+    const selectedLocation = cpiData.runtimeLocations.find((loc) => loc.id == cpiData.runtimeLocationId) || (cpiData.runtimeLocationId ? { id: cpiData.runtimeLocationId } : null);
+    if (selectedLocation) {
       try {
         const symbolicName = cpiData.integrationFlowId;
         const resp = await makeCallPromiseV2("GET", `/api/v1/IntegrationRuntimeArtifacts('${symbolicName}')?$format=json`, cacheValue, "application/json", null, null, null, !silent);
 
         if (!resp.successful) {
-          // 404 means IFlow not deployed on this runtime location (expected)
+          // 404 means IFlow not deployed (expected)
           if (resp.status === 404) {
-            log.debug(`IFlow ${symbolicName} not found on runtime location ${loc.id}`);
-            continue;
+            log.debug(`IFlow ${symbolicName} not found on runtime location ${selectedLocation.id}`);
+          } else {
+            // Other errors (500, network issues, etc.)
+            log.warn(`Error fetching artifact for runtime location ${selectedLocation.id}: ${resp.statusText}`);
           }
-          // Other errors (500, network issues, etc.)
-          log.warn(`Error fetching artifact for runtime location ${loc.id}: ${resp.statusText}`);
-          continue;
-        }
+        } else {
+          const artifact = JSON.parse(resp.responseText).d; // OData wraps data in 'd' property
 
-        const respJson = JSON.parse(resp.responseText);
-        const artifact = respJson.d; // OData v4 wraps data in 'd' property
+          if (artifact) {
+            // Map OData field names to plugin's expected structure
+            artifact.symbolicName = symbolicName;
+            artifact.id = artifact.Id;
+            artifact.version = artifact.Version;
+            artifact.deployState = artifact.Status;
+            artifact.deployedOn = artifact.DeployedOn;
+            artifact.deployedBy = artifact.DeployedBy;
+            artifact.name = artifact.Name || symbolicName; // Fallback to symbolicName if Name not present
 
-        // Map OData field names to plugin's expected structure
-        if (artifact) {
-          artifact.symbolicName = symbolicName;
-          artifact.id = artifact.Id;
-          artifact.version = artifact.Version;
-          artifact.deployState = artifact.Status;
-          artifact.deployedOn = artifact.DeployedOn;
-          artifact.deployedBy = artifact.DeployedBy;
-          artifact.name = artifact.Name || symbolicName; // Fallback to symbolicName if Name not present
-        }
-
-        if (artifact) {
-          // collect information about current tenant and artifact if runtime location matches the selected one. this is needed to avoid another call to get the artifact information later, because we already have it here
-          if (cpiData.runtimeLocationId && loc.id == cpiData.runtimeLocationId) {
+            // keep the artifact information of the selected location, saves another call later
             cpiData.flowData.artifactInformation.lastUpdate = new Date().toISOString();
             cpiData.flowData.artifactInformation.artifactId = artifact.id || null;
             cpiData.flowData.artifactInformation.version = artifact.version || null;
@@ -814,121 +786,29 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
             cpiData.flowData.artifactInformation.semanticState = artifact.semanticState || null;
             cpiData.flowData.artifactInformation.deployedBy = artifact.deployedBy || null;
             cpiData.flowData.manualSetUndeployed = false;
-          }
 
-          runtimeLocationWithActiveIFlow.push({
-            id: loc.id,
-            state: loc.state,
-            type: loc.type,
-            typeId: loc.typeId,
-            artifact: artifact,
-          });
+            activeLocations.push({
+              id: selectedLocation.id,
+              state: selectedLocation.state,
+              type: selectedLocation.type,
+              typeId: selectedLocation.typeId,
+              artifact: artifact,
+            });
+          }
         }
       } catch (locError) {
-        log.warn("Error fetching runtime location " + loc.id + ": ", locError);
-        continue;
+        log.warn("Error fetching runtime location " + selectedLocation.id + ": ", locError);
       }
     }
 
-    if (cpiData.runtimeLocationId && !runtimeLocationWithActiveIFlow.find((loc) => loc.id == cpiData.runtimeLocationId)) {
+    if (cpiData.runtimeLocationId && !activeLocations.length) {
       log.warn("No active IFlow found for location " + cpiData.runtimeLocationId);
       cpiData.flowData.artifactInformation.deployState = "UNDEPLOYED";
       cpiData.flowData.artifactInformation.deployedOn = null;
       cpiData.flowData.artifactInformation.deployedBy = null;
     }
 
-    //check that there are no dublicates in runtimeLocationWithActiveIFlow, if yes, log it and remove duplicates
-    const uniqueIds = new Set();
-    runtimeLocationWithActiveIFlow = runtimeLocationWithActiveIFlow.filter((loc) => {
-      if (uniqueIds.has(loc.id)) {
-        log.warn("Duplicate runtime location found: " + loc.id + ". This should not happen, please check the environment.");
-        return false;
-      } else {
-        uniqueIds.add(loc.id);
-        return true;
-      }
-    });
-
-    /*
-    runtimeLocationWithActiveIFlowTemp = [];
-    for (const loc of runtimeLocationWithActiveIFlow) {
-      try {
-        // 4. Detaildaten holen
-        const detailResp = await makeCallPromiseV2(
-          "GET",
-          "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + loc.artifact.id + "&runtimeLocationId=" + loc.id,
-          90,
-          "application/json",
-          null,
-          null,
-          null,
-          silent
-        );
-
-        if (!detailResp.successful) {
-          log.warn("Error fetching detail for location " + loc.id + ": " + detailResp.message);
-          continue;
-        }
-
-        const detail = JSON.parse(detailResp.responseText);
-
-        runtimeLocationWithActiveIFlowTemp.push({
-          detail: detail,
-          artifact: detail.artifactInformation,
-          artifactId: detail.artifactInformation?.id,
-          tenantId: detail.artifactInformation?.tenantId,
-          version: detail.artifactInformation?.version,
-          id: loc.id,
-          state: loc.state,
-          type: loc.type,
-          typeId: loc.typeId,
-        });
-      } catch (detailError) {
-        log.warn("Error fetching detail for location " + loc.id + ": ", detailError);
-        continue;
-      }
-    }
-
-    cpiData.runtimeLocationWithActiveIFlow = runtimeLocationWithActiveIFlowTemp;
-
-    //default
-    if (!cpiData.runtimeLocationId) {
-      if (cpiData.runtimeLocationWithActiveIFlow.length == 0) {
-        log.warn("No runtime location with active IFlow found. Set default to cloudintegration.");
-        setRuntimeLocation({ id: "cloudintegration" });
-      } else {
-        setRuntimeLocation(cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id == "cloudintegration") || cpiData.runtimeLocationWithActiveIFlow[0]);
-      }
-    }
-
-    setRuntimeLocation(
-      cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id === cpiData.runtimeLocationId),
-      true
-    );
-
-    */
-
-    /*   if (cpiData.runtimeLocationId) {
-      if (cpiData.runtimeLocationWithActiveIFlow.length == 0) {
-        log.warn("Previously selected runtime location " + cpiData.runtimeLocationId + " is not available anymore and no runtime location with active IFlow found. Please deploy the IFlow or check your environment.");
-        setRuntimeLocation({ id: "cloudintegration" });
-      } else if (!cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id === cpiData.runtimeLocationId)) {
-        if (cpiData.runtimeLocationWithActiveIFlow.length > 0) {
-          showToast("The previously selected runtime location " + cpiData.runtimeLocationId + " is not available anymore. Runtime location switched to " + cpiData.runtimeLocationWithActiveIFlow[0].id, "Runtime location switched", "warning");
-          setRuntimeLocation(cpiData.runtimeLocationWithActiveIFlow[0], true);
-        } else {
-          log.warn("Previously selected runtime location " + cpiData.runtimeLocationId + " is not available anymore and no other runtime location with active IFlow found. Please deploy the IFlow or check your environment.");
-          setRuntimeLocation({ id: "cloudintegration" });
-        }
-      } else {
-        //update
-        setRuntimeLocation(
-          cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id === cpiData.runtimeLocationId),
-          true
-        );
-      }
-    }
-      */
+    cpiData.runtimeLocationWithActiveIFlow = activeLocations;
 
     if (callback) callback();
   } catch (error) {
@@ -1274,6 +1154,8 @@ var sidebar = {
       if (result["set_ch_popup_mouse"]) {
         popuparea.style.left = result["set_ch_popup_mouse"].left;
         popuparea.style.top = result["set_ch_popup_mouse"].top;
+      } else {
+        placeSidebarNextToToolbar(popuparea);
       }
     });
     //add close button
@@ -1301,6 +1183,24 @@ var sidebar = {
 };
 
 //function that handles the dragging
+// both start at the right edge. as long as the user did not move the sidebar, it opens next to the
+// toolbar instead of below it, where the toolbar covered the message buttons
+function placeSidebarNextToToolbar(popuparea) {
+  const toolbar = getFloatingToolbar();
+  if (!popuparea || !toolbar) return;
+  const bar = toolbar.getBoundingClientRect();
+  if (!bar.width) return;
+  const gap = 8;
+  popuparea.style.top = Math.max(bar.top, 0) + "px";
+  if (bar.left + bar.width / 2 > window.innerWidth / 2) {
+    popuparea.style.left = "auto";
+    popuparea.style.right = Math.max(window.innerWidth - bar.left + gap, 0) + "px";
+  } else {
+    popuparea.style.right = "auto";
+    popuparea.style.left = bar.right + gap + "px";
+  }
+}
+
 function dragElement(elmnt) {
   var pos1 = 0,
     pos2 = 0,
@@ -1359,27 +1259,6 @@ function dragElement(elmnt) {
   }
 }
 
-function injectCss(cssStyle, id, className) {
-  var style = document.createElement("style");
-  style.type = "text/css";
-  style.appendChild(document.createTextNode(cssStyle));
-  id && (style.id = id);
-  className && style.classList.add(className);
-  document.getElementsByTagName("head")[0].appendChild(style);
-}
-
-function removeElementsWithId(name) {
-  document.getElementById(name).remove();
-  return true;
-}
-
-function removeElementsWithClass(classToDelete) {
-  let elements = document.getElementsByClassName(classToDelete);
-  for (let i = elements.length - 1; i >= 0; i--) {
-    elements[i].remove(element);
-  }
-  return true;
-}
 function formatDuration(durationMs) {
   const h = Math.floor(durationMs / (1000 * 60 * 60)) % 24;
   const m = Math.floor(durationMs / (1000 * 60)) % 60;
@@ -1462,23 +1341,19 @@ async function popupTable(message) {
   return popupHTML;
 }
 function apireserror(message) {
-  $(".ui.toast").toast("close");
-  $.toast({
+  cpihCloseToasts();
+  cpihToast({
     message: "Please wait while we prepare...",
     position: "bottom right",
     showProgress: "bottom",
-    class: $("html").hasClass("sapUiTheme-sap_horizon_dark") ? " ch_dark " : "",
     onVisible: async () =>
       popupTable(message)
         .then((message) => {
-          $(".ui.toast").toast("close");
-          $.toast({
+          cpihCloseToasts();
+          cpihToast({
             closeIcon: true,
             showProgress: "top",
-            classProgress: "blue",
-            progressUp: true,
             position: "bottom right",
-            class: $("html").hasClass("sapUiTheme-sap_horizon_dark") ? " ch_dark " : "",
             displayTime: 5000,
             onRemove: () => {
               document.querySelectorAll(".cpiHelper_sidebar_iconbutton").forEach((i) => i.classList.remove("cpiHelper_sidebar_iconbutton"));
@@ -1543,7 +1418,6 @@ function collectDataOfCurrentArtifact() {
   var result;
   var artifactType;
 
-  //try {
   let groups = "";
 
   for (const dataRegexp of cpiArtifactURIRegexp) {
@@ -1606,7 +1480,6 @@ async function getArtifactFullName() {
 function getPackageId() {
   var url = window.location.href;
   var result;
-  //try {
   let groups = "";
   if (cpiCollectionURIRegexp.test(url) === true) {
     groups = url.match(cpiCollectionURIRegexp).groups;
@@ -1859,7 +1732,12 @@ var cpiHelperHeartbeatInterval = setInterval(async function () {
     return;
   }
 
-  await checkURLchange(window.location.href);
+  // an error here must not skip the rest of the beat, e.g. putting the CPI Helper button back
+  try {
+    await checkURLchange(window.location.href);
+  } catch (error) {
+    log.error("checkURLchange failed", error);
+  }
 
   // UI5 overwrites the tab title while the app renders, so re-apply it on every beat
   setDocumentTitle(hostData.title);
@@ -1880,9 +1758,10 @@ var cpiHelperHeartbeatInterval = setInterval(async function () {
     buildButtonBar();
     addBreadcrumbs();
   }
-  // theme information synchronous storage
-  if (callChromeStoragePromise("CPIhelperThemeInfo") == $("html").hasClass("sapUiTheme-sap_horizon_dark")) {
-    await syncChromeStoragePromise("CPIhelperThemeInfo", $("html").hasClass("sapUiTheme-sap_horizon_dark"));
+  // theme information for the browser popup: CPIhelperThemeInfo is true for the light theme.
+  // compared with the stored value, the promise itself was compared before and never matched
+  if ((await callChromeStoragePromise("CPIhelperThemeInfo")) !== !cpihIsDark()) {
+    await syncChromeStoragePromise("CPIhelperThemeInfo", !cpihIsDark());
   }
   log.debug("check for button bar");
   try {
@@ -1899,7 +1778,7 @@ var cpiHelperHeartbeatInterval = setInterval(async function () {
     log.log("refresh active. Will not refresh message sidebar");
   }
 
-  const autoRefreshEnabled = (await chrome.storage.sync.get(["autoRefreshMessageSidebar"])["autoRefreshMessageSidebar"]) ?? true; // default to true if not set
+  const autoRefreshEnabled = (await chrome.storage.sync.get(["autoRefreshMessageSidebar"]))["autoRefreshMessageSidebar"] ?? true; // default to true if not set
 
   //check if message sidebar should be refreshed
   if (autoRefreshEnabled) {

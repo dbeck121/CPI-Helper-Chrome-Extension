@@ -32,7 +32,7 @@ var plugin = {
       pluginHelper.functions.popup(popupContent, "Timeline");
 
       // Add table sorting
-      $("table").tablesort();
+      cpihTableSort(popupContent.querySelector("table"));
     },
   },
 };

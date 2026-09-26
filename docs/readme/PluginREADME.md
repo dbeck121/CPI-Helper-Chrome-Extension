@@ -1,4 +1,4 @@
-# Plugin Engine (early beta)
+# Plugin Engine
 |[Home](/README.md)|[Contribution](/docs/readme/contributing.md)|[Code of conduct](/docs/readme/code_of_conduct.md)|[License](/docs/LICENSE)|
 |-|-|-|-|
 
@@ -25,6 +25,24 @@ In case of questions, please open an issue in github.
 5. the filename should not contain special characters or spaces. Be aware that the filename is case sensitiv
 6. please open a ticket and start discussion if you need more than the provided functions and objects
 7. Append any element under global cpihelper element. Must use `body().append` instead of `document.body.append` which directly append it to global tag.
+
+### UI helpers (since 4.0)
+
+jQuery and Fomantic UI are no longer part of CPI Helper. Plugins use plain DOM APIs and these globals from `common/ui-kit.js`:
+
+| FUNCTION | USE |
+| --- | --- |
+| `pluginHelper.functions.popup(content, title)` / `showBigPopup(content, title, options)` | the big CPI Helper popup, content is a string, a node or an async function |
+| `showToast(message, title, type)` / `cpihToast({ message, title, type, displayTime, closeIcon, position, onRemove })` | toast, type is `success`, `error`, `warning` or empty |
+| `cpihConfirm({ title, content, approveText, denyText })` | yes/no dialog, resolves with `true` or `false` |
+| `cpihModal.show(element, { closable, onShow, onHidden, onApprove, onDeny })` / `cpihModal.hide(element)` | own modals (`<div class="ui modal">` with `.header`, `.content`, `.actions`) |
+| `cpihActivateTab(context, name)` | switch tabs programmatically; `.ui.menu .item[data-tab]` + `.ui.tab[data-tab]` pairs work without any call |
+| `cpihTableSort(table)` | click to sort a table by its header cells |
+| `cpihSearch(container, { source, onSelect })` | autocomplete for a `.ui.search` block |
+| `cpihQs(selector)` / `cpihQsa(selector)` / `cpihIsDark()` | null safe query helpers, dark theme check |
+| `formatTrace(text, id)` | payload viewer (Ace editor with pretty print, search, fullscreen) |
+
+The markup keeps the familiar class names (`ui button`, `ui segment`, `ui message`, `ui table`, `ui form`, `ui toggle checkbox`, ...), they are styled by `css/ui.css` and follow the light and dark CPI theme. A failing hook is logged and does not affect other plugins.
 
 ## Plugin Implemetation metadata v1.0.0
 ### metadata description

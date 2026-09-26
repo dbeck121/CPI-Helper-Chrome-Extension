@@ -4,6 +4,28 @@
 
 //creates plugin content area in message sidebar
 
+// runs a plugin hook so that a failing plugin cannot break the other plugins or the core around it
+async function safePluginCall(plugin, hook, fn, ...args) {
+  try {
+    return await fn(...args);
+  } catch (error) {
+    log.error(`plugin ${plugin?.id}: ${hook} failed`, error);
+    return undefined;
+  }
+}
+
+// condition() of a button hook. a throwing condition counts as false
+function pluginConditionMet(plugin, hook, ...args) {
+  if (!plugin[hook]) return false;
+  if (!plugin[hook].condition) return true;
+  try {
+    return !!plugin[hook].condition(...args);
+  } catch (error) {
+    log.error(`plugin ${plugin.id}: ${hook}.condition failed`, error);
+    return false;
+  }
+}
+
 async function getActivePlugins() {
   const plugins = [];
   for (const plugin of pluginList) {
@@ -107,10 +129,10 @@ function createPluginToolbarIcon(plugin) {
 //creates buttons in message sidebar
 async function createPluginButtonsInMessageSidebar(runInfoElement, i, flash) {
   var pluginButtons = [];
-  for (var plugin of pluginList) {
+  for (const plugin of pluginList) {
     var settings = await getPluginSettings(plugin.id);
     if (settings[plugin.id + "---isActive"] === true) {
-      if ((plugin.messageSidebarButton && !plugin.messageSidebarButton.condition) || (plugin.messageSidebarButton && plugin.messageSidebarButton.condition(cpiData, settings, runInfoElement))) {
+      if (pluginConditionMet(plugin, "messageSidebarButton", cpiData, settings, runInfoElement)) {
         var button = createElementFromHTML(`<button title='${plugin.messageSidebarButton.title}' id='cpiHelperPlugin--${plugin.id}' 
                 class='${runInfoElement.messageGuid + flash}'>
                 ${
@@ -119,13 +141,13 @@ async function createPluginButtonsInMessageSidebar(runInfoElement, i, flash) {
                     : plugin.messageSidebarButton.icon.text.substring(0, 3)
                 }
                      </button>`);
-        button.onclick = async (btn) => {
-          let pluginID = btn.target.id.replace("cpiHelperPlugin--", "");
-          let pluginItem = pluginList.find((element) => element.id == pluginID);
+        // the plugin comes from the closure: a click on the inner icon has no id to look it up
+        button.onclick = async () => {
+          let pluginID = plugin.id;
           let pluginsettings = await getPluginSettings(pluginID);
-          let pluginbtnstatus = document.querySelector(`[id='cpiHelperPlugin--${pluginID}'].${runInfoElement.messageGuid}`);
+          let pluginbtnstatus = button;
           isactivebutton = !pluginbtnstatus.classList.contains("cpiHelper_plugin-active");
-          pluginItem.messageSidebarButton.onClick(cpiData, pluginsettings, runInfoElement, isactivebutton);
+          safePluginCall(plugin, "messageSidebarButton.onClick", plugin.messageSidebarButton.onClick, cpiData, pluginsettings, runInfoElement, isactivebutton);
           if (!isactivebutton) {
             pluginbtnstatus.classList.remove("cpiHelper_plugin-active");
           } else {
@@ -144,11 +166,10 @@ async function createPluginButtonsInMessageSidebar(runInfoElement, i, flash) {
 //type = scriptCollectionButton, scriptButton, xsltButton
 async function createPluginButtons(type) {
   var pluginButtons = [];
-  for (var plugin of pluginList) {
+  for (const plugin of pluginList) {
     var settings = await getPluginSettings(plugin.id);
     if (settings[plugin.id + "---isActive"] === true) {
-      if ((plugin[type] && !plugin[type].condition) || (plugin[type] && plugin[type].condition(cpiData, settings))) {
-        log.log(plugin[type].icon.class);
+      if (pluginConditionMet(plugin, type, cpiData, settings)) {
         var button = createElementFromHTML(`<button title='${plugin[type].title}' id='cpiHelperPlugin--${plugin.id}' class='cpiHelper_pluginButton_${type} ${
           plugin[type].icon.class ? plugin[type].icon.class : "mini ui tertiary"
         } button cpiHelper_pluginButton'>
@@ -157,12 +178,10 @@ async function createPluginButtons(type) {
                     ? `<span data-sap-ui-icon-content="&#${plugin[type]?.icon.text}" class="sapUiIcon sapUiIconMirrorInRTL ${plugin[type].icon.class ? plugin[type].icon.class : ""}" style="font-family: SAP-icons; font-size: 0.9rem;"></span>`
                     : plugin[type]?.title
                 }</button>`);
-        button.onclick = async (btn) => {
-          let pluginID = btn.target.id.replace("cpiHelperPlugin--", "");
-          let pluginItem = pluginList.find((element) => element.id == pluginID);
-          let pluginsettings = await getPluginSettings(pluginID);
-          pluginItem[type].onClick(cpiData, pluginsettings);
-          statistic("messagebar_btn_plugin_click", pluginID);
+        button.onclick = async () => {
+          let pluginsettings = await getPluginSettings(plugin.id);
+          safePluginCall(plugin, type + ".onClick", plugin[type].onClick, cpiData, pluginsettings);
+          statistic("messagebar_btn_plugin_click", plugin.id);
         };
         pluginButtons.push(button);
       }
@@ -171,54 +190,6 @@ async function createPluginButtons(type) {
   return pluginButtons;
 }
 
-/* old. replaced withcreatePluginButtons
-async function createPluginScriptCollectionButtons() {
-    var pluginButtons = [];
-    for (var plugin of pluginList) {
-        var settings = await getPluginSettings(plugin.id);
-        if (settings[plugin.id + "---isActive"] === true) {
-            if (plugin.scriptCollectionButton && !plugin.scriptCollectionButton.condition || plugin.scriptCollectionButton && plugin.scriptCollectionButton.condition(cpiData, settings)) {
-                var button = createElementFromHTML("<button title='" + plugin.scriptCollectionButton.title + "' id='cpiHelperPlugin--" + plugin.id + "' class='cpiHelper_pluginButton_scriptCollection mini ui button'>" + plugin?.scriptCollectionButton?.text + "</button>");
- 
-                button.onclick = async (btn) => {
-                    let pluginID = btn.target.id.replace("cpiHelperPlugin--", "")
-                    let pluginItem = pluginList.find((element) => element.id == pluginID)
-                    let pluginsettings = await getPluginSettings(pluginID);
-                    pluginItem.scriptCollectionButton.onClick(cpiData, pluginsettings);
-                    statistic("messagebar_btn_plugin_click", pluginID)
-                };
- 
-                pluginButtons.push(button);
-            }
-        }
-    }
-    return pluginButtons;
-}
- 
-async function createPluginScriptButtons() {
-    var pluginButtons = [];
-    for (var plugin of pluginList) {
-        var settings = await getPluginSettings(plugin.id);
-        if (settings[plugin.id + "---isActive"] === true) {
-            if (plugin.scriptButton && !plugin.scriptButton.condition || plugin.scriptButton && plugin.scriptButton.condition(cpiData, settings)) {
-                var button = createElementFromHTML("<button title='" + plugin.scriptButton.title + "' id='cpiHelperPlugin--" + plugin.id + "' class='cpiHelper_pluginButton_script mini ui button'>" + plugin?.scriptButton?.text + "</button>");
- 
-                button.onclick = async (btn) => {
-                    let pluginID = btn.target.id.replace("cpiHelperPlugin--", "")
-                    let pluginItem = pluginList.find((element) => element.id == pluginID)
-                    let pluginsettings = await getPluginSettings(pluginID);
-                    pluginItem.scriptButton.onClick(cpiData, pluginsettings);
-                    statistic("messagebar_btn_plugin_click", pluginID)
-                };
- 
-                pluginButtons.push(button);
-            }
-        }
-    }
-    return pluginButtons;
-}
- 
-*/
 
 // ----------------------
 //plugin popup
@@ -230,9 +201,9 @@ async function createPluginPopupUI(plugin) {
   container.className = "ui card";
   container.appendChild(
     createElementFromHTML(`<div class="extra content">
-        <img class="right floated mini ui image" src=${plugin.settings["icon"] ? chrome.runtime.getURL(plugin.settings["icon"].src) : ""}>
+        ${plugin.settings["icon"] ? `<img class="right floated mini ui image" src="${chrome.runtime.getURL(plugin.settings["icon"].src)}" alt="">` : ""}
         <div class="header">${plugin.name}</div>
-        <a href=${plugin.website} target="_blank" class="meta">${plugin.author}</a>
+        <a href="${plugin.website}" target="_blank" rel="noreferrer" class="meta">${plugin.author}</a>
     </div>`)
   );
   container.appendChild(createElementFromHTML(`<div class="content">${plugin.description}</div>`));
@@ -402,7 +373,7 @@ async function createPluginPopupUI(plugin) {
         }
         if (plugin.settings[key].type == "label") {
           var label = document.createElement("div");
-          label.id = `cpiHelper_popup_plugins - ${plugin.id} -${key} `;
+          label.id = `cpiHelper_popup_plugins-${plugin.id}-${key}`;
           label.innerText = plugin.settings[key].text;
 
           var div = document.createElement("div");
@@ -412,7 +383,7 @@ async function createPluginPopupUI(plugin) {
         }
         if (plugin.settings[key].type == "text") {
           var text = document.createElement("div");
-          text.id = `cpiHelper_popup_plugins - ${plugin.id} -${key} `;
+          text.id = `cpiHelper_popup_plugins-${plugin.id}-${key}`;
           text.innerHTML = plugin.settings[key].text;
           var div = document.createElement("div");
           div.classList = plugin.settings[key].class;
@@ -422,7 +393,7 @@ async function createPluginPopupUI(plugin) {
         if (plugin.settings[key].type == "button") {
           var btn = document.createElement("button");
           btn.classList = plugin.settings[key].class;
-          btn.id = `cpiHelper_popup_plugins - ${plugin.id} -${key} `;
+          btn.id = `cpiHelper_popup_plugins-${plugin.id}-${key}`;
           btn.innerHTML = plugin.settings[key].title;
           btn.onclick = plugin.settings[key].fun;
           subcontainer.appendChild(btn);
@@ -455,14 +426,22 @@ async function createPluginPopupUI(plugin) {
   return container;
 }
 
+var pluginHeartbeatRunning = false;
+
+// every 3 seconds from the main loop. a slow heartbeat skips the next tick instead of piling up
 async function runPluginHeartbeat() {
-  for (var plugin of pluginList) {
-    var settings = await getPluginSettings(plugin.id);
-    if (settings[plugin.id + "---isActive"] === true) {
-      if (plugin["heartbeat"]) {
-        await plugin["heartbeat"](cpiData, settings);
+  if (pluginHeartbeatRunning) return;
+  pluginHeartbeatRunning = true;
+  try {
+    for (const plugin of pluginList) {
+      if (!plugin.heartbeat) continue;
+      var settings = await getPluginSettings(plugin.id);
+      if (settings[plugin.id + "---isActive"] === true) {
+        await safePluginCall(plugin, "heartbeat", plugin.heartbeat, cpiData, settings);
       }
     }
+  } finally {
+    pluginHeartbeatRunning = false;
   }
 }
 
@@ -472,16 +451,18 @@ async function createContentNodeForPlugins() {
   pluginUIList.id = "cpiHelper_popup_plugins";
   pluginUIList.className = "ui cards";
 
-  //sort by alphabet and figaf plugins
-  let sortedList = pluginList
-    .sort((x, y) => {
-      return x.id.toLowerCase() > y.id.toLowerCase() ? 1 : -1;
-    })
-    .sort((x, y) => {
-      return x.id.toLowerCase().includes("figaf") && !y.id.toLowerCase().includes("figaf") ? -1 : 1;
-    });
+  //figaf plugins first, then by alphabet. sorts a copy, the toolbar keeps the load order
+  const isFigaf = (plugin) => (plugin.id.toLowerCase().includes("figaf") ? 1 : 0);
+  let sortedList = [...pluginList].sort((x, y) => isFigaf(y) - isFigaf(x) || x.id.localeCompare(y.id, undefined, { sensitivity: "base" }));
   for (var element of sortedList) {
-    pluginUIList.appendChild(await createPluginPopupUI(element));
+    try {
+      pluginUIList.appendChild(await createPluginPopupUI(element));
+    } catch (error) {
+      log.error(`plugin ${element.id}: settings could not be rendered`, error);
+      const fallback = createElementFromHTML(`<div class="ui card"><div class="content"><div class="header"></div><div class="description">The settings of this plugin could not be shown.</div></div></div>`);
+      fallback.querySelector(".header").textContent = element.name || element.id;
+      pluginUIList.appendChild(fallback);
+    }
   }
   return pluginUIList;
 }
@@ -499,8 +480,29 @@ async function getStorageValue(pluginId, key, type = null) {
   return result;
 }
 
+// getPluginSettings runs for every plugin on every heartbeat and message row. they share one read of the
+// sync storage for a second, every write through syncChromeStoragePromise or from elsewhere drops it
+var pluginStorageSnapshot = null;
+var pluginStorageSnapshotTime = 0;
+
+function dropPluginStorageSnapshot() {
+  pluginStorageSnapshot = null;
+}
+
+try {
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "sync") dropPluginStorageSnapshot();
+  });
+} catch (error) {
+  log.debug("storage change listener not available", error);
+}
+
 async function getPluginSettings(id) {
-  var storage = await callChromeStoragePromise(null);
+  if (!pluginStorageSnapshot || Date.now() - pluginStorageSnapshotTime > 1000) {
+    pluginStorageSnapshotTime = Date.now();
+    pluginStorageSnapshot = callChromeStoragePromise(null);
+  }
+  var storage = { ...(await pluginStorageSnapshot) };
   var settings = Object.keys(storage)
     .filter((key) => key.startsWith(id))
     .reduce((obj, key) => {
@@ -509,3 +511,16 @@ async function getPluginSettings(id) {
     }, {});
   return settings;
 }
+
+// the plugins are loaded before this file: warn about what would break them later
+(function validatePluginList() {
+  const knownVersions = ["0.9.0", "1.0.0", "1.1.0"];
+  const seen = new Set();
+  pluginList.forEach((plugin) => {
+    if (!plugin?.id) return log.warn("plugin without id", plugin);
+    if (seen.has(plugin.id)) log.warn(`plugin id ${plugin.id} is used twice`);
+    seen.add(plugin.id);
+    if (plugin.metadataVersion && !knownVersions.includes(plugin.metadataVersion)) log.warn(`plugin ${plugin.id}: unknown metadataVersion ${plugin.metadataVersion}`);
+  });
+  log.log(`${pluginList.length} plugins loaded`);
+})();
