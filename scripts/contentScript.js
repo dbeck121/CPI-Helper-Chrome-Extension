@@ -619,7 +619,10 @@ async function buildFloatingToolbar() {
             return {
               label: isActive ? `${location.id} (deployed)` : location.id,
               selected: location.id === cpiData.runtimeLocationId,
-              onClick: () => setRuntimeLocation(location),
+              onClick: () => {
+                runtimeLocationPickedByUser = true;
+                setRuntimeLocation(location);
+              },
             };
           });
         },
@@ -901,19 +904,18 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
   }
 }
 
-// APIs and MCP servers run on an Edge Integration Cell, so their default is the first runtime that is not
-// the cloud runtime. Applied once per artifact: a runtime picked by hand afterwards is kept.
-var runtimeLocationDefaultAppliedFor = null;
+// The default runtime depends on the artifact type: APIs and MCP servers run on the integration cell,
+// everything else on cloudintegration. A runtime picked by hand in the toolbar wins until the page reloads.
+var runtimeLocationPickedByUser = false;
 function applyDefaultRuntimeLocation() {
-  if (!["API", "MCP Server"].includes(cpiData.currentArtifactType)) return;
-  if (runtimeLocationDefaultAppliedFor === cpiData.currentArtifactId) return;
-  runtimeLocationDefaultAppliedFor = cpiData.currentArtifactId;
-
-  if (cpiData.runtimeLocationId && cpiData.runtimeLocationId !== "cloudintegration") return;
-  const integrationCell = cpiData.runtimeLocations.find((loc) => loc.id !== "cloudintegration");
-  if (integrationCell) {
-    log.debug(`default runtime location for ${cpiData.currentArtifactType}: ${integrationCell.id}`);
-    setRuntimeLocation(integrationCell, true);
+  if (runtimeLocationPickedByUser) return;
+  const locations = cpiData.runtimeLocations || [];
+  const wanted = ["API", "MCP Server"].includes(cpiData.currentArtifactType)
+    ? locations.find((loc) => loc.id === "integrationcell") || locations.find((loc) => loc.id !== "cloudintegration")
+    : locations.find((loc) => loc.id === "cloudintegration");
+  if (wanted && wanted.id !== cpiData.runtimeLocationId) {
+    log.debug(`default runtime location for ${cpiData.currentArtifactType}: ${wanted.id}`);
+    setRuntimeLocation(wanted, true);
   }
 }
 
