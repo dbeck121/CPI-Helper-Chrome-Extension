@@ -163,7 +163,7 @@ div#cpiHelper_semanticui_modal {
 
 .cpiHelper #outerFrame {
   border: 0;
-  background: var(--sapGroup_ContentBackground, var(--cpi-background-color));
+  background: transparent;
   color: var(--sapTextColor, #1d2d3e);
   padding: 8px 10px 10px;
   box-sizing: border-box;
@@ -174,7 +174,7 @@ div#cpiHelper_semanticui_modal {
 #cpiHelper_content {
   position: fixed;
   z-index: 400;
-  background: var(--sapGroup_ContentBackground, var(--cpi-background-color));
+  background: var(--cpiHelper-glass);
   top: 25%;
   right: 0.5rem;
   width: fit-content;
@@ -203,7 +203,7 @@ div#cpiHelper_semanticui_modal {
   font-size: 0.75rem;
   font-weight: 600;
   z-index: 10;
-  background-color: var(--cpi-custom-color);
+  background-color: var(--cpiHelper-glass-header);
   color: var(--cpi-text-color);
   box-sizing: border-box;
   border-radius: 9px 9px 0 0;
@@ -724,6 +724,14 @@ fieldset {
 }
 
 /* floating toolbar (scripts/floatingToolbar.js). SAP theme variables, so it follows light and dark UI5 themes */
+/* the card background lets the page shine through a little, text stays fully opaque */
+#cpiHelper_floatingToolbar,
+#cpiHelper_content {
+  --cpiHelper-glass: color-mix(in srgb, var(--sapGroup_ContentBackground, #fff) 80%, transparent);
+  --cpiHelper-glass-header: color-mix(in srgb, var(--cpi-custom-color) 90%, transparent);
+  backdrop-filter: blur(3px);
+}
+
 #cpiHelper_floatingToolbar {
   position: fixed;
   z-index: 999;
@@ -732,7 +740,7 @@ fieldset {
   align-items: center;
   gap: 2px;
   padding: 4px;
-  background: var(--sapGroup_ContentBackground, #fff);
+  background: var(--cpiHelper-glass);
   border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
   border-radius: 10px;
   box-shadow: var(--sapContent_Shadow2, 0 4px 16px rgba(0, 0, 0, 0.18));
@@ -755,7 +763,7 @@ fieldset {
   margin: -4px -4px 2px;
   padding: 5px 8px;
   border-radius: 9px 9px 0 0;
-  background: var(--cpi-custom-color);
+  background: var(--cpiHelper-glass-header);
   color: var(--cpi-text-color);
   cursor: grab;
   touch-action: none;
