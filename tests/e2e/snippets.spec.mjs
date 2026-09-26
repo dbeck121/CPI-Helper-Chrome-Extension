@@ -40,7 +40,8 @@ test("copy a step, save it as snippet, paste it into another iFlow", async ({ pa
   // copy the first activity of the source iFlow (view mode is enough for Copy)
   await openIflow(page, requireEnv("CPI_IFLOW_URL", env.iflowUrl));
   // a step whose center is not covered by a CPI Helper toolbar or popup
-  const point = await page.evaluate(() => {
+  // the diagram renders after the toolbar, retry until a step is there and free
+  const findFreeStep = () => page.evaluate(() => {
     for (const shape of document.querySelectorAll("[id^='BPMNShape_CallActivity_']")) {
       const r = shape.getBoundingClientRect();
       const x = r.left + r.width / 2, y = r.top + r.height / 2;
@@ -50,7 +51,8 @@ test("copy a step, save it as snippet, paste it into another iFlow", async ({ pa
     }
     return null;
   });
-  expect(point, "no free step to click in the source iFlow").not.toBeNull();
+  await expect.poll(findFreeStep, { timeout: 30_000, message: "no free step to click in the source iFlow" }).not.toBeNull();
+  const point = await findFreeStep();
   await page.mouse.click(point.x, point.y);
   await expect(page.locator("[title='Copy']").first()).toBeEnabled();
   await page.locator("[title='Copy']").first().click();
