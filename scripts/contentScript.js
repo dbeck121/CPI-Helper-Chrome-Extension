@@ -1214,7 +1214,7 @@ var sidebar = {
     var elem = document.createElement("div");
     elem.innerHTML = `
     <div id="cpiHelper_contentheader" content="${hostData.count}" >
-      <span id='sidebar_modal_minimize' class='cpiHelper_popupTitle' title='Collapse or expand'>CPI Helper</span>
+      <span id='sidebar_modal_minimize' class='cpiHelper_popupTitle' title='Collapse or expand'><span class='cpiHelper_floatingToolbar_dots'></span>CPI Helper</span>
       <button type='button' id='sidebar_modal_close' class='cpiHelper_popupHeaderButton' title='Close' aria-label='Close'>${floatingToolbarIcon("close")}</button>
     </div>
     <div id="outerFrame" >
