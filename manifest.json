@@ -79,6 +79,7 @@
         "/plugins/zz_developer_tools.js",
         "/plugins/iFlowSearcher.js",
         "/plugins/mplSorter.js",
+        "/plugins/enhancedPackageView.js",
         "/scripts/ui.js",
         "/scripts/logs.js",
         "/whatsNew/whatsNewLog.js",
