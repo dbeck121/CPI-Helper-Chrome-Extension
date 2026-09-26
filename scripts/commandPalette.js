@@ -1,7 +1,7 @@
 // Command palette (Cmd/Ctrl+K or the Search button of the toolbar): one search over the artifacts and packages of the
-// tenant, the jump targets and the visit history. The artifact list comes from the design time workspace api
-// (one call per package) and is cached per tenant in chrome.storage.local; a stale list is shown at once and refreshed
-// in the background. Ranking: common/palette-search.js.
+// tenant, the jump targets and the visit history. The artifact list comes from the workspace odata service in one
+// call (fallback: design time workspace api, one call per package) and is cached per tenant in chrome.storage.local;
+// a stale list is shown at once and refreshed in the background. Ranking: common/palette-search.js.
 
 const CPIH_PALETTE_ID = "cpiHelper_palette";
 const CPIH_PALETTE_INDEX_TTL = 15 * 60 * 1000;
@@ -18,8 +18,34 @@ async function cpihFetchJson(path) {
   return response.json();
 }
 
-// { time, packages: [{ id, name }], artifacts: [{ id, name, type, pkg, pkgName }] }; type is the workspace api type
+// { time, packages: [{ id, name }], artifacts: [{ id, name, type, pkg, pkgName }] }; type is the workspace api type.
+// One call to the workspace odata service of the web UI, all packages with their artifacts
+async function cpihFetchPaletteIndexOdata() {
+  const select = "TechnicalName,DisplayName,Artifacts/Name,Artifacts/DisplayName,Artifacts/Type";
+  const result = await cpihFetchJson(`/odata/1.0/workspace.svc/ContentEntities.ContentPackages?$expand=Artifacts&$select=${select}&$format=json`);
+  const packages = [];
+  const artifacts = [];
+  for (const pkg of result.d.results) {
+    const name = pkg.DisplayName || pkg.TechnicalName;
+    packages.push({ id: pkg.TechnicalName, name });
+    for (const artifact of pkg.Artifacts?.results || []) {
+      if (CPIH_WORKSPACE_TYPES[artifact.Type]) artifacts.push({ id: artifact.Name, name: artifact.DisplayName, type: artifact.Type, pkg: pkg.TechnicalName, pkgName: name });
+    }
+  }
+  return { time: Date.now(), packages, artifacts };
+}
+
 async function cpihFetchPaletteIndex() {
+  try {
+    return await cpihFetchPaletteIndexOdata();
+  } catch (error) {
+    log.debug("palette: workspace odata service not readable, reading the packages one by one", error);
+    return cpihFetchPaletteIndexPerPackage();
+  }
+}
+
+// fallback, one call per package
+async function cpihFetchPaletteIndexPerPackage() {
   const workspaces = await cpihFetchJson("/api/1.0/workspace");
   const packages = workspaces.map((workspace) => ({ id: workspace.technicalName, name: workspace.title || workspace.technicalName, workspace: workspace.id }));
   const artifacts = [];
