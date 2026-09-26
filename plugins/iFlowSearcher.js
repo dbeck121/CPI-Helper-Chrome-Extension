@@ -10,33 +10,19 @@ var plugin = {
     "This plugin enables to search for a specified terms across both <b>Content Modifiers</b> and <b>Scripts</b>. The search covers <b>Script Content</b> and <b>Content Modifier</b> (Header Name, Header Source Value, Property Name, Property Source Value, and Message Body).<br>(*) Please note that Version 0.1.0 currently <b>supports only</b> iFlows in the Integration Suite on <b>Cloud Foundry</b>.",
   settings: {},
 
-  messageSidebarContent: {
-    onRender: (pluginHelper) => {
-      if (!document.getElementById("plugin-button")) {
-        // sets base url of tenant and iflow
-        setBaseUrl(pluginHelper);
-
-        return createSideBarButton();
-      }
+  toolbarButton: {
+    title: "iFlow Searcher",
+    onClick: (pluginHelper) => {
+      // sets base url of tenant and iflow
+      setBaseUrl(pluginHelper);
+      // opens dragable iFlow searcher element
+      createDraggableSearchContainer();
     },
   },
 };
 
 var baseUrl = "";
 var iFlowUrl = "";
-
-// function to create the button
-function createSideBarButton() {
-  var button = document.createElement("button");
-  button.id = "plugin-button";
-  button.innerText = "Open iFlow Searcher";
-  button.addEventListener("click", () => {
-    // opens dragable iFlow searcher element
-    createDraggableSearchContainer();
-  });
-
-  return button;
-}
 
 // returns elements from iFlow entities by display name example: Content Modifier or GroovyScript / JavaScript
 function extractElementsByDisplayName(json, names) {

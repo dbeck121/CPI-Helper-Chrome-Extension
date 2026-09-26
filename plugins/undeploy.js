@@ -6,17 +6,13 @@ var plugin = {
   author: "Kangoolutions",
   email: "cpihelper@kangoolutions.com",
   website: "https://kangoolutions.com",
-  description: "Adds an undeploy button to the message sidebar.",
+  description: "Adds an undeploy button to the CPI Helper toolbar.",
   settings: {},
-  messageSidebarContent: {
-    onRender: (pluginHelper, settings) => {
-      var button = document.createElement("button");
-      button.innerText = "Undeploy";
-      button.addEventListener("click", () => {
-        console.log("undeploy plugin clicked");
-        pluginHelper.functions.undeploy();
-      });
-      return button;
+  toolbarButton: {
+    title: "Undeploy",
+    onClick: (pluginHelper, settings) => {
+      console.log("undeploy plugin clicked");
+      pluginHelper.functions.undeploy();
     },
   },
 };
