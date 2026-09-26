@@ -93,6 +93,10 @@ async function whatsNewCheck(showOnlyOnce = true) {
                      <div class="sixteen wide column" style="paddingTop: '0px'">
                  </div>
             </div>
+            <div class="ui info message">
+                <b>New in 3.27:</b> the buttons moved into a floating toolbar and plugins got their own section in it.
+                <a href="#" class="cpihelperWhatsNewShowChanges">See what changed</a>
+            </div>
             <h3 class="ui header">
                 <i class="bell icon"></i>
                 <div class="content">
@@ -100,10 +104,6 @@ async function whatsNewCheck(showOnlyOnce = true) {
                 </div>
             </h3>
             <a class="ui red top right ribbon label" style="position: absolute;">FireFox limited support</a>  
-            <div class="ui info message">
-                <b>New in 3.27:</b> the buttons moved into a floating toolbar and plugins got their own section in it.
-                <a href="#" class="cpihelperWhatsNewShowChanges">See what changed</a>
-            </div>
             <div class="changeloglist">${Object.entries(
               whats_new_log
                 .trim()
