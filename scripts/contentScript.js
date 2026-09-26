@@ -30,7 +30,6 @@ cpiData.flowData.logConfiguration.traceActive = null;
 
 cpiData.flowData.endpointInformation = [];
 
-//cpiData.isEdge = false;
 cpiData.runtimeLocationId = "cloudintegration";
 cpiData.runtimeLocations = [];
 cpiData.runtimeLocationWithActiveIFlow = [];
@@ -65,7 +64,6 @@ cpiArtifactURIRegexp = [
 var cpiTypeRegexp = /^[^\/]*\.integrationsuite(-trial)?.*/;
 
 var cpiCollectionURIRegexp = /\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)/;
-var cpiIflowUriRegexp = /\/integrationflows\/(?<artifactId>[0-9a-zA-Z_\-.]+)/;
 
 cpiData.functions.openTrace = openTrace;
 
@@ -139,7 +137,6 @@ async function renderMessageSidebar(cache = true) {
   } catch (e) {
     log.error("There was a faulty message from CI-API. CPI Helper will ignore it: " + e);
   }
-  //    document.getElementById('iflowName').innerText = cpiData.integrationFlowId;
 
   let updatedText = document.getElementById("cpiHelper_sidebar_refresh_text");
 
@@ -178,12 +175,7 @@ async function renderMessageSidebar(cache = true) {
         messageList.innerHTML = "";
         var lastDay;
 
-        //display few :
-        // var count = parseInt(document.querySelector("head > meta[name='cpi-count']") !== null ? document.querySelector("head > meta[name='cpi-count']").content : resp.length);
-
         for (var i = 0; i < resp.length; i++) {
-          //var logStart = resp[i].LogStart == null ? "-" : resp[i].LogStart;
-
           var logStart = new Date(parseInt(resp[i].LogStart.match(/\d+/)[0]));
           var logStartFormatted = logStart.toISOString().substring(0, 19);
           var logEnd = new Date(parseInt(resp[i].LogEnd.match(/\d+/)[0]));
@@ -221,7 +213,6 @@ async function renderMessageSidebar(cache = true) {
             flash = " flash";
           }
           let loglevel = resp[i].LogLevel.toLowerCase();
-          // logLevel[0] = logLevel[0].toUpperCase();
           runInfoElement[thisMessageHash].logLevel = loglevel;
 
           let traceButton = createElementFromHTML(`<button title='jump to trace page' id='trace--${i}' class='${resp[i].MessageGuid} ${flash}'>${loglevel.substr(0, 1).toUpperCase()}</button>`);
@@ -242,8 +233,6 @@ async function renderMessageSidebar(cache = true) {
             `<button title='show log viewer on this page' id='logs--${i}' class='${resp[i].MessageGuid} ${flash}'><span data-sap-ui-icon-content=\"\" class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>`
           );
 
-          //let listItem = document.createElement("div");
-          //listItem.classList.add("cpiHelper_messageListItem")
           let statusColor = getStatusColorCode(resp[i].Status);
           let statusIcon = "xe05b";
           if (resp[i].Status == "PROCESSING") {
@@ -258,8 +247,6 @@ async function renderMessageSidebar(cache = true) {
           if (resp[i].Status.match(/^(CANCELLED|ABANDONED)$/)) {
             statusIcon = "xe23e";
           }
-
-          //listItem.style["color"] = statusColor;
 
           activeInlineItem == quickInlineTraceButton.classList[0] && quickInlineTraceButton.classList.add("cpiHelper_inlineInfo-active");
 
@@ -455,10 +442,6 @@ function addBreadcrumbs() {
   }
 }
 
-//injected buttons are created here
-var powertrace = null;
-var recrutingTimerSet = false;
-
 // Function to update runtime location dropdown options
 function updateRuntimeLocationDropdown(traceDropdownMenu = null) {
   if (!traceDropdownMenu) {
@@ -519,14 +502,6 @@ async function buildFloatingToolbar() {
   // another artifact can have other runtime locations, so its toolbar is built from scratch
   if (!existingToolbar || existingToolbar.dataset.artifactId !== (cpiData.currentArtifactId || "")) {
     whatsNewCheck();
-
-    //timer for recruiting popup in some seconds
-    if (recrutingTimerSet == false) {
-      setTimeout(() => {
-        //     recrutingPopup();
-      }, 600000);
-      recrutingTimerSet = true;
-    }
 
     var toolbar = await createFloatingToolbar(cpiData.currentArtifactId);
 
@@ -848,87 +823,6 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
         return true;
       }
     });
-
-    /*
-    runtimeLocationWithActiveIFlowTemp = [];
-    for (const loc of runtimeLocationWithActiveIFlow) {
-      try {
-        // 4. Detaildaten holen
-        const detailResp = await makeCallPromiseV2(
-          "GET",
-          "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + loc.artifact.id + "&runtimeLocationId=" + loc.id,
-          90,
-          "application/json",
-          null,
-          null,
-          null,
-          silent
-        );
-
-        if (!detailResp.successful) {
-          log.warn("Error fetching detail for location " + loc.id + ": " + detailResp.message);
-          continue;
-        }
-
-        const detail = JSON.parse(detailResp.responseText);
-
-        runtimeLocationWithActiveIFlowTemp.push({
-          detail: detail,
-          artifact: detail.artifactInformation,
-          artifactId: detail.artifactInformation?.id,
-          tenantId: detail.artifactInformation?.tenantId,
-          version: detail.artifactInformation?.version,
-          id: loc.id,
-          state: loc.state,
-          type: loc.type,
-          typeId: loc.typeId,
-        });
-      } catch (detailError) {
-        log.warn("Error fetching detail for location " + loc.id + ": ", detailError);
-        continue;
-      }
-    }
-
-    cpiData.runtimeLocationWithActiveIFlow = runtimeLocationWithActiveIFlowTemp;
-
-    //default
-    if (!cpiData.runtimeLocationId) {
-      if (cpiData.runtimeLocationWithActiveIFlow.length == 0) {
-        log.warn("No runtime location with active IFlow found. Set default to cloudintegration.");
-        setRuntimeLocation({ id: "cloudintegration" });
-      } else {
-        setRuntimeLocation(cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id == "cloudintegration") || cpiData.runtimeLocationWithActiveIFlow[0]);
-      }
-    }
-
-    setRuntimeLocation(
-      cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id === cpiData.runtimeLocationId),
-      true
-    );
-
-    */
-
-    /*   if (cpiData.runtimeLocationId) {
-      if (cpiData.runtimeLocationWithActiveIFlow.length == 0) {
-        log.warn("Previously selected runtime location " + cpiData.runtimeLocationId + " is not available anymore and no runtime location with active IFlow found. Please deploy the IFlow or check your environment.");
-        setRuntimeLocation({ id: "cloudintegration" });
-      } else if (!cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id === cpiData.runtimeLocationId)) {
-        if (cpiData.runtimeLocationWithActiveIFlow.length > 0) {
-          showToast("The previously selected runtime location " + cpiData.runtimeLocationId + " is not available anymore. Runtime location switched to " + cpiData.runtimeLocationWithActiveIFlow[0].id, "Runtime location switched", "warning");
-          setRuntimeLocation(cpiData.runtimeLocationWithActiveIFlow[0], true);
-        } else {
-          log.warn("Previously selected runtime location " + cpiData.runtimeLocationId + " is not available anymore and no other runtime location with active IFlow found. Please deploy the IFlow or check your environment.");
-          setRuntimeLocation({ id: "cloudintegration" });
-        }
-      } else {
-        //update
-        setRuntimeLocation(
-          cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id === cpiData.runtimeLocationId),
-          true
-        );
-      }
-    }
-      */
 
     if (callback) callback();
   } catch (error) {
@@ -1359,27 +1253,6 @@ function dragElement(elmnt) {
   }
 }
 
-function injectCss(cssStyle, id, className) {
-  var style = document.createElement("style");
-  style.type = "text/css";
-  style.appendChild(document.createTextNode(cssStyle));
-  id && (style.id = id);
-  className && style.classList.add(className);
-  document.getElementsByTagName("head")[0].appendChild(style);
-}
-
-function removeElementsWithId(name) {
-  document.getElementById(name).remove();
-  return true;
-}
-
-function removeElementsWithClass(classToDelete) {
-  let elements = document.getElementsByClassName(classToDelete);
-  for (let i = elements.length - 1; i >= 0; i--) {
-    elements[i].remove(element);
-  }
-  return true;
-}
 function formatDuration(durationMs) {
   const h = Math.floor(durationMs / (1000 * 60 * 60)) % 24;
   const m = Math.floor(durationMs / (1000 * 60)) % 60;
@@ -1539,7 +1412,6 @@ function collectDataOfCurrentArtifact() {
   var result;
   var artifactType;
 
-  //try {
   let groups = "";
 
   for (const dataRegexp of cpiArtifactURIRegexp) {
@@ -1602,7 +1474,6 @@ async function getArtifactFullName() {
 function getPackageId() {
   var url = window.location.href;
   var result;
-  //try {
   let groups = "";
   if (cpiCollectionURIRegexp.test(url) === true) {
     groups = url.match(cpiCollectionURIRegexp).groups;
@@ -1855,7 +1726,12 @@ var cpiHelperHeartbeatInterval = setInterval(async function () {
     return;
   }
 
-  await checkURLchange(window.location.href);
+  // an error here must not skip the rest of the beat, e.g. putting the CPI Helper button back
+  try {
+    await checkURLchange(window.location.href);
+  } catch (error) {
+    log.error("checkURLchange failed", error);
+  }
 
   // UI5 overwrites the tab title while the app renders, so re-apply it on every beat
   setDocumentTitle(hostData.title);
@@ -1895,7 +1771,7 @@ var cpiHelperHeartbeatInterval = setInterval(async function () {
     log.log("refresh active. Will not refresh message sidebar");
   }
 
-  const autoRefreshEnabled = (await chrome.storage.sync.get(["autoRefreshMessageSidebar"])["autoRefreshMessageSidebar"]) ?? true; // default to true if not set
+  const autoRefreshEnabled = (await chrome.storage.sync.get(["autoRefreshMessageSidebar"]))["autoRefreshMessageSidebar"] ?? true; // default to true if not set
 
   //check if message sidebar should be refreshed
   if (autoRefreshEnabled) {
