@@ -20,17 +20,16 @@
   "permissions": ["storage"],
   "content_scripts": [
     {
-      "matches": [
-        "https://*.hana.ondemand.com/itspaces/*",
-        "https://*.platform.sapcloud.cn/itspaces/*",
-        "https://*.hana.ondemand.com/shell/*",
-        "https://*.platform.sapcloud.cn/shell/*"
-      ],
+      "matches": ["https://*.hana.ondemand.com/*", "https://*.platform.sapcloud.cn/*"],
       "include_globs": [
-        "https://*.hana.ondemand.com/*",
-        "https://*.platform.sapcloud.cn/*",
-        "https://*.integrationsuite.cfapps.*.hana.ondemand.com/*",
-        "https://?????-tmn.hci.*.hana.ondemand.com/*"
+        "https://*/itspaces",
+        "https://*/itspaces/*",
+        "https://*/itspaces?*",
+        "https://*/shell",
+        "https://*/shell/*",
+        "https://*/shell?*",
+        "https://*.integrationsuite*.hana.ondemand.com/*",
+        "https://*-tmn.hci.*.hana.ondemand.com/*"
       ],
       "js": [
         "/lib/ace/ace.min.js",
