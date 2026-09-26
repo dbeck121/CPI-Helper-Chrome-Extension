@@ -8,7 +8,7 @@ var tenant = ""; // short tenant name, used for the visited artifacts storage ke
 var activeTabId = null;
 var contentScriptAlive = false;
 
-const ARTIFACT_TYPES = ["Package", "IFlow", "Message Mapping", "Script Collection", "Value Mapping", "SOAP API", "REST API", "ODATA API", "API"];
+const ARTIFACT_TYPES = ["Package", "IFlow", "Message Mapping", "Script Collection", "Value Mapping", "SOAP API", "REST API", "ODATA API", "API", "MCP Server"];
 const CPI_HOST_REGEXP = /^https:\/\/[^/]+\.(hana\.ondemand\.com|platform\.sapcloud\.cn)\//i;
 const DEFAULT_ZOOM = 85;
 
@@ -93,6 +93,7 @@ const ARTIFACT_ICONS = {
   "SOAP API": "envelope",
   "REST API": "rest",
   "ODATA API": "database",
+  "MCP Server": "server",
   API: "plug",
 };
 

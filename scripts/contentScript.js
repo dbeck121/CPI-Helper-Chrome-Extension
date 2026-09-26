@@ -49,6 +49,7 @@ cpiArtifactURIRegexp = [
   [/\/restapis\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "REST API"],
   [/\/soapapis\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "SOAP API"],
   [/\/apis\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "API"],
+  [/\/mcpservers\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "MCP Server"],
   [/\/valuemappings\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Value Mapping"],
   [/\/scriptcollections\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Script Collection"],
   [/\/messagemappings\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Message Mapping"],
@@ -1968,7 +1969,7 @@ var cpiHelperHeartbeatInterval = setInterval(async function () {
 
   //check if sidebar should be deactivated because we are not on a suitable page
   // not allowed type of artifact and buildbutton is not visible then deactivate.
-  AllowedTypes = ["IFlow", "ODATA API", "REST API", "SOAP API", "API"].includes(cpiData.currentArtifactType);
+  AllowedTypes = ["IFlow", "ODATA API", "REST API", "SOAP API", "API", "MCP Server"].includes(cpiData.currentArtifactType);
   if (!AllowedTypes && sidebar.active && !document.getElementById("__buttonxx")) {
     sidebar.deactivate();
   }
