@@ -1,119 +1,117 @@
 # Global Floating Toolbar
 
-Status: Phase 1 approved for planning. Phases 2–4 are roadmap only.
+Status: Phases 1–3 implemented. Phase 4 is roadmap only.
 
 ## Goal
 
-The floating toolbar (`scripts/floatingToolbar.js`) currently exists only on artifact pages (IFlow, API types, MCP Server). It becomes the CPI Helper's everywhere-entry point: it shows on every CPI page the content script runs on, with a small set of global buttons, and keeps the artifact buttons on artifact pages.
+The floating toolbar (`scripts/floatingToolbar.js`) used to exist only on artifact pages (IFlow, API types, MCP Server). It is now the CPI Helper's entry point on every CPI page the content script runs on: navigation and plugin management everywhere, the artifact actions on artifact pages.
 
 Decisions taken:
 
-- One toolbar with two modes (approach A), not a persistent bar with swappable sections.
+- One toolbar with two modes, not a persistent bar with swappable sections.
 - The old header button `#__cpihelper` (`scripts/Mode-Script.js`) stays unchanged, in parallel.
 - The Plugins button only opens plugin management. There is no new plugin hook for global buttons.
 
-## Phase 1 (this implementation)
+## Files
+
+| File | Purpose |
+|---|---|
+| `common/jump-targets.js` | Shared navigation targets (popup + toolbar), artifact context targets, workspace type → editor path mapping. Pure, node tested. |
+| `common/visit-history.js` | Visit history with favorites: add visit, toggle favorite, build the view. Pure, node tested. |
+| `common/palette-search.js` | Ranking of the command palette. Pure, node tested. |
+| `scripts/globalToolbar.js` | SPA navigation, Jump to, Recent, failed messages badge. |
+| `scripts/commandPalette.js` | Command palette: index, actions, UI, Cmd/Ctrl+K. |
+| `tests/global-toolbar.test.js` | Node tests of the three pure files (`npm test`). |
+| `tests/e2e/global-toolbar.spec.mjs` | E2E against the tenant. |
+
+## Phase 1: toolbar everywhere, Jump to, Recent, favorites
 
 ### Modes
 
-`buildFloatingToolbar()` in `scripts/contentScript.js` gets a mode:
+`buildFloatingToolbar()` in `scripts/contentScript.js` picks the mode with `isArtifactToolbarPage()` (`FLOATING_TOOLBAR_ARTIFACT_TYPES`, the former `AllowedTypes`):
 
-| Mode | When | Buttons |
-|---|---|---|
-| `artifact` | `cpiData.currentArtifactType` is in `AllowedTypes` (as today) | Trace, Messages, Info, Logs, Runtime · plugin buttons · **Jump to** · **Recent** · Manage plugins |
-| `global` | every other page | **Jump to** · **Recent** · **Plugins** |
+| Mode | Buttons |
+|---|---|
+| artifact | Trace, Messages, Snippets, Info, Logs, Runtime · *Go to*: Search, Jump to, Recent · *Plugins*: plugin buttons, Manage plugins |
+| global | Search, Jump to, Recent, Plugins |
 
-- Rebuild key: `data-artifact-id` becomes `artifactId ?? "global"`. The toolbar is rebuilt only when this key changes (same guard as today, `buildButtonBar()` concurrency lock stays).
-- Heartbeat (`contentScript.js` ~l.1788): the `else` branch no longer calls `removeFloatingToolbar()`; it calls `buildButtonBar()` in global mode. `sidebar.deactivate()` outside artifacts stays.
-- `addBreadcrumbs()` stays artifact-only.
-- Position and expanded state stay shared across modes (existing storage keys).
-- Visibility follows the manifest: all `itspaces`/`shell` paths and the Integration Suite host. This includes non-CPI areas of the Integration Suite host (e.g. API Management); accepted for Phase 1.
-- The plugin `---isActive` storage listener keeps removing the toolbar for a rebuild; in global mode this is harmless.
+- Rebuild key `data-artifact-id` is the artifact id in artifact mode and `"global"` otherwise. Moving between global pages does not rebuild.
+- The heartbeat no longer removes the toolbar; it calls `buildButtonBar()` on every beat. `addBreadcrumbs()` and the sidebar deactivation stay artifact-only.
+- Visibility follows the manifest globs, including non-CPI areas of the Integration Suite host (accepted).
 
-### Jump to (menu button)
+### Navigation
 
-A menu button (`addFloatingToolbarMenuButton`) with fixed navigation targets.
+`cpihNavigate(url, event)` navigates inside the app without a reload: `history.pushState` plus a `popstate` event, which the UI5 router follows (verified on the tenant). That only works inside one area of the shell (`/shell/<area>/…`, e.g. design → design, monitoring → monitoring). Once the shell has loaded an app, it ignores a popstate into it from another area: monitor → iFlow (in the app) → All Messages only changes the URL. That was seen on the tenant, and the app router cannot be reached from the content script. So a change of the area loads the page normally. A click with a modifier or the middle button is left to the browser. After navigating it calls `checkURLchange()`, so `cpiData` updates right away. The next heartbeat switches the toolbar mode.
 
-**Shared target list.** The monitoring links in `popup/popup.js` l.325–353 move to a new `common/jump-targets.js` that exports a plain array (`{ path, label, icon, group, toolbar }`). Both the popup (`popup.html` script tag) and the content script (manifest, before `floatingToolbar.js`) load it. The popup renders from it instead of its inline list; its visible output stays the same.
+Edit mode guard: leaving an artifact editor in edit mode through the router drops the changes without asking and leaves the CPI with a busy indicator that never ends (seen on the tenant). While the editor shows Save and no Edit button (English or German UI), `cpihNavigate` does nothing and shows a toast instead. Cmd/Ctrl+click still opens a new tab.
 
-**Global entries** (always):
+Paths are relative to `cpihTenantBase()`: `""` on Integration Suite hosts, `"/itspaces"` on Neo. `cpiData.urlExtension` is only set on iFlow pages and is therefore not used.
 
-- Failed messages (past hour), All messages, Status overview, Integration content
-- Security material, Keystore, Message queues, Data stores, Variables, Message locks, Connectivity tests
-- Design overview (`/shell/design`)
+### Jump to
 
-Full list of monitoring subpages stays in the popup; the toolbar shows the entries marked `toolbar: true` in the shared list, so both stay in sync.
+A menu button. Menu entries can now be real links (`href`), group titles (`header`) and carry a detail badge (`detail`); `openFloatingToolbarMenu` supports all three.
 
-**Context entries** (artifact mode only, above the global ones, separated):
+- Global entries: every `CPIH_JUMP_TARGETS` entry with `toolbar: true` (All/Failed messages, Status overview, Integration content, Packages, Security material, Keystore, Connectivity tests, Data stores, Variables, Message queues, Message locks), grouped under the area headers "Monitor" and "Design". Every target has an `area`.
+- Context entries on artifact pages (`cpihArtifactJumpTargets`), under the artifact name:
+  - *Messages of this artifact*: `/shell/monitoring/Messages/{edge, status: ALL, packageId: ALL, artifactIds: [id], type: ALL, time: PASTHOUR}`; the monitor rewrites a single `artifact` key to exactly this form (verified).
+  - *Deployment status*: `/shell/monitoring/Artifacts/{edge, artifact: id}` (verified, the key survives the routing).
+  - *Open package*: `/shell/design/contentpackage/<id>?section=ARTIFACTS`.
+- The popup renders its Main Links and Monitoring group from the same list (`popup.html` loads `common/jump-targets.js`).
 
-- *Messages of this artifact*: Message monitor filtered on `cpiData.currentArtifactId`, past hour, all statuses.
-- *Deployment status*: Manage Integration Content filtered on the artifact.
-- *Open package*: `/shell/design/contentpackage/<cpiData.currentPackageId>?section=ARTIFACTS`, only when the package id is known.
+### Recent and favorites
 
-The exact filter JSON keys for the monitor and Manage Integration Content routes are verified against a live tenant during implementation (the failed-messages route in `popup.js` l.325 is the known reference: `{"status":"FAILED","time":"PASTHOUR","type":"INTEGRATION_FLOW"}`). A context entry whose route cannot be verified is left out rather than shipped guessing.
+- Source: `chrome.storage.sync` `visitedIflows_<tenant>`, written by `storeVisitedIflowsForPopup()` through `cpihAddVisit`. The existing `favorit` field is the favorite flag, no migration.
+- A revisit keeps the favorite flag. Trimming keeps at most 15 non-favorites; favorites never fall out and are capped at 20 (toast on the 21st).
+- Storage budget: `chrome.storage.sync` allows 8192 bytes per item, and a real entry on an Integration Suite host is about 400 bytes (35 entries ≈ 14.5 KB). So the list is also trimmed by size, to 7600 bytes, oldest non-favorites first. Favorites may take at most 5600 bytes, which leaves room for recent visits. With long names fewer than 20 favorites fit, and the toast says so.
+- Panel: Favorites on top, then Recent, newest first; section titles only when favorites exist. Rows are links with type icon, name, type and a star (`span role=button`, because the panel styles every `<button>` of plugin content). The open artifact is highlighted. A storage listener re-renders the open panel; it is removed with the toolbar (`onFloatingToolbarRemoved`).
 
-All paths are prefixed with `"/" + cpiData.urlExtension` (Neo `itspaces/`). Entries are real `<a href>` links: click navigates in the tab, Cmd/Ctrl+click opens a new tab.
+## Phase 2: failed messages badge
 
-### Recent (panel button)
+- `refreshFailedMessagesBadge()` runs on every heartbeat and fetches at most every 5 minutes, only while the tab is visible: `odata/api/v1/MessageProcessingLogs/$count` with `Status eq 'FAILED' and LogEnd gt datetime'<now - 1h>'`.
+- The count is a red badge on Jump to (hint "Jump to (N failed messages in the past hour)") and a red detail on the *Failed Messages* menu entry.
+- Popup setting "Failed messages badge on the toolbar" (`failedMessagesBadge` in sync storage, default on). A change refreshes the badge at once.
 
-A panel button (`addFloatingToolbarPanelButton`) listing the visit history.
+## Phase 3: command palette
 
-- Source: existing `chrome.storage.sync` key `visitedIflows_<tenant>` written by `storeVisitedIflowsForPopup()`. No schema migration; the existing `favorit` field (already written as `false`) becomes the favorite flag.
-- Two sections: **Favorites** (entries with `favorit: true`) on top, then **Recent** (newest first).
-- Row: type icon, `fullName` (fallback `name`), type label, star toggle. The currently open artifact is highlighted.
-- Row is an `<a href="entry.url">` (same click behaviour as Jump to).
-- Star toggle flips `favorit` and writes the list back. The star click must not trigger navigation.
-- Live update via `chrome.storage.onChanged` on the key while the panel is open.
-- Empty state: short hint ("Open an iFlow or package, it will show up here.").
+- Opened with Cmd/Ctrl+K on every CPI page or with the Search button. Inside an ace editor the key stays with the editor.
+- **Index:** the design time workspace API: `/api/1.0/workspace` for the packages, then `/api/1.0/workspace/<id>/artifacts/` per package, 6 in parallel. The OData `IntegrationPackages` entity does not exist on the tenant UI host (404), so it is not used. The index is cached per tenant in `chrome.storage.local` (`cpiHelper_paletteIndex_<tenant>`, about 660 artifacts / 67 packages ≈ 3 s to load). A cached list is shown at once and refreshed after 15 minutes; a "Reload list" button forces it.
+- **Items, in priority order:**
+  1. Actions of the page (a page without artifact offers its own toolbar buttons, e.g. Plugins, and Deploy where the CPI shows one):
+     - Start/Stop trace
+     - Deploy
+     - Start trace and deploy (only while trace is off)
+     - Open/Close message sidebar
+     - every other plain toolbar button: Snippets, Info, Logs, direct plugin buttons, Manage plugins
+  2. Context jump targets of the open artifact
+  3. Favorites and recent visits
+  4. All `CPIH_JUMP_TARGETS`, including the ones not on the toolbar. Jump targets carry their area in the label ("Monitor - All Messages", "Design - Packages", "Monitor - Messages of this artifact")
+  5. Artifacts and packages of the index (only with a query)
+- **Deploy** presses the CPI's own Deploy button (found by its title, English or German; UI5 needs the pointer/mouse event sequence, `click()` alone does nothing). The CPI confirmation dialog still asks, so nothing deploys from a stray Enter.
+- **Ranking** (`cpihPaletteSearch`): every query word has to match label, id, package or the keywords of an action. Keywords are other words for the action, e.g. "trace on/off, activate", or "bereitstellen" for Deploy. Label start > id start > word start > contains; favorites and recent visits get a boost. With no query, boosted items come first and index items are hidden.
+- **Keys:** ↑/↓ select, Enter opens (SPA navigation) or runs the action, Cmd/Ctrl+Enter opens a page in a new tab, Esc or a click outside closes and returns focus.
 
-**History writing changes** (`storeVisitedIflowsForPopup`):
+## Testing
 
-- When an artifact is revisited, its existing `favorit` value is kept (today the entry is filtered out and re-pushed with `favorit: false`).
-- Trimming to 15 drops the oldest **non-favorite** entry. Favorites never fall out.
-- Favorites are capped at 20; starring a 21st shows a `cpihToast` and does nothing. Keeps the sync item well below the 8 KB per-item quota.
+- `npm test` includes `tests/global-toolbar.test.js` (18 cases: history, jump targets, ranking, keywords).
+- `tests/e2e/global-toolbar.spec.mjs` covers:
+  - The global toolbar has exactly its 4 buttons.
+  - Jump to navigates without a reload.
+  - The badge matches the monitor count.
+  - Plugins opens the plugin management.
+  - The context jumps land in the filtered monitor (checked by page content, not only the URL) and the toolbar switches back to global.
+  - Monitor → iFlow through the palette → Jump to All Messages shows the monitor.
+  - Recent plus a favorite survives a reload (the flag is reset afterwards).
+  - The palette finds and opens the test iFlow.
+  - The palette actions: sidebar open/close, and Deploy plus Trace and deploy up to the CPI dialog, answered with "No". Trace and deploy runs only with `E2E_ALLOW_DEPLOY=true`.
+  - The edit mode guard, on the snippets test iFlow. The edit is cancelled and never saved.
+- A node test fills the history with real-shaped long entries and checks the storage quota.
+- Not tested: classic Neo tenants (`/itspaces` base path, workspace API and pushState routing there).
+- The existing suites (smoke, api, trace, snippets) stay green.
 
-**Pure helper.** A new function `buildHistoryView(entries, current)` returns `{ favorites, recent }` (sorting, current-marking, fullName fallback). A second pure function `addVisit(entries, visit)` implements dedupe, favorite retention and trimming. Both live in `common/visit-history.js`, loaded by the content script, and are covered by a node test.
+## Roadmap
 
-### Plugins (global mode)
-
-Same action as the existing "Manage plugins" button: `showBigPopup(createContentNodeForPlugins())`. In artifact mode the existing "Manage plugins" button is reused, no duplicate.
-
-### Icons
-
-New inline SVGs in `FLOATING_TOOLBAR_ICONS`: `jump`, `history`, `star`, `starFilled`. Type icons for the Recent rows reuse the popup's artifact type icons where available.
-
-### Error handling
-
-- Storage read fails or returns nothing: Recent shows the empty state.
-- Storage write fails (quota): `cpihToast` with the error, list stays unchanged.
-
-### Testing
-
-- `tests/visit-history.test.js` (plain node, like existing tests, added to `npm test`): dedupe, favorite retention on revisit, trim skips favorites, favorites cap, view ordering, current marking.
-- `tests/e2e/smoke.spec.mjs` new cases:
-  - On the monitoring overview, the toolbar is visible with exactly Jump to, Recent, Plugins.
-  - Jump to → Message queues navigates there, toolbar still present afterwards.
-  - After opening the test iFlow, it appears in Recent; starring it moves it to Favorites and survives a reload.
-  - On the test iFlow, Jump to shows the context entries and "Messages of this artifact" lands in the monitor filtered on it.
-  - Plugins opens the plugin management popup.
-- Existing e2e suites (`trace`, `api`) must stay green: artifact mode unchanged apart from the two added buttons.
-
-## Roadmap (not implemented now)
-
-### Phase 2: Failed-messages badge
-
-- Badge on the Jump to button with the tenant-wide count of failed messages in the past hour (`MessageProcessingLogs/$count` with status/time filter), polled every few minutes, only while the tab is visible.
-- Click on the badge area jumps to Failed messages.
-- Setting to turn it off.
-
-### Phase 3: Command palette
-
-- Cmd/Ctrl+K opens a search box over: artifacts and packages tenant-wide (OData `IntegrationDesigntimeArtifacts`, `IntegrationPackages`, cached per session), Jump to targets, favorites and history.
-- Keyboard navigation, Enter navigates, Cmd/Ctrl+Enter opens a new tab.
-- Toolbar gets a search button that opens the same palette.
-
-### Phase 4: Tenant hopping
+### Phase 4: tenant hopping (not implemented)
 
 - Settings map tenants to stages (Dev → Test → Prod).
 - On an artifact page, "Open on <stage>" rewrites the URL to the mapped tenant host, keeping package and artifact id.
-- Shown in Jump to as context entries.
+- Shown in Jump to and the command palette as context entries.

@@ -53,6 +53,9 @@
         "/scripts/init.js",
         "/common/logging.js",
         "/common/tools.js",
+        "/common/visit-history.js",
+        "/common/jump-targets.js",
+        "/common/palette-search.js",
         "/scripts/identify-tenant.js",
         "/plugins/run.js",
         "/plugins/simplenotepad.js",
@@ -88,6 +91,8 @@
         "/scripts/inline-trace.js",
         "/scripts/snippets.js",
         "/scripts/floatingToolbar.js",
+        "/scripts/globalToolbar.js",
+        "/scripts/commandPalette.js",
         "/scripts/celebration.js",
         "/scripts/contentScript.js"
       ],

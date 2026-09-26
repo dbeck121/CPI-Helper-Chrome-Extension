@@ -1420,6 +1420,325 @@ img.cpiHelper_floatingToolbar_pluginIcon {
   background: var(--sapButton_Hover_Background, #eaecee) !important;
 }
 
+/* global toolbar (scripts/globalToolbar.js): failed messages badge, link entries and group titles in the menu */
+.cpiHelper_floatingToolbar_badge.cpiHelper_floatingToolbar_badge_alert {
+  background: var(--sapNegativeColor, #d32030);
+  color: #fff;
+}
+
+.cpiHelper_floatingToolbar_menu {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+a.cpiHelper_floatingToolbar_menuItem,
+a.cpiHelper_floatingToolbar_menuItem:hover,
+a.cpiHelper_floatingToolbar_menuItem:visited {
+  color: var(--sapList_TextColor, #1d2d3e);
+  text-decoration: none;
+}
+
+.cpiHelper_floatingToolbar_menuLabel {
+  flex: 1;
+}
+
+.cpiHelper_floatingToolbar_menuDetail {
+  min-width: 18px;
+  padding: 0 6px;
+  border-radius: 9px;
+  background: var(--sapNegativeColor, #d32030);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+.cpiHelper_floatingToolbar_menuHeader {
+  padding: 8px 10px 4px;
+  max-width: 260px;
+  overflow: hidden;
+  color: var(--sapContent_LabelColor, #556b82);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cpiHelper_floatingToolbar_menuHeader:not(:first-child) {
+  margin-top: 4px;
+  border-top: 1px solid var(--sapGroup_ContentBorderColor, #e5e5e5);
+}
+
+/* Recent panel: favorites and visit history */
+.cpiHelper_recent {
+  width: 300px;
+}
+
+.cpiHelper_recent_heading {
+  margin: 6px 0 2px;
+  color: var(--sapContent_LabelColor, #556b82);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cpiHelper_recent_list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cpiHelper_recent_item,
+.cpiHelper_recent_item:visited {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  color: var(--sapList_TextColor, #1d2d3e);
+  text-decoration: none;
+}
+
+.cpiHelper_recent_item:hover,
+.cpiHelper_recent_item:focus-visible {
+  background: var(--sapList_Hover_Background, rgba(0, 0, 0, 0.05));
+  color: var(--sapList_TextColor, #1d2d3e);
+  text-decoration: none;
+}
+
+.cpiHelper_recent_current {
+  background: var(--sapList_SelectionBackgroundColor, rgba(0, 112, 242, 0.08));
+  box-shadow: inset 3px 0 0 var(--sapBrandColor, #0070f2);
+}
+
+.cpiHelper_recent_icon,
+.cpiHelper_recent_star {
+  display: inline-flex;
+  flex: none;
+  color: var(--sapContent_IconColor, #556b82);
+}
+
+.cpiHelper_recent_icon svg,
+.cpiHelper_recent_star svg {
+  width: 16px;
+  height: 16px;
+}
+
+.cpiHelper_recent_text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cpiHelper_recent_name,
+.cpiHelper_recent_type {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cpiHelper_recent_type {
+  color: var(--sapContent_LabelColor, #556b82);
+  font-size: 0.75rem;
+}
+
+.cpiHelper_recent_star {
+  padding: 3px;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0.55;
+}
+
+.cpiHelper_recent_item:hover .cpiHelper_recent_star,
+.cpiHelper_recent_star:focus-visible,
+.cpiHelper_recent_star[aria-pressed="true"] {
+  opacity: 1;
+}
+
+.cpiHelper_recent_star[aria-pressed="true"] {
+  color: var(--sapCriticalColor, #e76500);
+}
+
+.cpiHelper_recent_star:hover {
+  background: var(--sapButton_Hover_Background, #eaecee);
+}
+
+.cpiHelper_recent_empty {
+  margin: 4px 0;
+  color: var(--sapContent_LabelColor, #556b82);
+}
+
+/* command palette (scripts/commandPalette.js) */
+#cpiHelper_palette {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 12vh 16px 16px;
+  background: rgba(20, 28, 38, 0.35);
+  font-family: var(--sapFontFamily, '72', Arial, sans-serif);
+  animation: cpiHelper_floatingToolbar_fadein 120ms ease-out;
+}
+
+.cpiHelper_palette_card {
+  display: flex;
+  flex-direction: column;
+  width: min(640px, 100%);
+  max-height: 70vh;
+  overflow: hidden;
+  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
+  border-radius: 12px;
+  background: var(--sapGroup_ContentBackground, #fff);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+  color: var(--sapTextColor, #1d2d3e);
+}
+
+.cpiHelper_palette_inputRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--sapGroup_ContentBorderColor, #e5e5e5);
+}
+
+.cpiHelper_palette_searchIcon {
+  display: inline-flex;
+  color: var(--sapContent_IconColor, #556b82);
+}
+
+#cpiHelper_palette .cpiHelper_palette_input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--sapTextColor, #1d2d3e);
+  font: inherit;
+  font-size: 1rem;
+  box-shadow: none;
+}
+
+#cpiHelper_palette kbd {
+  padding: 1px 5px;
+  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
+  border-radius: 4px;
+  color: var(--sapContent_LabelColor, #556b82);
+  font-family: inherit;
+  font-size: 0.6875rem;
+}
+
+.cpiHelper_palette_list {
+  flex: 1;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+#cpiHelper_palette .cpiHelper_palette_item > a,
+#cpiHelper_palette .cpiHelper_palette_item > a:visited,
+#cpiHelper_palette .cpiHelper_palette_item > a:hover,
+#cpiHelper_palette .cpiHelper_palette_item > button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--sapList_TextColor, #1d2d3e);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.cpiHelper_palette_itemIcon svg {
+  width: 18px;
+  height: 18px;
+}
+
+#cpiHelper_palette .cpiHelper_palette_item[aria-selected="true"] > * {
+  background: var(--sapList_SelectionBackgroundColor, rgba(0, 112, 242, 0.1));
+}
+
+.cpiHelper_palette_itemIcon {
+  display: inline-flex;
+  flex: none;
+  color: var(--sapContent_IconColor, #556b82);
+}
+
+.cpiHelper_palette_itemText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cpiHelper_palette_itemLabel,
+.cpiHelper_palette_itemSub {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cpiHelper_palette_itemSub {
+  color: var(--sapContent_LabelColor, #556b82);
+  font-size: 0.75rem;
+}
+
+.cpiHelper_palette_itemSub:empty {
+  display: none;
+}
+
+.cpiHelper_palette_itemKind {
+  flex: none;
+  color: var(--sapContent_LabelColor, #556b82);
+  font-size: 0.6875rem;
+}
+
+.cpiHelper_palette_empty {
+  padding: 16px 10px;
+  color: var(--sapContent_LabelColor, #556b82);
+}
+
+.cpiHelper_palette_footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  padding: 8px 14px;
+  border-top: 1px solid var(--sapGroup_ContentBorderColor, #e5e5e5);
+  color: var(--sapContent_LabelColor, #556b82);
+  font-size: 0.75rem;
+}
+
+.cpiHelper_palette_status {
+  flex: 1;
+  min-width: 160px;
+}
+
+#cpiHelper_palette .cpiHelper_palette_reload {
+  padding: 2px 10px;
+  border: 1px solid var(--sapButton_BorderColor, #bcc3ca);
+  border-radius: 6px;
+  background: var(--sapButton_Background, #fff);
+  color: var(--sapButton_TextColor, #0064d9);
+  font: inherit;
+  cursor: pointer;
+}
+
+#cpiHelper_palette .cpiHelper_palette_reload:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 /* 4.0 welcome (scripts/celebration.js) */
 #cpiHelper_celebration {
   position: fixed;

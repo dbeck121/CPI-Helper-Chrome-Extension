@@ -25,6 +25,26 @@ const FLOATING_TOOLBAR_ICONS = {
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
   refresh: '<path d="M20 11a8 8 0 0 0-14.9-3.5"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.9 3.5"/><path d="M20 20v-4h-4"/>',
   settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
+  // navigation of the global toolbar
+  jump: '<path d="M5 12h12"/><path d="M13 6l6 6-6 6"/><path d="M5 5v14"/>',
+  history: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/><path d="M12 8v4l3 2"/>',
+  search: '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>',
+  deploy: '<path d="M7 18a4 4 0 0 1-.6-8A6 6 0 0 1 18 9a4 4 0 0 1-1 9"/><path d="M12 12v8M9 15l3-3 3 3"/>',
+  star: '<path d="M12 4l2.5 5.1 5.5.8-4 3.9.9 5.5-4.9-2.6-4.9 2.6.9-5.5-4-3.9 5.5-.8z"/>',
+  starFilled: '<path fill="currentColor" d="M12 4l2.5 5.1 5.5.8-4 3.9.9 5.5-4.9-2.6-4.9 2.6.9-5.5-4-3.9 5.5-.8z"/>',
+  // the names of the popup icon font, used by the shared jump targets (common/jump-targets.js)
+  envelope: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
+  alert: '<path d="M12 3l9.5 17h-19z"/><path d="M12 10v4M12 17v.01"/>',
+  donut: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 4v5"/>',
+  layers: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',
+  package: '<path d="M4 7l8-4 8 4v10l-8 4-8-4z"/><path d="M4 7l8 4 8-4M12 11v10"/>',
+  shield: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',
+  key: '<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3"/>',
+  plug: '<path d="M9 3v5M15 3v5"/><path d="M6 8h12v3a6 6 0 0 1-12 0z"/><path d="M12 17v4"/>',
+  archive: '<rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10h14V9M10 13h4"/>',
+  variable: '<path d="M8 4c-3 3-3 13 0 16M16 4c3 3 3 13 0 16"/><path d="M10 9l4 6M14 9l-4 6"/>',
+  queue: '<rect x="4" y="4" width="16" height="4" rx="1"/><rect x="4" y="10" width="16" height="4" rx="1"/><rect x="4" y="16" width="16" height="4" rx="1"/>',
+  lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
 };
 
 // accesskey needs a modifier that depends on the platform: Control+Option on macOS, Alt elsewhere
@@ -35,6 +55,11 @@ function floatingToolbarShortcutLabel(key) {
 
 function floatingToolbarIcon(name) {
   return `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${FLOATING_TOOLBAR_ICONS[name] || ""}</svg>`;
+}
+
+// runs when the toolbar is removed, e.g. to drop a storage listener of a button
+function onFloatingToolbarRemoved(toolbar, cleanup) {
+  toolbar._cpiHelperCleanups?.push(cleanup);
 }
 
 function getFloatingToolbar() {
@@ -286,11 +311,14 @@ async function createFloatingToolbar(artifactId) {
   document.addEventListener("click", onDocumentClick);
   document.addEventListener("keydown", onKeydown);
   window.addEventListener("resize", onResize);
-  toolbar._cpiHelperCleanup = () => {
-    document.removeEventListener("click", onDocumentClick);
-    document.removeEventListener("keydown", onKeydown);
-    window.removeEventListener("resize", onResize);
-  };
+  toolbar._cpiHelperCleanups = [
+    () => {
+      document.removeEventListener("click", onDocumentClick);
+      document.removeEventListener("keydown", onKeydown);
+      window.removeEventListener("resize", onResize);
+    },
+  ];
+  toolbar._cpiHelperCleanup = () => toolbar._cpiHelperCleanups.forEach((cleanup) => cleanup());
 
   const state = await loadFloatingToolbarState();
   toolbar.style.right = state.position.right + "px";
@@ -351,8 +379,9 @@ function addFloatingToolbarButton(toolbar, { id, icon, iconNode, title, accessKe
   return appendFloatingToolbarItem(toolbar, button);
 }
 
-// small number on the icon, e.g. how many runtimes there are to choose from. 0 or less removes it
-function setFloatingToolbarBadge(button, count) {
+// small number on the icon, e.g. how many runtimes there are to choose from. 0 or less removes it.
+// alert shows it in the error color, e.g. for failed messages
+function setFloatingToolbarBadge(button, count, alert = false) {
   if (!button) return;
   let badge = button.querySelector(".cpiHelper_floatingToolbar_badge");
   if (!(count > 0)) return badge?.remove();
@@ -362,10 +391,12 @@ function setFloatingToolbarBadge(button, count) {
     badge.setAttribute("aria-hidden", "true");
     button.appendChild(badge);
   }
+  badge.classList.toggle("cpiHelper_floatingToolbar_badge_alert", alert);
   badge.textContent = count > 9 ? "9+" : String(count);
 }
 
-// getItems runs on every open and returns [{ label, icon?, selected?, disabled?, onClick? }]
+// getItems runs on every open and returns [{ label, icon?, selected?, disabled?, href?, detail?, onClick?(event) }]
+// or { header } for a group title. An entry with href is a real link, so Cmd/Ctrl+click opens a new tab
 function addFloatingToolbarMenuButton(toolbar, { id, icon, title, getItems }) {
   const button = createFloatingToolbarButton({ id, icon, title });
   button.setAttribute("aria-haspopup", "menu");
@@ -425,24 +456,42 @@ async function openFloatingToolbarMenu(toolbar, button, items) {
   const menu = toolbar.querySelector(".cpiHelper_floatingToolbar_menu");
   menu.replaceChildren(
     ...items.map((item) => {
-      const entry = document.createElement("button");
-      entry.type = "button";
+      if (item.header) {
+        const header = document.createElement("div");
+        header.className = "cpiHelper_floatingToolbar_menuHeader";
+        header.setAttribute("role", "presentation");
+        header.textContent = item.header;
+        return header;
+      }
+      const entry = document.createElement(item.href ? "a" : "button");
+      if (item.href) {
+        entry.href = item.href;
+      } else {
+        entry.type = "button";
+        entry.disabled = !!item.disabled;
+      }
       entry.className = "cpiHelper_floatingToolbar_menuItem";
       entry.setAttribute("role", item.selected === undefined ? "menuitem" : "menuitemradio");
       if (item.selected !== undefined) entry.setAttribute("aria-checked", String(!!item.selected));
-      entry.disabled = !!item.disabled;
       // the checkmark column keeps selectable entries aligned
       const iconName = item.selected ? "check" : item.icon;
       const iconSpan = document.createElement("span");
       iconSpan.className = "cpiHelper_floatingToolbar_menuIcon";
       iconSpan.innerHTML = iconName ? floatingToolbarIcon(iconName) : "";
       const label = document.createElement("span");
+      label.className = "cpiHelper_floatingToolbar_menuLabel";
       label.textContent = item.label;
       entry.append(iconSpan, label);
+      if (item.detail) {
+        const detail = document.createElement("span");
+        detail.className = "cpiHelper_floatingToolbar_menuDetail";
+        detail.textContent = item.detail;
+        entry.append(detail);
+      }
       entry.addEventListener("click", async (event) => {
         event.stopPropagation();
         closeFloatingToolbarMenu(toolbar);
-        await item.onClick?.();
+        await item.onClick?.(event);
       });
       return entry;
     })

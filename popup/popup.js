@@ -322,36 +322,22 @@ function renderTenantLinks() {
     return;
   }
 
-  const failedMessages = "/shell/monitoring/Messages/%7B%22status%22%3A%22FAILED%22%2C%22time%22%3A%22PASTHOUR%22%2C%22type%22%3A%22INTEGRATION_FLOW%22%7D";
+  // main and monitoring links are shared with the floating toolbar (common/jump-targets.js)
+  const targets = (group) => CPIH_JUMP_TARGETS.filter((target) => target.group === group);
 
   container.innerHTML = `
     <div class="section">
       ${groupTitle("bolt", "Main Links")}
       <div class="link-grid">
-        ${linkCard("/shell/monitoring/Messages/", "All Messages", "envelope", "green")}
-        ${linkCard(failedMessages, "Failed Messages", "alert", "red")}
-        ${linkCard("/shell/monitoring/MessageStatusOverview", "Status Overview", "donut", "yellow")}
-        ${linkCard("/shell/monitoring/Artifacts/", "Integration Content", "layers", "grey")}
-        ${linkCard("/shell/design", "Packages", "package", "blue")}
+        ${targets("main").map((target) => linkCard(target.path, target.label, target.icon, target.accent)).join("")}
       </div>
     </div>
-    ${linkGroup("activity", "Monitoring", "/shell/monitoring/Overview", [
-      ["/shell/monitoring/SecurityMaterials", "Security Material", "shield"],
-      ["/shell/monitoring/Keystore", "Keystore", "key"],
-      ["/shell/monitoring/AccessPolicies", "Access Policies", "shieldCheck"],
-      ["/shell/monitoring/JdbcMaterial", "JDBC Material", "database"],
-      ["/shell/monitoring/Connectivity", "Connectivity Tests", "plug"],
-      ["/shell/monitoring/DataStores", "Data Stores", "archive"],
-      ["/shell/monitoring/Variables", "Variables", "variable"],
-      ["/shell/monitoring/MessageQueues", "Message Queues", "queue"],
-      ["/shell/monitoring/NumberRangeObject", "Number Ranges", "hash"],
-      ["/shell/monitoring/PartnerDirectory", "Partner Directory", "addressBook"],
-      ["/shell/monitoring/UserRoles", "User Roles", "userCheck"],
-      ["/shell/monitoring/MessageUsage", "Message Usage", "barChart"],
-      ["/shell/monitoring/SystemLogs", "System Logs", "fileText"],
-      ["/shell/monitoring/Locks", "Message Locks", "lock"],
-      ["/shell/monitoring/DesigntimeLocks", "Designtime Artifact Locks", "fileLock"],
-    ])}
+    ${linkGroup(
+      "activity",
+      "Monitoring",
+      "/shell/monitoring/Overview",
+      targets("monitoring").map((target) => [target.path, target.label, target.icon])
+    )}
     ${linkGroup("sliders", "API Management", "/shell/settings", [
       ["/shell/configure", "Configure APIs", "cog"],
       ["/shell/testconsole", "Test APIs", "flask"],
@@ -470,6 +456,7 @@ function renderSettings(state) {
 
       ${segmented("openMessageSidebarOnStartup", "Open message sidebar on start", "Yes", "No", !!state.openMessageSidebarOnStartup)}
       ${segmented("refreshMessageSidebar", "Auto-refresh message sidebar", "On", "Off", state.autoRefreshMessageSidebar)}
+      ${segmented("failedMessagesBadge", "Failed messages badge on the toolbar", "On", "Off", state.failedMessagesBadge)}
       ${segmented("cpi_compact_mode", "Layout of last visited", "Compact", "Cozy", compact)}
       ${segmented("cpi_tab_click_mode", "Switch tabs on", "Hover", "Click", localStorage.getItem("cpi_tab_click_mode") !== "true")}
     </div>
@@ -496,6 +483,7 @@ function renderSettings(state) {
           <span>Plugins <kbd>5</kbd></span>
           <span>Search <kbd>S</kbd></span>
         </div>
+        <p>On every CPI page <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>K</kbd> searches artifacts, packages and pages of the tenant.</p>
 
         <h3>Tenant settings</h3>
         <ul>
@@ -552,6 +540,7 @@ function wireSettings(state) {
   // --- on/off controls
   wireSegmented("#openMessageSidebarOnStartup", (value) => chrome.storage.sync.set({ openMessageSidebarOnStartup: value }));
   wireSegmented("#refreshMessageSidebar", (value) => chrome.storage.sync.set({ autoRefreshMessageSidebar: value }));
+  wireSegmented("#failedMessagesBadge", (value) => chrome.storage.sync.set({ failedMessagesBadge: value }));
   wireSegmented("#cpi_compact_mode", (value) => {
     localStorage.setItem("modecpi_compact_mode", String(value));
     renderLastVisited(state.visitedIflows, value);
@@ -769,7 +758,7 @@ async function main() {
   // one round trip each instead of a chain of nested callbacks - the popup is rebuilt on every open
   const visitedKey = tenant ? "visitedIflows_" + tenant : "__none__";
   const [sync, local, hostData] = await Promise.all([
-    chrome.storage.sync.get([visitedKey, "openMessageSidebarOnStartup", "autoRefreshMessageSidebar", "CPIhelperThemeInfo", "cpiHelper_experimental_snippets"]),
+    chrome.storage.sync.get([visitedKey, "openMessageSidebarOnStartup", "autoRefreshMessageSidebar", "failedMessagesBadge", "CPIhelperThemeInfo", "cpiHelper_experimental_snippets"]),
     chrome.storage.local.get(["cpi_top_mode"]),
     askContentScript(activeTabId, "get"),
   ]);
@@ -780,6 +769,7 @@ async function main() {
     visitedIflows: sync[visitedKey],
     openMessageSidebarOnStartup: sync.openMessageSidebarOnStartup,
     autoRefreshMessageSidebar: sync.autoRefreshMessageSidebar ?? true,
+    failedMessagesBadge: sync.failedMessagesBadge ?? true,
     experimentalSnippets: sync.cpiHelper_experimental_snippets === true,
     // no CPI page visited yet - fall back to the operating system preference
     isLightTheme: sync.CPIhelperThemeInfo === undefined ? !window.matchMedia("(prefers-color-scheme: dark)").matches : !!sync.CPIhelperThemeInfo,

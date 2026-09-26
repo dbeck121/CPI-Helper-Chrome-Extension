@@ -492,18 +492,42 @@ async function buildButtonBar() {
   return floatingToolbarBuild;
 }
 
-// The artifact actions live in a floating toolbar on <body> (scripts/floatingToolbar.js). Unlike the
-// old header buttons it does not wait for the UI5 header, which some artifact pages do not have.
+// artifact pages with the full toolbar (trace, messages, ...). Every other CPI page gets the global one
+const FLOATING_TOOLBAR_ARTIFACT_TYPES = ["IFlow", "ODATA API", "REST API", "SOAP API", "API", "MCP Server"];
+
+function isArtifactToolbarPage() {
+  return FLOATING_TOOLBAR_ARTIFACT_TYPES.includes(cpiData.currentArtifactType);
+}
+
+// The toolbar lives on <body> (scripts/floatingToolbar.js). Unlike the old header buttons it does not wait for
+// the UI5 header, which some pages do not have. On artifact pages it has the artifact actions, on all other pages
+// only the navigation (scripts/globalToolbar.js) and the plugin management.
 async function buildFloatingToolbar() {
+  const artifactMode = isArtifactToolbarPage();
   // Load runtime location info before creating the runtime menu
-  await getIflowInfo(null, true, true);
+  if (artifactMode) await getIflowInfo(null, true, true);
 
   var existingToolbar = getFloatingToolbar();
   // another artifact can have other runtime locations, so its toolbar is built from scratch
-  if (!existingToolbar || existingToolbar.dataset.artifactId !== (cpiData.currentArtifactId || "")) {
+  const toolbarKey = artifactMode ? cpiData.currentArtifactId || "" : "global";
+  if (!existingToolbar || existingToolbar.dataset.artifactId !== toolbarKey) {
     whatsNewCheck();
 
-    var toolbar = await createFloatingToolbar(cpiData.currentArtifactId);
+    var toolbar = await createFloatingToolbar(toolbarKey);
+
+    if (!artifactMode) {
+      addGlobalNavigationButtons(toolbar);
+      addFloatingToolbarButton(toolbar, {
+        id: "__more_plugins",
+        icon: "plugins",
+        title: "Plugins",
+        onClick: async () => {
+          statistic("toolbar_btn_plugins_global_click");
+          showBigPopup(await createContentNodeForPlugins(), "Plugins");
+        },
+      });
+      return;
+    }
 
     addFloatingToolbarButton(toolbar, {
       id: "__buttonxx",
@@ -608,6 +632,9 @@ async function buildFloatingToolbar() {
       runtimeButton.setAttribute("aria-label", `Runtime: ${cpiData.runtimeLocationId} (${cpiData.runtimeLocations.length} available)`);
       runtimeButton.dataset.cpiHint = `Runtime: ${cpiData.runtimeLocationId} (${cpiData.runtimeLocations.length} available)`;
     }
+
+    addFloatingToolbarSeparator(toolbar, "Go to");
+    addGlobalNavigationButtons(toolbar);
 
     // plugin section: toolbarButton plugins run their action directly, messageSidebarContent plugins open a panel
     await runPluginContentHooks();
@@ -1680,57 +1707,23 @@ async function handleUrlChange() {
   }
 }
 
-//Visited IFlows are stored to show in the popup that appears when pressing the button in browser bar
+// Visited artifacts are shown in the browser popup, the Recent panel of the toolbar and the command palette.
+// common/visit-history.js keeps favorites and trims the list
 async function storeVisitedIflowsForPopup() {
-  var url = window.location.href;
-  var tenant = url.split("/")[2].split(".")[0];
-  var name = "visitedIflows_" + tenant;
+  const url = window.location.href;
+  const key = "visitedIflows_" + url.split("/")[2].split(".")[0];
+  const match = cpiArtifactURIRegexp.find(([regexp]) => regexp.test(url));
+  const artifactId = match && url.match(match[0]).groups?.artifactId;
+  if (!artifactId) return;
+  const type = match[1];
 
-  for (const dataRegexp of cpiArtifactURIRegexp) {
-    if (dataRegexp[0].test(url) === true) {
-      let groups = url.match(dataRegexp[0]);
-      if (groups.length >= 2) {
-        let cpiArtifactId = groups.groups.artifactId;
-        chrome.storage.sync.get([name], function (result) {
-          var visitedIflows = result[name];
-
-          if (!visitedIflows) {
-            visitedIflows = [];
-          }
-
-          //filter out the current flow
-          if (visitedIflows.length > 0) {
-            visitedIflows = visitedIflows.filter((element) => {
-              return !(element.name == String(cpiArtifactId) && dataRegexp[1] == element.type);
-            });
-          }
-
-          let urlext = "";
-          if (dataRegexp[1] == "Package" && !document.location.href.includes("?section=ARTIFACTS")) {
-            urlext = "?section=ARTIFACTS";
-          }
-
-          //put the current flow to the last element. last position indicates last visited element
-          visitedIflows.push({
-            name: `${cpiArtifactId}`,
-            fullName: `${cpiData.currentIflowName}`,
-            url: document.location.href + urlext,
-            favorit: false,
-            type: `${dataRegexp[1]}`,
-          });
-
-          //delete the first one when there are more than 15 iflows in visited list
-          if (visitedIflows.length > 15) {
-            visitedIflows.shift();
-          }
-
-          var obj = {};
-          obj[name] = visitedIflows;
-
-          chrome.storage.sync.set(obj, function () {});
-        });
-      }
-    }
+  const urlext = type == "Package" && !url.includes("?section=ARTIFACTS") ? "?section=ARTIFACTS" : "";
+  try {
+    const stored = (await chrome.storage.sync.get([key]))[key];
+    const visit = { name: `${artifactId}`, fullName: `${cpiData.currentIflowName}`, url: url + urlext, type };
+    await chrome.storage.sync.set({ [key]: cpihAddVisit(stored, visit) });
+  } catch (error) {
+    log.debug("visited artifact not stored", error);
   }
 }
 
@@ -1788,20 +1781,17 @@ var cpiHelperHeartbeatInterval = setInterval(async function () {
 
   //check if sidebar should be deactivated because we are not on a suitable page
   // not allowed type of artifact and buildbutton is not visible then deactivate.
-  AllowedTypes = ["IFlow", "ODATA API", "REST API", "SOAP API", "API", "MCP Server"].includes(cpiData.currentArtifactType);
-  // the old header buttons vanished with the UI5 header, the floating toolbar has to be removed explicitly
-  if (!AllowedTypes) {
-    removeFloatingToolbar();
-  }
+  AllowedTypes = isArtifactToolbarPage();
   if (!AllowedTypes && sidebar.active && !document.getElementById("__buttonxx")) {
     sidebar.deactivate();
   }
 
-  //add button bar and breadcrumbs if page rendered
+  // the toolbar is on every page: artifact actions on artifact pages, navigation everywhere else
+  buildButtonBar();
   if (AllowedTypes) {
-    buildButtonBar();
     addBreadcrumbs();
   }
+  refreshFailedMessagesBadge();
   // theme information for the browser popup: CPIhelperThemeInfo is true for the light theme.
   // compared with the stored value, the promise itself was compared before and never matched
   if ((await callChromeStoragePromise("CPIhelperThemeInfo")) !== !cpihIsDark()) {
