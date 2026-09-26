@@ -169,14 +169,21 @@
     }, intervalDelay);
   }
 
-  function setDocumentTitle(title) {
-    let text = title;
+  // Name of the current app, derived from the route: "/shell/monitoring/MessageStatusOverview" -> "Monitoring / Message Status Overview"
+  function getAppName() {
+    let parts = decodeURIComponent(document.location.pathname)
+      .split("/")
+      .filter((part) => part && part !== "shell" && part !== "itspaces" && !part.startsWith("{"))
+      .map((part) => {
+        part = part.replace(/([a-z0-9])([A-Z])/g, "$1 $2");
+        return part.charAt(0).toUpperCase() + part.slice(1);
+      });
+    return parts.length ? parts.join(" / ") : "Cloud Integration";
+  }
 
-    if (cpiData.integrationFlowId) {
-      text = text.replace(/\$iflow.name/g, cpiData.integrationFlowId);
-    } else {
-      text = text.replace(/\$iflow.name/g, "Cloud Integration");
-    }
+  function setDocumentTitle(title) {
+    // $iflow.name is the artifact in design time, the app name everywhere else
+    let text = (title || "").replace(/\$iflow.name/g, cpiData?.currentArtifactId || getAppName());
 
     if (document.title !== text) {
       document.title = text;

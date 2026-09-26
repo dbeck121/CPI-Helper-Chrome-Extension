@@ -1948,6 +1948,9 @@ var cpiHelperHeartbeatInterval = setInterval(async function () {
 
   await checkURLchange(window.location.href);
 
+  // UI5 overwrites the tab title while the app renders, so re-apply it on every beat
+  setDocumentTitle(hostData.title);
+
   //check if sidebar should be deactivated because we are not on a suitable page
   // not allowed type of artifact and buildbutton is not visible then deactivate.
   AllowedTypes = ["IFlow", "ODATA API", "REST API", "SOAP API"].includes(cpiData.currentArtifactType);
