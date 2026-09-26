@@ -1,39 +1,39 @@
-var log = anylogger("cpihelper");
-log.level = log.WARN;
-log.format = "date time lvl name perf";
-log("Logger active for CPI-Helper on level: " + log.level);
+// small leveled logger with the surface of ulog/anylogger that the code base used:
+// log(...), log.error/warn/info/log/debug/trace(...), log.level (number, accepts level names), log.ERROR ... log.TRACE
+// and log.output = "exporter", which also records every line for downloadLog()
+const logLevels = { error: 1, warn: 2, info: 3, log: 4, debug: 5, trace: 6 };
+const levelMap = Object.fromEntries(Object.entries(logLevels).map(([name, value]) => [value, name]));
 logsarray = [];
-ulog.use({
-  outputs: {
-    exporter: {
-      warn: function () {
-        var args = [].slice.call(arguments);
-        args.shift("Custom!!");
-        logsarray.push(args.join(" "));
-        console.warn.apply(console, args);
-      },
-      log: function () {
-        var args = [].slice.call(arguments);
-        args.shift("Custom!!");
-        logsarray.push(args.join(" "));
-        console.log.apply(console, args);
-      },
-      error: function () {
-        var args = [].slice.call(arguments);
-        args.shift("Custom!!");
-        logsarray.push(args.join(" "));
-        console.error.apply(console, args);
-      },
-      debug: function () {
-        var args = [].slice.call(arguments);
-        args.shift("Custom!!");
-        logsarray.push(args.join(" "));
-        console.debug.apply(console, args);
-      },
+
+function createLogger(name) {
+  let level = logLevels.warn;
+  let recording = false;
+  const logger = (...args) => logger.log(...args);
+  Object.entries(logLevels).forEach(([method, value]) => {
+    logger[method.toUpperCase()] = value;
+    logger[method] = (...args) => {
+      if (value > level) return;
+      if (recording) logsarray.push([new Date().toISOString(), method, name, ...args].join(" "));
+      const consoleMethod = method === "trace" ? "debug" : method;
+      console[consoleMethod](`${new Date().toLocaleTimeString()} ${method} ${name}`, ...args);
+    };
+  });
+  Object.defineProperty(logger, "level", {
+    get: () => level,
+    set: (value) => {
+      const numeric = typeof value === "number" ? value : (logLevels[String(value).toLowerCase()] ?? Number(value));
+      level = numeric >= 1 && numeric <= 6 ? numeric : logLevels.warn;
     },
-  },
-});
-const levelMap = Object.entries(ulog.levels).reduce((acc, [key, value]) => ({ ...acc, [value]: key }), {});
+  });
+  Object.defineProperty(logger, "output", {
+    get: () => (recording ? "exporter" : "console"),
+    set: (value) => (recording = value === "exporter"),
+  });
+  return logger;
+}
+
+var log = createLogger("cpihelper");
+log("Logger active for CPI-Helper on level: " + log.level);
 // if url contains query parameter cpihelper_debug=true, use custom logger
 log.log("Checking for debug mode in url", window.location.href);
 if (window.location.href.indexOf("cpihelper_debug=true") > -1) {
@@ -93,7 +93,7 @@ function adjustLogLevelByTime(timeout = document.getElementById("timeout")?.valu
     log.level = document.getElementById("logLevel")?.value;
     log.log(String(levelMap[log.level]) + " mode active " + timeout + " ms");
     showToast(String(levelMap[log.level]) + " is activated for " + timeout + " ms");
-    if (log.level === ulog.levels.debug) {
+    if (log.level === logLevels.debug) {
       log.output = "exporter";
     }
     timerId = setTimeout(() => {

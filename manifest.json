@@ -33,7 +33,6 @@
         "https://?????-tmn.hci.*.hana.ondemand.com/*"
       ],
       "js": [
-        "/lib/ulog/ulog-full.min.js",
         "/lib/ace/ace.min.js",
         "/lib/ace/ext-searchbox.js",
         "/lib/ace/theme-textmate.js",
