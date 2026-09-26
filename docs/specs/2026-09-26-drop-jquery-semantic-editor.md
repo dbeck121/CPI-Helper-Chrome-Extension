@@ -1,6 +1,6 @@
 # Drop jQuery + Semantic UI, new payload editor
 
-Status: in progress (branch `feat/drop-jquery-semantic`)
+Status: implemented on branch `feat/drop-jquery-semantic`, needs a check on a real tenant (Chrome and Firefox) before release
 Date: 2026-09-26
 
 ## Goal
@@ -50,7 +50,27 @@ Date: 2026-09-26
   fails on any page error, screenshots light and dark.
 - Manual check on a real tenant before release (not possible from the dev session).
 
+## Added during implementation
+
+- Modals, toasts and the plugin cards take the look of the floating toolbar / message sidebar (tenant colored header strip, see-through card).
+- Hint to the SAP Customer Influence request in the 4.0 welcome card, hidden until `CELEBRATION_INFLUENCE_URL` in scripts/celebration.js is set.
+- Plugin runtime hardening in scripts/plugins.js (error isolation, heartbeat guard, shared settings snapshot, button click fix, validation). No plugin API change.
+- Content scripts also run on the Integration Suite / -tmn hosts and on /shell, /itspaces without trailing slash (first load after the login redirect). Hypothesis, see verification.
+- Dead code and CSS cleanup, auto refresh setting of the message sidebar is honoured now.
+
+## Before release (manual)
+
+- Real tenant, Chrome: trace popup, payload viewer (resize, fullscreen, Esc), plugin settings, What's New, credential search, log mode, version history revert, Groovy/XSLT debugger share links.
+- First load after login in a fresh tab: Network "Preserve log", check the final URL and that the content scripts are listed under Sources.
+- Firefox: after an update style install check about:addons permissions for the broader content script matches.
+- Other BTP apps on hana.ondemand.com (Cloud Transport Management, issue #315) must not get CPI Helper.
+- Set `CELEBRATION_INFLUENCE_URL`.
+
 ## Roadmap after this
+
+- Fallback injection with a background worker (`tabs.onUpdated` + `scripting`) if the manifest fix does not cover every login flow.
+- Plugin API v2 (metadataVersion 2.0.0): settings without prefix, explicit pluginHelper (context, ui, storage, log), onActivate / onDeactivate / onPageChange instead of own polling, `registerPlugin()` instead of the global `var plugin`, declarative matches, one observer instead of the four script header intervals.
+- Optional dark mode override (auto / light / dark) independent of the CPI theme: toolbar and sidebar CSS to the `--cpih-*` tokens first.
 
 - WXT migration (paused) gets a jQuery-free code base; the UI kit can become an ES module there.
 - Rename the legacy modal ids once the plugin API is versioned.
