@@ -51,7 +51,7 @@ create_zip() {
     name="${name//,/}"
     name="${name// /_}"
 
-    exclusions=("./docs/*" ".DS_Store" "*.json_*" "./node_modules" "./images/v[1-3]/*" "*.sh" "./dist" "./dist/*" "*.json_*" "./.*")
+    exclusions=("./docs/*" ".DS_Store" "*.json_*" "./node_modules" "./node_modules/*" "./images/v[1-3]/*" "*.sh" "./dist" "./dist/*" "*.json_*" "./.*" "./tests/*" "./package.json" "./package-lock.json" "./test-results/*" "./playwright-report/*")
 
     exclude_args=()
     for pattern in "${exclusions[@]}"; do
