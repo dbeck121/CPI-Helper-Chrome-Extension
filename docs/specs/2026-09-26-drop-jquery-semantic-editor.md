@@ -53,7 +53,7 @@ Date: 2026-09-26
 ## Added during implementation
 
 - Modals, toasts and the plugin cards take the look of the floating toolbar / message sidebar (tenant colored header strip, see-through card).
-- Hint to the SAP Customer Influence request in the 4.0 welcome card, hidden until `CELEBRATION_INFLUENCE_URL` in scripts/celebration.js is set.
+- Hint to the SAP Customer Influence request in the 4.0 welcome card, links to SAP Customer Influence idea 336795.
 - Plugin runtime hardening in scripts/plugins.js (error isolation, heartbeat guard, shared settings snapshot, button click fix, validation). No plugin API change.
 - Content scripts also run on the Integration Suite / -tmn hosts and on /shell, /itspaces without trailing slash (first load after the login redirect). Hypothesis, see verification.
 - Dead code and CSS cleanup, auto refresh setting of the message sidebar is honoured now.
@@ -64,7 +64,7 @@ Date: 2026-09-26
 - First load after login in a fresh tab: Network "Preserve log", check the final URL and that the content scripts are listed under Sources.
 - Firefox: after an update style install check about:addons permissions for the broader content script matches.
 - Other BTP apps on hana.ondemand.com (Cloud Transport Management, issue #315) must not get CPI Helper.
-- Set `CELEBRATION_INFLUENCE_URL`.
+- Runtime picker on a tenant with edge runtimes: the selected location shows "(deployed)", the others only after the info popup ran (getIflowInfoExtended).
 
 ## Roadmap after this
 
