@@ -290,47 +290,53 @@ button.cpiHelper_sidebar_iconbutton span {
   opacity: 0;
 }
 
+/* same look as the .ui.menu tabs of css/ui.css */
 .cpiHelper_tabs_label {
-  padding: 5px 5px;
-  margin-right: 5px;
+  position: relative;
+  padding: 0.625rem 0.875rem;
   cursor: pointer;
-  font-weight: bold;
-  color: #7f7f7f;
-  transition:
-    background 0.1s,
-    color 0.1s;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--cpih-text-muted);
   text-align: center;
+  user-select: none;
 }
 
-.cpiHelper_tabs_label:active {
-  color: #000;
+.cpiHelper_tabs_label::after {
+  content: '';
+  position: absolute;
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: 0;
+  height: 0.1875rem;
+  border-radius: 0.1875rem 0.1875rem 0 0;
+  background: transparent;
 }
 
-.cpiHelper_tabs_input:focus + .cpiHelper_tabs_label {
+.cpiHelper_tabs_label:hover {
+  color: var(--cpih-text);
+}
+
+.cpiHelper_tabs_input:focus-visible + .cpiHelper_tabs_label {
   z-index: 1;
+  outline: 2px solid var(--cpih-focus);
+  outline-offset: -2px;
+  border-radius: var(--cpih-radius-small);
 }
 
 .cpiHelper_tabs_input:checked + .cpiHelper_tabs_label {
-  color: #000;
-  border-block-end: 2px solid black;
+  color: var(--cpih-brand);
 }
 
-.ch_dark .cpiHelper_tabs_input:checked + .cpiHelper_tabs_label {
-  color: #6495ed;
-}
-
-.cpiHelper_tabs_label:hover,
-.cpiHelper_tabs_input:checked + .cpiHelper_tabs_label:hover {
-  color: #ff5722;
-  background: var(--cpi-custom-color);
-  border-radius: 0.2857rem;
+.cpiHelper_tabs_input:checked + .cpiHelper_tabs_label::after {
+  background: var(--cpih-brand);
 }
 
 .cpiHelper_tabs_panel {
-  padding: 4px;
+  padding: 0.75rem 0 0;
   display: none;
   width: 100%;
-  background: var(--cpi-background-color);
+  border-top: 1px solid var(--cpih-border);
 }
 
 @media (min-width: 600px) {

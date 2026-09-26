@@ -1154,6 +1154,8 @@ var sidebar = {
       if (result["set_ch_popup_mouse"]) {
         popuparea.style.left = result["set_ch_popup_mouse"].left;
         popuparea.style.top = result["set_ch_popup_mouse"].top;
+      } else {
+        placeSidebarNextToToolbar(popuparea);
       }
     });
     //add close button
@@ -1181,6 +1183,24 @@ var sidebar = {
 };
 
 //function that handles the dragging
+// both start at the right edge. as long as the user did not move the sidebar, it opens next to the
+// toolbar instead of below it, where the toolbar covered the message buttons
+function placeSidebarNextToToolbar(popuparea) {
+  const toolbar = getFloatingToolbar();
+  if (!popuparea || !toolbar) return;
+  const bar = toolbar.getBoundingClientRect();
+  if (!bar.width) return;
+  const gap = 8;
+  popuparea.style.top = Math.max(bar.top, 0) + "px";
+  if (bar.left + bar.width / 2 > window.innerWidth / 2) {
+    popuparea.style.left = "auto";
+    popuparea.style.right = Math.max(window.innerWidth - bar.left + gap, 0) + "px";
+  } else {
+    popuparea.style.right = "auto";
+    popuparea.style.left = bar.right + gap + "px";
+  }
+}
+
 function dragElement(elmnt) {
   var pos1 = 0,
     pos2 = 0,

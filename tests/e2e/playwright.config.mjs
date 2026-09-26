@@ -1,10 +1,12 @@
 import { defineConfig } from "@playwright/test";
 import path from "node:path";
 import { repoRoot } from "./env.mjs";
+import { fileURLToPath } from "node:url";
 
 // the tests share the one logged in browser from `npm run e2e:browser`, so they run one after another
 export default defineConfig({
   testDir: ".",
+  globalSetup: fileURLToPath(new URL("./global-setup.mjs", import.meta.url)),
   testMatch: "*.spec.mjs",
   workers: 1,
   fullyParallel: false,

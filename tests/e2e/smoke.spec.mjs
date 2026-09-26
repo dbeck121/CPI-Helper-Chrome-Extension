@@ -1,4 +1,4 @@
-// read only checks against a real tenant. nothing here switches trace, deploys, unlocks or writes to the tenant
+// read only checks against a real tenant. nothing here switches trace, deploys, unlocks or writes to the tenant (see trace.spec.mjs for that)
 import { test, expect, openIflow, expectLoggedIn, bigPopup } from "./fixtures.mjs";
 import { env, requireEnv } from "./env.mjs";
 
@@ -33,6 +33,20 @@ test.describe("iFlow", () => {
     expect(extensionErrors).toEqual([]);
   });
 
+  test("message sidebar opens next to the toolbar, not below it", async ({ page, extensionErrors }) => {
+    await page.setViewportSize({ width: 1500, height: 950 });
+    await page.reload();
+    await expect(page.locator("#cpiHelper_floatingToolbar")).toBeVisible({ timeout: 60_000 });
+    if (!(await page.locator("#cpiHelper_content").isVisible())) await page.locator("#__buttonxy").click();
+    await expect(page.locator("#cpiHelper_content")).toBeVisible();
+    await page.waitForTimeout(500);
+    const bar = await page.locator("#cpiHelper_floatingToolbar").boundingBox();
+    const sidebar = await page.locator("#cpiHelper_content").boundingBox();
+    const overlap = !(sidebar.x + sidebar.width <= bar.x || bar.x + bar.width <= sidebar.x || sidebar.y + sidebar.height <= bar.y || bar.y + bar.height <= sidebar.y);
+    expect(overlap, "sidebar and toolbar overlap").toBe(false);
+    expect(extensionErrors).toEqual([]);
+  });
+
   test("info popup opens and closes with the close button", async ({ page, extensionErrors }) => {
     await page.locator("#__buttoninfo").click();
     await expect(bigPopup(page)).toBeVisible();
@@ -58,12 +72,14 @@ test.describe("iFlow", () => {
   test("log viewer of the newest message shows the payload viewer", async ({ page, extensionErrors }) => {
     if (!(await page.locator("#cpiHelper_content").isVisible())) await page.locator("#__buttonxy").click();
     const logsButton = page.locator("#cpiHelper_content button[id^='logs--']").first();
-    test.skip(!(await logsButton.isVisible({ timeout: 30_000 }).catch(() => false)), "no processed messages for this iFlow");
+    // isVisible() does not wait, waitFor does
+    const hasMessages = await logsButton.waitFor({ state: "visible", timeout: 30_000 }).then(() => true, () => false);
+    test.skip(!hasMessages, "no processed messages for this iFlow");
     await logsButton.click();
     await expect(bigPopup(page)).toBeVisible({ timeout: 60_000 });
     // properties are always there, attachments and bodies use the payload viewer
     const viewer = page.locator("#cpiHelper_semanticui_modal .cpiHelper_payload").first();
-    if (await viewer.isVisible({ timeout: 10_000 }).catch(() => false)) {
+    if (await viewer.waitFor({ state: "visible", timeout: 15_000 }).then(() => true, () => false)) {
       await expect(viewer.locator(".ace_editor")).toBeVisible();
       await viewer.locator('[data-action="fullscreen"]').click();
       await expect(viewer).toHaveClass(/cpiHelper_payload_fullscreen/);

@@ -150,18 +150,24 @@ const cpihModal = (() => {
     return stack[stack.length - 1] || null;
   }
 
+  // capture phase: UI5 calls preventDefault on Escape when a form element has the focus, a bubbling
+  // listener then depends on the order of registration. the exceptions are checked here instead
   document.addEventListener(
     "keydown",
     (event) => {
-      if (event.key !== "Escape" || event.defaultPrevented) return;
-      // Esc in the search box of the payload editor only closes the search box
-      if (event.target instanceof Element && event.target.closest(".ace_search")) return;
+      if (event.key !== "Escape") return;
       const modal = top();
       if (!modal || settingsOf.get(modal)?.closable === false) return;
+      const target = event.target instanceof Element ? event.target : null;
+      // Esc closes the search box of the payload editor, the result list of a search or leaves the fullscreen editor
+      if (target?.closest(".ace_search")) return;
+      if (target?.closest(".ui.search")?.querySelector(".results.visible")) return;
+      if (modal.querySelector(".cpiHelper_payload_fullscreen")) return;
       event.preventDefault();
+      event.stopPropagation();
       hide(modal);
     },
-    false
+    true
   );
 
   return { show, hide, hideAll, isShown, top };
