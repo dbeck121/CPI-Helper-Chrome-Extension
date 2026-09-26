@@ -88,7 +88,7 @@ function setFloatingToolbarExpanded(toolbar, expanded, persist = true) {
     toggle.querySelector(".cpiHelper_floatingToolbar_buttonIcon").innerHTML = floatingToolbarIcon(expanded ? "collapse" : "expand");
     toggle.querySelector(".cpiHelper_floatingToolbar_label").textContent = label;
     toggle.setAttribute("aria-label", expanded ? "Show icons only" : "Show labels");
-    toggle.dataset.tooltip = expanded ? "Show icons only" : "Show labels";
+    toggle.dataset.cpiHint = expanded ? "Show icons only" : "Show labels";
     toggle.setAttribute("aria-expanded", String(expanded));
   }
   hideFloatingToolbarTooltip(toolbar);
@@ -100,7 +100,8 @@ function setFloatingToolbarExpanded(toolbar, expanded, persist = true) {
   }
 }
 
-// own tooltip instead of the title attribute: the browser shows that late and unstyled.
+// own tooltip instead of the title attribute: the browser shows that late and unstyled. the attribute is
+// data-cpi-hint and not data-tooltip, Fomantic's CSS would show a second tooltip for data-tooltip
 // in the compact variant always; in the wide one only for a label that was cut, with the full name
 function showFloatingToolbarTooltip(toolbar, target) {
   const tooltip = toolbar.querySelector(".cpiHelper_floatingToolbar_tooltip");
@@ -108,12 +109,12 @@ function showFloatingToolbarTooltip(toolbar, target) {
   const expanded = toolbar.classList.contains("cpiHelper_floatingToolbar_expanded");
   const label = target.querySelector(".cpiHelper_floatingToolbar_label");
   const cut = label && label.scrollWidth > label.clientWidth;
-  if (!tooltip || popoverOpen || !target.dataset.tooltip || (expanded && !cut)) {
+  if (!tooltip || popoverOpen || !target.dataset.cpiHint || (expanded && !cut)) {
     hideFloatingToolbarTooltip(toolbar);
     return;
   }
 
-  tooltip.replaceChildren(target.dataset.tooltip);
+  tooltip.replaceChildren(target.dataset.cpiHint);
   if (target.accessKey && !expanded) {
     const kbd = document.createElement("kbd");
     kbd.textContent = floatingToolbarShortcutLabel(target.accessKey);
@@ -140,7 +141,7 @@ const FLOATING_TOOLBAR_TOOLTIP_WARM = 600;
 
 function bindFloatingToolbarTooltip(toolbar) {
   let warmUntil = 0;
-  const targetOf = (event) => event.target.closest?.("[data-tooltip]");
+  const targetOf = (event) => event.target.closest?.("[data-cpi-hint]");
   const schedule = (target) => {
     clearTimeout(toolbar._cpiHelperTooltipTimer);
     const delay = Date.now() < warmUntil ? 0 : FLOATING_TOOLBAR_TOOLTIP_DELAY;
@@ -226,7 +227,7 @@ async function createFloatingToolbar(artifactId) {
   // the grip is the header of the bar: dots to drag it and, in the wide variant, the name
   const grip = document.createElement("div");
   grip.className = "cpiHelper_floatingToolbar_grip";
-  grip.dataset.tooltip = "CPI Helper";
+  grip.dataset.cpiHint = "CPI Helper";
   const dots = document.createElement("span");
   dots.className = "cpiHelper_floatingToolbar_dots";
   const name = document.createElement("span");
@@ -303,7 +304,7 @@ function createFloatingToolbarButton({ id, icon, iconNode, title, accessKey }) {
   button.className = "cpiHelper_floatingToolbar_button";
   if (id) button.id = id;
   button.setAttribute("aria-label", title);
-  button.dataset.tooltip = title;
+  button.dataset.cpiHint = title;
   if (accessKey) button.accessKey = accessKey;
   const iconSpan = document.createElement("span");
   iconSpan.className = "cpiHelper_floatingToolbar_buttonIcon";
