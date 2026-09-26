@@ -136,8 +136,8 @@ function hideFloatingToolbarTooltip(toolbar) {
 
 // a hint waits a bit, so moving across the bar does not flash one after the other. once one is shown the
 // neighbours follow without delay, until the mouse has been away from the bar for a moment
-const FLOATING_TOOLBAR_TOOLTIP_DELAY = 500;
-const FLOATING_TOOLBAR_TOOLTIP_WARM = 600;
+const FLOATING_TOOLBAR_TOOLTIP_DELAY = 250;
+const FLOATING_TOOLBAR_TOOLTIP_WARM = 1000;
 
 function bindFloatingToolbarTooltip(toolbar) {
   let warmUntil = 0;
