@@ -720,9 +720,13 @@ fieldset {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   width: 34px;
   height: 34px;
   padding: 0;
+  font: inherit;
+  font-size: 0.8125rem;
+  white-space: nowrap;
   border: 0;
   border-radius: 8px;
   background: transparent;
@@ -741,7 +745,8 @@ fieldset {
   outline-offset: 1px;
 }
 
-.cpiHelper_floatingToolbar_button[aria-expanded='true'] {
+/* open menu. the variant toggle uses aria-expanded too, so match menu buttons only */
+.cpiHelper_floatingToolbar_button[aria-haspopup][aria-expanded='true'] {
   background: var(--sapButton_Lite_Active_Background, rgba(0, 100, 217, 0.16));
 }
 
@@ -809,4 +814,88 @@ fieldset {
   width: 18px;
   height: 18px;
   flex: none;
+}
+
+.cpiHelper_floatingToolbar_buttonIcon {
+  display: inline-flex;
+  flex: none;
+}
+
+/* compact: icons only. wide: icon and label */
+.cpiHelper_floatingToolbar_label {
+  display: none;
+}
+
+#cpiHelper_floatingToolbar.cpiHelper_floatingToolbar_expanded {
+  align-items: stretch;
+}
+
+.cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_grip {
+  align-self: center;
+}
+
+.cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_button {
+  width: auto;
+  min-width: 128px;
+  justify-content: flex-start;
+  padding: 0 12px 0 8px;
+}
+
+.cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_label {
+  display: inline;
+}
+
+/* the variant switch sits apart from the actions */
+.cpiHelper_floatingToolbar_toggle {
+  height: 26px;
+  margin-top: 2px;
+  border-top: 1px solid var(--sapGroup_ContentBorderColor, #e5e5e5);
+  border-radius: 0 0 8px 8px;
+  color: var(--sapContent_IconColor, #7b7b7b);
+}
+
+.cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_toggle {
+  height: 26px;
+  font-size: 0.75rem;
+}
+
+.cpiHelper_floatingToolbar_toggle svg {
+  width: 14px;
+  height: 14px;
+}
+
+.cpiHelper_floatingToolbar_tooltip {
+  position: absolute;
+  left: calc(100% + 8px);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--sapTooltip_Background, #1d2d3e);
+  color: var(--sapTooltip_TextColor, #fff);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* display: flex above would beat the [hidden] rule of the browser */
+.cpiHelper_floatingToolbar_tooltip[hidden],
+.cpiHelper_floatingToolbar_menu[hidden] {
+  display: none;
+}
+
+.cpiHelper_floatingToolbar_tooltip.cpiHelper_floatingToolbar_tooltip_left {
+  left: auto;
+  right: calc(100% + 8px);
+}
+
+.cpiHelper_floatingToolbar_tooltip kbd {
+  padding: 0 5px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.6875rem;
+  line-height: 1.4;
 }

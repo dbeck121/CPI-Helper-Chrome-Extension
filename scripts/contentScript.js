@@ -582,11 +582,35 @@ async function buildFloatingToolbar() {
       },
     });
 
+
+    addFloatingToolbarButton(toolbar, {
+      id: "__more_logs",
+      icon: "logs",
+      title: "Logs",
+      onClick: async () => {
+        statistic("headerbar_btn_logs_click");
+        // the logs popup opens and it shows the sidebar. the sidebar elements are updated
+        showBigPopup(await createContentNodeForLogs(null, true), "Logs");
+        updateArtifactList();
+        updateLogList();
+      },
+    });
+
+    addFloatingToolbarButton(toolbar, {
+      id: "__more_plugins",
+      icon: "plugins",
+      title: "Plugins",
+      onClick: async () => {
+        statistic("headerbar_btn_plugins_click");
+        showBigPopup(await createContentNodeForPlugins(), "Plugins");
+      },
+    });
+
     if (cpiData.runtimeLocations && cpiData.runtimeLocations.length > 1) {
       addFloatingToolbarMenuButton(toolbar, {
         id: "__runtime_button",
         icon: "runtime",
-        title: "Select Runtime Location",
+        title: "Runtime",
         getItems: async () => {
           // Update runtime info on open to ensure fresh data
           await getIflowInfo(null, true, false);
@@ -601,33 +625,6 @@ async function buildFloatingToolbar() {
         },
       });
     }
-
-    addFloatingToolbarMenuButton(toolbar, {
-      id: "__more_button",
-      icon: "more",
-      title: "More Options",
-      getItems: async () => [
-        {
-          label: "Logs",
-          icon: "logs",
-          onClick: async () => {
-            statistic("headerbar_btn_logs_click");
-            // the logs popup opens and it shows the sidebar. the sidebar elements are updated
-            showBigPopup(await createContentNodeForLogs(null, true), "Logs");
-            updateArtifactList();
-            updateLogList();
-          },
-        },
-        {
-          label: "Plugins",
-          icon: "plugins",
-          onClick: async () => {
-            statistic("headerbar_btn_plugins_click");
-            showBigPopup(await createContentNodeForPlugins(), "Plugins");
-          },
-        },
-      ],
-    });
 
     // only the iflow editor has the step search
     var searchStepInput = document.querySelector("[id*='--searchStep-I']");
