@@ -5,9 +5,10 @@
 // (`npx playwright install chromium` once).
 import { spawn } from "node:child_process";
 import { chromium } from "@playwright/test";
-import { env, repoRoot, requireEnv } from "./env.mjs";
+import { env, repoRoot } from "./env.mjs";
 
-const startUrl = requireEnv("CPI_URL", env.cpiUrl);
+// without CPI_URL the browser opens empty, navigate to the tenant yourself
+const startUrl = env.cpiUrl && !env.cpiUrl.includes("<") ? env.cpiUrl : "about:blank";
 
 try {
   const response = await fetch(`http://127.0.0.1:${env.cdpPort}/json/version`);
