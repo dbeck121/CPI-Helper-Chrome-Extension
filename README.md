@@ -49,7 +49,14 @@ It is open source so feel free to check the source code.
 - [Plugin] New Version History plugin: view the version history of an iFlow and revert to an earlier version directly in the editor. Special thanks to [Gregor Schütz](https://github.com/DevGregor)
 - [Plugin] New MPL Table Sorter plugin: sort the Monitor Message Processing table by one or more columns. Special thanks to [Prem Sai Daggolu](https://github.com/premsaidaggolu)
 - [Plugin] New Create named Groovy script plugin: create a Groovy resource with a name of your choice in the current iFlow. Special thanks to [Björn Konzmann](https://github.com/BKonzi)
+- [Feature] Rewritten browser action popup: faster, without jQuery and Semantic UI, and it can open the plugin settings of the current tab. Artifact names in the popup are now escaped. Special thanks to [Alexander Aigner](https://github.com/aaigi)
+- [Feature] The browser tab title shows a readable name of the current app. Thanks to [Alexander Aigner](https://github.com/aaigi)
+- [Feature] Plugins can use a select dropdown in their settings. Thanks to [Alexander Aigner](https://github.com/aaigi)
 - [Improvement] Updated plugin metadata for Timeline, Unlock and Credential Helper. Thanks to [Gregor Schütz](https://github.com/DevGregor)
+- [Improvement] Version History highlights only the current version, Unlock refreshes the page after unlocking. Thanks to [Gregor Schütz](https://github.com/DevGregor)
+- [Fix] The CPI Helper button in the new shell header opens on the first click and no longer disappears. Thanks to [Alexander Aigner](https://github.com/aaigi)
+- [Fix] The CPI Helper popup no longer opens empty the first time. Thanks to [Alexander Aigner](https://github.com/aaigi)
+- [Fix] CPI Helper stops cleanly after the extension was reloaded or updated instead of flooding the console. Thanks to [Alexander Aigner](https://github.com/aaigi)
 
 ### 3.26.0
 
