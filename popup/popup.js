@@ -463,7 +463,7 @@ function renderSettings(state) {
 
     ${groupTitle("alert", "Danger zone: extremely experimental features")}
     <div class="danger-zone">
-      <p>These features use internals of SAP Cloud Integration. A lot will not work and SAP can break them at any time. Use them only if you know what you are doing and check your iFlow before you save.</p>
+      <p>These features use internals of SAP Cloud Integration. A lot will not work and SAP can break them at any time. Use them only if you know what you are doing and check your iFlow before you save. <b>You alone are responsible for what you do and what you break.</b></p>
       <div class="settings">
         ${segmented("cpiHelper_experimental_snippets", "Snippets in the iFlow editor", "On", "Off", !!state.experimentalSnippets)}
       </div>

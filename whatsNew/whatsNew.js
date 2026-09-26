@@ -182,7 +182,7 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
                 <li>Hover a name or value in the trace, log and info tables to <b>copy</b> it.</li>
             </ul>
             <h4 class="ui header">Snippets (extremely experimental)</h4>
-            <div class="ui negative message">Danger zone: Snippets use internals of the SAP iFlow editor and a lot will not work. Check your iFlow before you save, and cancel the edit if anything looks wrong.</div>
+            <div class="ui negative message">Danger zone: Snippets use internals of the SAP iFlow editor and a lot will not work. Check your iFlow before you save, and cancel the edit if anything looks wrong. <b>You alone are responsible for what you do and what you break.</b></div>
             <ul class="ui list">
                 <li>Copy steps in the iFlow editor, open <b>Snippets</b> in the toolbar and save them under a name.</li>
                 <li><b>Use</b> puts a snippet back into the CPI clipboard: select the Integration Process or Local Integration Process in edit mode and press Paste, also in another iFlow.</li>

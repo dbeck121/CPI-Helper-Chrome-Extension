@@ -7,6 +7,7 @@ const GALILEI_CLIPBOARD_KEY = "GalileiClipboard";
 const SNIPPET_EXPORT_FORMAT = "cpiHelperSnippet";
 // Snippets are off until the user switches them on in the settings (browser popup, danger zone)
 const SNIPPETS_SETTING_KEY = "cpiHelper_experimental_snippets";
+const SNIPPETS_RESPONSIBILITY_TEXT = "You alone are responsible for what you do and what you break.";
 const SNIPPETS_PRIVACY_TEXT =
   "A snippet contains the whole iFlow the steps were copied from (all steps with their configuration, addresses and names), not only the copied steps. Share it only with people who may see that iFlow.";
 
@@ -204,7 +205,7 @@ async function renderSnippetList(container, filter = "") {
       <i class="exclamation triangle icon"></i>
       <div class="content">
         <div class="header">Extremely experimental: danger zone</div>
-        <p>Snippets use internals of the SAP iFlow editor. A lot will not work, and SAP can change the editor at any time. Check the iFlow carefully before you save, and if anything looks wrong, cancel the edit without saving.</p>
+        <p>Snippets use internals of the SAP iFlow editor. A lot will not work, and SAP can change the editor at any time. Check the iFlow carefully before you save, and if anything looks wrong, cancel the edit without saving. <b>${SNIPPETS_RESPONSIBILITY_TEXT}</b></p>
         <ul class="list">
           <li>Paste only works in edit mode into a selected <b>Integration Process</b> or <b>Local Integration Process</b>.</li>
           <li>Snippets with start elements (e.g. <b>Timer</b> or <b>Start Message</b>) can only go into an Integration Process, not into a Local Integration Process.</li>
@@ -310,14 +311,14 @@ async function renderSnippetList(container, filter = "") {
         const hasStart = snippetSteps(snippet.content).some((step) => step.isStart);
         const target = hasStart ? "the Integration Process (not a Local Integration Process, the snippet contains a start element)" : "the Integration Process or Local Integration Process";
         showToast(
-          bridge ? `Select ${target} in edit mode and press Paste. Experimental: check the iFlow before you save.` : "Written to the CPI clipboard. If Paste inserts something else, reload the editor.",
+          bridge ? `Select ${target} in edit mode and press Paste. Experimental: check the iFlow before you save. ${SNIPPETS_RESPONSIBILITY_TEXT}` : "Written to the CPI clipboard. If Paste inserts something else, reload the editor.",
           `"${snippet.name}" is in the CPI clipboard`,
           hasStart ? "warning" : "success"
         );
         return renderSnippetList(container, filterInput.value);
       }
       case "export":
-        if (!(await cpihConfirm({ title: "Share this snippet?", content: `<p>${SNIPPETS_PRIVACY_TEXT}</p>`, approveText: "Copy as text", denyText: "Cancel" }))) return;
+        if (!(await cpihConfirm({ title: "Share this snippet?", content: `<p>${SNIPPETS_PRIVACY_TEXT}</p><p><b>${SNIPPETS_RESPONSIBILITY_TEXT}</b></p>`, approveText: "Copy as text", denyText: "Cancel" }))) return;
         await navigator.clipboard.writeText(snippetExportText(snippet));
         return showToast("Paste it anywhere to share it. Others add it with Import.", "Snippet copied as text", "success");
       case "duplicate": {
