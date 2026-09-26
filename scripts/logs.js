@@ -19,14 +19,24 @@ createLogsLeftSide = async (leftActive = false) => {
     list.classList.add("cpiHelper_hidden");
   }
 
+  // filters as a small form: artifact, status, period, then the list of messages
+  const form = document.createElement("div");
+  form.className = "ui form cpiHelper_logs_filters";
+  const field = (labelText, control) => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "field";
+    const label = document.createElement("label");
+    label.textContent = labelText;
+    if (control.id) label.htmlFor = control.id;
+    wrapper.append(label, control);
+    form.appendChild(wrapper);
+    return wrapper;
+  };
+
   var artifactList = document.createElement("select");
-  artifactList.style.width = "100%";
-  artifactList.className = "cpi_padding_blockend";
   artifactList.onload = updateArtifactList;
   artifactList.id = "logs-left-side_cpiHelper_artifactList";
-
-  list.appendChild(artifactList);
-  list.appendChild(createElementFromHTML(`<br />`));
+  field("Artifact", artifactList);
   let today = new Date().toISOString().substring(0, 10);
   let tomorrow = new Date(new Date().getTime() + 86400000).toISOString().substring(0, 10);
 
@@ -37,12 +47,10 @@ createLogsLeftSide = async (leftActive = false) => {
     log.log(element.target.value);
     selectorIflowStatusEntry = element.target.value;
   };
-  selectorIflowStatus.innerHTML = `<option ${selectorIflowStatusEntry == "all" ? "selected" : ""} value="all">all</option><option ${toggleCustomOrLastEntries == "FAILED" ? "selected" : ""}>FAILED</option><option ${
-    toggleCustomOrLastEntries == "COMPLETED" ? "selected" : ""
+  selectorIflowStatus.innerHTML = `<option ${selectorIflowStatusEntry == "all" ? "selected" : ""} value="all">all</option><option ${selectorIflowStatusEntry == "FAILED" ? "selected" : ""}>FAILED</option><option ${
+    selectorIflowStatusEntry == "COMPLETED" ? "selected" : ""
   }>COMPLETED</option>`;
-  list.appendChild(createElementFromHTML("<label>Status: </label>"));
-  list.appendChild(selectorIflowStatus);
-  list.appendChild(createElementFromHTML(`<br />`));
+  field("Status", selectorIflowStatus);
 
   var selectorCustomTop = document.createElement("select");
   selectorCustomTop.id = "cpiHelper_logs_date_type";
@@ -58,9 +66,7 @@ createLogsLeftSide = async (leftActive = false) => {
     }
   };
   selectorCustomTop.innerHTML = `<option ${toggleCustomOrLastEntries == "last" ? "selected" : ""} value="last">last 50</option><option ${toggleCustomOrLastEntries != "last" ? "selected" : ""}>custom</option>`;
-  list.appendChild(createElementFromHTML("<label>Show: </label>"));
-  list.appendChild(selectorCustomTop);
-  list.appendChild(createElementFromHTML(`<br />`));
+  field("Show", selectorCustomTop);
 
   var customSelectionElement = document.createElement("div");
   customSelectionElement.id = "cpiHelper_logs_custom_selection";
@@ -68,25 +74,27 @@ createLogsLeftSide = async (leftActive = false) => {
     customSelectionElement.classList.add("cpiHelper_hidden");
   }
 
-  customSelectionElement.appendChild(createElementFromHTML(`<span style="margin-top: 10px;">From:<br /></span>`));
-  customSelectionElement.appendChild(createElementFromHTML(`<input type="date" id="cpiHelper_logs_start_date" name="cpiHelper_logs_start_date" value="${today}" />`));
-  customSelectionElement.appendChild(createElementFromHTML(`<br />`));
-  customSelectionElement.appendChild(createElementFromHTML(`<input type="time" id="cpiHelper_logs_start_time" name="cpiHelper_logs_end_time" value="00:00" />`));
-  customSelectionElement.appendChild(createElementFromHTML(`<br />`));
-  customSelectionElement.appendChild(createElementFromHTML(`<span style="margin-top: 10px;">To:<br /></span>`));
-
-  customSelectionElement.appendChild(createElementFromHTML(`<input type="date" id="cpiHelper_logs_end_date" name="cpiHelper_logs_end_date" value="${tomorrow}" />`));
-  customSelectionElement.appendChild(createElementFromHTML(`<br />`));
-  customSelectionElement.appendChild(createElementFromHTML(`<input type="time" id="cpiHelper_logs_end_time" name="cpiHelper_logs_end_time" value="00:00" />`));
-
-  list.appendChild(customSelectionElement);
+  customSelectionElement.className += " field cpiHelper_logs_period";
+  customSelectionElement.innerHTML = `
+    <label for="cpiHelper_logs_start_date">From</label>
+    <div class="cpiHelper_logs_datetime">
+      <input type="date" id="cpiHelper_logs_start_date" name="cpiHelper_logs_start_date" value="${today}" />
+      <input type="time" id="cpiHelper_logs_start_time" name="cpiHelper_logs_end_time" value="00:00" />
+    </div>
+    <label for="cpiHelper_logs_end_date">To</label>
+    <div class="cpiHelper_logs_datetime">
+      <input type="date" id="cpiHelper_logs_end_date" name="cpiHelper_logs_end_date" value="${tomorrow}" />
+      <input type="time" id="cpiHelper_logs_end_time" name="cpiHelper_logs_end_time" value="00:00" />
+    </div>`;
+  form.appendChild(customSelectionElement);
 
   var button = document.createElement("button");
-  button.innerText = "update";
+  button.type = "button";
+  button.className = "ui primary small fluid button";
+  button.innerHTML = '<i class="sync alternate icon"></i>Refresh';
   button.onclick = updateLogList;
-  button.style.margin = "10px";
-  button.style.marginLeft = "0px";
-  list.appendChild(button);
+  form.appendChild(button);
+  list.appendChild(form);
   list.appendChild(createElementFromHTML(`<div id="cpiHelper_log_list_for_entries" class="cpiHelper_logs_table_div"/>`));
 
   return list;
@@ -155,6 +163,7 @@ updateLogList = async () => {
     }
 
     list = document.createElement("table");
+    list.className = "cpiHelper_logs_list";
 
     lastDay = "";
 
@@ -178,7 +187,8 @@ updateLogList = async () => {
 
       if (date.substr(0, 10) != lastDay) {
         let day = document.createElement("tr");
-        day.innerHTML = `<td style="padding:0px;" colspan="2">${date.substr(0, 10)}</td>`;
+        day.className = "cpiHelper_logs_day";
+        day.innerHTML = `<td colspan="2">${date.substr(0, 10)}</td>`;
         list.appendChild(day);
         lastDay = date.substr(0, 10);
       }
@@ -195,14 +205,16 @@ updateLogList = async () => {
       statusicon = "<span data-sap-ui-icon-content='&#" + statusIcon + "' class='" + response[i].MessageGuid + " sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem; color:" + statusColor + ";'> </span>";
       //end statusicon
       let buttonWrap = document.createElement("td");
-      buttonWrap.style.padding = "0px";
       let button = document.createElement("button");
-      button.innerHTML = `${statusicon} ${date.substr(11, 8)}`;
+      button.type = "button";
+      button.className = "cpiHelper_logs_entry";
+      button.innerHTML = `${statusicon}<span>${date.substr(11, 8)}</span>`;
       button.onclick = (event) => {
         if (document.getElementsByClassName("cpiHelper_logs_selected_button").length > 0) {
           document.getElementsByClassName("cpiHelper_logs_selected_button")[0].classList.remove("cpiHelper_logs_selected_button");
         }
-        event.target.classList.add("cpiHelper_logs_selected_button");
+        // currentTarget: a click on the status icon must mark the row, not the icon
+        event.currentTarget.classList.add("cpiHelper_logs_selected_button");
         updateRightSide(response[i].MessageGuid);
       };
       buttonWrap.appendChild(button);

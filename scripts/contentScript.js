@@ -580,7 +580,7 @@ async function buildFloatingToolbar() {
 
 
     if (cpiData.runtimeLocations && cpiData.runtimeLocations.length > 1) {
-      addFloatingToolbarMenuButton(toolbar, {
+      const runtimeButton = addFloatingToolbarMenuButton(toolbar, {
         id: "__runtime_button",
         icon: "runtime",
         title: "Runtime",
@@ -600,6 +600,10 @@ async function buildFloatingToolbar() {
           });
         },
       });
+      // the number shows that there is more than one runtime to switch to
+      setFloatingToolbarBadge(runtimeButton, cpiData.runtimeLocations.length);
+      runtimeButton.setAttribute("aria-label", `Runtime: ${cpiData.runtimeLocationId} (${cpiData.runtimeLocations.length} available)`);
+      runtimeButton.dataset.cpiHint = `Runtime: ${cpiData.runtimeLocationId} (${cpiData.runtimeLocations.length} available)`;
     }
 
     // plugin section: toolbarButton plugins run their action directly, messageSidebarContent plugins open a panel
@@ -856,6 +860,13 @@ async function setRuntimeLocation(location, silent = false) {
   }
 
   log.debug(`Runtime location set to: ${cpiData.runtimeLocationId}`);
+
+  const runtimeButton = document.getElementById("__runtime_button");
+  if (runtimeButton) {
+    const hint = `Runtime: ${cpiData.runtimeLocationId} (${cpiData.runtimeLocations.length} available)`;
+    runtimeButton.setAttribute("aria-label", hint);
+    runtimeButton.dataset.cpiHint = hint;
+  }
 
   if (!change) {
     //do not update if runtime location is the same, to avoid unnecessary refreshes

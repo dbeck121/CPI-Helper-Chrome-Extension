@@ -508,8 +508,87 @@ button.cpiHelper_sidebar_iconbutton span {
 
 .cpiHelper_logs_left {
   box-sizing: border-box;
-  width: 200px;
-  padding: 10px;
+  flex: none;
+  width: 220px;
+  padding: 0 16px 0 0;
+  margin-right: 16px;
+  border-right: 1px solid var(--cpih-border);
+}
+
+.cpiHelper_logs_filters .field {
+  margin-bottom: 0.625rem;
+}
+
+.cpiHelper_logs_filters .field > label {
+  font-size: 0.75rem;
+  margin-bottom: 0.1875rem;
+}
+
+.cpiHelper_logs_filters select,
+.cpiHelper_logs_filters input {
+  min-height: 2rem !important;
+  padding: 0.25rem 0.5rem !important;
+}
+
+.cpiHelper_logs_datetime {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 0.375rem;
+}
+
+.cpiHelper_logs_filters .button {
+  margin: 0.25rem 0 0.75rem;
+}
+
+/* message list: day headings, one flat row per message */
+.cpiHelper_logs_list {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cpiHelper_logs_list td {
+  padding: 0;
+}
+
+.cpiHelper_logs_day td {
+  padding: 0.625rem 0.5rem 0.25rem !important;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--cpih-text-muted);
+}
+
+.cpiHelper .cpiHelper_logs_entry,
+.cpiHelper_logs_entry {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin: 1px 0;
+  padding: 0.3125rem 0.5rem;
+  font: inherit;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+  color: var(--cpih-text);
+  background: transparent;
+  border: 0 !important;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.cpiHelper .cpiHelper_logs_entry:hover,
+.cpiHelper_logs_entry:hover {
+  border: 0;
+  background: var(--cpih-lite-hover);
+}
+
+.cpiHelper_logs_entry:focus-visible {
+  outline: 2px solid var(--cpih-focus);
+  outline-offset: -2px;
+}
+
+.cpiHelper_logs_entry .sapUiIcon {
+  pointer-events: none;
 }
 
 .cpiHelper_logs_right {
@@ -519,7 +598,8 @@ button.cpiHelper_sidebar_iconbutton span {
 
 .cpiHelper_logs_right_small {
   box-sizing: border-box;
-  width: calc(100% - 200px);
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .cpiHelper_hidden {
@@ -532,17 +612,30 @@ button.cpiHelper_sidebar_iconbutton span {
   display: flex;
 }
 
-.cpiHelper_logs_selected_button {
-  background-color: #add8e6 !important;
+.cpiHelper .cpiHelper_logs_entry.cpiHelper_logs_selected_button {
+  background: var(--sapButton_Lite_Active_Background, rgba(0, 100, 217, 0.16));
+  font-weight: 600;
+}
+
+/* section rows inside the info table of the log viewer (Custom Headers, Artifact Details, ...) */
+#cpiHelper_logsInfo tr.blue > td {
+  padding-top: 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--cpih-text-muted);
+  background: var(--cpih-bg-subtle);
 }
 
 .cpiHelper_logs_table_div {
-  overflow-y: scroll;
-  height: 400px;
+  overflow-y: auto;
+  max-height: calc(95vh - 22rem);
+  min-height: 12rem;
 }
 
 #logs-left-side_cpiHelper {
-  overflow-y: scroll;
+  overflow-y: auto;
   max-height: 100%;
 }
 
@@ -794,6 +887,31 @@ button.cpiHelper_sidebar_iconbutton span {
 .cpiHelper_floatingToolbar_button_active {
   color: var(--sapNegativeColor, #d32030);
   background: var(--sapErrorBackground, rgba(211, 32, 48, 0.1));
+}
+
+/* same corner as the trace dot */
+.cpiHelper_floatingToolbar_badge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  border-radius: 7px;
+  background: var(--sapButton_Emphasized_Background, #0070f2);
+  color: var(--sapButton_Emphasized_TextColor, #fff);
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 14px;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* compact buttons are small, the badge sits on the corner there */
+#cpiHelper_floatingToolbar:not(.cpiHelper_floatingToolbar_expanded) .cpiHelper_floatingToolbar_badge {
+  top: -4px;
+  right: -5px;
+  box-shadow: 0 0 0 2px var(--sapGroup_ContentBackground, #fff);
 }
 
 .cpiHelper_floatingToolbar_button_active::after {
