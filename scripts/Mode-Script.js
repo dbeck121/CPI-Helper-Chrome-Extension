@@ -9,30 +9,61 @@ function navigationButton() {
         <span id="__cpihelper-tooltip" class="sapUiInvisibleText">CPI Helper</span>
       </button>`);
     $("#shell--toolHeader").children().eq(3).after(cloudbutton);
-    $("#__cpihelper").on(
-      "click",
-      async () =>
-        await showBigPopup(
-          `<div class="ui blue secondary pointing centered fluid menu">
+    keepNavigationButtonAlive();
+
+    // The button sits inside the UI5 managed tool header. UI5 drops every DOM node it did not
+    // render itself as soon as that header re-renders, and letting a mouse event reach UI5
+    // triggers exactly that - the button is gone before the click event is dispatched, so the
+    // first press only made it vanish instead of opening the popup. Keyboard focus is untouched.
+    $("#__cpihelper").on("mousedown", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+    });
+
+    $("#__cpihelper").on("click", async (event) => {
+      event.stopPropagation();
+      await showBigPopup(
+        `<div class="ui blue secondary pointing centered fluid menu">
     <div class="active item" data-tab="homepage">Search Credentials & Log Mode</div>
     <div class="item" data-tab="plugins">Plugins</div>
     </div>
     <div data-tab="homepage" class="ui loading tab"><div id="GlobalCH_Tab1"></div></div>
     <div data-tab="plugins" class="ui tab"><div id="GlobalCH_TabPlugins"></div></div>`,
-          "",
-          {
-            fullscreen: true,
-            callback: async () => {
-              $("#cpiHelper_bigPopup_content_semanticui .blue.menu.secondary .item").tab();
-              $("#GlobalCH_TabPlugins").append(await createContentNodeForPlugins());
-              await fromInitialLoadingTo();
-            },
-          }
-        ).then(async (e) => {
-          await defaultdebug();
-        })
-    );
+        "",
+        {
+          fullscreen: true,
+          callback: async () => {
+            $("#cpiHelper_bigPopup_content_semanticui .blue.menu.secondary .item").tab();
+            $("#GlobalCH_TabPlugins").append(await createContentNodeForPlugins());
+            await fromInitialLoadingTo();
+          },
+        }
+      ).then(async (e) => {
+        await defaultdebug();
+      });
+    });
   }
+}
+
+var navigationButtonObserver = null;
+var navigationButtonObservedHeader = null;
+
+// UI5 still re-renders the tool header on its own (theme change, navigation) and takes the button
+// with it. The 3 second heartbeat puts it back, but late enough to be visible - re-add it as soon
+// as the header children change instead.
+function keepNavigationButtonAlive() {
+  const header = document.getElementById("shell--toolHeader");
+  if (!header || header === navigationButtonObservedHeader) return;
+  if (navigationButtonObserver) navigationButtonObserver.disconnect();
+  navigationButtonObserver = new MutationObserver(() => {
+    if (!extensionAlive()) {
+      navigationButtonObserver.disconnect();
+      return;
+    }
+    navigationButton();
+  });
+  navigationButtonObserver.observe(header, { childList: true });
+  navigationButtonObservedHeader = header;
 }
 /*const icons = chrome.runtime.getManifest().icons | chrome.runtime.getURL(icons['16'])*/
 async function getSecurityNamelist() {
