@@ -349,6 +349,70 @@ button.cpiHelper_sidebar_iconbutton span {
   display: block;
 }
 
+/* changes tab of the inline trace: side by side diff */
+.cpiHelper_changes_bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.cpiHelper_changes_bar button {
+  height: 26px;
+  padding: 0 10px;
+  font: inherit;
+  font-size: 0.8125rem;
+  border: 0 !important;
+  border-radius: 6px;
+  background: transparent !important;
+  color: var(--sapButton_Lite_TextColor, #0064d9);
+  cursor: pointer;
+}
+
+.cpiHelper_changes_bar button[aria-pressed='true'] {
+  background: var(--sapButton_Lite_Active_Background, rgba(0, 100, 217, 0.16)) !important;
+}
+
+/* a dot on the parts that changed */
+.cpiHelper_changes_bar button.cpiHelper_changes_changed::after {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: var(--sapCriticalColor, #e76500);
+  vertical-align: middle;
+}
+
+.cpiHelper_changes_info {
+  font-size: 0.8125rem;
+  color: var(--cpih-text-muted);
+}
+
+.cpiHelper_changes_labels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--cpih-text-muted);
+}
+
+.cpiHelper_changes_diff {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  height: 55vh;
+}
+
+.cpiHelper_changes_side {
+  min-height: 120px;
+  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
+  border-radius: 8px;
+}
+
 /* run picker for steps with many executions (scripts/inline-trace.js) */
 .cpiHelper_runPicker_bar {
   display: flex;

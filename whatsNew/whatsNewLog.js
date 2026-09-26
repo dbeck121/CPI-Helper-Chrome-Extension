@@ -18,6 +18,10 @@ const whats_new_log = `
 - [Improvement] jQuery and Fomantic UI are gone, about 3 MB less loaded into every CPI page. Dialogs and toasts take the look of the new toolbar and follow the light and dark CPI theme.
 - [Improvement] More robust plugins: one failing plugin no longer affects the others.
 - [Fix] Pretty print of XML no longer inserts Chrome's XSLT deprecation notice into the payload.
+- [Feature] Inline trace: new Changes tab shows side by side what a step did to body, headers and properties.
+- [Feature] Inline trace: all steps of a message load, the first ones right away and the rest in the background (no fixed limit of 300 anymore). Steps with many runs, e.g. after a splitter, load a run only when it is opened.
+- [Feature] Inline trace: hovering a failed step shows the error, "Show failing step" opens it on its error tab.
+- [Feature] Copy buttons on hover for names and values in trace, log and info tables.
 - [Fix] The CPI Helper button in the new shell header opens on the first click and no longer disappears. Thanks to Alexander Aigner.
 - [Fix] The CPI Helper popup no longer opens empty the first time. Thanks to Alexander Aigner.
 - [Fix] CPI Helper stops cleanly after the extension was reloaded or updated instead of flooding the console. Thanks to Alexander Aigner.

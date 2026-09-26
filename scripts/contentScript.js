@@ -1386,41 +1386,58 @@ function lookupError(message) {
   return null;
 }
 
-//to check for errors and inline trace
-async function getMessageProcessingLogRuns(MessageGuid, store = true) {
-  var top_mode_count = await storageGetPromise("cpi_top_mode");
-  top_mode_count = top_mode_count == null && top_mode_count == undefined ? "&$top=300" : `& $top=${parseInt(top_mode_count)} `; //Default
-  if (top_mode_count === "&$top=0") {
-    top_mode_count = "";
-  }
-  //Plugin over-write
-  if (await getStorageValue("traceModifer", "isActive", null)) {
-    var top_mode_count_flow = await storageGetPromise(`traceModifer_${cpiData.integrationFlowId} `);
-    console.debug("traceModifer_flow", cpiData.integrationFlowId, top_mode_count, top_mode_count_flow);
-    top_mode_count = (top_mode_count_flow == null && top_mode_count_flow == undefined) || top_mode_count_flow == 0 ? top_mode_count : `& $top=${parseInt(top_mode_count_flow)} `;
-  }
+// run steps of a message: the first page comes back right away. with onMorePages the remaining pages load
+// in the background (onMorePages(runs, loaded, total) per page) until all are there or RUN_STEPS_MAX is reached.
+// isStale() lets the caller stop a background load that is no longer needed (e.g. another inline trace started)
+const RUN_STEPS_PAGE_SIZE = 1000;
+const RUN_STEPS_MAX = 20000;
 
-  return makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store)
-    .then((responseText) => {
-      var resp = JSON.parse(responseText);
-      var status = resp.d.results[0].OverallState;
-      //take the correct run log (last or second last) for displaying the inline trace, depending on message status.
-      if (resp.d.results.length > 1 && status != "COMPLETED" && status != "ESCALATED") {
-        return resp.d.results[1].Id;
-      } else {
-        return resp.d.results[0].Id;
-      }
-    })
-    .then((runId) => {
-      return makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json" + top_mode_count, store);
-    })
-    .then((response) => {
-      return JSON.parse(response).d.results.filter((e) => e.StepStop != null);
-    })
-    .catch((e) => {
-      log.log(e);
-      return null;
-    });
+async function getRunStepsFirstPageSize() {
+  // cpi_top_mode (browser popup) and the traceModifer plugin set the size of the first page, 0 means one full page
+  let size = parseInt(await storageGetPromise("cpi_top_mode"));
+  if (await getStorageValue("traceModifer", "isActive", null)) {
+    const flowSize = parseInt(await storageGetPromise(`traceModifer_${cpiData.integrationFlowId} `));
+    if (flowSize > 0) size = flowSize;
+  }
+  if (!(size >= 0)) size = 300;
+  return size === 0 ? RUN_STEPS_PAGE_SIZE : size;
+}
+
+//to check for errors and inline trace
+async function getMessageProcessingLogRuns(MessageGuid, store = true, { onMorePages, isStale } = {}) {
+  const base = "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/";
+  try {
+    const runs = JSON.parse(await makeCallPromise("GET", base + "MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store));
+    const status = runs.d.results[0].OverallState;
+    //take the correct run log (last or second last) for displaying the inline trace, depending on message status.
+    const runId = runs.d.results.length > 1 && status != "COMPLETED" && status != "ESCALATED" ? runs.d.results[1].Id : runs.d.results[0].Id;
+
+    const firstPageSize = await getRunStepsFirstPageSize();
+    const first = JSON.parse(await makeCallPromise("GET", base + "MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json&$top=" + firstPageSize, store)).d;
+    const total = Math.min(parseInt(first.__count) || first.results.length, RUN_STEPS_MAX);
+
+    if (onMorePages && total > first.results.length) {
+      (async () => {
+        let loaded = first.results.length;
+        while (loaded < total && !isStale?.()) {
+          const page = JSON.parse(
+            await makeCallPromise("GET", base + "MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json&$top=" + RUN_STEPS_PAGE_SIZE + "&$skip=" + loaded, store)
+          ).d.results;
+          if (!page.length || isStale?.()) break;
+          loaded += page.length;
+          onMorePages(
+            page.filter((e) => e.StepStop != null),
+            loaded,
+            total
+          );
+        }
+      })().catch((error) => log.warn("loading more run steps failed", error));
+    }
+    return first.results.filter((e) => e.StepStop != null);
+  } catch (e) {
+    log.log(e);
+    return null;
+  }
 }
 
 //function to get the current artifact name from the URL

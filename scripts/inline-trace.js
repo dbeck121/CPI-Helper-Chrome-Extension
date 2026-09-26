@@ -170,20 +170,21 @@ async function clickTrace(e) {
     //https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='AF57ga2G45vKDTfn7zqO0zwJ9n93',ChildCount=17)/TraceMessages?$format=json
     // one tab set (Properties, Headers, Body, Log, Info) per execution of the step. a step behind a splitter can run
     // thousands of times: the tab sets are built only when a run is opened, with many runs a run picker replaces the tabs
-    const runTabs = (element) => {
+    const runTabs = (element, focusError = false) => {
       const objects = [
-        { label: "Properties", content: getTraceTabContent, active: true, childCount: element.ChildCount, runId: element.RunId, traceType: "properties" },
+        { label: "Properties", content: getTraceTabContent, active: !(focusError && element.Error), childCount: element.ChildCount, runId: element.RunId, traceType: "properties" },
         { label: "Headers", content: getTraceTabContent, active: false, childCount: element.ChildCount, runId: element.RunId, traceType: "headers" },
         { label: "Body", content: getTraceTabContent, active: false, childCount: element.ChildCount, runId: element.RunId, traceType: "trace" },
         { label: "Log", content: getTraceTabContent, active: false, childCount: element.ChildCount, runId: element.RunId, traceType: "logContent" },
         { label: "Info", content: getTraceTabContent, active: false, childCount: element.ChildCount, runId: element.RunId, traceType: "info" },
+        { label: "Changes", content: async () => createStepChanges(element), active: false },
       ];
       if (element.Error) {
         let innerContent = document.createElement("div");
         innerContent.classList.add("cpiHelper_traceText");
         innerContent.innerText = element.Error;
         innerContent.style.display = "block";
-        objects.push({ label: "Error", content: innerContent, active: false });
+        objects.push({ label: "Error", content: innerContent, active: !!focusError });
       }
       return createTabHTML(objects, "tracetab-" + element.ChildCount);
     };
@@ -191,19 +192,23 @@ async function clickTrace(e) {
     async function loginformation() {
       // newest run first, like before
       const runsOfStep = [...targetElements].reverse();
+      // opened through "Show failing step": start with the failed run and its error tab
+      const focusError = inlineTraceFocusError;
+      inlineTraceFocusError = false;
+      const startIndex = focusError ? Math.max(runsOfStep.findIndex((run) => run.Error), 0) : 0;
       if (runsOfStep.length == 0) {
         showToast("No Trace Found", "", "warning");
         return;
       }
       if (runsOfStep.length == 1) {
-        return runTabs(runsOfStep[0]);
+        return runTabs(runsOfStep[0], focusError);
       }
       if (runsOfStep.length <= INLINE_TRACE_MAX_RUN_TABS) {
-        // a function as content: createTabHTML loads it when the tab is opened, only the first one right away
-        const runs = runsOfStep.map((element, index) => ({ label: "" + element.BranchId, active: index === 0, content: async () => runTabs(element) }));
-        return createTabHTML(runs, "runstab", 0);
+        // a function as content: createTabHTML loads it when the tab is opened, only the active one right away
+        const runs = runsOfStep.map((element, index) => ({ label: "" + element.BranchId, active: index === startIndex, content: async () => runTabs(element, focusError && index === startIndex) }));
+        return createTabHTML(runs, "runstab", startIndex);
       }
-      return createRunPicker(runsOfStep, runTabs);
+      return createRunPicker(runsOfStep, (element) => runTabs(element, focusError && element === runsOfStep[startIndex]), startIndex);
     }
     let childindex = Array.from(document.querySelectorAll(".cpiHelper_onclick[inline_cpi_child]"), (e) => parseInt(e.getAttribute("inline_cpi_child"), 10)).sort((a, b) => a - b);
     childindex = childindex.indexOf(parseInt(e.target.parentNode.parentNode.getAttribute("inline_cpi_child")));
@@ -214,6 +219,9 @@ async function clickTrace(e) {
 
 async function hideInlineTrace() {
   activeInlineItem = null;
+  inlineTraceGeneration++;
+  inlineTraceErrorToast?.close();
+  cpihQsa("title[data-cpih-error]").forEach((element) => element.remove());
   cpihQsa("[ch_inline_active]").forEach((element) => element.removeAttribute("ch_inline_active"));
   cpihQsa("[inline_cpi_child]").forEach((element) => element.removeAttribute("inline_cpi_child"));
 
@@ -249,26 +257,44 @@ function maxNode(arr) {
 var inlineTraceElements;
 let cpi_timediff_list;
 let cpi_max_node;
-async function createInlineTraceElements(MessageGuid, checked) {
+// bumped on every new or hidden inline trace, a background load of more run steps stops when it changed
+var inlineTraceGeneration = 0;
+
+function toInlineTraceElement(run) {
+  return {
+    StepId: run.StepId,
+    ModelStepId: run.ModelStepId,
+    ChildCount: run.ChildCount,
+    StepStop: run.StepStop,
+    StepStart: run.StepStart,
+    RunId: run.RunId,
+    BranchId: run.BranchId,
+    Error: run.Error,
+  };
+}
+
+// onMoreElements(elements, loaded, total): optional, called for every page that loads in the background
+async function createInlineTraceElements(MessageGuid, checked, onMoreElements) {
   return new Promise(async (resolve, reject) => {
     inlineTraceElements = [];
+    const generation = inlineTraceGeneration;
 
-    var logRuns = await getMessageProcessingLogRuns(MessageGuid, false);
+    var logRuns = await getMessageProcessingLogRuns(MessageGuid, false, {
+      isStale: () => generation !== inlineTraceGeneration,
+      onMorePages: onMoreElements
+        ? (runs, loaded, total) => {
+            const elements = runs.map(toInlineTraceElement);
+            inlineTraceElements.push(...elements);
+            onMoreElements(elements, loaded, total);
+          }
+        : null,
+    });
 
     if (logRuns == null || logRuns.length == 0) {
       return resolve(0);
     }
     logRuns.forEach((run) => {
-      inlineTraceElements.push({
-        StepId: run.StepId,
-        ModelStepId: run.ModelStepId,
-        ChildCount: run.ChildCount,
-        StepStop: run.StepStop,
-        StepStart: run.StepStart,
-        RunId: run.RunId,
-        BranchId: run.BranchId,
-        Error: run.Error,
-      });
+      inlineTraceElements.push(toInlineTraceElement(run));
     });
     // res is dataXHR request....
     if (await getStorageValue("traceModifer", "isActive", null)) {
@@ -298,76 +324,126 @@ async function createInlineTraceElements(MessageGuid, checked) {
 }
 
 var onClicKElements = [];
+
+// marks one executed step in the diagram. ctx: { traceModifier, checked, observerInstalled }
+function markInlineTraceRun(run, ctx) {
+  try {
+    const resolved = resolveInlineTraceNode(run);
+    if (!resolved) {
+      log.log("no diagram element found for " + run.StepId + " / " + run.ModelStepId);
+      return;
+    }
+    const element = resolved.element;
+    const target = resolved.target;
+    const flag = resolved.clickable;
+
+    element.setAttribute("inline_cpi_child", run.ChildCount);
+    target.classList.add("cpiHelper_inlineInfo");
+    if (flag && !element.classList.contains("cpiHelper_onclick")) {
+      element.classList.add("cpiHelper_onclick");
+      element.onclick = clickTrace;
+      onClicKElements.push(element);
+    }
+    if (run.Error) {
+      target.classList.add("cpiHelper_inlineInfo_error");
+      addInlineTraceErrorTitle(element, run.Error);
+    }
+    if (ctx.traceModifier && ctx.checked && cpi_timediff_list && cpi_max_node) {
+      const maxOfStep = cpi_max_node.find((f) => f.ModelStepId === run.ModelStepId);
+      if (maxOfStep) {
+        indexofnode = cpi_timediff_list.findIndex((e) => e === maxOfStep.CH_stats);
+        if (indexofnode == cpi_timediff_list.length - 1) {
+          nodeclass = "cpiHelper_max";
+        } else if (indexofnode == 0) {
+          nodeclass = "cpiHelper_min";
+        } else if (indexofnode == (cpi_timediff_list.length % 2 === 0 ? cpi_timediff_list.length / 2 : Math.round(cpi_timediff_list.length / 2) - 1)) {
+          nodeclass = "cpiHelper_avg";
+        } else if (indexofnode < cpi_timediff_list.length / 2) {
+          nodeclass = "cpiHelper_belowavg";
+        } else if (indexofnode > cpi_timediff_list.length / 2) {
+          nodeclass = "cpiHelper_aboveavg";
+        }
+        target.classList.add(nodeclass);
+      }
+    }
+    if (!ctx.observerInstalled) {
+      observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (!mutation.target.classList.contains("cpiHelper_onclick")) {
+            hideInlineTrace();
+            observer.disconnect();
+          }
+        });
+      });
+
+      observer.observe(document.getElementById(element.id), {
+        attributes: true,
+        attributeFilter: ["class"],
+      });
+      ctx.observerInstalled = true;
+    }
+  } catch (e) {
+    log.log("no element found for " + run.StepId);
+    log.log(run, e);
+  }
+}
+
+// native tooltip with the error message on a failed step
+function addInlineTraceErrorTitle(element, error) {
+  if (element.querySelector(":scope > title[data-cpih-error]")) return;
+  const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+  title.setAttribute("data-cpih-error", "");
+  const text = String(error);
+  title.textContent = "Error: " + (text.length > 600 ? text.substring(0, 600) + "..." : text);
+  element.prepend(title);
+}
+
+// the popup opens the error tab of the failed run when it was opened through "Show failing step"
+var inlineTraceFocusError = false;
+var inlineTraceErrorToast = null;
+
+function offerInlineTraceErrorStep() {
+  if (inlineTraceErrorToast) return;
+  const failed = inlineTraceElements.find((run) => run.Error && resolveInlineTraceNode(run)?.clickable);
+  if (!failed) return;
+  const message = document.createElement("div");
+  message.innerHTML = '<div>A step of this message failed.</div><button type="button" class="ui mini negative button" style="margin-top:6px">Show failing step</button>';
+  message.querySelector("button").addEventListener("click", () => {
+    inlineTraceErrorToast?.close();
+    const element = resolveInlineTraceNode(failed)?.element;
+    if (!element) return;
+    inlineTraceFocusError = true;
+    element.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  });
+  inlineTraceErrorToast = cpihToast({ message, type: "error", displayTime: 15000, closeIcon: true, position: "bottom right", onRemove: () => (inlineTraceErrorToast = null) });
+}
+
 async function showInlineTrace(MessageGuid, checked = false) {
   return new Promise(async (resolve, reject) => {
-    var observerInstalled = false;
-    var logRuns = await createInlineTraceElements(MessageGuid, checked);
-    var Trace_bool = await getStorageValue("traceModifer", "isActive", null);
+    inlineTraceGeneration++;
+    const generation = inlineTraceGeneration;
+    const ctx = { traceModifier: await getStorageValue("traceModifer", "isActive", null), checked, observerInstalled: false };
+    let progress = null;
+
+    // steps that load in the background after the first page get marked as they come
+    const onMoreElements = (elements, loaded, total) => {
+      if (generation !== inlineTraceGeneration) return;
+      elements.forEach((run) => markInlineTraceRun(run, ctx));
+      if (elements.some((run) => run.Error)) offerInlineTraceErrorStep();
+      const text = loaded >= total ? `All ${total.toLocaleString()} steps of this message loaded.` : `Loading steps: ${loaded.toLocaleString()} of ${total.toLocaleString()}`;
+      if (!progress) progress = cpihToast({ message: text, displayTime: 0, position: "bottom right", showProgress: false });
+      else progress.element.querySelector(".message").textContent = text;
+      if (loaded >= total) setTimeout(() => progress?.close(), 3000);
+    };
+
+    var logRuns = await createInlineTraceElements(MessageGuid, checked, onMoreElements);
     if (logRuns == null || logRuns == 0) {
       return resolve(null);
     }
 
-    inlineTraceElements.forEach((run) => {
-      try {
-        const resolved = resolveInlineTraceNode(run);
-        if (!resolved) {
-          log.log("no diagram element found for " + run.StepId + " / " + run.ModelStepId);
-          return;
-        }
-        const element = resolved.element;
-        const target = resolved.target;
-        const flag = resolved.clickable;
-
-        element.setAttribute("inline_cpi_child", run.ChildCount);
-        target.classList.add("cpiHelper_inlineInfo");
-        //     target.addEventListener("onclick", function abc(event) { clickTrace(event); });
-        if (flag) {
-          element.classList.add("cpiHelper_onclick");
-          element.onclick = clickTrace;
-          onClicKElements.push(element);
-        }
-        if (run.Error) {
-          target.classList.add("cpiHelper_inlineInfo_error");
-        }
-        if (Trace_bool && checked) {
-          indexofnode = cpi_timediff_list.findIndex((e) => e === cpi_max_node.find((f) => f.ModelStepId === run.ModelStepId).CH_stats);
-          if (indexofnode == cpi_timediff_list.length - 1) {
-            nodeclass = "cpiHelper_max";
-          } else if (indexofnode == 0) {
-            nodeclass = "cpiHelper_min";
-          } else if (indexofnode == (cpi_timediff_list.length % 2 === 0 ? cpi_timediff_list.length / 2 : Math.round(cpi_timediff_list.length / 2) - 1)) {
-            nodeclass = "cpiHelper_avg";
-          } else if (indexofnode < cpi_timediff_list.length / 2) {
-            nodeclass = "cpiHelper_belowavg";
-          } else if (indexofnode > cpi_timediff_list.length / 2) {
-            nodeclass = "cpiHelper_aboveavg";
-          }
-          target.classList.add(nodeclass);
-        }
-        if (!observerInstalled) {
-          observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-              const el = mutation.target;
-              if (!mutation.target.classList.contains("cpiHelper_onclick")) {
-                hideInlineTrace();
-                observer.disconnect();
-              }
-            });
-          });
-
-          observer.observe(document.getElementById(element.id), {
-            attributes: true,
-            attributeFilter: ["class"],
-          });
-          observerInstalled = true;
-        }
-      } catch (e) {
-        log.log("no element found for " + run.StepId);
-        log.log(run, e);
-      }
-
-      return resolve(true);
-    });
+    inlineTraceElements.forEach((run) => markInlineTraceRun(run, ctx));
+    offerInlineTraceErrorStep();
+    return resolve(true);
   });
 }
 
@@ -467,7 +543,7 @@ const INLINE_TRACE_MAX_RUN_TABS = 20;
 
 // picker for steps with many executions (e.g. after a splitter): select with every run plus previous / next,
 // only the selected run is loaded
-function createRunPicker(runs, renderRun) {
+function createRunPicker(runs, renderRun, startIndex = 0) {
   const container = document.createElement("div");
   container.className = "cpiHelper_runPicker";
   container.innerHTML = `
@@ -509,6 +585,124 @@ function createRunPicker(runs, renderRun) {
       if (next >= 0 && next < runs.length) show(next);
     })
   );
-  show(0);
+  show(startIndex);
+  return container;
+}
+
+/* ------------------------------------------------------------------ changes of a step */
+
+// trace of one run step: body, headers and properties before the step, null when there is no trace
+async function getRunStepTrace(runId, childCount) {
+  const base = "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/";
+  const traces = JSON.parse(await makeCallPromise("GET", base + "MessageProcessingLogRunSteps(RunId='" + runId + "',ChildCount=" + childCount + ")/TraceMessages?$format=json", true)).d.results;
+  const trace = traces.sort((a, b) => a.TraceId - b.TraceId)[0];
+  if (!trace) return null;
+  const [body, headers, properties] = await Promise.all([
+    makeCallPromise("GET", base + "TraceMessages(" + trace.TraceId + ")/$value", true),
+    makeCallPromise("GET", base + "TraceMessages(" + trace.TraceId + ")/Properties?$format=json", true).then((response) => JSON.parse(response).d.results),
+    makeCallPromise("GET", base + "TraceMessages(" + trace.TraceId + ")/ExchangeProperties?$format=json", true).then((response) => JSON.parse(response).d.results),
+  ]);
+  return { body: body || "", headers, properties };
+}
+
+// the step that ran next in the same branch (or at all), its "content before" is what this step produced
+function findNextRunStep(element) {
+  const later = inlineTraceElements.filter((run) => run.RunId === element.RunId && run.ChildCount > element.ChildCount).sort((a, b) => a.ChildCount - b.ChildCount);
+  return later.filter((run) => run.BranchId === element.BranchId).concat(later.filter((run) => run.BranchId !== element.BranchId));
+}
+
+function stepLabel(run) {
+  const shape = resolveInlineTraceNode(run)?.element;
+  // the shape also carries an invisible "Step Id = ..." text for screen readers
+  const text = shape?.textContent?.replace(/\s+/g, " ").replace(/^Step Id = \S+\s*/, "").trim();
+  return text || run.ModelStepId || run.StepId;
+}
+
+// "Changes" tab: what the step did to body, headers and properties, as a side by side diff
+async function createStepChanges(element) {
+  const container = document.createElement("div");
+  container.className = "cpiHelper_changes";
+  container.innerHTML = '<div class="cpiHelper_infoPopUp_content">Please Wait...</div>';
+
+  const before = await getRunStepTrace(element.RunId, element.ChildCount).catch(() => null);
+  if (!before) {
+    container.innerHTML = '<div class="ui info message">No trace for this step, nothing to compare.</div>';
+    return container;
+  }
+  let after = null;
+  let nextStep = null;
+  // the next steps may have no trace (e.g. an end event), look a few further
+  for (const candidate of findNextRunStep(element).slice(0, 5)) {
+    after = await getRunStepTrace(candidate.RunId, candidate.ChildCount).catch(() => null);
+    if (after) {
+      nextStep = candidate;
+      break;
+    }
+  }
+  if (!after) {
+    container.innerHTML = '<div class="ui info message">This is the last traced step of the run, there is no following step to compare with.</div>';
+    return container;
+  }
+
+  const lines = (list) =>
+    [...list]
+      .sort((a, b) => a.Name.localeCompare(b.Name))
+      .map((item) => `${item.Name}: ${item.Value ?? ""}`)
+      .join("\n");
+  const bodyType = cpihDetectPayloadType(before.body || after.body);
+  const views = {
+    body: { a: cpihPrettifyPayload(before.body).text, b: cpihPrettifyPayload(after.body).text, mode: bodyType },
+    headers: { a: lines(before.headers), b: lines(after.headers), mode: "text" },
+    properties: { a: lines(before.properties), b: lines(after.properties), mode: "text" },
+  };
+
+  container.innerHTML = `
+    <div class="cpiHelper_changes_bar">
+      <div class="cpiHelper_payload_segmented" role="group" aria-label="Compare">
+        <button type="button" data-view="body">Body</button>
+        <button type="button" data-view="headers">Headers</button>
+        <button type="button" data-view="properties">Properties</button>
+      </div>
+      <span class="cpiHelper_changes_info"></span>
+    </div>
+    <div class="cpiHelper_changes_labels"><span>Before this step</span><span></span></div>
+    <div class="cpiHelper_changes_diff"><div class="cpiHelper_changes_side"></div><div class="cpiHelper_changes_side"></div></div>`;
+  container.querySelector(".cpiHelper_changes_labels span:last-child").textContent = `After this step (before "${stepLabel(nextStep)}")`;
+  const info = container.querySelector(".cpiHelper_changes_info");
+  const summary = Object.entries(views)
+    .filter(([, view]) => view.a !== view.b)
+    .map(([name]) => name);
+  info.textContent = summary.length ? `Changed: ${summary.join(", ")}` : "No changes in body, headers or properties";
+  container.querySelectorAll("[data-view]").forEach((button) => button.classList.toggle("cpiHelper_changes_changed", views[button.dataset.view].a !== views[button.dataset.view].b));
+
+  const sides = container.querySelectorAll(".cpiHelper_changes_side");
+  let editors = null;
+  let diffView = null;
+  const show = (name) => {
+    const view = views[name];
+    container.querySelectorAll("[data-view]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.view === name)));
+    editors.forEach((editor, index) => {
+      editor.session.setMode("ace/mode/" + (["xml", "json", "sql"].includes(view.mode) ? view.mode : "text"));
+      editor.session.setValue(index === 0 ? view.a : view.b);
+    });
+  };
+  const init = () => {
+    const theme = cpihIsDark() ? "ace/theme/github_dark" : "ace/theme/textmate";
+    editors = [...sides].map((side) => ace.edit(side, { readOnly: true, useWorker: false, theme, fontSize: 13, showPrintMargin: false, wrap: true }));
+    diffView = ace.require("ace/ext/diff").createDiffView({ editorA: editors[0], editorB: editors[1] });
+    // start with the part that changed, the body if nothing did
+    show(summary[0] || "body");
+  };
+  container.querySelector(".cpiHelper_changes_bar").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-view]");
+    if (button && editors) show(button.dataset.view);
+  });
+  // Ace needs a visible element, the tab content is inserted before it is shown
+  const observer = new ResizeObserver(() => {
+    if (!container.isConnected || !sides[0].offsetWidth || !sides[0].offsetHeight) return;
+    observer.disconnect();
+    requestAnimationFrame(init);
+  });
+  observer.observe(sides[0]);
   return container;
 }

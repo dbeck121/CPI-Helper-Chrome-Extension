@@ -65,6 +65,10 @@ It is open source so feel free to check the source code.
 - [Improvement] More robust plugins: one failing plugin no longer affects the others, and plugin settings are read far less often.
 - [For plugin developers] Plugins can no longer use `$` or the Fomantic modules (`.modal`, `.tab`, `$.toast`, ...). See the UI helpers in the [plugin readme](/docs/readme/PluginREADME.md).
 - [Fix] Pretty print of XML no longer inserts Chrome's XSLT deprecation notice into the payload.
+- [Feature] Inline trace: new Changes tab shows side by side what a step did to body, headers and properties.
+- [Feature] Inline trace: all steps of a message load, the first ones right away and the rest in the background (no fixed limit of 300 anymore). Steps with many runs, e.g. after a splitter, load a run only when it is opened.
+- [Feature] Inline trace: hovering a failed step shows the error, "Show failing step" opens it on its error tab.
+- [Feature] Copy buttons on hover for names and values in trace, log and info tables.
 - [Fix] The CPI Helper button in the new shell header opens on the first click and no longer disappears. Thanks to [Alexander Aigner](https://github.com/aaigi)
 - [Fix] The CPI Helper popup no longer opens empty the first time. Thanks to [Alexander Aigner](https://github.com/aaigi)
 - [Fix] CPI Helper stops cleanly after the extension was reloaded or updated instead of flooding the console. Thanks to [Alexander Aigner](https://github.com/aaigi)
