@@ -553,7 +553,7 @@ var formatHeadersAndPropertiesToTable = function (inputList) {
   <thead><tr class="blue"><th>Name</th><th>Value</th></tr></thead>
   <tbody>`;
   inputList.forEach((item) => {
-    result += "<tr><td>" + item.Name + '</td><td style="word-break: break-all;">' + htmlEscape(item.Value) + "</td></tr>";
+    result += "<tr><td>" + htmlEscape(item.Name) + '</td><td style="word-break: break-all;">' + htmlEscape(item.Value) + "</td></tr>";
   });
   result += "</tbody></table>";
   return result;

@@ -25,7 +25,7 @@ async function clickTrace(e) {
     <thead><tr class="blue"><th>Name</th><th>Value</th></tr></thead>
     <tbody>`;
     inputList.forEach((item) => {
-      result += "<tr><td>" + item.Name + '</td><td style="word-break: break-all;">' + item.Value + "</td></tr>";
+      result += "<tr><td>" + htmlEscape(item.Name) + '</td><td style="word-break: break-all;">' + htmlEscape(String(item.Value ?? "")) + "</td></tr>";
     });
     result += "</tbody></table>";
     return result;
@@ -76,7 +76,7 @@ async function clickTrace(e) {
     result = `<table class='ui basic striped selectable compact table'><thead><tr class="blue"><th>Name</th><th>Value</th></tr></thead>
     <tbody>`;
     valueList.forEach((item) => {
-      result += "<tr><td>" + item.Name + '</td><td style="word-break: break-all;">' + item.Value + "</td></tr>";
+      result += "<tr><td>" + htmlEscape(item.Name) + '</td><td style="word-break: break-all;">' + htmlEscape(String(item.Value ?? "")) + "</td></tr>";
     });
     result += "</tbody></table>";
     return result;
