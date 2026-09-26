@@ -566,6 +566,13 @@ var htmlEscape = function (rawStr) {
   });
 };
 
+// deflate-raw or gzip with the native CompressionStream (replaces pako). bytes: Uint8Array or string
+async function cpihCompress(bytes, format = "deflate-raw") {
+  const input = typeof bytes === "string" ? new TextEncoder().encode(bytes) : bytes;
+  const stream = new Blob([input]).stream().pipeThrough(new CompressionStream(format));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
 function createElementFromHTML(htmlString) {
   var div = document.createElement("div");
   div.innerHTML = htmlString.trim();

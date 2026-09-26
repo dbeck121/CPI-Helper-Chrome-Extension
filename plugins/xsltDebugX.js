@@ -672,16 +672,11 @@ async function resolveXSLTTransferData(debugData, transferOptions) {
   return { xsltScript, payload, headers, properties };
 }
 
-// Compress with pako.deflateRaw + URL-safe base64 (matches xsltdebugx.pages.dev #share/ format)
+// Compress with deflate-raw (CompressionStream) + URL-safe base64 (matches xsltdebugx.pages.dev #share/ format)
 async function sendToXSLTIDE(settings, debugData, transferOptions = { body: true, properties: true, headers: true, script: true }) {
   const ideSelection = settings["xsltDebugX---ideSelection"] || "https://xsltdebugx.pages.dev/";
   const customUrl = settings["xsltDebugX---customIdeUrl"] || "";
   const ideUrl = ideSelection === "custom" ? customUrl.trim() || "https://xsltdebugx.pages.dev/" : ideSelection;
-
-  if (typeof pako === "undefined") {
-    showToast("Compression library not loaded. Please reload the page.", "XSLT Debugger", "Error");
-    return;
-  }
 
   const { xsltScript, payload, headers, properties } = await resolveXSLTTransferData(debugData, transferOptions);
 
@@ -692,8 +687,7 @@ async function sendToXSLTIDE(settings, debugData, transferOptions = { body: true
     properties: Object.keys(properties).map(name => ({ name, value: properties[name] })),
   };
 
-  const bytes      = new TextEncoder().encode(JSON.stringify(sharePayload));
-  const compressed = pako.deflateRaw(bytes, { level: 9 });
+  const compressed = await cpihCompress(JSON.stringify(sharePayload), "deflate-raw");
   const CHUNK = 8192;
   let binary = '';
   for (let i = 0; i < compressed.length; i += CHUNK) {

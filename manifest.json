@@ -46,7 +46,6 @@
         "/lib/jszip/jszip.min.js",
         "/lib/xmlToJson/xmlToJson.js",
         "/lib/markdownit/markdown-it.min.js",
-        "/lib/pako/pako_deflate.min.js",
         "/common/ui-kit.js",
         "/common/formatter.js",
         "/scripts/init.js",

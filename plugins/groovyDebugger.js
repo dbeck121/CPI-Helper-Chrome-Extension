@@ -711,11 +711,6 @@ async function sendToExternalIDE(settings, debugData, transferOptions = { body: 
   const customUrl = settings["groovyDebugger---customIdeUrl"] || "";
   const ideUrl = ideSelection === "custom" ? customUrl.trim() || "https://groovyide.com/cpi/share/v1/" : ideSelection;
 
-  if (typeof pako === "undefined") {
-    showToast("Compression library not loaded. Please reload the page.", "Groovy Debugger", "Error");
-    return;
-  }
-
   const { groovyScript, payload, headers, properties } = await resolveTransferData(debugData, transferOptions);
 
   const dataObject = {
@@ -729,12 +724,12 @@ async function sendToExternalIDE(settings, debugData, transferOptions = { body: 
   window.open(ideUrl + encoded, "_blank");
 }
 
-// Contiva encoding: JSON -> ZIP (JSZip) -> Gzip (pako) -> standard Base64 -> URL-encode
+// Contiva encoding: JSON -> ZIP (JSZip) -> Gzip (CompressionStream) -> standard Base64 -> URL-encode
 async function sendToContivaIDE(settings, debugData, transferOptions = { body: true, properties: true, headers: true, script: true }) {
   const contivaUrl = settings["groovyDebugger---ideSelection"] || "https://ide.contiva.com/cpi/script/debug";
 
-  if (typeof pako === "undefined" || typeof JSZip === "undefined") {
-    showToast("Compression libraries not loaded. Please reload the page.", "Groovy Debugger", "Error");
+  if (typeof JSZip === "undefined") {
+    showToast("Compression library not loaded. Please reload the page.", "Groovy Debugger", "Error");
     return;
   }
 
@@ -765,8 +760,8 @@ async function compressToContivaBase64(contivaData) {
     compressionOptions: { level: 9 },
   });
 
-  // mtime: 0 for deterministic gzip header
-  const gzipped = pako.gzip(zipBytes, { level: 9, mtime: 0 });
+  // the gzip header of CompressionStream has no timestamp, so the output stays deterministic
+  const gzipped = await cpihCompress(zipBytes, "gzip");
 
   // Standard Base64 (NOT URL-safe) — Contiva expects + and /
   let binary = "";
@@ -781,10 +776,8 @@ async function compressToContivaBase64(contivaData) {
   return encodeURIComponent(base64);
 }
 
-function compressToBase64(dataString) {
-  const dataBytes = new TextEncoder().encode(dataString);
-
-  const compressedBytes = pako.deflateRaw(dataBytes, { level: 9 });
+async function compressToBase64(dataString) {
+  const compressedBytes = await cpihCompress(dataString, "deflate-raw");
 
   return uint8ArrayToBase64Url(compressedBytes);
 }
