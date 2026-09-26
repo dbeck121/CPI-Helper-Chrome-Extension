@@ -52,8 +52,10 @@ It is open source so feel free to check the source code.
 - [Feature] Rewritten browser action popup: faster, without jQuery and Semantic UI, and it can open the plugin settings of the current tab. Artifact names in the popup are now escaped. Special thanks to [Alexander Aigner](https://github.com/aaigi)
 - [Feature] The browser tab title shows a readable name of the current app. Thanks to [Alexander Aigner](https://github.com/aaigi)
 - [Feature] Plugins can use a select dropdown in their settings. Thanks to [Alexander Aigner](https://github.com/aaigi)
+- [Feature] CPI Helper buttons on the new API and MCP Server artifact pages.
 - [Improvement] Updated plugin metadata for Timeline, Unlock and Credential Helper. Thanks to [Gregor Schütz](https://github.com/DevGregor)
 - [Improvement] Version History highlights only the current version, Unlock refreshes the page after unlocking. Thanks to [Gregor Schütz](https://github.com/DevGregor)
+- [Fix] The runtime location menu can be clicked on pages outside the iFlow editor.
 - [Fix] The CPI Helper button in the new shell header opens on the first click and no longer disappears. Thanks to [Alexander Aigner](https://github.com/aaigi)
 - [Fix] The CPI Helper popup no longer opens empty the first time. Thanks to [Alexander Aigner](https://github.com/aaigi)
 - [Fix] CPI Helper stops cleanly after the extension was reloaded or updated instead of flooding the console. Thanks to [Alexander Aigner](https://github.com/aaigi)
