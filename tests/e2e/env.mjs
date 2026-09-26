@@ -11,6 +11,7 @@ export const env = {
   cpiUrl: process.env.CPI_URL || "",
   iflowUrl: process.env.CPI_IFLOW_URL || "",
   apiUrl: process.env.CPI_API_URL || "",
+  snippetsIflowUrl: process.env.CPI_SNIPPETS_IFLOW_URL || "",
   monitorUrl: process.env.CPI_MONITOR_URL || "",
   profileDir: path.resolve(repoRoot, process.env.E2E_PROFILE_DIR || ".e2e-profile"),
   cdpPort: Number(process.env.E2E_CDP_PORT || 9333),

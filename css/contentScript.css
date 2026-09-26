@@ -349,6 +349,133 @@ button.cpiHelper_sidebar_iconbutton span {
   display: block;
 }
 
+/* snippets popup (scripts/snippets.js) */
+.cpiHelper_snippets_clipboard {
+  margin-bottom: 0.75rem !important;
+}
+
+.cpiHelper_snippets_clipboardHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.cpiHelper_snippets_clipboardHead .ui.header {
+  margin: 0;
+}
+
+.cpiHelper_snippets_save {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.cpiHelper_snippets_save input,
+.cpiHelper_snippets_bar input {
+  min-height: 2rem;
+  padding: 0.25rem 0.625rem;
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--cpih-text);
+  background: var(--cpih-field-bg);
+  border: 1px solid var(--cpih-border-strong);
+  border-radius: var(--cpih-radius-small);
+}
+
+.cpiHelper_snippets_save input {
+  width: 18rem;
+}
+
+.cpiHelper_snippets_save .button,
+.cpiHelper_snippets_bar .button {
+  margin: 0;
+}
+
+.cpiHelper_snippets_hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--cpih-text-muted);
+}
+
+.cpiHelper_snippets_bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.cpiHelper_snippets_count {
+  margin-left: auto;
+  font-size: 0.8125rem;
+  color: var(--cpih-text-muted);
+}
+
+.cpiHelper_snippets_item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.625rem 0.75rem;
+  border-top: 1px solid var(--cpih-border);
+}
+
+.cpiHelper_snippets_item:hover {
+  background: var(--cpih-bg-hover);
+}
+
+.cpiHelper_snippets_main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cpiHelper_snippets_title {
+  font-weight: 700;
+}
+
+.cpiHelper_snippets_meta,
+.cpiHelper_snippets_description {
+  font-size: 0.8125rem;
+  color: var(--cpih-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.cpiHelper_snippets_description:empty {
+  display: none;
+}
+
+.cpiHelper_snippets_actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  justify-content: flex-end;
+}
+
+.cpiHelper_snippets_actions .button {
+  margin: 0;
+}
+
+.cpiHelper_snippets_stepRow {
+  margin-bottom: 0.375rem;
+}
+
+.cpiHelper_snippets_stepRow input {
+  width: auto !important;
+}
+
+.cpiHelper_snippets_json {
+  height: 40vh;
+  border: 1px solid var(--cpih-border);
+  border-radius: 8px;
+}
+
+.cpiHelper_snippets_editorActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
 /* small tag for experimental features, e.g. the Changes tab */
 .cpiHelper_experimental {
   display: inline-block;

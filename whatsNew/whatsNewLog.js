@@ -14,6 +14,7 @@ const whats_new_log = `
 - [Feature] New payload viewer for trace bodies, headers and attachments: pretty print that keeps CDATA, comments and big JSON numbers, search, fold, font size, wrap, fullscreen and a resizable editor that remembers its height.
 - [Feature] Inline trace (experimental): new Changes tab shows side by side what a step did to body, headers and properties.
 - [Feature] Inline trace: all steps of a message load, the first ones right away and the rest in the background (up to 5,000 instead of a fixed limit of 300). Steps with many runs, e.g. after a splitter, load a run only when it is opened.
+- [Feature] Snippets (experimental): save steps you copied in the iFlow editor under a name, rename, edit, duplicate and share them as text, and put them back into the CPI clipboard to paste them into any iFlow of the tenant. The toolbar has a new Snippets button.
 - [Feature] Copy buttons on hover for names and values in trace, log and info tables.
 - [Improvement] The setting "Plugin page as separate sidebar" is gone, plugins live in the toolbar now.
 - [Improvement] Updated plugin metadata for Timeline, Unlock and Credential Helper. Thanks to Gregor Schütz.

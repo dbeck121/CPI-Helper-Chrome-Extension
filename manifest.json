@@ -86,6 +86,7 @@
         "/scripts/plugins.js",
         "/scripts/Mode-Script.js",
         "/scripts/inline-trace.js",
+        "/scripts/snippets.js",
         "/scripts/floatingToolbar.js",
         "/scripts/celebration.js",
         "/scripts/contentScript.js"
@@ -122,6 +123,7 @@
         "lib/icons/*",
         "images/*",
         "plugins/settingsPaneResizer-inject.js",
+        "scripts/snippets-inject.js",
         "docs/LICENSE"
       ],
       "matches": [

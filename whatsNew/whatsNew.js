@@ -181,6 +181,12 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
                 <li>Steps that ran many times, e.g. after a splitter, open fast: a run loads only when you open it.</li>
                 <li>Hover a name or value in the trace, log and info tables to <b>copy</b> it.</li>
             </ul>
+            <h4 class="ui header">Snippets (experimental)</h4>
+            <ul class="ui list">
+                <li>Copy steps in the iFlow editor, open <b>Snippets</b> in the toolbar and save them under a name.</li>
+                <li><b>Use</b> puts a snippet back into the CPI clipboard: select the Integration Process in edit mode and press Paste, also in another iFlow.</li>
+                <li>Rename the steps of a snippet, duplicate it, or share it with <b>Copy as text</b> and <b>Import</b>. Connections, senders and receivers are not copied by the editor.</li>
+            </ul>
             <button type="button" class="ui primary button cpihelperWhatsNewTour"><i class="map signs icon"></i>Take the tour again</button>
         </div>
         <div class="ui bottom attached tab segment" data-tab="two">

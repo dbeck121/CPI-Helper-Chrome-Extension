@@ -554,6 +554,16 @@ async function buildFloatingToolbar() {
     });
 
     addFloatingToolbarButton(toolbar, {
+      id: "__buttonsnippets",
+      icon: "snippets",
+      title: "Snippets",
+      onClick: () => {
+        statistic("headerbar_btn_snippets_click");
+        openSnippetsPopup();
+      },
+    });
+
+    addFloatingToolbarButton(toolbar, {
       id: "__buttoninfo",
       icon: "info",
       title: "Info",
