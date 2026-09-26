@@ -1,5 +1,5 @@
 // One time welcome to version 4 for users who update from 3.x, and a short tour of the floating toolbar that
-// replaced the buttons in the page header. Plain DOM and CSS, no jQuery or Fomantic.
+// replaced the buttons in the page header and is on every CPI page now. Plain DOM and CSS, no jQuery or Fomantic.
 
 const CELEBRATION_STORAGE_KEY = "cpiHelper_v4Celebrated";
 const CELEBRATION_CONTRIBUTORS_URL = "https://github.com/dbeck121/CPI-Helper-Chrome-Extension/graphs/contributors";
@@ -65,6 +65,7 @@ function showV4Celebration() {
     <h2 id="cpiHelper_celebration_title">CPI Helper 4.0</h2>
     <p class="cpiHelper_celebration_lead">The biggest update since version 3.</p>
     <p>Your buttons moved into a toolbar you can place anywhere on the page, and your plugins came along.</p>
+    <p>It is on every CPI page now, with a search for every iFlow, package and page of your tenant: <kbd>${cpihIsMac() ? "⌘" : "Ctrl"}</kbd> + <kbd>K</kbd>.</p>
     <p class="cpiHelper_celebration_thanks">Built with the community. Thank you to
       <a href="${CELEBRATION_CONTRIBUTORS_URL}" target="_blank" rel="noreferrer">everyone who contributed</a>.</p>
     <a class="cpiHelper_celebration_sponsor" href="${CELEBRATION_SPONSOR_URL}" target="_blank" rel="noreferrer">
@@ -114,17 +115,30 @@ function showV4Celebration() {
 
 // ----------------------------------------------------------------------------------------- tour
 
-// elements are looked up on every step: the heartbeat may rebuild the toolbar while the tour runs
+// the navigation of scripts/globalToolbar.js, on every page
+const TOOLBAR_TOUR_NAVIGATION_IDS = ["__cpih_search", "__cpih_jump", "__cpih_recent"];
+
+// elements are looked up on every step: the heartbeat may rebuild the toolbar while the tour runs.
+// On an artifact page: artifact buttons, separator "Go to" with the navigation, separator "Plugins" with the plugins.
+// On other pages only the navigation and the Plugins button. A part that is missing is skipped
 function toolbarTourParts() {
   const toolbar = getFloatingToolbar();
   const buttons = [...(toolbar?.querySelectorAll(".cpiHelper_floatingToolbar_button") || [])];
-  const separator = toolbar?.querySelector(".cpiHelper_floatingToolbar_separator");
-  const before = (element) => !separator || element.compareDocumentPosition(separator) & Node.DOCUMENT_POSITION_FOLLOWING;
+  const toggle = buttons.find((button) => button.classList.contains("cpiHelper_floatingToolbar_toggle"));
+  const separators = [...(toolbar?.querySelectorAll(".cpiHelper_floatingToolbar_separator") || [])];
+  const pluginSeparator = separators.find((separator) => separator.textContent.trim() === "Plugins");
+  const firstSeparator = separators[0];
+  const before = (element, separator) => separator && element.compareDocumentPosition(separator) & Node.DOCUMENT_POSITION_FOLLOWING;
+  const navigation = buttons.filter((button) => TOOLBAR_TOUR_NAVIGATION_IDS.includes(button.id));
+  const plugins = pluginSeparator
+    ? [pluginSeparator, ...buttons.filter((button) => button !== toggle && !before(button, pluginSeparator))]
+    : buttons.filter((button) => button.id === "__more_plugins");
   return {
-    core: buttons.filter((button) => !button.classList.contains("cpiHelper_floatingToolbar_toggle") && before(button)),
+    core: buttons.filter((button) => button !== toggle && !navigation.includes(button) && before(button, firstSeparator)),
+    navigation,
     grip: [toolbar?.querySelector(".cpiHelper_floatingToolbar_grip")].filter(Boolean),
-    // the plugin section and the variant switch below it
-    plugins: [separator, ...buttons.filter((button) => !before(button) || button.classList.contains("cpiHelper_floatingToolbar_toggle"))].filter(Boolean),
+    // the plugins and the variant switch below them
+    plugins: plugins.length ? [...plugins, toggle].filter(Boolean) : [],
   };
 }
 
@@ -135,6 +149,11 @@ const TOOLBAR_TOUR_STEPS = [
     text: "Trace, Messages, Info, Logs and Runtime moved from the page header into this toolbar.",
   },
   {
+    part: "navigation",
+    title: "Search and jump from anywhere",
+    text: `Search finds every iFlow, package and monitor page of the tenant and runs actions like trace or deploy, also with ${cpihIsMac() ? "⌘" : "Ctrl"}+K. Jump to opens the monitor, also filtered on this iFlow. Recent keeps your last artifacts, star the ones you need often. Outside of an iFlow the toolbar keeps just these and Plugins.`,
+  },
+  {
     part: "grip",
     title: "Drag me by the header",
     text: "Put the toolbar wherever it bothers you least, it remembers the place. The header has the color of your tenant.",
@@ -143,7 +162,7 @@ const TOOLBAR_TOUR_STEPS = [
   {
     part: "plugins",
     title: "Plugins and the compact view",
-    text: "Your active plugins have their own section. The switch at the bottom toggles between labels and icons only.",
+    text: "Your active plugins have their own section, Manage plugins switches them on and off. The switch at the bottom toggles between labels and icons only.",
   },
 ];
 
@@ -162,7 +181,8 @@ async function waitForFloatingToolbar(timeout = 8000) {
   const until = Date.now() + timeout;
   while (Date.now() < until) {
     const toolbar = getFloatingToolbar();
-    if (toolbar?.querySelector(".cpiHelper_floatingToolbar_separator")) return toolbar;
+    // the navigation is added in both variants of the toolbar, the plugins last on artifact pages
+    if (toolbar?.querySelector("#__cpih_search") && (toolbar.dataset.artifactId === "global" || toolbar.querySelector("#__more_plugins"))) return toolbar;
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
   return getFloatingToolbar();
@@ -172,11 +192,13 @@ async function startToolbarTour() {
   document.getElementById("cpiHelper_tour")?._cpiHelperEnd?.();
   const toolbar = await waitForFloatingToolbar();
   if (!toolbar) {
-    showToast("Open an integration flow, the toolbar and its tour live there.", "CPI Helper 4.0", "info");
+    showToast("The toolbar is not there yet, try again in a moment.", "CPI Helper 4.0", "info");
     return null;
   }
 
-  const steps = TOOLBAR_TOUR_STEPS;
+  // only the parts this page has, e.g. no artifact buttons outside of an iFlow
+  const parts = toolbarTourParts();
+  const steps = TOOLBAR_TOUR_STEPS.filter((step) => parts[step.part].length > 0);
   let current = 0;
 
   const tour = document.createElement("div");

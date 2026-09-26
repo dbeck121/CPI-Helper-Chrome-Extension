@@ -100,7 +100,7 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
                  </div>
             </div>
             <div class="ui info message">
-                <b>New in 4.0:</b> the buttons moved into a floating toolbar and plugins got their own section in it.
+                <b>New in 4.0:</b> the buttons moved into a floating toolbar that is on every CPI page, with a search for the whole tenant (Ctrl/⌘ + K), and plugins got their own section in it.
                 <a href="#" class="cpihelperWhatsNewShowChanges">See what changed</a>
             </div>
             <h3 class="ui header">
@@ -159,6 +159,15 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
                 <li><b>Wide or compact:</b> the switch at the bottom toggles between icons with labels and icons only. In the compact variant hovering an icon shows its name and keyboard shortcut.</li>
                 <li>The header of the toolbar and of the message popup has the <b>color of your tenant</b>, as set in the browser popup.</li>
                 <li>The toolbar also shows up on <b>API and MCP Server</b> pages. There the integration cell is the default runtime.</li>
+            </ul>
+            <h4 class="ui header">Search and jump from anywhere</h4>
+            <ul class="ui list">
+                <li>The toolbar is on <b>every CPI page</b> now. Outside of an iFlow it has Search, Jump to, Recent and Plugins.</li>
+                <li><b>Search</b> (or <b>Ctrl/⌘ + K</b>) finds every iFlow, API, mapping and package of the tenant and the monitor pages. On an iFlow it also runs actions: start or stop the trace, deploy, trace and deploy, open the message sidebar, info, logs and your plugins. Deploy still asks in the dialog of the CPI.</li>
+                <li><b>Jump to</b> opens the monitor pages. On an iFlow it also has the messages of this iFlow, its deployment status and its package.</li>
+                <li><b>Recent</b> lists your last artifacts. Star the ones you need often, favorites stay on top.</li>
+                <li>A red number on Jump to shows the <b>failed messages of the past hour</b>. It can be switched off in the browser popup.</li>
+                <li>While an iFlow is in edit mode the toolbar does not navigate away, save or cancel first. Ctrl/⌘ + click opens a page in a new tab.</li>
             </ul>
             <a href="${TOOLBAR_PLUGINS_SCREENSHOT}" target="_blank"><img class="ui fluid bordered rounded image" src="${TOOLBAR_PLUGINS_SCREENSHOT}" alt="Compact toolbar with an open plugin panel"></a>
             <h4 class="ui header">Plugins moved into the toolbar</h4>
