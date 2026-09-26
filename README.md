@@ -60,6 +60,11 @@ It is open source so feel free to check the source code.
 - [Improvement] The setting "Plugin page as separate sidebar" is gone, plugins live in the toolbar now.
 - [Improvement] Updated plugin metadata for Timeline, Unlock and Credential Helper. Thanks to [Gregor Schütz](https://github.com/DevGregor)
 - [Improvement] Version History highlights only the current version, Unlock refreshes the page after unlocking. Thanks to [Gregor Schütz](https://github.com/DevGregor)
+- [Improvement] jQuery and Fomantic UI are gone: own lightweight UI kit and stylesheet, about 3 MB less loaded into every CPI page. Dialogs and toasts take the look of the new toolbar and follow the light and dark CPI theme.
+- [Feature] New payload viewer for trace bodies, headers and attachments: pretty print that keeps CDATA, comments and big JSON numbers, search, fold, font size, wrap, fullscreen and a resizable editor that remembers its height. Updated the Ace editor to 1.44.
+- [Improvement] More robust plugins: one failing plugin no longer affects the others, and plugin settings are read far less often.
+- [For plugin developers] Plugins can no longer use `$` or the Fomantic modules (`.modal`, `.tab`, `$.toast`, ...). See the UI helpers in the [plugin readme](/docs/readme/PluginREADME.md).
+- [Fix] Pretty print of XML no longer inserts Chrome's XSLT deprecation notice into the payload.
 - [Fix] The CPI Helper button in the new shell header opens on the first click and no longer disappears. Thanks to [Alexander Aigner](https://github.com/aaigi)
 - [Fix] The CPI Helper popup no longer opens empty the first time. Thanks to [Alexander Aigner](https://github.com/aaigi)
 - [Fix] CPI Helper stops cleanly after the extension was reloaded or updated instead of flooding the console. Thanks to [Alexander Aigner](https://github.com/aaigi)

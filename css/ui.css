@@ -1254,8 +1254,20 @@ select.ui.dropdown {
   font-size: 1.0625rem;
 }
 
+ul.ui.list,
+ol.ui.list,
 .ui.bulleted.list {
   padding-left: 1.25rem;
+}
+
+ul.ui.list > li {
+  list-style: disc;
+  padding: 0.1875rem 0;
+}
+
+ol.ui.list > li {
+  list-style: decimal;
+  padding: 0.1875rem 0;
 }
 
 .ui.bulleted.list > .item {

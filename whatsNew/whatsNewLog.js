@@ -14,6 +14,10 @@ const whats_new_log = `
 - [Improvement] The setting "Plugin page as separate sidebar" is gone, plugins live in the toolbar now.
 - [Improvement] Updated plugin metadata for Timeline, Unlock and Credential Helper. Thanks to Gregor Schütz.
 - [Improvement] Version History highlights only the current version, Unlock refreshes the page after unlocking. Thanks to Gregor Schütz.
+- [Feature] New payload viewer for trace bodies, headers and attachments: pretty print that keeps CDATA, comments and big JSON numbers, search, fold, font size, wrap, fullscreen and a resizable editor that remembers its height.
+- [Improvement] jQuery and Fomantic UI are gone, about 3 MB less loaded into every CPI page. Dialogs and toasts take the look of the new toolbar and follow the light and dark CPI theme.
+- [Improvement] More robust plugins: one failing plugin no longer affects the others.
+- [Fix] Pretty print of XML no longer inserts Chrome's XSLT deprecation notice into the payload.
 - [Fix] The CPI Helper button in the new shell header opens on the first click and no longer disappears. Thanks to Alexander Aigner.
 - [Fix] The CPI Helper popup no longer opens empty the first time. Thanks to Alexander Aigner.
 - [Fix] CPI Helper stops cleanly after the extension was reloaded or updated instead of flooding the console. Thanks to Alexander Aigner.

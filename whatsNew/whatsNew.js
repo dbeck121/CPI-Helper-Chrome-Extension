@@ -170,6 +170,12 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
                 <li>Plugins are switched on and off under <b>Manage plugins</b>, the last entry of the section. The message popup shows messages only now, and the setting "Plugin page as separate sidebar" is gone.</li>
                 <li>Plugin developers: see <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension/blob/main/docs/readme/PluginREADME.md" target="_blank">toolbarButton and the new icon field</a> in the plugin documentation.</li>
             </ul>
+            <h4 class="ui header">A new payload viewer</h4>
+            <ul class="ui list">
+                <li>Trace bodies open <b>formatted right away</b>. Pretty print keeps CDATA, comments and big JSON numbers exactly as they are, Raw shows the original.</li>
+                <li><b>Drag the handle below the editor</b> to make it bigger, CPI Helper remembers the height. The fullscreen button uses the whole window, Escape leaves it.</li>
+                <li>Search, fold, wrap, font size, theme and edit sit in the toolbar above the payload.</li>
+            </ul>
             <button type="button" class="ui primary button cpihelperWhatsNewTour"><i class="map signs icon"></i>Take the tour again</button>
         </div>
         <div class="ui bottom attached tab segment" data-tab="two">
