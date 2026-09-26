@@ -44,7 +44,7 @@ It is open source so feel free to check the source code.
 
 ## Changelog
 
-### 3.27.0
+### 4.0.0
 
 - [Plugin] New Version History plugin: view the version history of an iFlow and revert to an earlier version directly in the editor. Special thanks to [Gregor Schütz](https://github.com/DevGregor)
 - [Plugin] New MPL Table Sorter plugin: sort the Monitor Message Processing table by one or more columns. Special thanks to [Prem Sai Daggolu](https://github.com/premsaidaggolu)

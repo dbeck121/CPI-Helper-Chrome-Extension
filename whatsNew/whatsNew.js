@@ -22,8 +22,8 @@ async function whatsNewCheck(showOnlyOnce = true) {
   const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo.png");
   const FIGAF_VIBE_SCREENSHOT = chrome.runtime.getURL("images/figaf-vibe-coding/figaf vibe code org.png");
   const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
-  const TOOLBAR_SCREENSHOT = chrome.runtime.getURL("images/whatsnew/3.27-toolbar.png");
-  const TOOLBAR_PLUGINS_SCREENSHOT = chrome.runtime.getURL("images/whatsnew/3.27-plugins.png");
+  const TOOLBAR_SCREENSHOT = chrome.runtime.getURL("images/whatsnew/4.0-toolbar.png");
+  const TOOLBAR_PLUGINS_SCREENSHOT = chrome.runtime.getURL("images/whatsnew/4.0-plugins.png");
   const devtoberfestPicture = chrome.runtime.getURL("images/devtoberfestPicture.png");
   const devtoberfestInvite = chrome.runtime.getURL("images/Devtoberfest_CPIHelper.ics");
   const md = window.markdownit();
@@ -94,7 +94,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
                  </div>
             </div>
             <div class="ui info message">
-                <b>New in 3.27:</b> the buttons moved into a floating toolbar and plugins got their own section in it.
+                <b>New in 4.0:</b> the buttons moved into a floating toolbar and plugins got their own section in it.
                 <a href="#" class="cpihelperWhatsNewShowChanges">See what changed</a>
             </div>
             <h3 class="ui header">
@@ -144,7 +144,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
         <div class="ui bottom attached tab segment" data-tab="changes">
             <h3 class="ui header">
                 <i class="magic icon"></i>
-                <div class="content">What changed in 3.27</div>
+                <div class="content">What changed in 4.0</div>
             </h3>
             <a href="${TOOLBAR_SCREENSHOT}" target="_blank"><img class="ui fluid bordered rounded image" src="${TOOLBAR_SCREENSHOT}" alt="The new CPI Helper toolbar next to the message popup"></a>
             <h4 class="ui header">A toolbar instead of the buttons in the header</h4>

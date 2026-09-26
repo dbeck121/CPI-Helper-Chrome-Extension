@@ -90,7 +90,7 @@ a button in the plugin section of the floating CPI Helper toolbar that runs an a
 If a plugin has both `toolbarButton` and `messageSidebarContent`, only the toolbarButton is shown.
 
 ### messageSidebarContent Button: 
-gives the plugin a button in the plugin section of the floating CPI Helper toolbar. A click opens a panel next to the toolbar that shows what `onRender` returns (until 3.27 this was the plugin area of the message sidebar). Use it for content: forms, inputs, several buttons, text.
+gives the plugin a button in the plugin section of the floating CPI Helper toolbar. A click opens a panel next to the toolbar that shows what `onRender` returns (before 4.0 this was the plugin area of the message sidebar). Use it for content: forms, inputs, several buttons, text.
 
 `onRender` also runs without the panel being opened: when the toolbar is built and, unless `static` is set, on every message refresh. A plugin that returns nothing from `onRender` only uses it as a hook and gets no toolbar button.
  | FIELD NAME | VALUE                                    | DESCRIPTION                                                                                      |
