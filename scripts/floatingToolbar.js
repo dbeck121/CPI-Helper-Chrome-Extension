@@ -301,13 +301,6 @@ function createFloatingToolbarButton({ id, icon, title, accessKey }) {
   label.className = "cpiHelper_floatingToolbar_label";
   label.textContent = title;
   button.append(iconSpan, label);
-  // the wide variant has no tooltips, so it shows the shortcut in the button
-  if (accessKey) {
-    const kbd = document.createElement("kbd");
-    kbd.className = "cpiHelper_floatingToolbar_kbd";
-    kbd.textContent = floatingToolbarShortcutLabel(accessKey);
-    button.append(kbd);
-  }
   return button;
 }
 

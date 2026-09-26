@@ -794,22 +794,6 @@ fieldset {
   width: 16px;
 }
 
-.cpiHelper_floatingToolbar_kbd {
-  display: none;
-  margin-left: auto;
-  padding: 0 5px;
-  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
-  border-radius: 4px;
-  color: var(--sapContent_LabelColor, #556b82);
-  font-family: inherit;
-  font-size: 0.6875rem;
-  line-height: 1.4;
-}
-
-.cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_kbd {
-  display: inline;
-}
-
 .cpiHelper_floatingToolbar_dragging .cpiHelper_floatingToolbar_grip {
   cursor: grabbing;
 }
