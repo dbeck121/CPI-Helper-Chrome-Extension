@@ -475,3 +475,88 @@ function cpihFadeOut(target, duration = 300, remove = true) {
     setTimeout(() => (remove ? element.remove() : (element.style.display = "none")), duration);
   });
 }
+
+/* ------------------------------------------------------------------ copy buttons */
+
+// Name/Value tables (trace properties and headers, log viewer, plugin tables) and elements with the class
+// cpiHelper_copyable get a small copy button that shows on hover. Tables are recognised by their header row,
+// so the builders do not need to know about it. The name column only takes the room its names need.
+const CPIH_COPY_BUTTON = '<button type="button" class="cpiHelper_copyCell" title="Copy" aria-label="Copy"><i class="copy outline icon"></i></button>';
+
+function cpihIsKeyValueTable(table) {
+  const headers = [...table.querySelectorAll(":scope > thead > tr > th")].map((th) => th.textContent.trim().toLowerCase());
+  return headers.length === 2 && ["name", "key", "field name"].includes(headers[0]) && headers[1] === "value";
+}
+
+function cpihEnhanceCopyTargets(root) {
+  if (!(root instanceof Element)) return;
+  const tables = root.matches("table.ui.table") ? [root] : [...root.querySelectorAll("table.ui.table:not(.cpiHelper_kvTable)")];
+  tables.forEach((table) => {
+    if (table.classList.contains("cpiHelper_kvTable") || !cpihIsKeyValueTable(table)) return;
+    table.classList.add("cpiHelper_kvTable");
+    table.querySelectorAll(":scope > tbody > tr > td").forEach((cell) => {
+      if (cell.colSpan > 1 || cell.querySelector(":scope > .cpiHelper_copyCell")) return;
+      // the name gets a wrapper, it may wrap only beyond a maximum width
+      if (cell.cellIndex === 0) {
+        const name = document.createElement("span");
+        name.className = "cpiHelper_kvName";
+        name.append(...cell.childNodes);
+        cell.appendChild(name);
+      }
+      cell.insertAdjacentHTML("beforeend", CPIH_COPY_BUTTON);
+    });
+  });
+  const copyables = root.matches(".cpiHelper_copyable") ? [root] : [...root.querySelectorAll(".cpiHelper_copyable")];
+  copyables.forEach((element) => {
+    if (element.nextElementSibling?.classList.contains("cpiHelper_copyCell")) return;
+    element.insertAdjacentHTML("afterend", CPIH_COPY_BUTTON);
+  });
+}
+
+function cpihCopyText(text) {
+  if (typeof copyText === "function") return copyText(text);
+  navigator.clipboard.writeText(text).then(() => cpihToast({ message: "Copied to clipboard" }));
+}
+
+document.addEventListener("click", (event) => {
+  const button = event.target instanceof Element ? event.target.closest(".cpiHelper_copyCell") : null;
+  if (!button) return;
+  event.preventDefault();
+  event.stopPropagation();
+  let text;
+  if (button.previousElementSibling?.classList.contains("cpiHelper_copyable")) {
+    text = button.previousElementSibling.textContent;
+  } else {
+    const cell = button.closest("td, th");
+    const copy = cell.cloneNode(true);
+    copy.querySelectorAll(".cpiHelper_copyCell").forEach((element) => element.remove());
+    text = copy.textContent;
+  }
+  cpihCopyText(text.trim());
+});
+
+// popups, tabs and plugin panels render later and lazily, so watch the CPI Helper container
+(function watchCopyTargets() {
+  let pending = new Set();
+  const flush = () => {
+    const roots = [...pending];
+    pending = new Set();
+    roots.forEach((root) => root.isConnected && cpihEnhanceCopyTargets(root));
+  };
+  const observer = new MutationObserver((mutations) => {
+    const wasEmpty = pending.size === 0;
+    mutations.forEach((mutation) => mutation.addedNodes.forEach((node) => node instanceof Element && pending.add(node)));
+    if (wasEmpty && pending.size) requestAnimationFrame(flush);
+  });
+  const attach = () => {
+    const root = document.getElementById("cpihelperglobal");
+    if (!root) return false;
+    observer.observe(root, { childList: true, subtree: true });
+    cpihEnhanceCopyTargets(root);
+    return true;
+  };
+  if (!attach()) {
+    const retry = setInterval(() => attach() && clearInterval(retry), 1000);
+    setTimeout(() => clearInterval(retry), 120000);
+  }
+})();

@@ -61,6 +61,19 @@ test("trace, deploy and inline trace with the payload viewer", async ({ page, ex
   await page.keyboard.press("Escape");
   await expect(viewer).not.toHaveClass(/cpiHelper_payload_fullscreen/);
   await expect(bigPopup(page)).toBeVisible();
+  // what the step changed: side by side diff with the content before the next step
+  await page.locator("#cpiHelper_semanticui_modal label.cpiHelper_tabs_label", { hasText: /^Changes/ }).filter({ visible: true }).first().click();
+  const changes = page.locator("#cpiHelper_semanticui_modal .cpiHelper_changes").filter({ visible: true }).first();
+  await expect(changes).toBeVisible({ timeout: 60_000 });
+  const lastStep = await changes.locator(".ui.info.message").isVisible().catch(() => false);
+  if (!lastStep) {
+    await expect(changes.locator(".cpiHelper_changes_side .ace_content")).toHaveCount(2, { timeout: 30_000 });
+    await expect(changes.locator(".cpiHelper_changes_info")).not.toBeEmpty();
+    await changes.locator('[data-view="headers"]').click();
+    await expect(changes.locator('[data-view="headers"]')).toHaveAttribute("aria-pressed", "true");
+  }
+  await page.screenshot({ path: "test-results/changes-tab.png" });
+
   await page.keyboard.press("Escape");
   await expect(bigPopup(page)).toBeHidden();
 

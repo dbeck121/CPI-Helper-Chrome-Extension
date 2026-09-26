@@ -34,6 +34,7 @@
       "js": [
         "/lib/ace/ace.min.js",
         "/lib/ace/ext-searchbox.js",
+        "/lib/ace/ext-diff.js",
         "/lib/ace/theme-textmate.js",
         "/lib/ace/theme-github_dark.js",
         "/lib/ace/mode-json.js",

@@ -580,7 +580,7 @@ async function buildFloatingToolbar() {
 
 
     if (cpiData.runtimeLocations && cpiData.runtimeLocations.length > 1) {
-      addFloatingToolbarMenuButton(toolbar, {
+      const runtimeButton = addFloatingToolbarMenuButton(toolbar, {
         id: "__runtime_button",
         icon: "runtime",
         title: "Runtime",
@@ -600,6 +600,10 @@ async function buildFloatingToolbar() {
           });
         },
       });
+      // the number shows that there is more than one runtime to switch to
+      setFloatingToolbarBadge(runtimeButton, cpiData.runtimeLocations.length);
+      runtimeButton.setAttribute("aria-label", `Runtime: ${cpiData.runtimeLocationId} (${cpiData.runtimeLocations.length} available)`);
+      runtimeButton.dataset.cpiHint = `Runtime: ${cpiData.runtimeLocationId} (${cpiData.runtimeLocations.length} available)`;
     }
 
     // plugin section: toolbarButton plugins run their action directly, messageSidebarContent plugins open a panel
@@ -692,6 +696,41 @@ async function getIflowInfo(callback, silent = false, cache = true) {
   return result;
 }
 
+// deployed artifact of the current iFlow / API on one runtime location, null when it is not deployed there
+async function fetchRuntimeArtifact(locationId, cacheValue, silent) {
+  const symbolicName = cpiData.integrationFlowId;
+  if (locationId === "cloudintegration") {
+    const resp = await makeCallPromiseV2("GET", `/api/v1/IntegrationRuntimeArtifacts('${symbolicName}')?$format=json`, cacheValue, "application/json", null, null, null, !silent);
+    if (!resp.successful) {
+      // 404 means not deployed (expected)
+      if (resp.status !== 404) log.warn(`Error fetching artifact for runtime location ${locationId}: ${resp.statusText}`);
+      return null;
+    }
+    const artifact = JSON.parse(resp.responseText).d; // OData wraps data in 'd' property
+    if (!artifact) return null;
+    // Map OData field names to the structure of the list command
+    return {
+      ...artifact,
+      symbolicName: symbolicName,
+      id: artifact.Id,
+      version: artifact.Version,
+      deployState: artifact.Status,
+      deployedOn: artifact.DeployedOn,
+      deployedBy: artifact.DeployedBy,
+      name: artifact.Name || symbolicName,
+    };
+  }
+  const resp = await makeCallPromiseV2("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand?runtimeLocationId=" + encodeURIComponent(locationId), cacheValue, null, null, null, null, !silent);
+  if (!resp.successful) {
+    log.warn(`Error fetching integration components for runtime location ${locationId}: ${resp.statusText || resp.message}`);
+    return null;
+  }
+  const respJson = new XmlToJson().parse(resp.responseText)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
+  const list = respJson?.artifactInformations;
+  const artifacts = Array.isArray(list) ? list : list ? [list] : [];
+  return artifacts.find((element) => element.symbolicName == symbolicName) || null;
+}
+
 async function getIflowInfoCf(callback, silent = false, cache = true) {
   let cacheValue = 3000;
   if (!cache) {
@@ -744,57 +783,35 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
       cacheValue = false;
     }
 
-    // the OData API has no runtime location parameter, one call answers for the selected location.
-    // it used to run once per location with the same url and the result never reached cpiData
+    // one call for the selected location. The OData API only knows the main runtime (cloudintegration), other
+    // runtimes like the integration cell answer through the list command of that location, which stays small there
     const activeLocations = [];
     const selectedLocation = cpiData.runtimeLocations.find((loc) => loc.id == cpiData.runtimeLocationId) || (cpiData.runtimeLocationId ? { id: cpiData.runtimeLocationId } : null);
     if (selectedLocation) {
       try {
-        const symbolicName = cpiData.integrationFlowId;
-        const resp = await makeCallPromiseV2("GET", `/api/v1/IntegrationRuntimeArtifacts('${symbolicName}')?$format=json`, cacheValue, "application/json", null, null, null, !silent);
+        const artifact = await fetchRuntimeArtifact(selectedLocation.id, cacheValue, silent);
+        if (artifact) {
+          // keep the artifact information of the selected location, saves another call later
+          if (artifact.tenantId) cpiData.tenantId = artifact.tenantId;
+          cpiData.flowData.artifactInformation.lastUpdate = new Date().toISOString();
+          cpiData.flowData.artifactInformation.artifactId = artifact.id || null;
+          cpiData.flowData.artifactInformation.version = artifact.version || null;
+          cpiData.flowData.artifactInformation.deployState = artifact.deployState || null;
+          cpiData.flowData.artifactInformation.deployedOn = artifact.deployedOn || null;
+          cpiData.flowData.artifactInformation.name = artifact.name || null;
+          cpiData.flowData.artifactInformation.symbolicName = artifact.symbolicName || null;
+          cpiData.flowData.artifactInformation.id = artifact.id || null;
+          cpiData.flowData.artifactInformation.semanticState = artifact.semanticState || null;
+          cpiData.flowData.artifactInformation.deployedBy = artifact.deployedBy || null;
+          cpiData.flowData.manualSetUndeployed = false;
 
-        if (!resp.successful) {
-          // 404 means IFlow not deployed (expected)
-          if (resp.status === 404) {
-            log.debug(`IFlow ${symbolicName} not found on runtime location ${selectedLocation.id}`);
-          } else {
-            // Other errors (500, network issues, etc.)
-            log.warn(`Error fetching artifact for runtime location ${selectedLocation.id}: ${resp.statusText}`);
-          }
-        } else {
-          const artifact = JSON.parse(resp.responseText).d; // OData wraps data in 'd' property
-
-          if (artifact) {
-            // Map OData field names to plugin's expected structure
-            artifact.symbolicName = symbolicName;
-            artifact.id = artifact.Id;
-            artifact.version = artifact.Version;
-            artifact.deployState = artifact.Status;
-            artifact.deployedOn = artifact.DeployedOn;
-            artifact.deployedBy = artifact.DeployedBy;
-            artifact.name = artifact.Name || symbolicName; // Fallback to symbolicName if Name not present
-
-            // keep the artifact information of the selected location, saves another call later
-            cpiData.flowData.artifactInformation.lastUpdate = new Date().toISOString();
-            cpiData.flowData.artifactInformation.artifactId = artifact.id || null;
-            cpiData.flowData.artifactInformation.version = artifact.version || null;
-            cpiData.flowData.artifactInformation.deployState = artifact.deployState || null;
-            cpiData.flowData.artifactInformation.deployedOn = artifact.deployedOn || null;
-            cpiData.flowData.artifactInformation.name = artifact.name || null;
-            cpiData.flowData.artifactInformation.symbolicName = artifact.symbolicName || null;
-            cpiData.flowData.artifactInformation.id = artifact.id || null;
-            cpiData.flowData.artifactInformation.semanticState = artifact.semanticState || null;
-            cpiData.flowData.artifactInformation.deployedBy = artifact.deployedBy || null;
-            cpiData.flowData.manualSetUndeployed = false;
-
-            activeLocations.push({
-              id: selectedLocation.id,
-              state: selectedLocation.state,
-              type: selectedLocation.type,
-              typeId: selectedLocation.typeId,
-              artifact: artifact,
-            });
-          }
+          activeLocations.push({
+            id: selectedLocation.id,
+            state: selectedLocation.state,
+            type: selectedLocation.type,
+            typeId: selectedLocation.typeId,
+            artifact: artifact,
+          });
         }
       } catch (locError) {
         log.warn("Error fetching runtime location " + selectedLocation.id + ": ", locError);
@@ -856,6 +873,13 @@ async function setRuntimeLocation(location, silent = false) {
   }
 
   log.debug(`Runtime location set to: ${cpiData.runtimeLocationId}`);
+
+  const runtimeButton = document.getElementById("__runtime_button");
+  if (runtimeButton) {
+    const hint = `Runtime: ${cpiData.runtimeLocationId} (${cpiData.runtimeLocations.length} available)`;
+    runtimeButton.setAttribute("aria-label", hint);
+    runtimeButton.dataset.cpiHint = hint;
+  }
 
   if (!change) {
     //do not update if runtime location is the same, to avoid unnecessary refreshes
@@ -1375,41 +1399,58 @@ function lookupError(message) {
   return null;
 }
 
-//to check for errors and inline trace
-async function getMessageProcessingLogRuns(MessageGuid, store = true) {
-  var top_mode_count = await storageGetPromise("cpi_top_mode");
-  top_mode_count = top_mode_count == null && top_mode_count == undefined ? "&$top=300" : `& $top=${parseInt(top_mode_count)} `; //Default
-  if (top_mode_count === "&$top=0") {
-    top_mode_count = "";
-  }
-  //Plugin over-write
-  if (await getStorageValue("traceModifer", "isActive", null)) {
-    var top_mode_count_flow = await storageGetPromise(`traceModifer_${cpiData.integrationFlowId} `);
-    console.debug("traceModifer_flow", cpiData.integrationFlowId, top_mode_count, top_mode_count_flow);
-    top_mode_count = (top_mode_count_flow == null && top_mode_count_flow == undefined) || top_mode_count_flow == 0 ? top_mode_count : `& $top=${parseInt(top_mode_count_flow)} `;
-  }
+// run steps of a message: the first page comes back right away. with onMorePages the remaining pages load
+// in the background (onMorePages(runs, loaded, total) per page) until all are there or RUN_STEPS_MAX is reached.
+// isStale() lets the caller stop a background load that is no longer needed (e.g. another inline trace started)
+const RUN_STEPS_PAGE_SIZE = 1000;
+const RUN_STEPS_MAX = 5000;
 
-  return makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store)
-    .then((responseText) => {
-      var resp = JSON.parse(responseText);
-      var status = resp.d.results[0].OverallState;
-      //take the correct run log (last or second last) for displaying the inline trace, depending on message status.
-      if (resp.d.results.length > 1 && status != "COMPLETED" && status != "ESCALATED") {
-        return resp.d.results[1].Id;
-      } else {
-        return resp.d.results[0].Id;
-      }
-    })
-    .then((runId) => {
-      return makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json" + top_mode_count, store);
-    })
-    .then((response) => {
-      return JSON.parse(response).d.results.filter((e) => e.StepStop != null);
-    })
-    .catch((e) => {
-      log.log(e);
-      return null;
-    });
+async function getRunStepsFirstPageSize() {
+  // cpi_top_mode (browser popup) and the traceModifer plugin set the size of the first page, 0 means one full page
+  let size = parseInt(await storageGetPromise("cpi_top_mode"));
+  if (await getStorageValue("traceModifer", "isActive", null)) {
+    const flowSize = parseInt(await storageGetPromise(`traceModifer_${cpiData.integrationFlowId} `));
+    if (flowSize > 0) size = flowSize;
+  }
+  if (!(size >= 0)) size = 300;
+  return size === 0 ? RUN_STEPS_PAGE_SIZE : size;
+}
+
+//to check for errors and inline trace
+async function getMessageProcessingLogRuns(MessageGuid, store = true, { onMorePages, isStale } = {}) {
+  const base = "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/";
+  try {
+    const runs = JSON.parse(await makeCallPromise("GET", base + "MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store));
+    const status = runs.d.results[0].OverallState;
+    //take the correct run log (last or second last) for displaying the inline trace, depending on message status.
+    const runId = runs.d.results.length > 1 && status != "COMPLETED" && status != "ESCALATED" ? runs.d.results[1].Id : runs.d.results[0].Id;
+
+    const firstPageSize = await getRunStepsFirstPageSize();
+    const first = JSON.parse(await makeCallPromise("GET", base + "MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json&$top=" + firstPageSize, store)).d;
+    const total = Math.min(parseInt(first.__count) || first.results.length, RUN_STEPS_MAX);
+
+    if (onMorePages && total > first.results.length) {
+      (async () => {
+        let loaded = first.results.length;
+        while (loaded < total && !isStale?.()) {
+          const page = JSON.parse(
+            await makeCallPromise("GET", base + "MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json&$top=" + RUN_STEPS_PAGE_SIZE + "&$skip=" + loaded, store)
+          ).d.results;
+          if (!page.length || isStale?.()) break;
+          loaded += page.length;
+          onMorePages(
+            page.filter((e) => e.StepStop != null),
+            loaded,
+            total
+          );
+        }
+      })().catch((error) => log.warn("loading more run steps failed", error));
+    }
+    return first.results.filter((e) => e.StepStop != null);
+  } catch (e) {
+    log.log(e);
+    return null;
+  }
 }
 
 //function to get the current artifact name from the URL

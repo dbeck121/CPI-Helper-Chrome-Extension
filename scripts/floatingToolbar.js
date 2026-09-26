@@ -10,7 +10,8 @@ const FLOATING_TOOLBAR_EXPANDED_KEY = "cpiHelper_floatingToolbarExpanded";
 
 // static inline svgs, stroke uses currentColor so the theme color applies
 const FLOATING_TOOLBAR_ICONS = {
-  trace: '<path d="M3 12h4l3-8 4 16 3-8h4"/>',
+  // a message travelling from start to end through the steps
+  trace: '<circle cx="5" cy="6" r="2"/><circle cx="19" cy="18" r="2"/><path d="M7 6h7a3 3 0 0 1 0 6H10a3 3 0 0 0 0 6h7"/>',
   messages: '<path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/>',
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7.5v.01"/>',
   runtime: '<rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><path d="M8 7h.01M8 17h.01"/>',
@@ -346,6 +347,20 @@ function addFloatingToolbarButton(toolbar, { id, icon, iconNode, title, accessKe
     await onClick(button);
   });
   return appendFloatingToolbarItem(toolbar, button);
+}
+
+// small number on the icon, e.g. how many runtimes there are to choose from. 0 or less removes it
+function setFloatingToolbarBadge(button, count) {
+  if (!button) return;
+  let badge = button.querySelector(".cpiHelper_floatingToolbar_badge");
+  if (!(count > 0)) return badge?.remove();
+  if (!badge) {
+    badge = document.createElement("span");
+    badge.className = "cpiHelper_floatingToolbar_badge";
+    badge.setAttribute("aria-hidden", "true");
+    button.appendChild(badge);
+  }
+  badge.textContent = count > 9 ? "9+" : String(count);
 }
 
 // getItems runs on every open and returns [{ label, icon?, selected?, disabled?, onClick? }]

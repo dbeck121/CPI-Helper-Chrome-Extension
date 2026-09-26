@@ -55,6 +55,12 @@
   --cpih-header-text: var(--cpi-text-color, var(--cpih-text));
 }
 
+/* the hidden attribute must win over display rules (e.g. i.icon { display: inline-block }). the former Fomantic
+   build carried this rule as a CPI Helper change, the working indicator and others rely on it */
+[hidden] {
+  display: none !important;
+}
+
 /* our own elements always use border-box, the host page keeps its own model */
 #cpihelperglobal,
 #cpihelperglobal *,
@@ -86,8 +92,14 @@
   line-height: 1.15;
 }
 
-#cpihelperglobal a {
+/* plain links only, ui buttons and labels built as <a> keep their own colors */
+#cpihelperglobal a:not(.ui) {
   color: var(--cpih-link);
+}
+
+a.ui.label,
+a.ui.button {
+  text-decoration: none;
 }
 
 /* ------------------------------------------------------------------ header */
@@ -1185,9 +1197,31 @@ select.ui.dropdown {
   border-radius: 0 var(--cpih-radius-small) var(--cpih-radius-small) 0;
 }
 
+/* right ribbon: sticks out over the right edge of the positioned segment around it, with a small fold */
 .ui.top.right.ribbon.label,
 .ui.right.ribbon.label {
+  position: absolute !important;
+  top: 1rem;
+  right: -0.5rem;
+  left: auto;
+  z-index: 2;
+  margin: 0;
   border-radius: var(--cpih-radius-small) 0 0 var(--cpih-radius-small);
+}
+
+.ui.top.right.ribbon.label::after,
+.ui.right.ribbon.label::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 0;
+  border-style: solid;
+  border-width: 0.5rem 0.5rem 0 0;
+  border-color: color-mix(in srgb, currentColor 0%, #000 45%) transparent transparent transparent;
+}
+
+.ui.red.right.ribbon.label::after {
+  border-top-color: color-mix(in srgb, var(--cpih-negative) 60%, #000);
 }
 
 .ui.pointing.label {
@@ -1861,4 +1895,86 @@ ol.ui.list > li {
   .ui.toast {
     animation: none;
   }
+}
+
+/* ------------------------------------------------------------------ key value tables, copy buttons */
+
+/* the name column takes the width of its longest name, long names wrap beyond 32rem */
+.ui.table.cpiHelper_kvTable > tbody > tr > td:first-child,
+.ui.table.cpiHelper_kvTable > thead > tr > th:first-child {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.cpiHelper_kvName {
+  display: inline-block;
+  width: max-content;
+  max-width: 32rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+
+.ui.table.cpiHelper_kvTable > tbody > tr > td {
+  position: relative;
+  padding-right: 2rem;
+}
+
+.cpiHelper_copyCell {
+  position: absolute;
+  top: 50%;
+  right: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: 0;
+  padding: 0;
+  border: 0 !important;
+  border-radius: 6px;
+  background: var(--cpih-bg) !important;
+  color: var(--cpih-lite-text);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity 0.1s ease;
+}
+
+.cpiHelper_copyCell > .icon {
+  margin: 0;
+  height: auto;
+}
+
+tr:hover > td > .cpiHelper_copyCell,
+.cpiHelper_copyCell:focus-visible,
+.cpiHelper_copyable:hover + .cpiHelper_copyCell,
+.cpiHelper_copyCell:hover {
+  opacity: 1;
+}
+
+.cpiHelper_copyCell:hover {
+  background: var(--cpih-lite-hover) !important;
+}
+
+.cpiHelper_copyCell:focus-visible {
+  outline: 2px solid var(--cpih-focus);
+  outline-offset: 1px;
+}
+
+/* inline variant next to a value, e.g. in the info popup */
+.cpiHelper_copyable + .cpiHelper_copyCell {
+  position: static;
+  transform: none;
+  vertical-align: middle;
+  margin-left: 0.25rem;
+}
+
+.cpiHelper_copyable {
+  overflow-wrap: anywhere;
+}
+
+:has(> .cpiHelper_copyable):hover > .cpiHelper_copyCell {
+  opacity: 1;
 }

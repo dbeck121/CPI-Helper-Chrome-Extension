@@ -174,6 +174,13 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
                 <li><b>Drag the handle below the editor</b> to make it bigger, CPI Helper remembers the height. The fullscreen button uses the whole window, Escape leaves it.</li>
                 <li>Search, fold, wrap, font size, theme and edit sit in the toolbar above the payload.</li>
             </ul>
+            <h4 class="ui header">A better inline trace</h4>
+            <ul class="ui list">
+                <li>The new <b>Changes</b> tab of a step (experimental) shows side by side what the step did to body, headers and properties.</li>
+                <li><b>All steps of a message</b> are highlighted, the first ones right away and the rest while you look (up to 5,000 instead of 300).</li>
+                <li>Steps that ran many times, e.g. after a splitter, open fast: a run loads only when you open it.</li>
+                <li>Hover a name or value in the trace, log and info tables to <b>copy</b> it.</li>
+            </ul>
             <button type="button" class="ui primary button cpihelperWhatsNewTour"><i class="map signs icon"></i>Take the tour again</button>
         </div>
         <div class="ui bottom attached tab segment" data-tab="two">
