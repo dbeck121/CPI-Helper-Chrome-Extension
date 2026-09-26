@@ -744,40 +744,37 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
       cacheValue = false;
     }
 
-    runtimeLocationWithActiveIFlow = [];
-    for (const loc of cpiData.runtimeLocations) {
+    // the OData API has no runtime location parameter, one call answers for the selected location.
+    // it used to run once per location with the same url and the result never reached cpiData
+    const activeLocations = [];
+    const selectedLocation = cpiData.runtimeLocations.find((loc) => loc.id == cpiData.runtimeLocationId) || (cpiData.runtimeLocationId ? { id: cpiData.runtimeLocationId } : null);
+    if (selectedLocation) {
       try {
         const symbolicName = cpiData.integrationFlowId;
         const resp = await makeCallPromiseV2("GET", `/api/v1/IntegrationRuntimeArtifacts('${symbolicName}')?$format=json`, cacheValue, "application/json", null, null, null, !silent);
 
         if (!resp.successful) {
-          // 404 means IFlow not deployed on this runtime location (expected)
+          // 404 means IFlow not deployed (expected)
           if (resp.status === 404) {
-            log.debug(`IFlow ${symbolicName} not found on runtime location ${loc.id}`);
-            continue;
+            log.debug(`IFlow ${symbolicName} not found on runtime location ${selectedLocation.id}`);
+          } else {
+            // Other errors (500, network issues, etc.)
+            log.warn(`Error fetching artifact for runtime location ${selectedLocation.id}: ${resp.statusText}`);
           }
-          // Other errors (500, network issues, etc.)
-          log.warn(`Error fetching artifact for runtime location ${loc.id}: ${resp.statusText}`);
-          continue;
-        }
+        } else {
+          const artifact = JSON.parse(resp.responseText).d; // OData wraps data in 'd' property
 
-        const respJson = JSON.parse(resp.responseText);
-        const artifact = respJson.d; // OData v4 wraps data in 'd' property
+          if (artifact) {
+            // Map OData field names to plugin's expected structure
+            artifact.symbolicName = symbolicName;
+            artifact.id = artifact.Id;
+            artifact.version = artifact.Version;
+            artifact.deployState = artifact.Status;
+            artifact.deployedOn = artifact.DeployedOn;
+            artifact.deployedBy = artifact.DeployedBy;
+            artifact.name = artifact.Name || symbolicName; // Fallback to symbolicName if Name not present
 
-        // Map OData field names to plugin's expected structure
-        if (artifact) {
-          artifact.symbolicName = symbolicName;
-          artifact.id = artifact.Id;
-          artifact.version = artifact.Version;
-          artifact.deployState = artifact.Status;
-          artifact.deployedOn = artifact.DeployedOn;
-          artifact.deployedBy = artifact.DeployedBy;
-          artifact.name = artifact.Name || symbolicName; // Fallback to symbolicName if Name not present
-        }
-
-        if (artifact) {
-          // collect information about current tenant and artifact if runtime location matches the selected one. this is needed to avoid another call to get the artifact information later, because we already have it here
-          if (cpiData.runtimeLocationId && loc.id == cpiData.runtimeLocationId) {
+            // keep the artifact information of the selected location, saves another call later
             cpiData.flowData.artifactInformation.lastUpdate = new Date().toISOString();
             cpiData.flowData.artifactInformation.artifactId = artifact.id || null;
             cpiData.flowData.artifactInformation.version = artifact.version || null;
@@ -789,40 +786,29 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
             cpiData.flowData.artifactInformation.semanticState = artifact.semanticState || null;
             cpiData.flowData.artifactInformation.deployedBy = artifact.deployedBy || null;
             cpiData.flowData.manualSetUndeployed = false;
-          }
 
-          runtimeLocationWithActiveIFlow.push({
-            id: loc.id,
-            state: loc.state,
-            type: loc.type,
-            typeId: loc.typeId,
-            artifact: artifact,
-          });
+            activeLocations.push({
+              id: selectedLocation.id,
+              state: selectedLocation.state,
+              type: selectedLocation.type,
+              typeId: selectedLocation.typeId,
+              artifact: artifact,
+            });
+          }
         }
       } catch (locError) {
-        log.warn("Error fetching runtime location " + loc.id + ": ", locError);
-        continue;
+        log.warn("Error fetching runtime location " + selectedLocation.id + ": ", locError);
       }
     }
 
-    if (cpiData.runtimeLocationId && !runtimeLocationWithActiveIFlow.find((loc) => loc.id == cpiData.runtimeLocationId)) {
+    if (cpiData.runtimeLocationId && !activeLocations.length) {
       log.warn("No active IFlow found for location " + cpiData.runtimeLocationId);
       cpiData.flowData.artifactInformation.deployState = "UNDEPLOYED";
       cpiData.flowData.artifactInformation.deployedOn = null;
       cpiData.flowData.artifactInformation.deployedBy = null;
     }
 
-    //check that there are no dublicates in runtimeLocationWithActiveIFlow, if yes, log it and remove duplicates
-    const uniqueIds = new Set();
-    runtimeLocationWithActiveIFlow = runtimeLocationWithActiveIFlow.filter((loc) => {
-      if (uniqueIds.has(loc.id)) {
-        log.warn("Duplicate runtime location found: " + loc.id + ". This should not happen, please check the environment.");
-        return false;
-      } else {
-        uniqueIds.add(loc.id);
-        return true;
-      }
-    });
+    cpiData.runtimeLocationWithActiveIFlow = activeLocations;
 
     if (callback) callback();
   } catch (error) {
@@ -1752,9 +1738,10 @@ var cpiHelperHeartbeatInterval = setInterval(async function () {
     buildButtonBar();
     addBreadcrumbs();
   }
-  // theme information synchronous storage
-  if (callChromeStoragePromise("CPIhelperThemeInfo") == cpihIsDark()) {
-    await syncChromeStoragePromise("CPIhelperThemeInfo", cpihIsDark());
+  // theme information for the browser popup: CPIhelperThemeInfo is true for the light theme.
+  // compared with the stored value, the promise itself was compared before and never matched
+  if ((await callChromeStoragePromise("CPIhelperThemeInfo")) !== !cpihIsDark()) {
+    await syncChromeStoragePromise("CPIhelperThemeInfo", !cpihIsDark());
   }
   log.debug("check for button bar");
   try {

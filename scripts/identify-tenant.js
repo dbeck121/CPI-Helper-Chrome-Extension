@@ -44,7 +44,7 @@
       if (changes["darkmodeOnStartup"]) {
         const globalContainer = document.getElementById("cpihelperglobal");
         globalContainer?.classList.remove("ch_dark", "ch_light");
-        globalContainer?.classList.add(!changes[key].newValue ? "ch_dark" : "ch_light");
+        globalContainer?.classList.add(changes["darkmodeOnStartup"].newValue ? "ch_dark" : "ch_light");
       }
     });
   }

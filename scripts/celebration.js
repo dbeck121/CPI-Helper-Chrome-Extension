@@ -4,8 +4,8 @@
 const CELEBRATION_STORAGE_KEY = "cpiHelper_v4Celebrated";
 const CELEBRATION_CONTRIBUTORS_URL = "https://github.com/dbeck121/CPI-Helper-Chrome-Extension/graphs/contributors";
 const CELEBRATION_SPONSOR_URL = "https://figaf.com/cpihelper-and-figaf";
-// SAP Customer Influence request to officially support CPI Helper. The hint stays hidden until the url is set
-const CELEBRATION_INFLUENCE_URL = "";
+// SAP Customer Influence request to officially support CPI Helper. The hint is hidden while the url is empty
+const CELEBRATION_INFLUENCE_URL = "https://influence.sap.com/sap/ino/#/idea/336795/?section=sectionDetails";
 const CELEBRATION_COLORS = ["#0a6ed1", "#e9730c", "#107e3e", "#d04343", "#945ecf", "#f0ab00"];
 
 // only an update from 3.x to 4.x: new users never saw the old header buttons
