@@ -289,11 +289,12 @@ var plugin = {
           let keyPass = prompt("Please enter a password to encrypt your key.");
           if (keyPass != null) {
             try {
+              let salt = window.crypto.getRandomValues(new Uint8Array(16));
               let keyMaterial = await window.crypto.subtle.importKey("raw", enc.encode(keyPass), { name: "PBKDF2" }, false, ["deriveBits", "deriveKey"]);
               let secretKey = await window.crypto.subtle.deriveKey(
                 {
                   name: "PBKDF2",
-                  salt: strToUnit8ArrayFunction(keyPass, 16),
+                  salt: salt,
                   iterations: 100000,
                   hash: "SHA-256",
                 },
@@ -313,7 +314,11 @@ var plugin = {
                 encodedAPIKey
               );
 
-              await syncChromeStoragePromise(getStoragePath("OpenAI", "APIKey"), btoa(new Uint8Array(encryptedAPIKey)));
+              let combined = new Uint8Array(salt.length + encryptedAPIKey.byteLength);
+              combined.set(salt, 0);
+              combined.set(new Uint8Array(encryptedAPIKey), salt.length);
+
+              await syncChromeStoragePromise(getStoragePath("OpenAI", "APIKey"), btoa(combined));
 
               showToast("API key encrypted and save successfully!");
               div.querySelector("#apiKey").value = apiKey;
@@ -330,11 +335,14 @@ var plugin = {
             let encryptedKey = await getStorageValue("OpenAI", "APIKey");
 
             if (encryptedKey != "") {
+              let combined = Uint8Array.from(atob(encryptedKey).split(","), (c) => c);
+              let salt = combined.slice(0, 16);
+              let cipherBytes = combined.slice(16);
               let keyMaterial = await window.crypto.subtle.importKey("raw", enc.encode(keyPass), { name: "PBKDF2" }, false, ["deriveBits", "deriveKey"]);
               let secretKey = await window.crypto.subtle.deriveKey(
                 {
                   name: "PBKDF2",
-                  salt: strToUnit8ArrayFunction(keyPass, 16),
+                  salt: salt,
                   iterations: 100000,
                   hash: "SHA-256",
                 },
@@ -350,7 +358,7 @@ var plugin = {
                   iv: myIv,
                 },
                 secretKey,
-                Uint8Array.from(atob(encryptedKey).split(","), (c) => c)
+                cipherBytes
               );
               div.querySelector("#apiKey").value = dec.decode(decryptedKey);
               showToast("API key loaded successfully!");
