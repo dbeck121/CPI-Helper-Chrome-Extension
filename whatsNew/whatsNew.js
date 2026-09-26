@@ -22,6 +22,8 @@ async function whatsNewCheck(showOnlyOnce = true) {
   const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo.png");
   const FIGAF_VIBE_SCREENSHOT = chrome.runtime.getURL("images/figaf-vibe-coding/figaf vibe code org.png");
   const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
+  const TOOLBAR_SCREENSHOT = chrome.runtime.getURL("images/whatsnew/3.27-toolbar.png");
+  const TOOLBAR_PLUGINS_SCREENSHOT = chrome.runtime.getURL("images/whatsnew/3.27-plugins.png");
   const devtoberfestPicture = chrome.runtime.getURL("images/devtoberfestPicture.png");
   const devtoberfestInvite = chrome.runtime.getURL("images/Devtoberfest_CPIHelper.ics");
   const md = window.markdownit();
@@ -65,6 +67,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
     <div class="ui segment">
         <div class="ui top attached tabular menu" id="cpiHelper_whatsnew_tabs">
             <a class="item active" data-tab="one">News</a>
+            <a class="item" data-tab="changes">What changed</a>
             <a class="item" data-tab="two">Features</a>
             <a class="item" data-tab="three">About</a>
             <a class="item" data-tab="four">Devtoberfest</a>
@@ -97,6 +100,10 @@ async function whatsNewCheck(showOnlyOnce = true) {
                 </div>
             </h3>
             <a class="ui red top right ribbon label" style="position: absolute;">FireFox limited support</a>  
+            <div class="ui info message">
+                <b>New in 3.27:</b> the buttons moved into a floating toolbar and plugins got their own section in it.
+                <a href="#" class="cpihelperWhatsNewShowChanges">See what changed</a>
+            </div>
             <div class="changeloglist">${Object.entries(
               whats_new_log
                 .trim()
@@ -133,6 +140,28 @@ async function whatsNewCheck(showOnlyOnce = true) {
                     <div class="content"> More details on <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">Github</a></div>
                 </h3>
             </div>
+        </div>
+        <div class="ui bottom attached tab segment" data-tab="changes">
+            <h3 class="ui header">
+                <i class="magic icon"></i>
+                <div class="content">What changed in 3.27</div>
+            </h3>
+            <a href="${TOOLBAR_SCREENSHOT}" target="_blank"><img class="ui fluid bordered rounded image" src="${TOOLBAR_SCREENSHOT}" alt="The new CPI Helper toolbar next to the message popup"></a>
+            <h4 class="ui header">A toolbar instead of the buttons in the header</h4>
+            <ul class="ui list">
+                <li><b>Trace, Messages, Info, Logs and Runtime</b> live in a toolbar that floats above the page. Drag it by its header wherever it bothers you least, it remembers the place.</li>
+                <li><b>Wide or compact:</b> the switch at the bottom toggles between icons with labels and icons only. In the compact variant hovering an icon shows its name and keyboard shortcut.</li>
+                <li>The header of the toolbar and of the message popup has the <b>color of your tenant</b>, as set in the browser popup.</li>
+                <li>The toolbar also shows up on <b>API and MCP Server</b> pages. There the integration cell is the default runtime.</li>
+            </ul>
+            <a href="${TOOLBAR_PLUGINS_SCREENSHOT}" target="_blank"><img class="ui fluid bordered rounded image" src="${TOOLBAR_PLUGINS_SCREENSHOT}" alt="Compact toolbar with an open plugin panel"></a>
+            <h4 class="ui header">Plugins moved into the toolbar</h4>
+            <ul class="ui list">
+                <li>Active plugins have their own section in the toolbar. <b>A plugin with a single action runs it directly</b>, e.g. Undeploy or Version History.</li>
+                <li><b>A plugin with more content opens a panel</b> next to the toolbar, e.g. the notepad. It closes when you click somewhere else or press Escape.</li>
+                <li>Plugins are switched on and off under <b>Manage plugins</b>, the last entry of the section. The message popup shows messages only now, and the setting "Plugin page as separate sidebar" is gone.</li>
+                <li>Plugin developers: see <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension/blob/main/docs/readme/PluginREADME.md" target="_blank">toolbarButton and the new icon field</a> in the plugin documentation.</li>
+            </ul>
         </div>
         <div class="ui bottom attached tab segment" data-tab="two">
             <h3 class="ui header">
@@ -216,6 +245,10 @@ async function whatsNewCheck(showOnlyOnce = true) {
       callback: () => {
         $("#cpiHelper_whatsnew_tabs .item").tab({
           context: $("#cpiHelper_bigPopup_content_semanticui"),
+        });
+        document.querySelector(".cpihelperWhatsNewShowChanges")?.addEventListener("click", (event) => {
+          event.preventDefault();
+          $("#cpiHelper_whatsnew_tabs .item").tab("change tab", "changes");
         });
         $(".cpihelper83782").popup({
           inline: true,

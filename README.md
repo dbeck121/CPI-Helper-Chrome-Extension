@@ -49,17 +49,16 @@ It is open source so feel free to check the source code.
 - [Plugin] New Version History plugin: view the version history of an iFlow and revert to an earlier version directly in the editor. Special thanks to [Gregor Schütz](https://github.com/DevGregor)
 - [Plugin] New MPL Table Sorter plugin: sort the Monitor Message Processing table by one or more columns. Special thanks to [Prem Sai Daggolu](https://github.com/premsaidaggolu)
 - [Plugin] New Create named Groovy script plugin: create a Groovy resource with a name of your choice in the current iFlow. Special thanks to [Björn Konzmann](https://github.com/BKonzi)
-- [Feature] New floating toolbar: Trace, Messages, Info, Logs, Plugins and Runtime in a toolbar you can drag anywhere on the page. Switch between a wide variant with labels and a compact one with icons only. It remembers position and variant and no longer waits for the page header.
-- [Feature] Refreshed message popup in the style of the new toolbar. The header keeps the tenant color.
-- [Feature] Plugins moved from the message popup into their own section of the toolbar. Plugins with a single action run it directly from the toolbar (toolbarButton), plugins with more content open it in a panel (messageSidebarContent). Both can bring their own icon.
-- [Improvement] APIs and MCP servers use the integration cell runtime by default.
+- [Feature] New floating toolbar instead of the buttons in the page header: Trace, Messages, Info, Logs and Runtime in a toolbar you can drag anywhere. Wide with labels or compact with icons only, it remembers position and variant. In the compact variant hovering shows the name and the keyboard shortcut.
+- [Feature] Plugins have their own section in the toolbar. Plugins with a single action run it directly, plugins with more content open it in a panel next to the toolbar. The plugin settings are under Manage plugins.
+- [Feature] Message popup in the style of the new toolbar, slightly translucent. The header keeps the tenant color.
+- [Feature] CPI Helper toolbar on the new API and MCP Server pages. They use the integration cell runtime by default.
 - [Feature] Rewritten browser action popup: faster, without jQuery and Semantic UI, and it can open the plugin settings of the current tab. Artifact names in the popup are now escaped. Special thanks to [Alexander Aigner](https://github.com/aaigi)
 - [Feature] The browser tab title shows a readable name of the current app. Thanks to [Alexander Aigner](https://github.com/aaigi)
-- [Feature] Plugins can use a select dropdown in their settings. Thanks to [Alexander Aigner](https://github.com/aaigi)
-- [Feature] CPI Helper buttons on the new API and MCP Server artifact pages.
+- [Feature] For plugin developers: toolbarButton for direct toolbar actions, an optional icon for toolbar entries and a select dropdown for plugin settings. Thanks to [Alexander Aigner](https://github.com/aaigi)
+- [Improvement] The setting "Plugin page as separate sidebar" is gone, plugins live in the toolbar now.
 - [Improvement] Updated plugin metadata for Timeline, Unlock and Credential Helper. Thanks to [Gregor Schütz](https://github.com/DevGregor)
 - [Improvement] Version History highlights only the current version, Unlock refreshes the page after unlocking. Thanks to [Gregor Schütz](https://github.com/DevGregor)
-- [Fix] The runtime location menu can be clicked on pages outside the iFlow editor.
 - [Fix] The CPI Helper button in the new shell header opens on the first click and no longer disappears. Thanks to [Alexander Aigner](https://github.com/aaigi)
 - [Fix] The CPI Helper popup no longer opens empty the first time. Thanks to [Alexander Aigner](https://github.com/aaigi)
 - [Fix] CPI Helper stops cleanly after the extension was reloaded or updated instead of flooding the console. Thanks to [Alexander Aigner](https://github.com/aaigi)
