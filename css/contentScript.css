@@ -476,6 +476,14 @@ button.cpiHelper_sidebar_iconbutton span {
   margin-top: 0.75rem;
 }
 
+/* recruiting popup (whatsNew/whatsNew.js) */
+.cpiHelper_recruiting_actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
 /* small tag for experimental features, e.g. the Changes tab */
 .cpiHelper_experimental {
   display: inline-block;

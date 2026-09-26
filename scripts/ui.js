@@ -620,9 +620,7 @@ async function openIflowInfoPopup() {
     recrutingButton.classList.add("ui");
     recrutingButton.classList.add("button");
 
-    var lang = navigator.language || navigator.userLanguage;
-
-    if (lang == "de-DE") {
+    if (isGermanSpeakingUser()) {
       recrutingButton.innerText = "Werde Berater bei Kangoolutions";
       recrutingButton.addEventListener("click", (a) => {
         recrutingPopup(true);

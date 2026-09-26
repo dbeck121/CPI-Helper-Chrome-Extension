@@ -512,6 +512,11 @@ async function buildFloatingToolbar() {
   const toolbarKey = artifactMode ? cpiData.currentArtifactId || "" : "global";
   if (!existingToolbar || existingToolbar.dataset.artifactId !== toolbarKey) {
     whatsNewCheck();
+    // once per page load, the check itself decides whether the recruiting popup is due
+    if (!recruitingPopupScheduled) {
+      recruitingPopupScheduled = true;
+      scheduleRecruitingPopup();
+    }
 
     var toolbar = await createFloatingToolbar(toolbarKey);
 

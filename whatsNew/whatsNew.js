@@ -337,44 +337,56 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
   //persist so that the popup does not appear again
 }
 
+// Recruiting popup for German speaking users: shown once, at a random moment within a year after CPI Helper first
+// saw the user. Never again after it was shown, after "Interessiert mich nicht", or for users who chose
+// "Erinnere mich nicht mehr" in the old version (that set a timestamp 9999 days ahead).
+const RECRUITING_SHOW_AT_KEY = "recruitingPopupShowAt";
+const RECRUITING_DONE_KEY = "recruitingPopupDone";
+const RECRUITING_LEGACY_TIMESTAMP_KEY = "recrutingPopupTimestamp";
+var recruitingPopupScheduled = false;
+
+function isGermanSpeakingUser() {
+  return String(navigator.language || navigator.userLanguage || "")
+    .toLowerCase()
+    .startsWith("de");
+}
+
+async function recruitingPopupDue() {
+  if (!isGermanSpeakingUser()) return false;
+  if (await storageGetPromise(RECRUITING_DONE_KEY)) return false;
+  const legacy = parseInt(await storageGetPromise(RECRUITING_LEGACY_TIMESTAMP_KEY));
+  if (legacy && legacy > Date.now() + 5 * 365 * 24 * 60 * 60 * 1000) {
+    await storageSetPromise({ [RECRUITING_DONE_KEY]: "declined-before" });
+    return false;
+  }
+  let showAt = parseInt(await storageGetPromise(RECRUITING_SHOW_AT_KEY));
+  if (!showAt) {
+    showAt = Date.now() + Math.floor(Math.random() * 365 * 24 * 60 * 60 * 1000);
+    await storageSetPromise({ [RECRUITING_SHOW_AT_KEY]: showAt });
+    log.log("recruiting popup scheduled for " + new Date(showAt).toISOString());
+  }
+  return showAt <= Date.now();
+}
+
+// checked a few minutes after a CPI page opened, only when nothing else is shown at that moment
+function scheduleRecruitingPopup(delay = 3 * 60 * 1000) {
+  setTimeout(async () => {
+    try {
+      if (!extensionAlive() || cpihModal.top() || document.getElementById("cpiHelper_celebration")) return;
+      if (await recruitingPopupDue()) await recrutingPopup(false);
+    } catch (error) {
+      log.debug("recruiting popup check failed", error);
+    }
+  }, delay);
+}
+
 async function recrutingPopup(force = false) {
-  //shows a popup if browser language is German and if timestamp is not set or today is after timestamp in chrome storage
-
-  //show only for a fraction of user for testing
-
   const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
+  // shown once: whatever the user does now, the automatic popup does not come back
+  if (!force) await storageSetPromise({ [RECRUITING_DONE_KEY]: "shown" });
+  statistic("recrutingPopup", force ? "show_from_info" : "show");
 
-  var randomGroup = parseInt(await storageGetPromise("recrutingPopupRandomGroup"));
-
-  if (!randomGroup) {
-    randomGroup = Math.floor(Math.random() * 100);
-    var obj = {};
-    obj["recrutingPopupRandomGroup"] = randomGroup;
-    await storageSetPromise(obj);
-  }
-
-  var lang = navigator.language || navigator.userLanguage;
-  var timestamp = parseInt(await storageGetPromise("recrutingPopupTimestamp"));
-  var today = +new Date();
-
-  if (!timestamp) {
-    //get random int between 1 and 11
-    var randomTimestamp = Math.floor(Math.random() * 10) + 1;
-
-    var oneweek = +new Date() + randomTimestamp * 24 * 60 * 60 * 1000 * 2;
-
-    var obj = {};
-    obj["recrutingPopupTimestamp"] = oneweek;
-    await storageSetPromise(obj);
-    log.log("recruting popup timestamp set to today + " + randomTimestamp + " days");
-  } else {
-    var hrts = new Date(timestamp);
-    log.debug("recruting popup in human readable time: " + hrts);
-  }
-
-  if (lang == "de-DE" && (force || (!timestamp && randomGroup <= 50) || (timestamp && timestamp < today))) {
-    statistic("recrutingPopup", "show");
-    var html = `<div>
+  var html = `<div>
     <div class="ui message">
         <img class="ui small floated image" src="${Kangoolutions_Logo}">
         <div class="content">
@@ -398,82 +410,35 @@ async function recrutingPopup(force = false) {
             <div class="item">Eigenverantwortung und Freiraum, statt Formularen und starren Prozessen</div>
             <div class="item">Summer Event mit der ganzen Firma (2023 auf Sizilien und 2024 auf Kreta).</div>
         </div>
-        <p>Wir haben viel Humor und das vielleicht coolste <a href="https://kangoolutions.com/team/" style="color: green; text-decoration: none;" 
-    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'" target="_blank" >Team</a> der Welt. Lass uns doch mal plaudern:
+        <p>Wir haben viel Humor und das vielleicht coolste <a href="https://kangoolutions.com/team/" target="_blank">Team</a> der Welt. Lass uns doch mal plaudern:
         </p>
     </div>
     </div>`;
 
-    var popup = createElementFromHTML(html);
+  var popup = createElementFromHTML(html);
 
-    var createRemindButtopn = function (text, days, color = "teal") {
-      var button = document.createElement("button");
-      button.className = "ui " + color + " right labled icon button";
-      var icon = document.createElement("i");
-      icon.className = "right bell icon";
-      button.textContent = text;
-      button.appendChild(icon);
+  var nextStepButton = document.createElement("button");
+  nextStepButton.className = "ui teal button";
+  nextStepButton.innerHTML = 'Jau! Ich will mehr wissen.<i class="right arrow icon"></i>';
+  nextStepButton.onclick = function () {
+    statistic("recrutingPopup", "nextStep");
+    window.open("https://kangoolutions.com/karriere/", "_blank");
+    cpihModal.hide("#cpiHelper_semanticui_modal");
+  };
 
-      button.style.marginBottom = "10px";
+  var notInterestedButton = document.createElement("button");
+  notInterestedButton.className = "ui button";
+  notInterestedButton.textContent = "Interessiert mich nicht";
+  notInterestedButton.onclick = async function () {
+    statistic("recrutingPopup", "notInterested");
+    await storageSetPromise({ [RECRUITING_DONE_KEY]: "not-interested" });
+    cpihModal.hide("#cpiHelper_semanticui_modal");
+  };
 
-      button.onclick = async function () {
-        statistic("recrutingPopup", "remind", days);
+  var actions = document.createElement("div");
+  actions.className = "cpiHelper_recruiting_actions";
+  actions.append(nextStepButton, notInterestedButton);
+  popup.appendChild(actions);
 
-        //get unix timestamp for tomorrow
-        var tomorrow = +new Date() + days * 24 * 60 * 60 * 1000;
-
-        var obj = {};
-        obj["recrutingPopupTimestamp"] = tomorrow;
-        await storageSetPromise(obj);
-        log.log("recruting popup timestamp set to today + " + days + " days");
-
-        cpihModal.hide("#cpiHelper_semanticui_modal");
-      };
-      return button;
-    };
-
-    var nextStepButtion = document.createElement("button");
-    nextStepButtion.className = "ui teal right labled icon button";
-    var icon = document.createElement("i");
-    icon.className = "right arrow icon";
-
-    nextStepButtion.textContent = "Jau! Ich will mehr wissen.";
-    nextStepButtion.appendChild(icon);
-    nextStepButtion.onclick = async function () {
-      statistic("recrutingPopup", "nextStep");
-      window.open("https://kangoolutions.com/karriere/", "_blank");
-      cpihModal.hide("#cpiHelper_semanticui_modal");
-    };
-
-    //create br
-    var br = document.createElement("br");
-    var span = document.createElement("span");
-    span.textContent = "Erinnere mich: ";
-    popup.appendChild(br);
-
-    popup.appendChild(nextStepButtion);
-    popup.appendChild(br);
-    popup.appendChild(createRemindButtopn("Schon ok... Erinnere mich nicht mehr", 9999, "violet"));
-
-    popup.appendChild(br);
-    popup.appendChild(span);
-    popup.appendChild(createRemindButtopn("Morgen", 1));
-
-    popup.appendChild(createRemindButtopn("In einem Monat", 30));
-
-    popup.appendChild(createRemindButtopn("In einem halben Jahr", 190));
-
-    await showBigPopup(popup, "Wir suchen Verstärkung!", {
-      fullscreen: false,
-      onclose: async () => {
-        if (!force) {
-          //get unix timestamp for in 2 month
-          var remindIn = +new Date() + 2 * 30 * 24 * 60 * 60 * 1000;
-          var obj = {};
-          obj["recrutingPopupTimestamp"] = remindIn;
-          await storageSetPromise(obj);
-        }
-      },
-    });
-  }
+  await showBigPopup(popup, "Wir suchen Verstärkung!", { fullscreen: false });
 }
