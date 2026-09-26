@@ -45,24 +45,6 @@ Users are encouraged to integrate this library with care to ensure compatibility
   margin-top: 0px;
 }
 
-.cpi-checkbox input[type='checkbox'] {
-  opacity: 0 !important;
-}
-
-.cpi-checkbox label::after {
-  content: '';
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  line-height: 17px;
-  text-align: center;
-  opacity: 0;
-}
-
-.cpi-checkbox input[type='checkbox']:checked + label::after {
-  content: '\2713';
-  opacity: 1;
-}
-
 .credentialHelperDropdown-item:hover {
   background-color: rgba(190, 190, 190, 0.9) !important;
 }

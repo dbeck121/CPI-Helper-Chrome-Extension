@@ -65,7 +65,6 @@ function keepNavigationButtonAlive() {
   navigationButtonObserver.observe(header, { childList: true });
   navigationButtonObservedHeader = header;
 }
-/*const icons = chrome.runtime.getManifest().icons | chrome.runtime.getURL(icons['16'])*/
 async function getSecurityNamelist() {
   const response = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.km.api.commands.SecurityMaterialsListCommand", false, "application/json"))
     .artifactInformations.filter((e) => (e.deployState = "DEPLOYED"))

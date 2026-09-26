@@ -12,7 +12,6 @@ function extensionAlive() {
 
 async function Themesync() {
   if (!extensionAlive()) return;
-  // const { darkmodeonstartup } = await chrome.storage.sync.get('darkmodeonstartup');
   const isDarkTheme = document.documentElement.classList.contains("sapUiTheme-sap_horizon_dark");
   const global = document.getElementById("cpihelperglobal");
   if (global) {
@@ -27,15 +26,6 @@ function createGlobalId(id = "cpihelperglobal") {
   const toggleDarkMode = () => {
     const container = document.getElementById("cpihelperglobal");
     if (container) container.className = document.documentElement.classList.contains("sapUiTheme-sap_horizon_dark") ? "ch_dark" : "ch_light";
-    // chrome.storage.sync.get("CPIhelperThemeInfo", (theme) => {
-    // chrome.storage.sync.get("darkmodeOnStartup", (local) => {
-    // let isDarkmode = !(theme['CPIhelperThemeInfo'])
-    // if (!isDarkmode) {
-    //   isDarkmode = (local['darkmodeOnStartup'])
-    // }
-    // $("#cpihelperglobal").attr('class', (isDarkmode ? "ch_dark" : "ch_light"))
-    // });
-    // });
   };
   if (!global) {
     console.log("Global element not found. Inserting element...");

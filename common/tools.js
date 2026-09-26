@@ -580,11 +580,6 @@ function createElementFromHTML(htmlString) {
   return div.firstChild;
 }
 
-function twoClasssToggleSwitch(e, class1, class2) {
-  e.classList.toggle(class1);
-  e.classList.toggle(class2);
-}
-
 function isDevMode() {
   return !("update_url" in chrome.runtime.getManifest());
 }
@@ -645,7 +640,7 @@ async function storageSetPromise(obj) {
   });
 }
 
-// get from fomantic class to consume in code
+// status color name used by the ui classes
 function getStatusColor(status) {
   switch (status) {
     case "PROCESSING":

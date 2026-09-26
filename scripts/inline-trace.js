@@ -176,7 +176,6 @@ async function clickTrace(e) {
           var runId = targetElements[n].RunId;
           var branch = targetElements[n].BranchId;
           try {
-            // var traceId = JSON.parse(await makeCallPromise("GET", "/"+cpiData.urlExtension+"odata/api/v1/MessageProcessingLogRunSteps(RunId='" + runId + "',ChildCount=" + childCount + ")/TraceMessages?$format=json", true)).d.results[0].TraceId;
             var objects = [
               {
                 label: "Properties",
@@ -250,7 +249,6 @@ async function clickTrace(e) {
       }
     }
     let childindex = Array.from(document.querySelectorAll(".cpiHelper_onclick[inline_cpi_child]"), (e) => parseInt(e.getAttribute("inline_cpi_child"), 10)).sort((a, b) => a - b);
-    //console.log(e.target.parentNode.parentNode)
     childindex = childindex.indexOf(parseInt(e.target.parentNode.parentNode.getAttribute("inline_cpi_child")));
     showBigPopup(await loginformation, "Content Before Step", { fullscreen: true, callback: null }, childindex, document.querySelectorAll(".cpiHelper_onclick[inline_cpi_child]").length, String(e.pointerType));
   }

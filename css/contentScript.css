@@ -12,14 +12,9 @@
   --cpi-fui-active-color: #0039d4;
   --cpi-background-color: #020203;
 }
-/* whats new */
-button {
+/* our buttons follow the light/dark text color; :where keeps the specificity as low as a plain button selector so .ui.button wins */
+:where(#cpihelperglobal, .cpiHelper) button {
   color: var(--cpi-text-color);
-}
-#cpiHelper_WhatsNew {
-  padding: 25px;
-  box-sizing: border-box;
-  border-radius: 5px;
 }
 
 /* start working indicator */
@@ -106,56 +101,6 @@ button.cpiHelper_sidebar_iconbutton span {
   outline: none;
 }
 
-#cpiHelper_sidebar_popup {
-  position: fixed;
-  z-index: 390;
-  max-height: 50vh;
-  overflow: scroll;
-  background: var(--cpi-background-color);
-  bottom: 10%;
-  right: 2%;
-  width: 75%;
-  min-height: 1rem;
-  padding: 1rem;
-  border: solid 1px #e1e1e1;
-}
-
-#cpiHelper_sidebar_popup.show {
-  visibility: visible;
-  animation: cpiHelper_sidebar_popup_fadein 0.5s;
-}
-
-#cpiHelper_sidebar_popup.hide_popup {
-  visibility: hidden;
-  animation:
-    visibility 0s linear 0.5s,
-    cpiHelper_sidebar_popup_fadeout 0.5s;
-}
-
-@keyframes cpiHelper_sidebar_popup_fadein {
-  from {
-    bottom: 0;
-    opacity: 0;
-  }
-
-  to {
-    bottom: 10%;
-    opacity: 1;
-  }
-}
-
-@keyframes cpiHelper_sidebar_popup_fadeout {
-  from {
-    bottom: 10%;
-    opacity: 1;
-  }
-
-  to {
-    bottom: 0;
-    opacity: 0;
-  }
-}
-
 .cpiHelper #outerFrame {
   border: 0;
   background: transparent;
@@ -181,11 +126,6 @@ button.cpiHelper_sidebar_iconbutton span {
 
 #cpiHelper_content button > span.sapUiIcon {
   pointer-events: none;
-}
-
-.ui.table .black {
-  background: #000 !important;
-  color: var(--cpi-background-color) !important;
 }
 
 /* the header keeps the tenant color, it tells which tenant this is */
@@ -332,64 +272,6 @@ button.cpiHelper_sidebar_iconbutton span {
   fill: #8282ff !important;
 }
 
-#cpiHelper_bigPopup {
-  display: none;
-  /* Hidden by default */
-  position: fixed;
-  /* Stay in place */
-  z-index: 450;
-  /* Sit on top */
-  width: 100%;
-  /* Full width */
-  height: 100%;
-  /* Full height */
-  left: 0;
-  top: 0;
-  overflow: auto;
-  /* Enable scroll if needed */
-  background-color: #000;
-  /* Fallback color */
-  background-color: rgba(0, 0, 0, 0.4);
-  /* Black w/ opacity */
-}
-
-#cpiHelper_bigPopup_outerFrame {
-  background: var(--cpi-background-color);
-  margin: auto;
-  margin-top: 100px;
-  width: 95%;
-  min-height: 1rem;
-  box-sizing: border-box;
-  border-radius: 5px 5px 5px 5px;
-}
-
-#cpiHelper_bigPopup_content {
-  border: solid 0px #e1e1e1;
-}
-
-#cpiHelper_bigPopup_contentheader {
-  font-size: 1.2rem;
-  padding: 10px;
-  z-index: 10;
-  background-color: var(--cpi-custom-color);
-  color: var(--cpi-background-color);
-  box-sizing: border-box;
-  border-radius: 5px 5px 0px 0px;
-}
-
-/* The Close Button */
-
-.cpiHelper_closeButton_sidebar:hover,
-.cpiHelper_closeButton_sidebar:focus {
-  color: #ff4e4e;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.cpiHelper_closeButton_sidebar {
-  float: right;
-}
-
 /*tabs  */
 
 .cpiHelper_tabs {
@@ -406,18 +288,6 @@ button.cpiHelper_sidebar_iconbutton span {
 .cpiHelper_tabs_input {
   position: absolute;
   opacity: 0;
-}
-
-.cpiHelper_tabs_label_branch {
-  width: 1.5em;
-  padding: 7px 7px;
-  cursor: pointer;
-  font-weight: bold;
-  color: #7f7f7f;
-  transition:
-    background 0.1s,
-    color 0.1s;
-  text-align: center;
 }
 
 .cpiHelper_tabs_label {
@@ -630,10 +500,6 @@ button.cpiHelper_sidebar_iconbutton span {
   color: #ff0000 !important;
 }
 
-.cpiHelper li[class^='L'] {
-  list-style-type: decimal !important;
-}
-
 .cpiHelper_logs_left {
   box-sizing: border-box;
   width: 200px;
@@ -680,63 +546,49 @@ button.cpiHelper_sidebar_iconbutton span {
 }
 
 
+/* plugin cards in the plugin settings */
 #cpiHelper_popup_plugins .card > .extra.content:first-child {
-  background: #eee !important;
+  background: var(--cpih-bg-subtle);
+  border-radius: calc(var(--cpih-radius) - 1px) calc(var(--cpih-radius) - 1px) 0 0;
 }
 
-.ch_dark #cpiHelper_popup_plugins .card > .extra.content:first-child {
-  background: #121212 !important;
-}
-
-/* problem with event mesh page
-.card {
-  width: calc(33% - 1em) !important;
-}
-*/
-
-@media screen and (max-width: 1024px) {
-  .card {
-    width: calc(100% - 1em) !important;
-  }
-}
-
-/* .card .extra.content:has(input)>label, */
+/* the whole footer is the activate switch */
 .card .extra.content > label {
   display: flex;
   width: 100%;
   height: 100%;
+  gap: 0.375rem;
   text-align: center;
   justify-content: center;
   align-items: center;
-  color: #000;
-  padding: 0.5em;
+  padding: 0.625rem;
+  font-weight: 600;
+  color: var(--cpih-lite-text);
+  border-radius: 0 0 calc(var(--cpih-radius) - 1px) calc(var(--cpih-radius) - 1px);
+  cursor: pointer;
 }
 
-.ch_dark .card .extra.content > label {
-  color: #fff;
+.card .extra.content > label:hover {
+  background: var(--cpih-lite-hover);
+}
+
+.card .extra.content.checked > label {
+  color: var(--cpih-text);
+  background: var(--cpih-success-bg);
+}
+
+/* "Activate" becomes "Activated" */
+.card .extra.content.checked > label::after {
+  content: 'd';
+  margin-left: -0.375rem;
+}
+
+.card .extra.content.checked > label:hover {
+  background: var(--cpih-error-bg);
 }
 
 .ui.fluid.input > input {
   width: 5em !important;
-}
-
-/* .card .extra.content:has(input:checked)>label, */
-.card .extra.content.checked > label {
-  background: #bbffb3 !important;
-}
-
-/* .card .extra.content:has(input:checked)>label::after, */
-.card .extra.content.checked > label::after {
-  content: 'd';
-}
-
-.card .extra.content > label:hover {
-  color: var(--cpi-custom-color);
-  background: #ffb3b3;
-}
-
-fieldset {
-  margin-block: 0 !important;
 }
 
 .version-revert-modal {
@@ -786,11 +638,6 @@ fieldset {
 
 #cpiHelper_sidebar_refresh_icon {
   transition: all 0.2s ease-in-out;
-}
-
-.cpiHelper_sidebar_refresh_icon_active {
-  pointer-events: none;
-  opacity: 0.6;
 }
 
 .cpiHelper_sidebar_refresh_icon_spin svg {
@@ -1197,7 +1044,7 @@ img.cpiHelper_floatingToolbar_pluginIcon {
   font-weight: 600;
 }
 
-/* buttons rendered by plugins: one look for all of them, with Fomantic classes (ui primary button) or without */
+/* buttons rendered by plugins: one look for all of them, with the ui button classes (ui primary button) or without */
 .cpiHelper_floatingToolbar_panelBody button,
 .cpiHelper_floatingToolbar_panelBody .ui.button {
   margin: 2px 4px 2px 0;

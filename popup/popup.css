@@ -87,7 +87,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  /* same stack as fomantic */
+  /* Lato first, then the system font stack */
   font-family:
     'Lato',
     system-ui,
@@ -743,7 +743,7 @@ kbd {
 
 /* ------------------------------------------------------------------ icons */
 
-/* base rule of fomantic i.icon, without the right margin - the flex gap spaces the icons here */
+/* base rule of the icon font i.icon, without the right margin - the flex gap spaces the icons here */
 i.icon {
   display: inline-block;
   flex: none;
@@ -757,7 +757,7 @@ i.icon {
   -webkit-font-smoothing: antialiased;
 }
 
-/* glyphs from semantic.min.css, only the ones the popup uses - add the rule from there for a new icon */i.icon.bolt::before {
+/* glyphs of the icon font (Font Awesome 5 codepoints, see css/icons.css), only the ones the popup uses - add the codepoint here for a new icon */i.icon.bolt::before {
   content: '\f0e7';
 }
 

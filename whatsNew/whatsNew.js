@@ -26,14 +26,12 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
 
   silentupdates = ["3.0.3", "3.14.4"];
 
-  //const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
   const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo.png");
   const FIGAF_VIBE_SCREENSHOT = chrome.runtime.getURL("images/figaf-vibe-coding/figaf vibe code org.png");
   const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
   const TOOLBAR_SCREENSHOT = chrome.runtime.getURL("images/whatsnew/4.0-toolbar.png");
   const TOOLBAR_PLUGINS_SCREENSHOT = chrome.runtime.getURL("images/whatsnew/4.0-plugins.png");
   const devtoberfestPicture = chrome.runtime.getURL("images/devtoberfestPicture.png");
-  const devtoberfestInvite = chrome.runtime.getURL("images/Devtoberfest_CPIHelper.ics");
   const md = window.markdownit();
 
   // old
@@ -319,14 +317,6 @@ async function recrutingPopup(force = false) {
   //shows a popup if browser language is German and if timestamp is not set or today is after timestamp in chrome storage
 
   //show only for a fraction of user for testing
-
-  //remove timestamps for testing
-  //await chrome.storage.local.remove("recrutingPopupTimestamp");
-  //await chrome.storage.local.remove("recrutingPopupRandomGroup");
-  //var ts = 1728995035000;
-  //var obj2 = {};
-  //obj2["recrutingPopupTimestamp"] = ts;
-  //await storageSetPromise(obj2);
 
   const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
 
