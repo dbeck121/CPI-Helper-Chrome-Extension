@@ -1,0 +1,11 @@
+import { getPage, SHOTS, xhrLog, snap, diff } from "./_lib.mjs";
+const { b, page } = await getPage();
+const net = xhrLog(page);
+const s0 = await snap(page);
+await page.locator("button", { hasText: /^Edit$/ }).click();
+await page.waitForTimeout(6000);
+const s1 = await snap(page);
+await page.screenshot({ path: SHOTS + "paste-02-edit.png" });
+const dialogs = await page.$$eval("[role=dialog],[role=alertdialog]", (d) => d.map((x) => x.innerText.slice(0, 300)));
+console.log(JSON.stringify({ net, diff: diff(s0, s1), dialogs, btns: await page.$$eval("button", (bs) => bs.map((x) => (x.innerText || x.title || "").trim()).filter(Boolean).slice(0, 20)) }, null, 1));
+await b.close();

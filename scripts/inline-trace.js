@@ -168,85 +168,42 @@ async function clickTrace(e) {
 
     //TraceID
     //https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='AF57ga2G45vKDTfn7zqO0zwJ9n93',ChildCount=17)/TraceMessages?$format=json
-    async function loginformation() {
-      {
-        var runs = [];
-        for (var n = targetElements.length - 1; n >= 0; n--) {
-          var childCount = targetElements[n].ChildCount;
-          var runId = targetElements[n].RunId;
-          var branch = targetElements[n].BranchId;
-          try {
-            var objects = [
-              {
-                label: "Properties",
-                content: getTraceTabContent,
-                active: true,
-                childCount: childCount,
-                runId: runId,
-                traceType: "properties",
-              },
-              {
-                label: "Headers",
-                content: getTraceTabContent,
-                active: false,
-                childCount: childCount,
-                runId: runId,
-                traceType: "headers",
-              },
-              {
-                label: "Body",
-                content: getTraceTabContent,
-                active: false,
-                childCount: childCount,
-                runId: runId,
-                traceType: "trace",
-              },
-              {
-                label: "Log",
-                content: getTraceTabContent,
-                active: false,
-                childCount: childCount,
-                runId: runId,
-                traceType: "logContent",
-              },
-              {
-                label: "Info",
-                content: getTraceTabContent,
-                active: false,
-                childCount: childCount,
-                runId: runId,
-                traceType: "info",
-              },
-            ];
-            if (targetElements[n].Error) {
-              let innerContent = document.createElement("div");
-              innerContent.classList.add("cpiHelper_traceText");
-              innerContent.innerText = targetElements[n].Error;
-              innerContent.style.display = "block";
-              objects.push({
-                label: "Error",
-                content: innerContent,
-                active: false,
-              });
-            }
-            let label = "" + branch;
-            let content = await createTabHTML(objects, "tracetab-" + childCount);
-            if (content) {
-              runs.push({
-                label,
-                content,
-              });
-            }
-          } catch (error) {
-            log.log("error catching trace");
-          }
-        }
-        if (runs.length == 0) {
-          showToast("No Trace Found", "", "warning");
-          return;
-        }
-        return runs.length == 1 ? runs[0].content : await createTabHTML(runs, "runstab", 0);
+    // one tab set (Properties, Headers, Body, Log, Info) per execution of the step. a step behind a splitter can run
+    // thousands of times: the tab sets are built only when a run is opened, with many runs a run picker replaces the tabs
+    const runTabs = (element) => {
+      const objects = [
+        { label: "Properties", content: getTraceTabContent, active: true, childCount: element.ChildCount, runId: element.RunId, traceType: "properties" },
+        { label: "Headers", content: getTraceTabContent, active: false, childCount: element.ChildCount, runId: element.RunId, traceType: "headers" },
+        { label: "Body", content: getTraceTabContent, active: false, childCount: element.ChildCount, runId: element.RunId, traceType: "trace" },
+        { label: "Log", content: getTraceTabContent, active: false, childCount: element.ChildCount, runId: element.RunId, traceType: "logContent" },
+        { label: "Info", content: getTraceTabContent, active: false, childCount: element.ChildCount, runId: element.RunId, traceType: "info" },
+      ];
+      if (element.Error) {
+        let innerContent = document.createElement("div");
+        innerContent.classList.add("cpiHelper_traceText");
+        innerContent.innerText = element.Error;
+        innerContent.style.display = "block";
+        objects.push({ label: "Error", content: innerContent, active: false });
       }
+      return createTabHTML(objects, "tracetab-" + element.ChildCount);
+    };
+
+    async function loginformation() {
+      // newest run first, like before
+      const runsOfStep = [...targetElements].reverse();
+      if (runsOfStep.length == 0) {
+        showToast("No Trace Found", "", "warning");
+        return;
+      }
+      if (runsOfStep.length == 1) {
+        return runTabs(runsOfStep[0]);
+      }
+      if (runsOfStep.length <= INLINE_TRACE_MAX_RUN_TABS) {
+        // a function as content: createTabHTML loads it when the tab is opened, only the first one right away
+        const runs = runsOfStep.map((element, index) => ({ label: "" + element.BranchId, active: index === 0, content: async () => runTabs(element) }));
+        return createTabHTML(runs, "runstab", 0);
+      }
+      return createRunPicker(runsOfStep, runTabs);
     }
     let childindex = Array.from(document.querySelectorAll(".cpiHelper_onclick[inline_cpi_child]"), (e) => parseInt(e.getAttribute("inline_cpi_child"), 10)).sort((a, b) => a - b);
     childindex = childindex.indexOf(parseInt(e.target.parentNode.parentNode.getAttribute("inline_cpi_child")));
@@ -503,4 +460,55 @@ function getChild(node, childNames, childClass = null) {
     }
   }
   return null;
+}
+
+// above this number of executions a step gets a run picker instead of one tab per run
+const INLINE_TRACE_MAX_RUN_TABS = 20;
+
+// picker for steps with many executions (e.g. after a splitter): select with every run plus previous / next,
+// only the selected run is loaded
+function createRunPicker(runs, renderRun) {
+  const container = document.createElement("div");
+  container.className = "cpiHelper_runPicker";
+  container.innerHTML = `
+    <div class="cpiHelper_runPicker_bar">
+      <button type="button" class="ui small icon button" data-step="-1" title="Previous run" aria-label="Previous run"><i class="angle left icon"></i></button>
+      <select class="ui dropdown" aria-label="Run"></select>
+      <button type="button" class="ui small icon button" data-step="1" title="Next run" aria-label="Next run"><i class="angle right icon"></i></button>
+      <span class="cpiHelper_runPicker_count"></span>
+    </div>
+    <div class="cpiHelper_runPicker_content"></div>`;
+  const select = container.querySelector("select");
+  const content = container.querySelector(".cpiHelper_runPicker_content");
+  const errors = runs.filter((run) => run.Error).length;
+  container.querySelector(".cpiHelper_runPicker_count").textContent = `${runs.length} runs of this step${errors ? `, ${errors} with error` : ""}`;
+  const fragment = document.createDocumentFragment();
+  runs.forEach((run, index) => {
+    const option = document.createElement("option");
+    option.value = String(index);
+    option.textContent = `Run ${index + 1}${run.BranchId != null ? ` · branch ${run.BranchId}` : ""}${run.Error ? " · error" : ""}`;
+    fragment.appendChild(option);
+  });
+  select.appendChild(fragment);
+
+  let loading = 0;
+  const show = async (index) => {
+    const ticket = ++loading;
+    select.value = String(index);
+    container.querySelector('[data-step="-1"]').classList.toggle("disabled", index <= 0);
+    container.querySelector('[data-step="1"]').classList.toggle("disabled", index >= runs.length - 1);
+    content.innerHTML = '<div class="cpiHelper_infoPopUp_content">Please Wait...</div>';
+    const node = await renderRun(runs[index]);
+    // a newer selection wins when the user clicks faster than the trace loads
+    if (ticket === loading) content.replaceChildren(node);
+  };
+  select.addEventListener("change", () => show(Number(select.value)));
+  container.querySelectorAll("[data-step]").forEach((button) =>
+    button.addEventListener("click", () => {
+      const next = Number(select.value) + Number(button.dataset.step);
+      if (next >= 0 && next < runs.length) show(next);
+    })
+  );
+  show(0);
+  return container;
 }
