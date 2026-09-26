@@ -338,7 +338,8 @@ var formatTrace = function (input, id, traceId, filename) {
   const type = cpihDetectPayloadType(input);
   const bytes = new TextEncoder().encode(input).length;
   const kb = Math.round((bytes / 1024) * 100) / 100;
-  let pretty = bytes <= PAYLOAD_VIEWER_AUTO_FORMAT_LIMIT && (type === "xml" || type === "json");
+  let pretty = cpihShouldAutoFormat(input, type, PAYLOAD_VIEWER_AUTO_FORMAT_LIMIT);
+  const validationError = !pretty && bytes <= PAYLOAD_VIEWER_AUTO_FORMAT_LIMIT && (type === "xml" || type === "json") ? cpihValidatePayload(input, type) : null;
   let formatted = null;
   let editorManager = null;
   let settings = { height: 0, fontSize: 14, wrap: true };
@@ -387,6 +388,8 @@ var formatTrace = function (input, id, traceId, filename) {
   };
   if (kb > 25000) {
     showHint("Maybe the original payload is larger, the trace only keeps this much.", "warning");
+  } else if (validationError) {
+    showHint(`Not valid ${type.toUpperCase()}: ${validationError}. Shown as it is, Pretty indents it anyway.`, "warning");
   } else if (!pretty && (type === "xml" || type === "json")) {
     showHint("Large payload, shown raw. Pretty formats it, that can take a moment.");
   }
@@ -415,8 +418,6 @@ var formatTrace = function (input, id, traceId, filename) {
     editorManager = new EditorManager(editorElement, type, cpihIsDark() ? "github_dark" : "textmate", 2, true, settings.fontSize, "markbegin", settings.wrap);
     button("wrap").setAttribute("aria-pressed", String(settings.wrap));
     render();
-    const validationError = type === "xml" || type === "json" ? cpihValidatePayload(input, type) : null;
-    if (validationError) showHint(`Not valid ${type.toUpperCase()}: ${validationError}. The payload is shown as it is.`, "warning");
   };
   // Ace watches the size of its element on its own once it runs
   const observer = new ResizeObserver(() => {
@@ -452,7 +453,7 @@ var formatTrace = function (input, id, traceId, filename) {
       case "pretty":
         if (!pretty) {
           pretty = true;
-          showHint("");
+          if (!validationError) showHint("");
           render();
         }
         break;

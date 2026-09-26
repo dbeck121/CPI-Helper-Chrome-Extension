@@ -44,11 +44,15 @@
   --cpih-shadow-strong: var(--sapContent_Shadow3, 0 0 4rem 0 rgba(85, 107, 130, 0.24), 0 0 0 0.0625rem rgba(85, 107, 130, 0.24));
   /* same card look as the floating toolbar and the message sidebar: see-through card, header in the tenant color */
   --cpih-glass: color-mix(in srgb, var(--sapGroup_ContentBackground, #fff) 92%, transparent);
-  --cpih-glass-header: color-mix(in srgb, var(--cpi-custom-color, #fff) 90%, transparent);
-  --cpih-header-text: var(--cpi-text-color, var(--cpih-text));
   --cpih-card-radius: 10px;
   --cpih-lite-text: var(--sapButton_Lite_TextColor, #0064d9);
   --cpih-lite-hover: var(--sapButton_Lite_Hover_Background, rgba(0, 100, 217, 0.08));
+}
+
+/* declared on our root: --cpi-text-color changes with .ch_dark there, on :root it would stay light */
+#cpihelperglobal {
+  --cpih-glass-header: color-mix(in srgb, var(--cpi-custom-color, #fff) 90%, transparent);
+  --cpih-header-text: var(--cpi-text-color, var(--cpih-text));
 }
 
 /* our own elements always use border-box, the host page keeps its own model */
@@ -66,6 +70,20 @@
 #cpihelperglobal {
   font-family: var(--cpih-font);
   color: var(--cpih-text);
+}
+
+/* the toolbar and the message sidebar inherited line-height 1.15 from the html rule of the Fomantic build */
+:where(#cpiHelper_floatingToolbar, #cpiHelper_content) {
+  line-height: 1.15;
+}
+
+/* form controls take the font of their container, like normalize.css did in the Fomantic build.
+   only for our elements, :where keeps it weaker than any real rule */
+:where(#cpihelperglobal, .cpiHelper, .ui, [id^='cpiHelper_'], [class*='cpiHelper_']) :is(button, input, optgroup, select, textarea),
+:where(.cpiHelper_pluginButton, [class*='cpiHelper_'] > button) {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: 1.15;
 }
 
 #cpihelperglobal a {

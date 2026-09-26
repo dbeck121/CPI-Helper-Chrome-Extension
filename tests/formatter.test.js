@@ -1,6 +1,6 @@
 // node tests/formatter.test.js
 const assert = require("node:assert/strict");
-const { cpihFormatXml, cpihFormatJson, cpihDetectPayloadType, cpihPrettifyPayload } = require("../common/formatter.js");
+const { cpihFormatXml, cpihFormatJson, cpihDetectPayloadType, cpihPrettifyPayload, cpihShouldAutoFormat } = require("../common/formatter.js");
 
 const cases = [];
 const test = (name, fn) => cases.push([name, fn]);
@@ -76,6 +76,13 @@ test("detect type", () => {
 
 test("prettify leaves text alone", () => {
   assert.deepEqual(cpihPrettifyPayload("just text"), { text: "just text", type: "text", changed: false });
+});
+
+test("auto format only valid json, log lines starting with [ stay raw", () => {
+  assert.equal(cpihShouldAutoFormat('{"a":1}', "json"), true);
+  assert.equal(cpihShouldAutoFormat("[INFO] a, b: c", "json"), false);
+  assert.equal(cpihShouldAutoFormat("hello", "text"), false);
+  assert.equal(cpihShouldAutoFormat('{"a":"' + "x".repeat(50) + '"}', "json", 10), false);
 });
 
 let failed = 0;

@@ -215,6 +215,14 @@ function cpihPrettifyPayload(input, indentSize = 2) {
   return { text, type, changed: text !== source };
 }
 
+// the viewer opens formatted only when that is safe: known type, valid, not too big.
+// text that only starts with { or [ (log lines, templates) stays as it is
+function cpihShouldAutoFormat(input, type, limitBytes = 2 * 1024 * 1024) {
+  if (type !== "xml" && type !== "json") return false;
+  if (String(input ?? "").length > limitBytes) return false;
+  return cpihValidatePayload(input, type) === null;
+}
+
 // best effort check for the hint below the editor, the formatter itself does not need valid input
 function cpihValidatePayload(input, type) {
   const source = String(input ?? "").trim();
@@ -236,5 +244,5 @@ function cpihValidatePayload(input, type) {
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { cpihDetectPayloadType, cpihTokenizeXml, cpihFormatXml, cpihFormatJson, cpihPrettifyPayload, cpihValidatePayload };
+  module.exports = { cpihDetectPayloadType, cpihTokenizeXml, cpihFormatXml, cpihFormatJson, cpihPrettifyPayload, cpihValidatePayload, cpihShouldAutoFormat };
 }
