@@ -1439,9 +1439,11 @@ img.cpiHelper_floatingToolbar_pluginIcon {
   overflow-y: auto;
 }
 
+/* links, unlike buttons, are content-box: with width 100% and padding they would stick out of the menu */
 a.cpiHelper_floatingToolbar_menuItem,
 a.cpiHelper_floatingToolbar_menuItem:hover,
 a.cpiHelper_floatingToolbar_menuItem:visited {
+  box-sizing: border-box;
   color: var(--sapList_TextColor, #1d2d3e);
   text-decoration: none;
 }
@@ -1652,6 +1654,7 @@ a.cpiHelper_floatingToolbar_menuItem:visited {
 #cpiHelper_palette .cpiHelper_palette_item > a:visited,
 #cpiHelper_palette .cpiHelper_palette_item > a:hover,
 #cpiHelper_palette .cpiHelper_palette_item > button {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 10px;

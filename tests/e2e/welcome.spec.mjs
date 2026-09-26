@@ -2,7 +2,7 @@
 // setting the stored version back to 3.x; the storage values are restored afterwards
 import fs from "node:fs";
 import path from "node:path";
-import { test, expect, openIflow, expectLoggedIn } from "./fixtures.mjs";
+import { test, expect, openIflow, expectLoggedIn, bigPopup } from "./fixtures.mjs";
 import { env, requireEnv, repoRoot } from "./env.mjs";
 
 const KEYS = ["cpiHelper_Version", "cpiHelper_v4Celebrated"];
@@ -53,6 +53,15 @@ test.describe("welcome to 4.0", () => {
       await welcome.locator(".cpiHelper_celebration_primary").click();
       expect(await walkTour(page)).toEqual(["Your buttons live here now", "Search and jump from anywhere", "Drag me by the header", "Plugins and the compact view"]);
 
+      // the regular What's new dialog follows the tour, its screenshots load
+      await expect(bigPopup(page)).toBeVisible({ timeout: 15_000 });
+      await page.locator('#cpiHelper_whatsnew_tabs [data-tab="changes"]').click();
+      const images = page.locator('[data-tab="changes"] img');
+      await expect(images).toHaveCount(4);
+      await expect.poll(() => images.evaluateAll((list) => list.every((img) => img.complete && img.naturalWidth > 0))).toBe(true);
+      await page.keyboard.press("Escape");
+      await expect(bigPopup(page)).toBeHidden();
+
       // only once
       await page.reload();
       await expect(page.locator("#cpiHelper_floatingToolbar")).toBeVisible({ timeout: 60_000 });
@@ -76,6 +85,8 @@ test.describe("welcome to 4.0", () => {
       await expect(welcome).toBeVisible({ timeout: 60_000 });
       await welcome.locator(".cpiHelper_celebration_primary").click();
       expect(await walkTour(page)).toEqual(["Search and jump from anywhere", "Drag me by the header", "Plugins and the compact view"]);
+      await expect(bigPopup(page)).toBeVisible({ timeout: 15_000 });
+      await page.keyboard.press("Escape");
     } finally {
       await restore(page, saved);
     }

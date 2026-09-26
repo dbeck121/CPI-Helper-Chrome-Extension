@@ -31,6 +31,8 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
   const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
   const TOOLBAR_SCREENSHOT = chrome.runtime.getURL("images/whatsnew/4.0-toolbar.png");
   const TOOLBAR_PLUGINS_SCREENSHOT = chrome.runtime.getURL("images/whatsnew/4.0-plugins.png");
+  const SEARCH_SCREENSHOT = chrome.runtime.getURL("images/whatsnew/4.0-search.png");
+  const JUMP_SCREENSHOT = chrome.runtime.getURL("images/whatsnew/4.0-jump.png");
   const devtoberfestPicture = chrome.runtime.getURL("images/devtoberfestPicture.png");
   const md = window.markdownit();
 
@@ -160,6 +162,7 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
                 <li>The header of the toolbar and of the message popup has the <b>color of your tenant</b>, as set in the browser popup.</li>
                 <li>The toolbar also shows up on <b>API and MCP Server</b> pages. There the integration cell is the default runtime.</li>
             </ul>
+            <a href="${SEARCH_SCREENSHOT}" target="_blank"><img class="ui fluid bordered rounded image" src="${SEARCH_SCREENSHOT}" alt="The search of CPI Helper finds iFlows, APIs, mappings and packages of the tenant"></a>
             <h4 class="ui header">Search and jump from anywhere</h4>
             <ul class="ui list">
                 <li>The toolbar is on <b>every CPI page</b> now. Outside of an iFlow it has Search, Jump to, Recent and Plugins.</li>
@@ -169,6 +172,7 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
                 <li>A red number on Jump to shows the <b>failed messages of the past hour</b>. It can be switched off in the browser popup.</li>
                 <li>While an iFlow is in edit mode the toolbar does not navigate away, save or cancel first. Ctrl/⌘ + click opens a page in a new tab.</li>
             </ul>
+            <a href="${JUMP_SCREENSHOT}" target="_blank"><img class="ui fluid bordered rounded image" src="${JUMP_SCREENSHOT}" alt="Jump to with the messages of this iFlow and the monitor pages"></a>
             <a href="${TOOLBAR_PLUGINS_SCREENSHOT}" target="_blank"><img class="ui fluid bordered rounded image" src="${TOOLBAR_PLUGINS_SCREENSHOT}" alt="Compact toolbar with an open plugin panel"></a>
             <h4 class="ui header">Plugins moved into the toolbar</h4>
             <ul class="ui list">
@@ -287,7 +291,7 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
         if (initialTab) {
           cpihActivateTab(document.querySelector("#cpiHelper_bigPopup_content_semanticui"), initialTab);
         }
-        // the tour needs the toolbar, which only exists on artifact pages
+        // the tour needs the toolbar, which may not be built yet
         const tourButton = document.querySelector(".cpihelperWhatsNewTour");
         if (!getFloatingToolbar()) {
           tourButton?.remove();

@@ -146,13 +146,13 @@ function cpihBuildPaletteItems(index, history) {
   view.recent.forEach((entry, position) => historyBoost.set(`${entry.type}|${entry.name}`, { boost: 30 - position }));
 
   for (const action of cpihPageActions()) {
-    add("action|" + action.key, { label: action.label, keywords: action.keywords, sub: cpiData.currentArtifactId ? cpihArtifactLabel() : "", icon: action.icon, iconHtml: action.iconHtml, run: action.run, kind: "Action", boost: 50 });
+    add("action|" + action.key, { label: action.label, keywords: action.keywords, detail: cpiData.currentArtifactId ? cpihArtifactLabel() : "", icon: action.icon, iconHtml: action.iconHtml, run: action.run, kind: "Action", boost: 50 });
   }
 
   const context = cpihCurrentArtifactContext();
   if (context) {
     for (const target of cpihArtifactJumpTargets(context)) {
-      add("context|" + target.path, { label: `${target.area} - ${target.label}`, sub: cpihArtifactLabel(), icon: target.icon, href: base + target.path, kind: "Current artifact", boost: 45 });
+      add("context|" + target.path, { label: `${target.area} - ${target.label}`, detail: cpihArtifactLabel(), icon: target.icon, href: base + target.path, kind: "Current artifact", boost: 45 });
     }
   }
   for (const entry of [...view.favorites, ...view.recent]) {
@@ -274,7 +274,8 @@ async function openCommandPalette() {
         label.textContent = item.label;
         const sub = document.createElement("span");
         sub.className = "cpiHelper_palette_itemSub";
-        sub.textContent = item.sub && item.sub !== item.kind ? item.sub : item.id && item.id !== item.label ? item.id : "";
+        // detail is shown but not searched, e.g. the artifact name under its actions
+        sub.textContent = item.detail ?? (item.sub && item.sub !== item.kind ? item.sub : item.id && item.id !== item.label ? item.id : "");
         text.append(label, sub);
         const kind = document.createElement("span");
         kind.className = "cpiHelper_palette_itemKind";

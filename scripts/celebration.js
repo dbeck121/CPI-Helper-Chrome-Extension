@@ -101,9 +101,10 @@ function showV4Celebration() {
     if (event.target === overlay) close();
   });
   card.querySelector(".cpiHelper_celebration_close").addEventListener("click", close);
+  // after the tour, finished or skipped, the regular What's new dialog follows
   card.querySelector(".cpiHelper_celebration_primary").addEventListener("click", () => {
     close();
-    startToolbarTour();
+    startToolbarTour({ afterTour: () => whatsNewCheck(false) });
   });
   card.querySelector(".cpiHelper_celebration_secondary").addEventListener("click", () => {
     close();
@@ -188,11 +189,13 @@ async function waitForFloatingToolbar(timeout = 8000) {
   return getFloatingToolbar();
 }
 
-async function startToolbarTour() {
+// afterTour runs when the tour is over, also when it was skipped or could not start
+async function startToolbarTour({ afterTour } = {}) {
   document.getElementById("cpiHelper_tour")?._cpiHelperEnd?.();
   const toolbar = await waitForFloatingToolbar();
   if (!toolbar) {
     showToast("The toolbar is not there yet, try again in a moment.", "CPI Helper 4.0", "info");
+    afterTour?.();
     return null;
   }
 
@@ -277,14 +280,18 @@ async function startToolbarTour() {
     document.removeEventListener("keydown", onKeydown, true);
     window.removeEventListener("resize", onResize);
     tour.remove();
+    let burstShown = false;
     if (finished) {
       const grip = getFloatingToolbar()?.querySelector(".cpiHelper_floatingToolbar_grip")?.getBoundingClientRect();
       if (grip) {
         const burst = createConfetti({ count: 28, burstFrom: { x: grip.left + grip.width / 2, y: grip.top + grip.height / 2 } });
         document.body.appendChild(burst);
         setTimeout(() => burst.remove(), 1600);
+        burstShown = true;
       }
     }
+    // the confetti burst plays first
+    if (afterTour) setTimeout(afterTour, burstShown ? 900 : 0);
   };
   tour._cpiHelperEnd = () => end(false);
 
