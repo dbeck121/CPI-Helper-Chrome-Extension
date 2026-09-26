@@ -718,6 +718,8 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
       throw "No active runtime locations found. Please check your environment.";
     }
 
+    applyDefaultRuntimeLocation();
+
     //iterate all runtime locations to find the ones that have active iflows
     cacheValue = 500; // default cache value for the next calls
     if (!cpiData.runtimeLocationWithActiveIFlow || cpiData.runtimeLocationWithActiveIFlow.length == 0) {
@@ -896,6 +898,22 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
   } catch (error) {
     log.error("Error getting Iflow Info: ", error);
     if (!silent) showToast("Error: " + JSON.stringify(error));
+  }
+}
+
+// APIs and MCP servers run on an Edge Integration Cell, so their default is the first runtime that is not
+// the cloud runtime. Applied once per artifact: a runtime picked by hand afterwards is kept.
+var runtimeLocationDefaultAppliedFor = null;
+function applyDefaultRuntimeLocation() {
+  if (!["API", "MCP Server"].includes(cpiData.currentArtifactType)) return;
+  if (runtimeLocationDefaultAppliedFor === cpiData.currentArtifactId) return;
+  runtimeLocationDefaultAppliedFor = cpiData.currentArtifactId;
+
+  if (cpiData.runtimeLocationId && cpiData.runtimeLocationId !== "cloudintegration") return;
+  const integrationCell = cpiData.runtimeLocations.find((loc) => loc.id !== "cloudintegration");
+  if (integrationCell) {
+    log.debug(`default runtime location for ${cpiData.currentArtifactType}: ${integrationCell.id}`);
+    setRuntimeLocation(integrationCell, true);
   }
 }
 
