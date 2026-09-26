@@ -559,6 +559,7 @@ async function buildButtonBar() {
 
     var runtimeButton;
     var runtimeButtonContainer;
+    var runtimeDropdownMenu;
     // Create runtime button container with dropdown
     if (cpiData.runtimeLocations && cpiData.runtimeLocations.length > 1) {
       //cpiData.runtimeLocations.length > 1) {
@@ -571,15 +572,18 @@ async function buildButtonBar() {
             </span>
           </span>
         </button>
-        <div id="__trace_dropdown_menu" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); min-width: 160px; z-index: 1000; margin-top: 2px;">
+        <div id="__trace_dropdown_menu" style="display: none; position: fixed; background: white; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); min-width: 160px; z-index: 1000;">
         </div>
       </div>`
       );
       runtimeButton = runtimeButtonContainer.querySelector("#__runtime_button");
+      // Moved to body below like the More menu. Inside the header it was clipped or covered on pages
+      // without the iflow header (e.g. APIs), so the mouse never reached the items.
+      runtimeDropdownMenu = runtimeButtonContainer.querySelector("#__trace_dropdown_menu");
       // Close dropdown when clicking outside (registered once)
       document.addEventListener("click", (e) => {
-        if (!runtimeButtonContainer.contains(e.target)) {
-          runtimeButtonContainer.querySelector("#__trace_dropdown_menu").style.display = "none";
+        if (!runtimeButtonContainer.contains(e.target) && !runtimeDropdownMenu.contains(e.target)) {
+          runtimeDropdownMenu.style.display = "none";
         }
         if (!moreButton.contains(e.target) && !moreDropdownMenu.contains(e.target)) {
           moreDropdownMenu.style.display = "none";
@@ -587,30 +591,35 @@ async function buildButtonBar() {
       });
 
       // Handle dropdown item selection (registered once)
-      runtimeButtonContainer.querySelector("#__trace_dropdown_menu").addEventListener("click", (e) => {
+      runtimeDropdownMenu.addEventListener("click", (e) => {
         const item = e.target.closest(".__trace_dropdown_item");
         if (item) {
           const locationId = item.getAttribute("data-location-id");
           const location = cpiData.runtimeLocations.find((loc) => loc.id === locationId);
           setRuntimeLocation(location || { id: locationId });
 
-          runtimeButtonContainer.querySelector("#__trace_dropdown_menu").style.display = "none";
+          runtimeDropdownMenu.style.display = "none";
         }
       });
 
       runtimeButton.addEventListener("click", async (e) => {
         e.stopPropagation();
 
-        var traceDropdownMenu = runtimeButtonContainer.querySelector("#__trace_dropdown_menu");
-        const isVisible = traceDropdownMenu.style.display === "block";
+        const isVisible = runtimeDropdownMenu.style.display === "block";
 
         if (!isVisible) {
           // Update runtime info on click to ensure fresh data
           await getIflowInfo(null, true, false);
-          updateRuntimeLocationDropdown();
+          updateRuntimeLocationDropdown(runtimeDropdownMenu);
+          runtimeDropdownMenu.style.visibility = "hidden";
+          runtimeDropdownMenu.style.display = "block";
+          const rect = runtimeButton.getBoundingClientRect();
+          runtimeDropdownMenu.style.top = rect.bottom + 2 + "px";
+          runtimeDropdownMenu.style.left = rect.right - runtimeDropdownMenu.offsetWidth + "px";
+          runtimeDropdownMenu.style.visibility = "visible";
+        } else {
+          runtimeDropdownMenu.style.display = "none";
         }
-
-        traceDropdownMenu.style.display = isVisible ? "none" : "block";
       });
     }
 
@@ -655,6 +664,11 @@ async function buildButtonBar() {
 
     // Append dropdown to body to avoid clipping or relative positioning issues
     document.body.appendChild(moreDropdownMenu);
+    if (runtimeDropdownMenu) {
+      // a rebuilt button bar must not leave the menu of the previous one behind (same id)
+      document.querySelectorAll("#__trace_dropdown_menu").forEach((menu) => menu !== runtimeDropdownMenu && menu.remove());
+      document.body.appendChild(runtimeDropdownMenu);
+    }
 
     // Toggle More dropdown
     moreButton.addEventListener("click", (e) => {
