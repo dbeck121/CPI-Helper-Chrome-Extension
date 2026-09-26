@@ -345,10 +345,9 @@ const RECRUITING_DONE_KEY = "recruitingPopupDone";
 const RECRUITING_LEGACY_TIMESTAMP_KEY = "recrutingPopupTimestamp";
 var recruitingPopupScheduled = false;
 
+// only browsers set to German (Germany)
 function isGermanSpeakingUser() {
-  return String(navigator.language || navigator.userLanguage || "")
-    .toLowerCase()
-    .startsWith("de");
+  return (navigator.language || navigator.userLanguage) === "de-DE";
 }
 
 async function recruitingPopupDue() {
