@@ -23,6 +23,12 @@ const FLOATING_TOOLBAR_ICONS = {
   refresh: '<path d="M20 11a8 8 0 0 0-14.9-3.5"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.9 3.5"/><path d="M20 20v-4h-4"/>',
 };
 
+// accesskey needs a modifier that depends on the platform: Control+Option on macOS, Alt elsewhere
+function floatingToolbarShortcutLabel(key) {
+  const platform = navigator.userAgentData?.platform || navigator.platform || "";
+  return /mac/i.test(platform) ? `⌃⌥${key}` : `Alt+${key}`;
+}
+
 function floatingToolbarIcon(name) {
   return `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${FLOATING_TOOLBAR_ICONS[name] || ""}</svg>`;
 }
@@ -106,7 +112,7 @@ function showFloatingToolbarTooltip(toolbar, target) {
   tooltip.replaceChildren(target.dataset.tooltip);
   if (target.accessKey) {
     const kbd = document.createElement("kbd");
-    kbd.textContent = target.accessKey;
+    kbd.textContent = floatingToolbarShortcutLabel(target.accessKey);
     tooltip.append(kbd);
   }
 
@@ -299,7 +305,7 @@ function createFloatingToolbarButton({ id, icon, title, accessKey }) {
   if (accessKey) {
     const kbd = document.createElement("kbd");
     kbd.className = "cpiHelper_floatingToolbar_kbd";
-    kbd.textContent = accessKey;
+    kbd.textContent = floatingToolbarShortcutLabel(accessKey);
     button.append(kbd);
   }
   return button;
