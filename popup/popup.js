@@ -470,7 +470,6 @@ function renderSettings(state) {
 
       ${segmented("openMessageSidebarOnStartup", "Open message sidebar on start", "Yes", "No", !!state.openMessageSidebarOnStartup)}
       ${segmented("refreshMessageSidebar", "Auto-refresh message sidebar", "On", "Off", state.autoRefreshMessageSidebar)}
-      ${segmented("openSidebarOnStartup", "Plugin page as separate sidebar", "Yes", "No", !!state.openSidebarOnStartup)}
       ${segmented("cpi_compact_mode", "Layout of last visited", "Compact", "Cozy", compact)}
       ${segmented("cpi_tab_click_mode", "Switch tabs on", "Hover", "Click", localStorage.getItem("cpi_tab_click_mode") !== "true")}
     </div>
@@ -505,7 +504,6 @@ function renderSettings(state) {
           <li><b>Tab shown on start:</b> <span class="ok">Last Visited</span> by default.</li>
           <li><b>Open message sidebar on start:</b> Yes / <span class="ok">No (default)</span>.</li>
           <li><b>Auto-refresh message sidebar:</b> <span class="ok">On (default)</span> / Off.</li>
-          <li><b>Plugin page as separate sidebar:</b> Yes (separate and closed) / <span class="ok">No (default, joint and open)</span>.</li>
           <li><b>Layout of last visited:</b> <span class="ok">Cozy (default)</span> shows one artifact per row, Compact fits more artifacts on the screen.</li>
           <li><b>Switch tabs on:</b> <span class="ok">Hover (default)</span> switches the tab as soon as the mouse is over it, Click only on a click.</li>
         </ul>
@@ -545,7 +543,6 @@ function wireSettings(state) {
   // --- on/off controls
   wireSegmented("#openMessageSidebarOnStartup", (value) => chrome.storage.sync.set({ openMessageSidebarOnStartup: value }));
   wireSegmented("#refreshMessageSidebar", (value) => chrome.storage.sync.set({ autoRefreshMessageSidebar: value }));
-  wireSegmented("#openSidebarOnStartup", (value) => chrome.storage.sync.set({ openSidebarOnStartup: value }));
   wireSegmented("#cpi_compact_mode", (value) => {
     localStorage.setItem("modecpi_compact_mode", String(value));
     renderLastVisited(state.visitedIflows, value);
@@ -762,7 +759,7 @@ async function main() {
   // one round trip each instead of a chain of nested callbacks - the popup is rebuilt on every open
   const visitedKey = tenant ? "visitedIflows_" + tenant : "__none__";
   const [sync, local, hostData] = await Promise.all([
-    chrome.storage.sync.get([visitedKey, "openMessageSidebarOnStartup", "openSidebarOnStartup", "autoRefreshMessageSidebar", "CPIhelperThemeInfo"]),
+    chrome.storage.sync.get([visitedKey, "openMessageSidebarOnStartup", "autoRefreshMessageSidebar", "CPIhelperThemeInfo"]),
     chrome.storage.local.get(["cpi_top_mode"]),
     askContentScript(activeTabId, "get"),
   ]);
@@ -772,7 +769,6 @@ async function main() {
   const state = {
     visitedIflows: sync[visitedKey],
     openMessageSidebarOnStartup: sync.openMessageSidebarOnStartup,
-    openSidebarOnStartup: sync.openSidebarOnStartup,
     autoRefreshMessageSidebar: sync.autoRefreshMessageSidebar ?? true,
     // no CPI page visited yet - fall back to the operating system preference
     isLightTheme: sync.CPIhelperThemeInfo === undefined ? !window.matchMedia("(prefers-color-scheme: dark)").matches : !!sync.CPIhelperThemeInfo,

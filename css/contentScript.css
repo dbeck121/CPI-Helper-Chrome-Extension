@@ -558,11 +558,6 @@ div#cpiHelper_semanticui_modal {
   float: right;
 }
 
-div#cpiHelper_messageSidebar_pluginArea {
-  padding: 1em 0.5em;
-  margin: 0;
-  height: auto !important;
-}
 
 #cpiHelper_popup_plugins .card > .extra.content:first-child {
   background: #eee !important;
@@ -866,7 +861,8 @@ fieldset {
   box-shadow: var(--sapContent_Shadow2, 0 4px 16px rgba(0, 0, 0, 0.18));
 }
 
-.cpiHelper_floatingToolbar_menu.cpiHelper_floatingToolbar_menu_left {
+.cpiHelper_floatingToolbar_menu.cpiHelper_floatingToolbar_popover_left,
+.cpiHelper_floatingToolbar_panel.cpiHelper_floatingToolbar_popover_left {
   left: auto;
   right: calc(100% + 8px);
 }
@@ -978,6 +974,7 @@ fieldset {
 
 /* display: flex above would beat the [hidden] rule of the browser */
 .cpiHelper_floatingToolbar_tooltip[hidden],
+.cpiHelper_floatingToolbar_panel[hidden],
 .cpiHelper_floatingToolbar_menu[hidden] {
   display: none;
 }
@@ -1018,36 +1015,83 @@ fieldset {
   background: var(--sapButton_Lite_Hover_Background, rgba(0, 100, 217, 0.08));
 }
 
-/* plugin area inside the popup: flat sections instead of Fomantic menu and segments */
-#cpiHelper_content #cpiHelper_messageSidebar_pluginArea.ui.menu {
-  border: 0;
+/* plugin section of the toolbar */
+.cpiHelper_floatingToolbar_separator {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  margin: 4px 2px 2px;
   border-top: 1px solid var(--sapGroup_ContentBorderColor, #e5e5e5);
-  border-radius: 0 0 10px 10px;
-  box-shadow: none;
-  background: transparent;
-  padding: 6px 10px 10px;
 }
 
-#cpiHelper_content #cpiHelper_messageSidebar_pluginArea > .ui.segment {
-  margin: 6px 0 0;
-  padding: 6px 0 0;
-  border: 0;
-  box-shadow: none;
-  background: transparent;
-}
-
-#cpiHelper_content #cpiHelper_messageSidebar_pluginArea .ui.tiny.header {
-  margin: 0 0 4px;
+.cpiHelper_floatingToolbar_separator > span {
+  display: none;
+  padding: 6px 6px 0;
   color: var(--sapContent_LabelColor, #556b82);
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_separator > span {
+  display: inline;
+}
+
+/* icons plugins bring: SAP-icons glyph, their logo or their initials */
+.cpiHelper_floatingToolbar_pluginIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  font-size: 1rem;
+}
+
+img.cpiHelper_floatingToolbar_pluginIcon {
+  object-fit: contain;
+  border-radius: 3px;
+}
+
+.cpiHelper_floatingToolbar_pluginIcon.cpiHelper_floatingToolbar_pluginInitials {
+  border: 1.5px solid currentColor;
+  border-radius: 5px;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* panel with the content a plugin renders */
+.cpiHelper_floatingToolbar_panel {
+  position: absolute;
+  left: calc(100% + 8px);
+  width: max-content;
+  min-width: 220px;
+  max-width: 380px;
+  max-height: 70vh;
+  overflow: auto;
+  padding: 10px 12px 12px;
+  background: var(--sapGroup_ContentBackground, #fff);
+  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
+  border-radius: 8px;
+  box-shadow: var(--sapContent_Shadow2, 0 4px 16px rgba(0, 0, 0, 0.18));
+  color: var(--sapTextColor, #1d2d3e);
+  font-size: 0.875rem;
+  user-select: text;
+  cursor: auto;
+}
+
+.cpiHelper_floatingToolbar_panelTitle {
+  margin-bottom: 8px;
+  color: var(--sapContent_LabelColor, #556b82);
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 /* buttons rendered by plugins: one look for all of them, with Fomantic classes (ui primary button) or without */
-#cpiHelper_content #cpiHelper_messageSidebar_pluginArea button,
-#cpiHelper_content #cpiHelper_messageSidebar_pluginArea .ui.button {
-  margin: 0;
+.cpiHelper_floatingToolbar_panelBody button,
+.cpiHelper_floatingToolbar_panelBody .ui.button {
+  margin: 2px 4px 2px 0;
   min-height: 0;
   padding: 4px 12px !important;
   border: 1px solid var(--sapButton_BorderColor, #bcc3ca) !important;
@@ -1059,9 +1103,10 @@ fieldset {
   font-size: 0.875rem !important;
   font-weight: 400 !important;
   line-height: 1.4 !important;
+  cursor: pointer;
 }
 
-#cpiHelper_content #cpiHelper_messageSidebar_pluginArea button:hover,
-#cpiHelper_content #cpiHelper_messageSidebar_pluginArea .ui.button:hover {
+.cpiHelper_floatingToolbar_panelBody button:hover,
+.cpiHelper_floatingToolbar_panelBody .ui.button:hover {
   background: var(--sapButton_Hover_Background, #eaecee) !important;
 }

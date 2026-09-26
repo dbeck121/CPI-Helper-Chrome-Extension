@@ -333,7 +333,6 @@ async function renderMessageSidebar(cache = true) {
       log.error("There was an error when processing the log entries. Process aborted. " + e);
     }
   }
-  await messageSidebarPluginContent();
 }
 
 function calculateMessageSidebarTimerTime(lastTabHidden, lastDurationRefresh) {
@@ -491,6 +490,12 @@ function updateRuntimeLocationDropdown(traceDropdownMenu = null) {
 // Make update function globally accessible
 cpiData.functions.updateRuntimeLocationDropdown = updateRuntimeLocationDropdown;
 
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "sync" && Object.keys(changes).some((key) => key.endsWith("---isActive"))) {
+    removeFloatingToolbar();
+  }
+});
+
 // the heartbeat calls this every 3 seconds without awaiting, so a build that is still running must not start a second one
 var floatingToolbarBuild = null;
 
@@ -596,15 +601,6 @@ async function buildFloatingToolbar() {
       },
     });
 
-    addFloatingToolbarButton(toolbar, {
-      id: "__more_plugins",
-      icon: "plugins",
-      title: "Plugins",
-      onClick: async () => {
-        statistic("headerbar_btn_plugins_click");
-        showBigPopup(await createContentNodeForPlugins(), "Plugins");
-      },
-    });
 
     if (cpiData.runtimeLocations && cpiData.runtimeLocations.length > 1) {
       addFloatingToolbarMenuButton(toolbar, {
@@ -628,6 +624,26 @@ async function buildFloatingToolbar() {
         },
       });
     }
+
+    // plugin section: one button per active plugin with messageSidebarContent, its content opens in a panel
+    addFloatingToolbarSeparator(toolbar, "Plugins");
+    for (const plugin of await getToolbarContentPlugins()) {
+      addFloatingToolbarPanelButton(toolbar, {
+        id: `cpiHelperToolbarPlugin--${plugin.id}`,
+        iconNode: createPluginToolbarIcon(plugin),
+        title: plugin.name,
+        render: createPluginToolbarRenderer(plugin),
+      });
+    }
+    addFloatingToolbarButton(toolbar, {
+      id: "__more_plugins",
+      icon: "settings",
+      title: "Manage plugins",
+      onClick: async () => {
+        statistic("headerbar_btn_plugins_click");
+        showBigPopup(await createContentNodeForPlugins(), "Plugins");
+      },
+    });
 
     // only the iflow editor has the step search
     var searchStepInput = document.querySelector("[id*='--searchStep-I']");
@@ -1228,11 +1244,6 @@ var sidebar = {
         <div><table id="messageList" class="contentText"></table></div>
       </div>
     </div>
-    <div id="cpiHelper_messageSidebar_pluginArea" class="ui vertical fluid menu cpiHelper_hidden" style="color:#000"> 
-      <div class="ui centered header cpiHelper_hidden">
-      <div class="content">Plugin Page</div>
-      <span data-sap-ui-icon-content="&#xe03e" class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>
-    </div>
     `;
     elem.id = "cpiHelper_content";
     elem.classList.add("cpiHelper");
@@ -1248,19 +1259,6 @@ var sidebar = {
         popuparea.style.top = result["set_ch_popup_mouse"].top;
       }
     });
-    //plugin area setup popup+join mode
-    chrome.storage.sync.get(["openSidebarOnStartup"], function (result) {
-      pluginarea = document.querySelector("#cpiHelper_messageSidebar_pluginArea");
-      if (result["openSidebarOnStartup"]) {
-        pluginarea.classList.add("sidebar");
-        pluginarea.classList.toggle("fluid");
-        document.querySelector("#cpiHelper_messageSidebar_pluginArea span").addEventListener("click", () => {
-          pluginarea.classList.toggle("fluid");
-          twoClasssToggleSwitch(pluginarea, "visible", "cpiHelper_hidden");
-          twoClasssToggleSwitch(document.querySelector("#sidebar_Plugin"), "plus", "minus");
-        });
-      }
-    });
     //add close button
     var span = document.getElementById("sidebar_modal_close");
     span.onclick = (element) => {
@@ -1274,7 +1272,6 @@ var sidebar = {
     cpiData.messageSidebar.lastMessageHashList = [];
     setTimeout(() => document.getElementById("cpiHelper_content").removeAttribute("hidden"), 200);
     //refresh messages
-    messageSidebarPluginContent(true);
     refreshActive = true;
     renderMessageSidebar()
       .then(() => {

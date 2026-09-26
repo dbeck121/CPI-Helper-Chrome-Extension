@@ -80,11 +80,14 @@ onClick:
  | recommended     | log.log(document.querySelector('bdi[id$="--ceFileLabel-bdi"]').textContent) |
 
 ### messageSidebarContent Button: 
-can be used to show sth in message sidebar
- | FIELD NAME | VALUE                                    | DESCRIPTION                                                              |
- | ---------- | ---------------------------------------- | ------------------------------------------------------------------------ |
- | onRender   | (pluginHelper, settings) => {return div} | implement and return html element                                        |
- | static     | false                                    | set true to not reload plugin content with every message sidebar refresh |
+gives the plugin a button in the plugin section of the floating CPI Helper toolbar. A click opens a panel next to the toolbar that shows what `onRender` returns (until 3.27 this was the plugin area of the message sidebar)
+ | FIELD NAME | VALUE                                    | DESCRIPTION                                                                                      |
+ | ---------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------ |
+ | onRender   | (pluginHelper, settings) => {return div} | implement and return html element                                                                |
+ | static     | false                                    | true: rendered once and kept (state like typed text stays). false: rendered again on every open  |
+ | icon       | "text": "xe088", "type": "icon"          | optional, same format as the messageSidebarButton icon: SAP UI5 icon or "type": "text" (3 letters) |
+
+Without `icon` the toolbar uses the plugin logo from `settings.icon`, else the initials of the plugin name.
 
 onRender parameter:
  | FIELD            | DESCRIPTION                                                                 |
@@ -158,7 +161,8 @@ var plugin = {
             return true;
         }
     },
-    messageSidebarContent: { //can be used to show data in message sidebar plugin area
+    messageSidebarContent: { //button in the plugin section of the toolbar, onRender fills the panel it opens
+        "icon": { "text": "xe088", "type": "icon" }, //optional, falls back to settings.icon, then to the initials of the name
         "onRender": (pluginHelper, settings) => { //implement and return html element
             console.log(pluginHelper);
             console.log(settings);
@@ -166,7 +170,7 @@ var plugin = {
             div.innerText = "Example content";
             return div; //html element to return.
         },
-        "static": false //set true to not reload plugin content with every message sidebar refresh
+        "static": false //true: rendered once and kept, false: rendered again every time the panel opens
     },
     scriptCollectionButton: { //a button that can be used to interact with script collection
         "icon": { "text": "E", "type": "text" },

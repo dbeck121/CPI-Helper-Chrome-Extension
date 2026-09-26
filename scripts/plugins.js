@@ -4,54 +4,66 @@
 
 //creates plugin content area in message sidebar
 
-async function messageSidebarPluginContent(forceRender = false) {
-  let activeness = false;
-  for (element of pluginList) {
-    var settings = await getPluginSettings(element.id);
-    if (settings[element.id + "---isActive"] === true && element?.messageSidebarContent?.onRender && (!element?.messageSidebarContent?.static || forceRender == true)) {
-      activeness = true;
-      const pluginRender = element.messageSidebarContent.onRender(cpiData, settings);
-      if (pluginRender) {
-        var div = document.getElementById("cpiHelper_messageSidebar_pluginArea_" + element.id);
-        if (!div) {
-          div = document.createElement("fieldset");
-          div.id = "cpiHelper_messageSidebar_pluginArea_" + element.id;
-          div.classList = "ui fluid segment";
-        }
-        div.innerHTML = "";
-        div.appendChild(createElementFromHTML("<div class='ui tiny header'>" + element.name + "</div>"));
-        div.appendChild(pluginRender);
-        document.querySelector("#cpiHelper_messageSidebar_pluginArea").appendChild(div);
-      }
-    }
+// plugins with messageSidebarContent get a button in the plugin section of the floating toolbar. what their
+// onRender returns is shown in a panel next to the toolbar (it used to be the plugin area of the message popup)
+async function getToolbarContentPlugins() {
+  const plugins = [];
+  for (const plugin of pluginList) {
+    if (!plugin?.messageSidebarContent?.onRender) continue;
+    const settings = await getPluginSettings(plugin.id);
+    if (settings[plugin.id + "---isActive"] === true) plugins.push(plugin);
   }
-  const ctxbtnclose = document.querySelector("#cpiHelper_contentheader");
-  const pluginArea = document.querySelector("#cpiHelper_messageSidebar_pluginArea");
+  return plugins;
+}
 
-  if (ctxbtnclose.childElementCount == 2) {
-    if (activeness == true) {
-      ctxbtnclose.insertBefore(
-        createElementFromHTML(`<button type="button" id="sidebar_Plugin" class="cpiHelper_popupHeaderButton ${pluginArea.classList.contains("visible") ? "plus" : "minus"}" title="Plugins" aria-label="Plugins">${floatingToolbarIcon("plugins")}</button>`),
-        ctxbtnclose.childNodes[2]
-      );
-      document.querySelector("#sidebar_Plugin").classList.remove("cpiHelper_hidden");
-      document.querySelector("#sidebar_Plugin").addEventListener("click", () => {
-        twoClasssToggleSwitch(pluginArea, "visible", "cpiHelper_hidden");
-        twoClasssToggleSwitch(document.querySelector("#sidebar_Plugin"), "plus", "minus");
-      });
-    }
-    // twoClasssToggleSwitch(pluginArea, 'visible', 'cpiHelper_hidden')
-    chrome.storage.sync.get(["openSidebarOnStartup"], function (result) {
-      if (activeness) {
-        twoClasssToggleSwitch(pluginArea, "visible", "cpiHelper_hidden");
-        if (result["openSidebarOnStartup"]) {
-          twoClasssToggleSwitch(document.querySelector("#cpiHelper_messageSidebar_pluginArea>.header"), "cpiHelper_hidden", "visible");
-          twoClasssToggleSwitch(pluginArea, "visible", "cpiHelper_hidden");
-          twoClasssToggleSwitch(document.querySelector("#sidebar_Plugin"), "plus", "minus");
-        }
-      }
-    });
+// messageSidebarContent.icon like messageSidebarButton.icon ({ type: "icon", text: "xe088" } for SAP-icons,
+// { type: "text", text: "VH" }); without it the plugin logo from settings.icon, else the initials of the name
+function createPluginToolbarIcon(plugin) {
+  const icon = plugin.messageSidebarContent?.icon;
+  if (icon?.type === "icon" && /^x?[0-9a-f]{3,5}$/i.test(icon.text || "")) {
+    const glyph = document.createElement("span");
+    glyph.className = "cpiHelper_floatingToolbar_pluginIcon sapUiIcon";
+    glyph.style.fontFamily = "SAP-icons";
+    glyph.dataset.sapUiIconContent = String.fromCodePoint(parseInt(icon.text.replace(/^x/i, ""), 16));
+    return glyph;
   }
+
+  const initials = document.createElement("span");
+  initials.className = "cpiHelper_floatingToolbar_pluginIcon cpiHelper_floatingToolbar_pluginInitials";
+  if (icon?.type === "text" && icon.text) {
+    initials.textContent = String(icon.text).substring(0, 3);
+    return initials;
+  }
+
+  const logo = plugin.settings?.icon?.src;
+  if (logo) {
+    const image = document.createElement("img");
+    image.className = "cpiHelper_floatingToolbar_pluginIcon";
+    image.alt = "";
+    image.src = chrome.runtime.getURL(logo);
+    return image;
+  }
+
+  initials.textContent =
+    String(plugin.name || plugin.id)
+      .split(/[\s_-]+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase() || "?";
+  return initials;
+}
+
+// static plugins render once per toolbar, the others again on every open, with the current data
+function createPluginToolbarRenderer(plugin) {
+  let staticNode = null;
+  return async () => {
+    if (plugin.messageSidebarContent.static && staticNode) return staticNode;
+    const node = plugin.messageSidebarContent.onRender(cpiData, await getPluginSettings(plugin.id));
+    if (plugin.messageSidebarContent.static) staticNode = node;
+    return node;
+  };
 }
 
 // ----------------------

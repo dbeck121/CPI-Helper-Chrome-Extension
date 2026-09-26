@@ -21,6 +21,7 @@ const FLOATING_TOOLBAR_ICONS = {
   expand: '<path d="M11 6l-6 6 6 6"/><path d="M19 6l-6 6 6 6"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
   refresh: '<path d="M20 11a8 8 0 0 0-14.9-3.5"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.9 3.5"/><path d="M20 20v-4h-4"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
 };
 
 // accesskey needs a modifier that depends on the platform: Control+Option on macOS, Alt elsewhere
@@ -103,8 +104,8 @@ function setFloatingToolbarExpanded(toolbar, expanded, persist = true) {
 // only in the compact variant, the wide one already shows labels and shortcuts
 function showFloatingToolbarTooltip(toolbar, target) {
   const tooltip = toolbar.querySelector(".cpiHelper_floatingToolbar_tooltip");
-  const menu = toolbar.querySelector(".cpiHelper_floatingToolbar_menu");
-  if (!tooltip || !menu.hidden || !target.dataset.tooltip || toolbar.classList.contains("cpiHelper_floatingToolbar_expanded")) {
+  const popoverOpen = [...toolbar.querySelectorAll(".cpiHelper_floatingToolbar_menu, .cpiHelper_floatingToolbar_panel")].some((popover) => !popover.hidden);
+  if (!tooltip || popoverOpen || !target.dataset.tooltip || toolbar.classList.contains("cpiHelper_floatingToolbar_expanded")) {
     hideFloatingToolbarTooltip(toolbar);
     return;
   }
@@ -240,6 +241,13 @@ async function createFloatingToolbar(artifactId) {
   menu.hidden = true;
   toolbar.appendChild(menu);
 
+  // holds whatever a plugin renders, so it is a panel and not a menu
+  const panel = document.createElement("div");
+  panel.className = "cpiHelper_floatingToolbar_panel";
+  panel.setAttribute("role", "dialog");
+  panel.hidden = true;
+  toolbar.appendChild(panel);
+
   const tooltip = document.createElement("div");
   tooltip.className = "cpiHelper_floatingToolbar_tooltip";
   tooltip.setAttribute("role", "tooltip");
@@ -286,7 +294,7 @@ async function createFloatingToolbar(artifactId) {
 }
 
 // title is the visible label of the wide variant and the tooltip of the compact one
-function createFloatingToolbarButton({ id, icon, title, accessKey }) {
+function createFloatingToolbarButton({ id, icon, iconNode, title, accessKey }) {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "cpiHelper_floatingToolbar_button";
@@ -296,7 +304,11 @@ function createFloatingToolbarButton({ id, icon, title, accessKey }) {
   if (accessKey) button.accessKey = accessKey;
   const iconSpan = document.createElement("span");
   iconSpan.className = "cpiHelper_floatingToolbar_buttonIcon";
-  iconSpan.innerHTML = floatingToolbarIcon(icon);
+  if (iconNode) {
+    iconSpan.appendChild(iconNode);
+  } else {
+    iconSpan.innerHTML = floatingToolbarIcon(icon);
+  }
   const label = document.createElement("span");
   label.className = "cpiHelper_floatingToolbar_label";
   label.textContent = title;
@@ -304,15 +316,32 @@ function createFloatingToolbarButton({ id, icon, title, accessKey }) {
   return button;
 }
 
-function addFloatingToolbarButton(toolbar, { id, icon, title, accessKey, onClick }) {
-  const button = createFloatingToolbarButton({ id, icon, title, accessKey });
+function appendFloatingToolbarItem(toolbar, item) {
+  toolbar.insertBefore(item, toolbar.querySelector(".cpiHelper_floatingToolbar_menu"));
+  return item;
+}
+
+// a line between two groups of buttons, with the name of the group in the wide variant
+function addFloatingToolbarSeparator(toolbar, label) {
+  const separator = document.createElement("div");
+  separator.className = "cpiHelper_floatingToolbar_separator";
+  separator.setAttribute("role", "separator");
+  if (label) {
+    const name = document.createElement("span");
+    name.textContent = label;
+    separator.appendChild(name);
+  }
+  return appendFloatingToolbarItem(toolbar, separator);
+}
+
+function addFloatingToolbarButton(toolbar, { id, icon, iconNode, title, accessKey, onClick }) {
+  const button = createFloatingToolbarButton({ id, icon, iconNode, title, accessKey });
   button.addEventListener("click", async (event) => {
     event.stopPropagation();
     closeFloatingToolbarMenu(toolbar);
     await onClick(button);
   });
-  toolbar.insertBefore(button, toolbar.querySelector(".cpiHelper_floatingToolbar_menu"));
-  return button;
+  return appendFloatingToolbarItem(toolbar, button);
 }
 
 // getItems runs on every open and returns [{ label, icon?, selected?, disabled?, onClick? }]
@@ -323,14 +352,52 @@ function addFloatingToolbarMenuButton(toolbar, { id, icon, title, getItems }) {
   button.addEventListener("click", async (event) => {
     event.stopPropagation();
     const menu = toolbar.querySelector(".cpiHelper_floatingToolbar_menu");
-    if (!menu.hidden && menu.dataset.owner === button.id) {
-      closeFloatingToolbarMenu(toolbar);
-      return;
-    }
+    const wasOpen = !menu.hidden && menu.dataset.owner === button.id;
+    // also closes an open plugin panel
+    closeFloatingToolbarMenu(toolbar);
+    if (wasOpen) return;
     await openFloatingToolbarMenu(toolbar, button, await getItems());
   });
-  toolbar.insertBefore(button, toolbar.querySelector(".cpiHelper_floatingToolbar_menu"));
-  return button;
+  return appendFloatingToolbarItem(toolbar, button);
+}
+
+// opens a panel beside the bar with the node render() returns. clicks inside the panel keep it open
+function addFloatingToolbarPanelButton(toolbar, { id, icon, iconNode, title, render }) {
+  const button = createFloatingToolbarButton({ id, icon, iconNode, title });
+  button.setAttribute("aria-haspopup", "dialog");
+  button.setAttribute("aria-expanded", "false");
+  button.addEventListener("click", async (event) => {
+    event.stopPropagation();
+    const panel = toolbar.querySelector(".cpiHelper_floatingToolbar_panel");
+    const wasOpen = !panel.hidden && panel.dataset.owner === button.id;
+    closeFloatingToolbarMenu(toolbar);
+    if (wasOpen) return;
+
+    const heading = document.createElement("div");
+    heading.className = "cpiHelper_floatingToolbar_panelTitle";
+    heading.textContent = title;
+    const body = document.createElement("div");
+    body.className = "cpiHelper_floatingToolbar_panelBody";
+    try {
+      const content = await render();
+      if (content instanceof Node) {
+        body.appendChild(content);
+      } else {
+        body.textContent = "Nothing to show here.";
+      }
+    } catch (error) {
+      log.error(`toolbar panel ${title} failed`, error);
+      body.textContent = "This could not be shown, see the browser console for details.";
+    }
+    panel.replaceChildren(heading, body);
+    panel.setAttribute("aria-label", title);
+    panel.dataset.owner = button.id;
+    hideFloatingToolbarTooltip(toolbar);
+    panel.hidden = false;
+    button.setAttribute("aria-expanded", "true");
+    positionFloatingToolbarPopover(toolbar, panel, button);
+  });
+  return appendFloatingToolbarItem(toolbar, button);
 }
 
 async function openFloatingToolbarMenu(toolbar, button, items) {
@@ -363,24 +430,33 @@ async function openFloatingToolbarMenu(toolbar, button, items) {
   hideFloatingToolbarTooltip(toolbar);
   menu.dataset.owner = button.id;
   menu.hidden = false;
-  toolbar.querySelectorAll("[aria-expanded]").forEach((b) => b.setAttribute("aria-expanded", String(b === button)));
+  toolbar.querySelectorAll("[aria-haspopup]").forEach((b) => b.setAttribute("aria-expanded", String(b === button)));
 
-  // open towards the middle of the screen, so a bar at the right edge opens its menu to the left
-  const toolbarRect = toolbar.getBoundingClientRect();
-  const openLeft = toolbarRect.left + toolbarRect.width / 2 > window.innerWidth / 2;
-  menu.classList.toggle("cpiHelper_floatingToolbar_menu_left", openLeft);
-  menu.style.top = button.offsetTop + "px";
-  // keep the menu inside the viewport vertically
-  const overflow = toolbarRect.top + button.offsetTop + menu.offsetHeight - window.innerHeight + 8;
-  if (overflow > 0) menu.style.top = Math.max(button.offsetTop - overflow, -toolbarRect.top + 8) + "px";
+  positionFloatingToolbarPopover(toolbar, menu, button);
   menu.querySelector(".cpiHelper_floatingToolbar_menuItem:not(:disabled)")?.focus();
 }
 
+// closes the menu and the plugin panel
 function closeFloatingToolbarMenu(toolbar) {
-  const menu = toolbar?.querySelector(".cpiHelper_floatingToolbar_menu");
-  if (!menu || menu.hidden) return;
-  menu.hidden = true;
-  toolbar.querySelectorAll("[aria-expanded]").forEach((b) => b.setAttribute("aria-expanded", "false"));
+  let closed = false;
+  for (const popover of toolbar?.querySelectorAll(".cpiHelper_floatingToolbar_menu, .cpiHelper_floatingToolbar_panel") || []) {
+    if (!popover.hidden) {
+      popover.hidden = true;
+      closed = true;
+    }
+  }
+  if (closed) toolbar.querySelectorAll("[aria-haspopup]").forEach((b) => b.setAttribute("aria-expanded", "false"));
+}
+
+// menu and panel open beside the bar, towards the middle of the screen, aligned with their button
+function positionFloatingToolbarPopover(toolbar, popover, button) {
+  const toolbarRect = toolbar.getBoundingClientRect();
+  const openLeft = toolbarRect.left + toolbarRect.width / 2 > window.innerWidth / 2;
+  popover.classList.toggle("cpiHelper_floatingToolbar_popover_left", openLeft);
+  popover.style.top = button.offsetTop + "px";
+  // keep it inside the viewport vertically
+  const overflow = toolbarRect.top + button.offsetTop + popover.offsetHeight - window.innerHeight + 8;
+  if (overflow > 0) popover.style.top = Math.max(button.offsetTop - overflow, -toolbarRect.top + 8) + "px";
 }
 
 function setFloatingToolbarButtonActive(id, active) {
