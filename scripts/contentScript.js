@@ -273,7 +273,7 @@ async function renderMessageSidebar(cache = true) {
 
           statusicon.onclick = async (e) => {
             if (e.currentTarget.classList.contains("cpiHelper_sidebar_iconbutton")) {
-              $(".ui.toast").toast("close");
+              cpihCloseToasts();
               e.currentTarget.classList.remove("cpiHelper_sidebar_iconbutton");
             } else {
               document.querySelectorAll(".cpiHelper_sidebar_iconbutton").forEach((i) => i.classList.remove("cpiHelper_sidebar_iconbutton"));
@@ -433,7 +433,7 @@ cpiData.functions.undeploy = undeploy;
 
 // inject breadcrumbs for package if missing
 function addBreadcrumbs() {
-  const crumbs = $('nav[id*="breadcrumbs"]').find("ol:first-child").find("li");
+  const crumbs = document.querySelectorAll('nav[id*="breadcrumbs"] ol:first-child li');
   if (crumbs) {
     if (crumbs.length == 1) {
       const regex = /(.+\/contentpackage\/)(.+?)\/.*/;
@@ -449,8 +449,8 @@ function addBreadcrumbs() {
         }
         packageName = regexMatch[2];
       }
-      const newLi = $(`<li class="sapMBreadcrumbsItem"><a href="${packageUrl}" tabindex="0" class="sapMLnk sapMLnkMaxWidth">${packageName}</a><span class="sapMBreadcrumbsSeparator">/</span></li>`);
-      crumbs.prepend(newLi);
+      const newLi = createElementFromHTML(`<li class="sapMBreadcrumbsItem"><a href="${packageUrl}" tabindex="0" class="sapMLnk sapMLnkMaxWidth">${packageName}</a><span class="sapMBreadcrumbsSeparator">/</span></li>`);
+      crumbs[0].prepend(newLi);
     }
   }
 }
@@ -1462,23 +1462,19 @@ async function popupTable(message) {
   return popupHTML;
 }
 function apireserror(message) {
-  $(".ui.toast").toast("close");
-  $.toast({
+  cpihCloseToasts();
+  cpihToast({
     message: "Please wait while we prepare...",
     position: "bottom right",
     showProgress: "bottom",
-    class: $("html").hasClass("sapUiTheme-sap_horizon_dark") ? " ch_dark " : "",
     onVisible: async () =>
       popupTable(message)
         .then((message) => {
-          $(".ui.toast").toast("close");
-          $.toast({
+          cpihCloseToasts();
+          cpihToast({
             closeIcon: true,
             showProgress: "top",
-            classProgress: "blue",
-            progressUp: true,
             position: "bottom right",
-            class: $("html").hasClass("sapUiTheme-sap_horizon_dark") ? " ch_dark " : "",
             displayTime: 5000,
             onRemove: () => {
               document.querySelectorAll(".cpiHelper_sidebar_iconbutton").forEach((i) => i.classList.remove("cpiHelper_sidebar_iconbutton"));
@@ -1881,8 +1877,8 @@ var cpiHelperHeartbeatInterval = setInterval(async function () {
     addBreadcrumbs();
   }
   // theme information synchronous storage
-  if (callChromeStoragePromise("CPIhelperThemeInfo") == $("html").hasClass("sapUiTheme-sap_horizon_dark")) {
-    await syncChromeStoragePromise("CPIhelperThemeInfo", $("html").hasClass("sapUiTheme-sap_horizon_dark"));
+  if (callChromeStoragePromise("CPIhelperThemeInfo") == cpihIsDark()) {
+    await syncChromeStoragePromise("CPIhelperThemeInfo", cpihIsDark());
   }
   log.debug("check for button bar");
   try {

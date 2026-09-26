@@ -39,31 +39,27 @@ function showRevertConfirmation(tenant, workspace, artifact, version, currentVer
 
   const modalContainer = document.querySelector("#cpihelperglobal") || document.body;
   modalContainer.appendChild(modal);
-  $(modal).find(".ui.checkbox").checkbox();
-  const $modal = $(modal);
   let returnToVersionHistory = false;
-  $modal.modal({
-    detachable: false,
-    blurring: true,
+  const modalSettings = {
     closable: true,
     onHidden: () => {
       modal.remove();
       if (returnToVersionHistory) {
-        $("#cpiHelper_semanticui_modal").modal("show");
+        cpihModal.show("#cpiHelper_semanticui_modal");
       }
     },
-  });
+  };
   modal.querySelector("[data-revert-cancel]").addEventListener("click", () => {
     returnToVersionHistory = true;
-    $modal.modal("hide");
+    cpihModal.hide(modal);
   });
   modal.querySelector("[data-revert-confirm]").addEventListener("click", async (event) => {
     const confirmButton = event.currentTarget;
     confirmButton.classList.add("loading", "disabled");
     await revertVersion(tenant, workspace, artifact, { ...version, semanticVersion: semanticVersionInput.value, comment: commentInput.value });
-    $modal.modal("hide");
+    cpihModal.hide(modal);
   });
-  $modal.modal("show");
+  cpihModal.show(modal, modalSettings);
 }
 
 async function revertVersion(tenant, workspace, artifact, version) {

@@ -45,11 +45,10 @@
         "/lib/ace/ace.js",
         "/lib/jszip/jszip.min.js",
         "/lib/xmlToJson/xmlToJson.js",
-        "/lib/jQuery/jquery.min.js",
-        "/lib/semanticui/semantic.min.js",
-        "/lib/semanticui/tablesort.js",
         "/lib/markdownit/markdown-it.min.js",
         "/lib/pako/pako_deflate.min.js",
+        "/common/ui-kit.js",
+        "/common/formatter.js",
         "/scripts/init.js",
         "/common/logging.js",
         "/common/tools.js",
@@ -91,8 +90,8 @@
         "/scripts/contentScript.js"
       ],
       "css": [
-        "/lib/semanticui/semantic.min.css",
-        "/lib/semanticui/semantic.dark.css",
+        "/css/icons.css",
+        "/css/ui.css",
         "/css/contentScript.css",
         "/css/darkoverwrite.css",
         "/css/plugin.css"
@@ -119,7 +118,7 @@
     {
       "resources": [
         "images/favicons/*.png",
-        "lib/semanticui/*",
+        "lib/icons/*",
         "images/*",
         "plugins/settingsPaneResizer-inject.js",
         "docs/LICENSE"

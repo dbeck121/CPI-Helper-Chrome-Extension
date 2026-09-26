@@ -252,15 +252,12 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
       closeText: "OK",
       iconInButton: "checkmark",
       callback: () => {
-        $("#cpiHelper_whatsnew_tabs .item").tab({
-          context: $("#cpiHelper_bigPopup_content_semanticui"),
-        });
         document.querySelector(".cpihelperWhatsNewShowChanges")?.addEventListener("click", (event) => {
           event.preventDefault();
-          $("#cpiHelper_whatsnew_tabs .item").tab("change tab", "changes");
+          cpihActivateTab(document.querySelector("#cpiHelper_bigPopup_content_semanticui"), "changes");
         });
         if (initialTab) {
-          $("#cpiHelper_whatsnew_tabs .item").tab("change tab", initialTab);
+          cpihActivateTab(document.querySelector("#cpiHelper_bigPopup_content_semanticui"), initialTab);
         }
         // the tour needs the toolbar, which only exists on artifact pages
         const tourButton = document.querySelector(".cpihelperWhatsNewTour");
@@ -268,34 +265,25 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
           tourButton?.remove();
         }
         tourButton?.addEventListener("click", () => {
-          $("#cpiHelper_semanticui_modal").modal("hide");
+          cpihModal.hide("#cpiHelper_semanticui_modal");
           startToolbarTour();
         });
-        $(".cpihelper83782").popup({
-          inline: true,
-          hoverable: true,
-          position: "bottom left",
-          delay: {
-            show: 300,
-            hide: 800,
-          },
-        });
-        $(".cpihelperFigafScreenshot").on("click", function () {
-          const overlay = $(`
-            <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-              <div style="max-width: 90vw; max-height: 90vh; overflow: auto; background: white; padding: 10px; border-radius: 5px;">
-                <img src="${FIGAF_VIBE_SCREENSHOT}" style="width: auto; height: auto; max-width: none;" />
+        cpihQsa(".cpihelperFigafScreenshot").forEach((screenshot) => {
+          screenshot.addEventListener("click", function () {
+            const overlay = createElementFromHTML(`
+              <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                <div style="max-width: 90vw; max-height: 90vh; overflow: auto; background: white; padding: 10px; border-radius: 5px;">
+                  <img src="${FIGAF_VIBE_SCREENSHOT}" style="width: auto; height: auto; max-width: none;" />
+                </div>
               </div>
-            </div>
-          `);
+            `);
 
-          overlay.on("click", function () {
-            $(this).fadeOut(300, function () {
-              $(this).remove();
+            overlay.addEventListener("click", function () {
+              cpihFadeOut(this, 300);
             });
-          });
 
-          $("body").append(overlay);
+            document.body.appendChild(overlay);
+          });
         });
       },
       onclose: async () => {
@@ -419,7 +407,7 @@ async function recrutingPopup(force = false) {
         await storageSetPromise(obj);
         log.log("recruting popup timestamp set to today + " + days + " days");
 
-        $("#cpiHelper_semanticui_modal").modal("hide");
+        cpihModal.hide("#cpiHelper_semanticui_modal");
       };
       return button;
     };
@@ -434,7 +422,7 @@ async function recrutingPopup(force = false) {
     nextStepButtion.onclick = async function () {
       statistic("recrutingPopup", "nextStep");
       window.open("https://kangoolutions.com/karriere/", "_blank");
-      $("#cpiHelper_semanticui_modal").modal("hide");
+      cpihModal.hide("#cpiHelper_semanticui_modal");
     };
 
     //create br

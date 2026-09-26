@@ -1,25 +1,24 @@
 /* GNU GPL v3 - https://github.com/dbeck121/CPI-Helper-Chrome-Extension */
 
-/* Font and icon font of the fomantic ui build in lib/semanticui, so the popup looks like the CPI Helper
-   dialogs in the page. Only the font files are shared - semantic.min.css itself is 2 MB and would be
-   parsed again on every open, so the few rules the popup needs are copied below instead. */
+/* Lato (lib/fonts) and the Font Awesome icon font (lib/icons, also used by css/icons.css in the page).
+   The few icon rules the popup needs are copied below. */
 @font-face {
   font-family: 'Lato';
-  src: url(/lib/semanticui/LatoLatin-Regular.woff2) format('woff2');
+  src: url(/lib/fonts/LatoLatin-Regular.woff2) format('woff2');
   font-weight: 400;
   font-display: block;
 }
 
 @font-face {
   font-family: 'Lato';
-  src: url(/lib/semanticui/LatoLatin-Bold.woff2) format('woff2');
+  src: url(/lib/fonts/LatoLatin-Bold.woff2) format('woff2');
   font-weight: 700;
   font-display: block;
 }
 
 @font-face {
   font-family: 'icons';
-  src: url(/lib/semanticui/icons.woff2) format('woff2');
+  src: url(/lib/icons/icons.woff2) format('woff2');
   font-display: block;
 }
 

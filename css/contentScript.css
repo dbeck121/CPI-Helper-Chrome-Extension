@@ -106,11 +106,6 @@ button.cpiHelper_sidebar_iconbutton span {
   outline: none;
 }
 
-div#cpiHelper_semanticui_modal {
-  position: absolute;
-  top: 10% !important;
-}
-
 #cpiHelper_sidebar_popup {
   position: fixed;
   z-index: 390;
@@ -490,19 +485,145 @@ div#cpiHelper_semanticui_modal {
   font-family: monospace;
   font-size: 1.2em;
   padding: 20px;
+}
+
+/* payload viewer (formatTrace in common/tools.js) */
+.cpiHelper_payload {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--sapFontFamily, '72', Arial, sans-serif);
+}
+
+.cpiHelper_payload_toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+.cpiHelper_payload_group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.cpiHelper_payload_toolbar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  margin: 0;
+  padding: 0 8px;
+  font: inherit;
+  font-size: 0.8125rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--sapButton_Lite_TextColor, #0064d9);
+  cursor: pointer;
+}
+
+.cpiHelper_payload_toolbar button:hover {
+  border: 0;
+  background: var(--sapButton_Lite_Hover_Background, rgba(0, 100, 217, 0.08));
+}
+
+.cpiHelper_payload_toolbar button:focus-visible {
+  outline: 2px solid var(--sapContent_FocusColor, #0070f2);
+  outline-offset: 1px;
+}
+
+.cpiHelper_payload_toolbar button[aria-pressed='true'] {
+  background: var(--sapButton_Lite_Active_Background, rgba(0, 100, 217, 0.16));
+}
+
+.cpiHelper_payload_toolbar button > .icon {
+  margin: 0;
+}
+
+.cpiHelper_payload_segmented {
+  padding: 2px;
+  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
+  border-radius: 8px;
+}
+
+.cpiHelper_payload_segmented button {
+  height: 24px;
+}
+
+.cpiHelper_payload_info {
+  margin-left: auto;
+  color: var(--sapContent_LabelColor, #556b82);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.cpiHelper_payload_toolbar .cpiHelper_payload_fullscreenButton {
+  font-size: 1rem;
+}
+
+.cpiHelper_payload_hint {
+  padding: 6px 10px;
+  font-size: 0.8125rem;
+  border-radius: 6px;
+  background: var(--sapInformationBackground, #e1f4ff);
+}
+
+.cpiHelper_payload_hint.warning {
+  background: var(--sapWarningBackground, #fff8d6);
+}
+
+.cpiHelper_payload_hint[hidden] {
   display: none;
 }
 
-.cpiHelper_traceText.cpiHelper_traceText_active {
-  display: block;
+.cpiHelper_payload_editor {
+  height: 55vh;
+  min-height: 120px;
+  width: 100%;
+  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
+  border-radius: 8px;
 }
 
-/* editor */
-.cpi_editor {
-  height: 50dvh;
-  min-height: 30vh;
-  width: 100%;
-  border-radius: 1rem;
+/* grab bar below the editor */
+.cpiHelper_payload_resize {
+  align-self: center;
+  width: 64px;
+  height: 10px;
+  margin-top: -2px;
+  border-radius: 5px;
+  background: radial-gradient(circle, currentColor 1.2px, transparent 1.6px) 0 50% / 6px 6px repeat-x;
+  color: var(--sapContent_LabelColor, #556b82);
+  opacity: 0.5;
+  cursor: ns-resize;
+  touch-action: none;
+}
+
+.cpiHelper_payload_resize:hover,
+.cpiHelper_payload_resizing .cpiHelper_payload_resize {
+  opacity: 1;
+}
+
+.cpiHelper_payload_resizing {
+  user-select: none;
+}
+
+.cpiHelper_payload_fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 2500;
+  padding: 8px 12px 12px;
+  background: var(--sapGroup_ContentBackground, #fff);
+}
+
+.cpiHelper_payload_fullscreen .cpiHelper_payload_editor {
+  flex: 1 1 auto;
+  height: auto !important;
+}
+
+.cpiHelper_payload_fullscreen .cpiHelper_payload_resize {
+  display: none;
 }
 
 .cpiHelper_powertrace {
@@ -616,31 +737,6 @@ div#cpiHelper_semanticui_modal {
 
 fieldset {
   margin-block: 0 !important;
-}
-
-.ui.modal.active > .header {
-  background: var(--cpi-custom-color);
-  color: var(--cpi-text-color);
-}
-
-.ui.selection.dropdown .menu > .item {
-  min-height: 0 !important;
-}
-
-.ui.modal > .content {
-  color: #000;
-}
-
-#cpihelperglobal .ui.modal > .close {
-  color: var(--cpi-text-color) !important;
-  opacity: 0.8;
-  right: 1rem;
-  top: 1rem;
-  z-index: 2;
-}
-
-#cpihelperglobal .ui.modal > .header {
-  padding-right: 3rem;
 }
 
 .version-revert-modal {
@@ -1183,6 +1279,14 @@ img.cpiHelper_floatingToolbar_pluginIcon {
 
 .cpiHelper_celebration_thanks {
   font-size: 0.875rem;
+}
+
+.cpiHelper_celebration_influence {
+  margin: 12px 0 0;
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  border-radius: 8px;
+  background: var(--sapInformationBackground, #e1f4ff);
 }
 
 .cpiHelper_celebration_card a {

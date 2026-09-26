@@ -84,13 +84,13 @@ function downloadLog() {
   }
 }
 
-function adjustLogLevelByTime(timeout = $("#timeout").val()) {
+function adjustLogLevelByTime(timeout = document.getElementById("timeout")?.value) {
   let defaultLogLevel = String(levelMap[log.level]);
   let timerId = null;
   if (timerId) {
     clearTimeout(timerId);
   } else {
-    log.level = $("#logLevel").val();
+    log.level = document.getElementById("logLevel")?.value;
     log.log(String(levelMap[log.level]) + " mode active " + timeout + " ms");
     showToast(String(levelMap[log.level]) + " is activated for " + timeout + " ms");
     if (log.level === ulog.levels.debug) {
@@ -100,28 +100,29 @@ function adjustLogLevelByTime(timeout = $("#timeout").val()) {
       log.level = defaultLogLevel;
       showToast(String(levelMap[log.level]) + " Switched Back.");
       timerId = null;
-      $("#logLevel").dropdown("set selected", defaultLogLevel);
+      const logLevelSelect = document.getElementById("logLevel");
+      if (logLevelSelect) logLevelSelect.value = defaultLogLevel;
     }, parseInt(timeout) * 1000);
   }
 }
 
 //default set:
 async function defaultdebug() {
-  $("#logLevel").dropdown("set selected", String(levelMap[log.level]));
-  $("#timeout").dropdown("set selected", "60");
-  $(document).ready(function () {
-    $("#downloadButton").on("click", (e) => {
+  const logLevelSelect = document.getElementById("logLevel");
+  const timeoutSelect = document.getElementById("timeout");
+  if (logLevelSelect) logLevelSelect.value = String(levelMap[log.level]);
+  if (timeoutSelect) timeoutSelect.value = "60";
+  document.getElementById("downloadButton")?.addEventListener("click", (e) => {
+    downloadLog();
+    log.log("clear logs after download");
+  });
+  document.getElementById("debug-form")?.addEventListener("submit", (event) => {
+    timeout = parseInt(document.getElementById("timeout")?.value);
+    log.debug(`timeout is ${timeout}`);
+    event.preventDefault();
+    adjustLogLevelByTime();
+    setTimeout(() => {
       downloadLog();
-      log.log("clear logs after download");
-    });
-    $("#debug-form").on("submit", (event) => {
-      timeout = parseInt($("#timeout").val());
-      log.debug(`timeout is ${timeout}`);
-      event.preventDefault();
-      adjustLogLevelByTime();
-      setTimeout(() => {
-        downloadLog();
-      }, timeout * 1000);
-    });
+    }, timeout * 1000);
   });
 }
