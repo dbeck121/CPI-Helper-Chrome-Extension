@@ -47,4 +47,20 @@ test.describe("API artifact", () => {
     await page.keyboard.press("Escape");
     expect(extensionErrors).toEqual([]);
   });
+
+  test("inline trace on the Policies tab", async ({ page, extensionErrors }) => {
+    if (!(await page.locator("#cpiHelper_content").isVisible())) await page.locator("#__buttonxy").click();
+    const inline = page.locator("#cpiHelper_content button#inlinetrace--0");
+    const traced = await inline.waitFor({ timeout: 30_000 }).then(() => true, () => false);
+    test.skip(!traced, "no traced message for this API, send one with trace on");
+    // on the overview there is no diagram: a hint instead of silence
+    await inline.dispatchEvent("mouseup");
+    await expect(page.locator(".cpiHelper_toast_container .ui.toast", { hasText: "No diagram on this page" })).toBeVisible({ timeout: 30_000 });
+    await inline.dispatchEvent("mouseup");
+    await page.getByText("Policies", { exact: true }).first().click();
+    await expect(page.locator("[id^='BPMNShape_']").first()).toBeAttached({ timeout: 30_000 });
+    await inline.dispatchEvent("mouseup");
+    await expect(page.locator(".cpiHelper_inlineInfo").first()).toBeAttached({ timeout: 30_000 });
+    expect(extensionErrors).toEqual([]);
+  });
 });

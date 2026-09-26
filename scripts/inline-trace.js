@@ -404,6 +404,10 @@ async function showInlineTrace(MessageGuid, checked = false) {
     }
 
     inlineTraceElements.forEach((run) => markInlineTraceRun(run, ctx));
+    // e.g. the overview of an API: the steps are there, the diagram is on another tab
+    if (!document.querySelector(".cpiHelper_inlineInfo")) {
+      showToast("Open the tab with the process diagram (for APIs: Policies) and activate the inline trace again.", "No diagram on this page", "warning");
+    }
     return resolve(true);
   });
 }

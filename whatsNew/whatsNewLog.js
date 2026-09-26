@@ -23,10 +23,11 @@ const whats_new_log = `
 - [Improvement] New trace icon in the toolbar. With more than one runtime the runtime button shows how many there are to switch to.
 - [Improvement] Cleaner log viewer: filters with labels, a Refresh button and a flat message list grouped by day.
 - [Improvement] The message sidebar opens next to the toolbar instead of below it, where the toolbar covered the message buttons.
+- [Improvement] Inline trace on a page without diagram (e.g. the overview of an API) says where to find it instead of doing nothing. For APIs it works on the Policies tab.
 - [Fix] Pretty print of XML no longer inserts Chrome's XSLT deprecation notice into the payload.
 - [Fix] CPI Helper starts on the first load after the login redirect, also when the tenant opens on its start page.
 - [Fix] The setting to switch off the automatic refresh of the message sidebar works again.
-- [Fix] The runtime picker marks the runtime where the iFlow is deployed again.
+- [Fix] APIs and iFlows on the integration cell show their deploy state again, and the runtime picker marks where they are deployed.
 - [Fix] Names and values from traces are escaped before they are shown.
 - [Fix] The CPI Helper button in the new shell header opens on the first click and no longer disappears. Thanks to Alexander Aigner.
 - [Fix] The CPI Helper popup no longer opens empty the first time. Thanks to Alexander Aigner.
