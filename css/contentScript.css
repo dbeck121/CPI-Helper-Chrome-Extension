@@ -1123,3 +1123,295 @@ img.cpiHelper_floatingToolbar_pluginIcon {
 .cpiHelper_floatingToolbar_panelBody .ui.button:hover {
   background: var(--sapButton_Hover_Background, #eaecee) !important;
 }
+
+/* 4.0 welcome (scripts/celebration.js) */
+#cpiHelper_celebration {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(20, 28, 38, 0.45);
+  font-family: var(--sapFontFamily, '72', Arial, sans-serif);
+  animation: cpiHelper_floatingToolbar_fadein 200ms ease-out;
+}
+
+.cpiHelper_celebration_card {
+  position: relative;
+  width: min(460px, 100%);
+  padding: 28px 28px 22px;
+  border-radius: 14px;
+  background: var(--sapGroup_ContentBackground, #fff);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+  color: var(--sapTextColor, #1d2d3e);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  text-align: center;
+  animation: cpiHelper_celebration_pop 320ms cubic-bezier(0.2, 0.9, 0.3, 1.3);
+}
+
+.cpiHelper_celebration_card h2 {
+  margin: 6px 0 2px;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.cpiHelper_celebration_card p {
+  margin: 8px 0;
+}
+
+.cpiHelper_celebration_badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--cpi-custom-color, #0a6ed1);
+  color: var(--cpi-text-color, #fff);
+  font-size: 1.4rem;
+  font-weight: 700;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--cpi-custom-color, #0a6ed1) 25%, transparent);
+}
+
+.cpiHelper_celebration_lead {
+  color: var(--sapContent_LabelColor, #556b82);
+  font-weight: 600;
+}
+
+.cpiHelper_celebration_thanks {
+  font-size: 0.875rem;
+}
+
+.cpiHelper_celebration_card a {
+  color: var(--sapLinkColor, #0064d9);
+}
+
+.cpiHelper_celebration_sponsor {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0 4px;
+  padding: 6px 12px;
+  border: 1px solid var(--sapGroup_ContentBorderColor, #e5e5e5);
+  border-radius: 8px;
+  color: var(--sapContent_LabelColor, #556b82) !important;
+  font-size: 0.8125rem;
+  text-decoration: none;
+}
+
+.cpiHelper_celebration_sponsor img {
+  height: 22px;
+  width: auto;
+}
+
+.cpiHelper_celebration_actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.cpiHelper_celebration_actions button,
+.cpiHelper_tour_actions button {
+  padding: 7px 16px;
+  border: 1px solid var(--sapButton_BorderColor, #bcc3ca);
+  border-radius: 8px;
+  background: var(--sapButton_Background, #fff);
+  color: var(--sapButton_TextColor, #0064d9);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.cpiHelper_celebration_actions button:hover,
+.cpiHelper_tour_actions button:hover {
+  background: var(--sapButton_Hover_Background, #eaecee);
+}
+
+button.cpiHelper_celebration_primary,
+button.cpiHelper_tour_next {
+  border-color: var(--sapButton_Emphasized_BorderColor, #0064d9);
+  background: var(--sapButton_Emphasized_Background, #0064d9);
+  color: var(--sapButton_Emphasized_TextColor, #fff);
+  font-weight: 600;
+}
+
+button.cpiHelper_celebration_primary:hover,
+button.cpiHelper_tour_next:hover {
+  background: var(--sapButton_Emphasized_Hover_Background, #0054b6);
+}
+
+.cpiHelper_celebration_close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: inline-flex;
+  padding: 4px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--sapContent_IconColor, #556b82);
+  cursor: pointer;
+}
+
+.cpiHelper_celebration_close:hover {
+  background: rgba(127, 127, 127, 0.15);
+}
+
+.cpiHelper_celebration_card button:focus-visible,
+.cpiHelper_tour_card button:focus-visible {
+  outline: 2px solid var(--sapContent_FocusColor, #0070f2);
+  outline-offset: 2px;
+}
+
+@keyframes cpiHelper_celebration_pop {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.cpiHelper_confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.cpiHelper_confetti > span {
+  position: absolute;
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.cpiHelper_confetti_fall {
+  top: -16px;
+  animation: cpiHelper_confetti_fall 2.4s cubic-bezier(0.3, 0.6, 0.6, 1) forwards;
+}
+
+@keyframes cpiHelper_confetti_fall {
+  to {
+    transform: translate(var(--drift), 105vh) rotate(var(--spin));
+    opacity: 0.2;
+  }
+}
+
+.cpiHelper_confetti_burst {
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 50% !important;
+  animation: cpiHelper_confetti_burst 900ms ease-out forwards;
+}
+
+@keyframes cpiHelper_confetti_burst {
+  to {
+    transform: translate(var(--dx), var(--dy)) scale(0.6);
+    opacity: 0;
+  }
+}
+
+/* toolbar tour: the spotlight's shadow darkens the page and leaves a hole around the target */
+#cpiHelper_tour {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  font-family: var(--sapFontFamily, '72', Arial, sans-serif);
+}
+
+.cpiHelper_tour_spotlight {
+  position: fixed;
+  border-radius: 12px;
+  box-shadow: 0 0 0 100vmax rgba(20, 28, 38, 0.5);
+  pointer-events: none;
+  transition: all 250ms ease;
+}
+
+.cpiHelper_tour_spotlight.cpiHelper_tour_pulse {
+  animation: cpiHelper_tour_pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes cpiHelper_tour_pulse {
+  50% {
+    outline: 3px solid color-mix(in srgb, var(--sapContent_FocusColor, #0070f2) 70%, transparent);
+    outline-offset: 4px;
+  }
+}
+
+.cpiHelper_tour_card {
+  position: fixed;
+  width: 280px;
+  padding: 14px 16px 12px;
+  border-radius: 12px;
+  background: var(--sapGroup_ContentBackground, #fff);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.3);
+  color: var(--sapTextColor, #1d2d3e);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  transition:
+    left 250ms ease,
+    top 250ms ease;
+}
+
+.cpiHelper_tour_step {
+  color: var(--sapContent_LabelColor, #556b82);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cpiHelper_tour_card h3 {
+  margin: 4px 0 4px;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.cpiHelper_tour_card p {
+  margin: 0 0 12px;
+}
+
+.cpiHelper_tour_actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cpiHelper_tour_spacer {
+  flex: 1;
+}
+
+button.cpiHelper_tour_skip {
+  padding: 7px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--sapContent_LabelColor, #556b82);
+}
+
+button.cpiHelper_tour_skip:hover {
+  background: transparent;
+  text-decoration: underline;
+}
+
+.cpiHelper_tour_actions button[hidden] {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #cpiHelper_celebration,
+  .cpiHelper_celebration_card,
+  .cpiHelper_tour_spotlight,
+  .cpiHelper_tour_card {
+    animation: none !important;
+    transition: none !important;
+  }
+}

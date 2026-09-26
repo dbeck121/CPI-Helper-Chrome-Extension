@@ -4,6 +4,7 @@ const whats_new_log = `
 - [Plugin] New MPL Table Sorter plugin: sort the Monitor Message Processing table by one or more columns. Special thanks to Prem Sai Daggolu.
 - [Plugin] New Create named Groovy script plugin: create a Groovy resource with a name of your choice in the current iFlow. Special thanks to Björn Konzmann.
 - [Feature] New floating toolbar instead of the buttons in the page header: Trace, Messages, Info, Logs and Runtime in a toolbar you can drag anywhere. Wide with labels or compact with icons only, it remembers position and variant. In the compact variant hovering shows the name and the keyboard shortcut.
+- [Feature] Everyone updating from version 3 gets a short welcome and a tour of the new toolbar, once. It can be replayed from What changed.
 - [Feature] Plugins have their own section in the toolbar. Plugins with a single action run it directly, plugins with more content open it in a panel next to the toolbar. The plugin settings are under Manage plugins.
 - [Feature] Message popup in the style of the new toolbar, slightly translucent. The header keeps the tenant color.
 - [Feature] CPI Helper toolbar on the new API and MCP Server pages. They use the integration cell runtime by default.

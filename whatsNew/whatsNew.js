@@ -1,4 +1,4 @@
-async function whatsNewCheck(showOnlyOnce = true) {
+async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
   var manifestVersion = chrome.runtime.getManifest().version;
 
   //new version
@@ -14,6 +14,14 @@ async function whatsNewCheck(showOnlyOnce = true) {
     } else {
       version_text = `You updated to version ${manifestVersion} from ${last_version}. `;
     }
+  }
+
+  // 3.x -> 4.x: a one time welcome with a tour of the new toolbar (scripts/celebration.js) instead of this dialog.
+  // saved before it shows, the check runs again for every artifact that builds a toolbar
+  if (showOnlyOnce && isV4Upgrade(last_version, manifestVersion) && !(await storageGetPromise(CELEBRATION_STORAGE_KEY))) {
+    await storageSetPromise({ [CELEBRATION_STORAGE_KEY]: true, cpiHelper_Version: manifestVersion });
+    showV4Celebration();
+    return true;
   }
 
   silentupdates = ["3.0.3", "3.14.4"];
@@ -162,6 +170,7 @@ async function whatsNewCheck(showOnlyOnce = true) {
                 <li>Plugins are switched on and off under <b>Manage plugins</b>, the last entry of the section. The message popup shows messages only now, and the setting "Plugin page as separate sidebar" is gone.</li>
                 <li>Plugin developers: see <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension/blob/main/docs/readme/PluginREADME.md" target="_blank">toolbarButton and the new icon field</a> in the plugin documentation.</li>
             </ul>
+            <button type="button" class="ui primary button cpihelperWhatsNewTour"><i class="map signs icon"></i>Take the tour again</button>
         </div>
         <div class="ui bottom attached tab segment" data-tab="two">
             <h3 class="ui header">
@@ -249,6 +258,18 @@ async function whatsNewCheck(showOnlyOnce = true) {
         document.querySelector(".cpihelperWhatsNewShowChanges")?.addEventListener("click", (event) => {
           event.preventDefault();
           $("#cpiHelper_whatsnew_tabs .item").tab("change tab", "changes");
+        });
+        if (initialTab) {
+          $("#cpiHelper_whatsnew_tabs .item").tab("change tab", initialTab);
+        }
+        // the tour needs the toolbar, which only exists on artifact pages
+        const tourButton = document.querySelector(".cpihelperWhatsNewTour");
+        if (!getFloatingToolbar()) {
+          tourButton?.remove();
+        }
+        tourButton?.addEventListener("click", () => {
+          $("#cpiHelper_semanticui_modal").modal("hide");
+          startToolbarTour();
         });
         $(".cpihelper83782").popup({
           inline: true,
