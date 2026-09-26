@@ -1,4 +1,5 @@
 <!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../css/ui.css">
 <link rel="stylesheet" href="../../css/contentScript.css">
 <style>
   :root { --cpi-custom-color:#9cc3ee; --cpi-text-color:#000; --cpi-background-color:#fff; }
@@ -42,19 +43,26 @@ for (const p of pluginList) window.pluginStore[p.id+"---isActive"]=true;
 <script src="../../common/visit-history.js"></script><script src="../../common/jump-targets.js"></script><script src="../../common/palette-search.js"></script>
 <script src="../../scripts/floatingToolbar.js"></script><script src="../../scripts/plugins.js"></script>
 <script src="../../scripts/globalToolbar.js"></script><script src="../../scripts/commandPalette.js"></script>
+<script src="../../lib/ace/ace.min.js"></script><script src="../../lib/ace/ext-searchbox.js"></script><script src="../../lib/ace/theme-textmate.js"></script><script src="../../lib/ace/mode-xml.js"></script><script src="../../lib/ace/mode-json.js"></script><script src="../../lib/ace/ace.js"></script>
+<script src="../../common/ui-kit.js"></script><script src="../../common/formatter.js"></script><script src="../../common/tools.js"></script><script src="../../scripts/ui.js"></script>
+<script>
+// tools.js brings its own storage helpers, the scene keeps the demo stores
+callChromeStoragePromise = async (k) => (k === null ? window.pluginStore : window.pluginStore[k]);
+</script>
 <div class="shell">Integration Suite</div>
 <div class="head"><div class="crumbs">Design / Integrations and APIs / Demo_Package</div><div class="title">Order_Replication_Demo</div>
   <div class="actions"><button class="primary" title="Edit">Edit</button><button title="Configure">Configure</button><button title="Deploy">Deploy</button></div></div>
 <div class="canvas">
   <div class="lane"><span>Integration Process</span></div>
   <div class="ev" style="left:70px"></div><div class="line" style="left:106px;width:44px"></div>
-  <div class="step" style="left:150px">Content<br>Modifier</div><div class="line" style="left:264px;width:44px"></div>
-  <div class="step" style="left:308px">Groovy<br>Script</div><div class="line" style="left:422px;width:44px"></div>
-  <div class="step" style="left:466px">Request<br>Reply</div><div class="line" style="left:580px;width:44px"></div>
-  <div class="step" style="left:624px">Message<br>Mapping</div><div class="line" style="left:738px;width:44px"></div>
+  <div class="step" style="left:150px" data-step="0">Content<br>Modifier</div><div class="line" style="left:264px;width:44px"></div>
+  <div class="step" style="left:308px" data-step="1">Groovy<br>Script</div><div class="line" style="left:422px;width:44px"></div>
+  <div class="step" style="left:466px" data-step="2">Request<br>Reply</div><div class="line" style="left:580px;width:44px"></div>
+  <div class="step" style="left:624px" data-step="3">Message<br>Mapping</div><div class="line" style="left:738px;width:44px"></div>
   <div class="ev" style="left:782px;border-width:4px"></div>
 </div>
 <div id="popupHost"></div>
+<div class="ch_light" id="cpihelperglobal"><div class="cpiHelper ui modal" id="cpiHelper_semanticui_modal"></div><div class="cpiHelper ui modal" id="cpiHelper_waiting_model"></div></div>
 <script>
 const i = (n) => floatingToolbarIcon(n);
 const row = (ok, time) => `<tr><td><button class='cpiHelper_inlineInfo-button'><span style='color:${ok ? "#107e3e" : "#bb0000"}'>${ok ? "✓" : "✕"}</span><span style='color:${ok ? "#107e3e" : "#bb0000"};padding-inline-start:0.3em'>${time}</span></button></td>
@@ -91,5 +99,27 @@ window.build = async (expanded, traceActive) => {
   addFloatingToolbarButton(tb, { id: "__more_plugins", icon: "settings", title: "Manage plugins", onClick() {} });
   cpihFailedMessages.count = 3; applyFailedMessagesBadge();
   if (traceActive) setFloatingToolbarButtonActive("__buttonxx", true);
+};
+
+// inline trace: steps of the selected message colored like on the real diagram, the failed one red
+window.addInlineTrace = (failedStep = -1) => {
+  document.querySelectorAll("[data-step]").forEach((step) => {
+    const failed = +step.dataset.step === failedStep;
+    step.style.background = failed ? "#ff6b6b" : "#13af00"; step.style.borderColor = failed ? "#d04343" : "#0e8a00"; step.style.color = "#fff"; step.style.cursor = "pointer";
+  });
+  document.querySelectorAll(".ev").forEach((e) => (e.style.borderColor = "#13af00"));
+  document.querySelectorAll("#messageList .cpiHelper_inlineInfo-button")[failedStep >= 0 ? 2 : 0]?.classList.add("cpiHelper_inlineInfo-active");
+};
+const DEMO_BODY = `<?xml version="1.0" encoding="UTF-8"?><!-- replicated from S/4HANA --><SalesOrder><Header><OrderId>4711</OrderId><SoldTo>100042</SoldTo><OrderDate>2026-09-26</OrderDate><Currency>EUR</Currency><Note><![CDATA[Deliver <before> noon]]></Note></Header><Items><Item><Position>10</Position><Material>MAT-2001</Material><Quantity unit="PC">12</Quantity><NetPrice>149.90</NetPrice></Item><Item><Position>20</Position><Material>MAT-3107</Material><Quantity unit="PC">3</Quantity><NetPrice>1249.00</NetPrice></Item></Items></SalesOrder>`;
+const DEMO_PROPS = [["SAP_MessageProcessingLogID","AGbq3Z8x1f0A7Jk2mQ9sT4uV6wX"],["CamelHttpResponseCode","200"],["orderId","4711"],["targetSystem","ERP_PROD"],["SAP_ApplicationID","4711"]].map(([Name, Value]) => ({ Name, Value }));
+window.openTracePopup = async (tab = 2) => {
+  const objects = [
+    { label: "Properties", content: formatHeadersAndPropertiesToTable([...DEMO_PROPS]) },
+    { label: "Headers", content: formatHeadersAndPropertiesToTable([{ Name: "Content-Type", Value: "application/xml" }, { Name: "SapAuthenticatedUserName", Value: "sb-demo-client" }]) },
+    { label: "Body", content: formatTrace(DEMO_BODY, "demo_1", "7875") },
+    { label: "Log", content: "" }, { label: "Info", content: "" },
+    { label: 'Changes <span class="cpiHelper_experimental" title="Experimental, feedback welcome">experimental</span>', content: "" },
+  ];
+  await showBigPopup(await createTabHTML(objects, "tracetab-demo", tab), "Content Before Step", { fullscreen: true, callback: null }, 1, 4);
 };
 </script></body></html>
