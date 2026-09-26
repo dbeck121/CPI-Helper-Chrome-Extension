@@ -23,6 +23,7 @@ function syncChromeStoragePromise(keyName, value) {
     myobj = {};
     myobj[keyName] = value;
     await chrome.storage.sync.set(myobj);
+    if (typeof dropPluginStorageSnapshot === "function") dropPluginStorageSnapshot();
     resolve();
   });
 }
