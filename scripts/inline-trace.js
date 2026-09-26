@@ -170,21 +170,21 @@ async function clickTrace(e) {
     //https://p0349-tmn.hci.eu1.hana.ondemand.com/itspaces/odata/api/v1/MessageProcessingLogRunSteps(RunId='AF57ga2G45vKDTfn7zqO0zwJ9n93',ChildCount=17)/TraceMessages?$format=json
     // one tab set (Properties, Headers, Body, Log, Info) per execution of the step. a step behind a splitter can run
     // thousands of times: the tab sets are built only when a run is opened, with many runs a run picker replaces the tabs
-    const runTabs = (element, focusError = false) => {
+    const runTabs = (element) => {
       const objects = [
-        { label: "Properties", content: getTraceTabContent, active: !(focusError && element.Error), childCount: element.ChildCount, runId: element.RunId, traceType: "properties" },
+        { label: "Properties", content: getTraceTabContent, active: true, childCount: element.ChildCount, runId: element.RunId, traceType: "properties" },
         { label: "Headers", content: getTraceTabContent, active: false, childCount: element.ChildCount, runId: element.RunId, traceType: "headers" },
         { label: "Body", content: getTraceTabContent, active: false, childCount: element.ChildCount, runId: element.RunId, traceType: "trace" },
         { label: "Log", content: getTraceTabContent, active: false, childCount: element.ChildCount, runId: element.RunId, traceType: "logContent" },
         { label: "Info", content: getTraceTabContent, active: false, childCount: element.ChildCount, runId: element.RunId, traceType: "info" },
-        { label: "Changes", content: async () => createStepChanges(element), active: false },
+        { label: 'Changes <span class="cpiHelper_experimental" title="Experimental, feedback welcome">experimental</span>', content: async () => createStepChanges(element), active: false },
       ];
       if (element.Error) {
         let innerContent = document.createElement("div");
         innerContent.classList.add("cpiHelper_traceText");
         innerContent.innerText = element.Error;
         innerContent.style.display = "block";
-        objects.push({ label: "Error", content: innerContent, active: !!focusError });
+        objects.push({ label: "Error", content: innerContent, active: false });
       }
       return createTabHTML(objects, "tracetab-" + element.ChildCount);
     };
@@ -192,23 +192,19 @@ async function clickTrace(e) {
     async function loginformation() {
       // newest run first, like before
       const runsOfStep = [...targetElements].reverse();
-      // opened through "Show failing step": start with the failed run and its error tab
-      const focusError = inlineTraceFocusError;
-      inlineTraceFocusError = false;
-      const startIndex = focusError ? Math.max(runsOfStep.findIndex((run) => run.Error), 0) : 0;
       if (runsOfStep.length == 0) {
         showToast("No Trace Found", "", "warning");
         return;
       }
       if (runsOfStep.length == 1) {
-        return runTabs(runsOfStep[0], focusError);
+        return runTabs(runsOfStep[0]);
       }
       if (runsOfStep.length <= INLINE_TRACE_MAX_RUN_TABS) {
         // a function as content: createTabHTML loads it when the tab is opened, only the active one right away
-        const runs = runsOfStep.map((element, index) => ({ label: "" + element.BranchId, active: index === startIndex, content: async () => runTabs(element, focusError && index === startIndex) }));
-        return createTabHTML(runs, "runstab", startIndex);
+        const runs = runsOfStep.map((element, index) => ({ label: "" + element.BranchId, active: index === 0, content: async () => runTabs(element) }));
+        return createTabHTML(runs, "runstab", 0);
       }
-      return createRunPicker(runsOfStep, (element) => runTabs(element, focusError && element === runsOfStep[startIndex]), startIndex);
+      return createRunPicker(runsOfStep, runTabs);
     }
     let childindex = Array.from(document.querySelectorAll(".cpiHelper_onclick[inline_cpi_child]"), (e) => parseInt(e.getAttribute("inline_cpi_child"), 10)).sort((a, b) => a - b);
     childindex = childindex.indexOf(parseInt(e.target.parentNode.parentNode.getAttribute("inline_cpi_child")));
@@ -220,8 +216,6 @@ async function clickTrace(e) {
 async function hideInlineTrace() {
   activeInlineItem = null;
   inlineTraceGeneration++;
-  inlineTraceErrorToast?.close();
-  cpihQsa("title[data-cpih-error]").forEach((element) => element.remove());
   cpihQsa("[ch_inline_active]").forEach((element) => element.removeAttribute("ch_inline_active"));
   cpihQsa("[inline_cpi_child]").forEach((element) => element.removeAttribute("inline_cpi_child"));
 
@@ -346,7 +340,6 @@ function markInlineTraceRun(run, ctx) {
     }
     if (run.Error) {
       target.classList.add("cpiHelper_inlineInfo_error");
-      addInlineTraceErrorTitle(element, run.Error);
     }
     if (ctx.traceModifier && ctx.checked && cpi_timediff_list && cpi_max_node) {
       const maxOfStep = cpi_max_node.find((f) => f.ModelStepId === run.ModelStepId);
@@ -388,36 +381,6 @@ function markInlineTraceRun(run, ctx) {
   }
 }
 
-// native tooltip with the error message on a failed step
-function addInlineTraceErrorTitle(element, error) {
-  if (element.querySelector(":scope > title[data-cpih-error]")) return;
-  const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
-  title.setAttribute("data-cpih-error", "");
-  const text = String(error);
-  title.textContent = "Error: " + (text.length > 600 ? text.substring(0, 600) + "..." : text);
-  element.prepend(title);
-}
-
-// the popup opens the error tab of the failed run when it was opened through "Show failing step"
-var inlineTraceFocusError = false;
-var inlineTraceErrorToast = null;
-
-function offerInlineTraceErrorStep() {
-  if (inlineTraceErrorToast) return;
-  const failed = inlineTraceElements.find((run) => run.Error && resolveInlineTraceNode(run)?.clickable);
-  if (!failed) return;
-  const message = document.createElement("div");
-  message.innerHTML = '<div>A step of this message failed.</div><button type="button" class="ui mini negative button" style="margin-top:6px">Show failing step</button>';
-  message.querySelector("button").addEventListener("click", () => {
-    inlineTraceErrorToast?.close();
-    const element = resolveInlineTraceNode(failed)?.element;
-    if (!element) return;
-    inlineTraceFocusError = true;
-    element.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-  });
-  inlineTraceErrorToast = cpihToast({ message, type: "error", displayTime: 15000, closeIcon: true, position: "bottom right", onRemove: () => (inlineTraceErrorToast = null) });
-}
-
 async function showInlineTrace(MessageGuid, checked = false) {
   return new Promise(async (resolve, reject) => {
     inlineTraceGeneration++;
@@ -429,7 +392,6 @@ async function showInlineTrace(MessageGuid, checked = false) {
     const onMoreElements = (elements, loaded, total) => {
       if (generation !== inlineTraceGeneration) return;
       elements.forEach((run) => markInlineTraceRun(run, ctx));
-      if (elements.some((run) => run.Error)) offerInlineTraceErrorStep();
       const text = loaded >= total ? `All ${total.toLocaleString()} steps of this message loaded.` : `Loading steps: ${loaded.toLocaleString()} of ${total.toLocaleString()}`;
       if (!progress) progress = cpihToast({ message: text, displayTime: 0, position: "bottom right", showProgress: false });
       else progress.element.querySelector(".message").textContent = text;
@@ -442,7 +404,6 @@ async function showInlineTrace(MessageGuid, checked = false) {
     }
 
     inlineTraceElements.forEach((run) => markInlineTraceRun(run, ctx));
-    offerInlineTraceErrorStep();
     return resolve(true);
   });
 }
@@ -543,7 +504,7 @@ const INLINE_TRACE_MAX_RUN_TABS = 20;
 
 // picker for steps with many executions (e.g. after a splitter): select with every run plus previous / next,
 // only the selected run is loaded
-function createRunPicker(runs, renderRun, startIndex = 0) {
+function createRunPicker(runs, renderRun) {
   const container = document.createElement("div");
   container.className = "cpiHelper_runPicker";
   container.innerHTML = `
@@ -585,7 +546,7 @@ function createRunPicker(runs, renderRun, startIndex = 0) {
       if (next >= 0 && next < runs.length) show(next);
     })
   );
-  show(startIndex);
+  show(0);
   return container;
 }
 

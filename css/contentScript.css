@@ -349,6 +349,21 @@ button.cpiHelper_sidebar_iconbutton span {
   display: block;
 }
 
+/* small tag for experimental features, e.g. the Changes tab */
+.cpiHelper_experimental {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  vertical-align: middle;
+  color: var(--sapCriticalTextColor, #aa5300);
+  background: var(--sapWarningBackground, #fff8d6);
+}
+
 /* changes tab of the inline trace: side by side diff */
 .cpiHelper_changes_bar {
   display: flex;

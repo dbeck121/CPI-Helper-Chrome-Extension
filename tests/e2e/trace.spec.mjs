@@ -62,7 +62,7 @@ test("trace, deploy and inline trace with the payload viewer", async ({ page, ex
   await expect(viewer).not.toHaveClass(/cpiHelper_payload_fullscreen/);
   await expect(bigPopup(page)).toBeVisible();
   // what the step changed: side by side diff with the content before the next step
-  await page.locator("#cpiHelper_semanticui_modal label.cpiHelper_tabs_label", { hasText: /^Changes$/ }).filter({ visible: true }).first().click();
+  await page.locator("#cpiHelper_semanticui_modal label.cpiHelper_tabs_label", { hasText: /^Changes/ }).filter({ visible: true }).first().click();
   const changes = page.locator("#cpiHelper_semanticui_modal .cpiHelper_changes").filter({ visible: true }).first();
   await expect(changes).toBeVisible({ timeout: 60_000 });
   const lastStep = await changes.locator(".ui.info.message").isVisible().catch(() => false);

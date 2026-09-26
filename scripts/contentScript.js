@@ -1390,7 +1390,7 @@ function lookupError(message) {
 // in the background (onMorePages(runs, loaded, total) per page) until all are there or RUN_STEPS_MAX is reached.
 // isStale() lets the caller stop a background load that is no longer needed (e.g. another inline trace started)
 const RUN_STEPS_PAGE_SIZE = 1000;
-const RUN_STEPS_MAX = 20000;
+const RUN_STEPS_MAX = 5000;
 
 async function getRunStepsFirstPageSize() {
   // cpi_top_mode (browser popup) and the traceModifer plugin set the size of the first page, 0 means one full page

@@ -57,18 +57,24 @@ It is open source so feel free to check the source code.
 - [Feature] Rewritten browser action popup: faster, without jQuery and Semantic UI, and it can open the plugin settings of the current tab. Artifact names in the popup are now escaped. Special thanks to [Alexander Aigner](https://github.com/aaigi)
 - [Feature] The browser tab title shows a readable name of the current app. Thanks to [Alexander Aigner](https://github.com/aaigi)
 - [Feature] For plugin developers: toolbarButton for direct toolbar actions, an optional icon for toolbar entries and a select dropdown for plugin settings. Thanks to [Alexander Aigner](https://github.com/aaigi)
+- [Feature] New payload viewer for trace bodies, headers and attachments: pretty print that keeps CDATA, comments and big JSON numbers, search, fold, font size, wrap, fullscreen and a resizable editor that remembers its height. Updated the Ace editor to 1.44.
+- [Feature] Inline trace (experimental): new Changes tab shows side by side what a step did to body, headers and properties.
+- [Feature] Inline trace: all steps of a message load, the first ones right away and the rest in the background (up to 5,000 instead of a fixed limit of 300). Steps with many runs, e.g. after a splitter, load a run only when it is opened.
+- [Feature] Copy buttons on hover for names and values in trace, log and info tables.
 - [Improvement] The setting "Plugin page as separate sidebar" is gone, plugins live in the toolbar now.
 - [Improvement] Updated plugin metadata for Timeline, Unlock and Credential Helper. Thanks to [Gregor Schütz](https://github.com/DevGregor)
 - [Improvement] Version History highlights only the current version, Unlock refreshes the page after unlocking. Thanks to [Gregor Schütz](https://github.com/DevGregor)
 - [Improvement] jQuery and Fomantic UI are gone: own lightweight UI kit and stylesheet, about 3 MB less loaded into every CPI page. Dialogs and toasts take the look of the new toolbar and follow the light and dark CPI theme.
-- [Feature] New payload viewer for trace bodies, headers and attachments: pretty print that keeps CDATA, comments and big JSON numbers, search, fold, font size, wrap, fullscreen and a resizable editor that remembers its height. Updated the Ace editor to 1.44.
 - [Improvement] More robust plugins: one failing plugin no longer affects the others, and plugin settings are read far less often.
+- [Improvement] New trace icon in the toolbar. With more than one runtime the runtime button shows how many there are to switch to.
+- [Improvement] Cleaner log viewer: filters with labels, a Refresh button and a flat message list grouped by day.
+- [Improvement] The message sidebar opens next to the toolbar instead of below it, where the toolbar covered the message buttons.
 - [For plugin developers] Plugins can no longer use `$` or the Fomantic modules (`.modal`, `.tab`, `$.toast`, ...). See the UI helpers in the [plugin readme](/docs/readme/PluginREADME.md).
 - [Fix] Pretty print of XML no longer inserts Chrome's XSLT deprecation notice into the payload.
-- [Feature] Inline trace: new Changes tab shows side by side what a step did to body, headers and properties.
-- [Feature] Inline trace: all steps of a message load, the first ones right away and the rest in the background (no fixed limit of 300 anymore). Steps with many runs, e.g. after a splitter, load a run only when it is opened.
-- [Feature] Inline trace: hovering a failed step shows the error, "Show failing step" opens it on its error tab.
-- [Feature] Copy buttons on hover for names and values in trace, log and info tables.
+- [Fix] CPI Helper starts on the first load after the login redirect, also when the tenant opens on its start page.
+- [Fix] The setting to switch off the automatic refresh of the message sidebar works again.
+- [Fix] The runtime picker marks the runtime where the iFlow is deployed again.
+- [Fix] Names and values from traces are escaped before they are shown.
 - [Fix] The CPI Helper button in the new shell header opens on the first click and no longer disappears. Thanks to [Alexander Aigner](https://github.com/aaigi)
 - [Fix] The CPI Helper popup no longer opens empty the first time. Thanks to [Alexander Aigner](https://github.com/aaigi)
 - [Fix] CPI Helper stops cleanly after the extension was reloaded or updated instead of flooding the console. Thanks to [Alexander Aigner](https://github.com/aaigi)
