@@ -1,4 +1,17 @@
+// after the extension is reloaded or updated the old content script keeps running against a dead
+// context and every chrome.* call throws. checked before those calls so the loops stop instead of
+// filling the console with "Extension context invalidated". chromium leaves chrome.runtime.id
+// undefined in that state, other engines may throw on the access itself, so catch that too
+function extensionAlive() {
+  try {
+    return !!chrome.runtime?.id;
+  } catch (error) {
+    return false;
+  }
+}
+
 async function Themesync() {
+  if (!extensionAlive()) return;
   // const { darkmodeonstartup } = await chrome.storage.sync.get('darkmodeonstartup');
   const isDarkTheme = $("html").hasClass("sapUiTheme-sap_horizon_dark");
   $("#cpihelperglobal")
@@ -36,6 +49,10 @@ function createGlobalId(id = "cpihelperglobal") {
     const observer = new MutationObserver(async function (mutationsList) {
       for (const mutation of mutationsList) {
         if (mutation.type === "attributes" && mutation.attributeName === "class") {
+          if (!extensionAlive()) {
+            observer.disconnect();
+            return;
+          }
           toggleDarkMode();
           await Themesync();
         }
