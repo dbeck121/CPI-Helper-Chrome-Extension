@@ -1,11 +1,24 @@
 // changes the tenant only in memory: copies a step of CPI_IFLOW_URL, saves it as snippet, pastes it into
 // CPI_SNIPPETS_IFLOW_URL in edit mode and discards the edit. Runs only with E2E_ALLOW_EDIT=true
+import fs from "node:fs";
+import path from "node:path";
 import { test, expect, openIflow, bigPopup } from "./fixtures.mjs";
-import { env, requireEnv } from "./env.mjs";
+import { env, requireEnv, repoRoot } from "./env.mjs";
 
 test.skip(process.env.E2E_ALLOW_EDIT !== "true" || !env.snippetsIflowUrl, "set E2E_ALLOW_EDIT=true and CPI_SNIPPETS_IFLOW_URL in .env");
 
 const NAME = "e2e snippet " + Date.now();
+
+// the feature is off by default, it is switched on in the danger zone of the popup settings
+async function setSnippetsSetting(page, on) {
+  const id = fs.readFileSync(path.join(repoRoot, "test-results", ".extension-id"), "utf8").trim();
+  const popup = await page.context().newPage();
+  await popup.goto(`chrome-extension://${id}/popup/popup.html`);
+  await popup.locator('.tab-btn[data-tab="three"]').click();
+  await popup.locator(`#cpiHelper_experimental_snippets button[data-value="${on}"]`).click();
+  await expect(popup.locator(`#cpiHelper_experimental_snippets button[data-value="${on}"]`)).toHaveClass(/active/);
+  await popup.close();
+}
 
 async function openSnippets(page) {
   await page.locator("#__buttonsnippets").click();
@@ -16,17 +29,41 @@ test("copy a step, save it as snippet, paste it into another iFlow", async ({ pa
   test.setTimeout(5 * 60_000);
   await page.setViewportSize({ width: 1500, height: 950 });
 
+  // off: no button in the toolbar
+  await setSnippetsSetting(page, false);
+  await openIflow(page, requireEnv("CPI_IFLOW_URL", env.iflowUrl));
+  await expect(page.locator("#__buttonsnippets")).toHaveCount(0);
+  // switched on: the button appears without a reload
+  await setSnippetsSetting(page, true);
+  await expect(page.locator("#__buttonsnippets")).toBeVisible({ timeout: 10_000 });
+
   // copy the first activity of the source iFlow (view mode is enough for Copy)
   await openIflow(page, requireEnv("CPI_IFLOW_URL", env.iflowUrl));
-  const activity = page.locator("[id^='BPMNShape_CallActivity_']").first();
-  const box = await activity.boundingBox();
-  await page.evaluate(() => (document.getElementById("cpiHelper_floatingToolbar").style.visibility = "hidden"));
-  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
-  await page.evaluate(() => (document.getElementById("cpiHelper_floatingToolbar").style.visibility = "visible"));
+  // a step whose center is not covered by a CPI Helper toolbar or popup
+  const point = await page.evaluate(() => {
+    for (const shape of document.querySelectorAll("[id^='BPMNShape_CallActivity_']")) {
+      const r = shape.getBoundingClientRect();
+      const x = r.left + r.width / 2, y = r.top + r.height / 2;
+      const hit = document.elementFromPoint(x, y);
+      // the label of a step is drawn next to its shape group, so accept any diagram element that no CPI Helper element covers
+      if (x > 0 && y > 0 && x < innerWidth && y < innerHeight && hit && hit.closest("svg") && !hit.closest("#cpihelperglobal, [id^='cpiHelper_']")) return { x, y };
+    }
+    return null;
+  });
+  expect(point, "no free step to click in the source iFlow").not.toBeNull();
+  await page.mouse.click(point.x, point.y);
+  await expect(page.locator("[title='Copy']").first()).toBeEnabled();
   await page.locator("[title='Copy']").first().click();
 
-  // save it
+  // save it (and remove what an aborted run left behind)
   await openSnippets(page);
+  const leftovers = page.locator(".cpiHelper_snippets_item", { has: page.locator(".cpiHelper_snippets_title", { hasText: /^e2e snippet / }) });
+  for (let count = await leftovers.count(); count > 0; count--) {
+    await leftovers.first().locator('[data-action="delete"]').click();
+    await page.locator(".cpiHelper_confirm_modal .approve").click();
+    // the list renders again after each delete
+    await expect(leftovers).toHaveCount(count - 1);
+  }
   await expect(page.locator(".cpiHelper_snippets_clipboard .sub.header")).toContainText("1 element");
   await page.locator(".cpiHelper_snippets_name").fill(NAME);
   await page.locator('[data-action="capture"]').click();
@@ -72,5 +109,8 @@ test("copy a step, save it as snippet, paste it into another iFlow", async ({ pa
   }
   await expect(page.locator(".cpiHelper_snippets_title", { hasText: NAME })).toHaveCount(0);
   await expect(bigPopup(page)).toBeVisible();
+  await page.keyboard.press("Escape");
+  await setSnippetsSetting(page, false);
+  await expect(page.locator("#__buttonsnippets")).toHaveCount(0, { timeout: 10_000 });
   expect(extensionErrors).toEqual([]);
 });

@@ -5,6 +5,45 @@
 const SNIPPETS_STORAGE_KEY = "cpiHelper_snippets";
 const GALILEI_CLIPBOARD_KEY = "GalileiClipboard";
 const SNIPPET_EXPORT_FORMAT = "cpiHelperSnippet";
+// Snippets are off until the user switches them on in the settings (browser popup, danger zone)
+const SNIPPETS_SETTING_KEY = "cpiHelper_experimental_snippets";
+const SNIPPETS_PRIVACY_TEXT =
+  "A snippet contains the whole iFlow the steps were copied from (all steps with their configuration, addresses and names), not only the copied steps. Share it only with people who may see that iFlow.";
+
+async function snippetsEnabled() {
+  try {
+    return (await chrome.storage.sync.get(SNIPPETS_SETTING_KEY))[SNIPPETS_SETTING_KEY] === true;
+  } catch (error) {
+    return false;
+  }
+}
+
+// toolbar button after Messages, only while the feature is switched on
+function addSnippetsToolbarButton(toolbar) {
+  if (!toolbar || toolbar.querySelector("#__buttonsnippets")) return;
+  const button = addFloatingToolbarButton(toolbar, {
+    id: "__buttonsnippets",
+    icon: "snippets",
+    title: "Snippets",
+    onClick: () => {
+      statistic("headerbar_btn_snippets_click");
+      openSnippetsPopup();
+    },
+  });
+  const messages = toolbar.querySelector("#__buttonxy");
+  if (messages) messages.after(button);
+}
+
+try {
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== "sync" || !changes[SNIPPETS_SETTING_KEY]) return;
+    const toolbar = getFloatingToolbar();
+    if (changes[SNIPPETS_SETTING_KEY].newValue === true) addSnippetsToolbarButton(toolbar);
+    else toolbar?.querySelector("#__buttonsnippets")?.remove();
+  });
+} catch (error) {
+  log.debug("snippets setting listener not available", error);
+}
 
 async function loadSnippets() {
   try {
@@ -51,8 +90,11 @@ function snippetSteps(content) {
         const object = diagram?.contents?.[id];
         if (!object) return null;
         const store = object.customData?.copyProperties?.propertyStoreElement;
-        const type = store?.activityType || String(object.classDefinition || "").split(".").pop();
-        return { id, name: object.name || object.displayName || object.id, type };
+        const className = String(object.classDefinition || "").split(".").pop();
+        const type = store?.activityType || className;
+        // timer and start message cannot go into a local integration process
+        const isStart = /StartEvent/i.test(className) || /^Start/i.test(String(store?.activityType || ""));
+        return { id, name: object.name || object.displayName || object.id, type, isStart };
       })
       .filter(Boolean);
   } catch (error) {
@@ -148,7 +190,8 @@ function snippetStepsText(content) {
   const steps = snippetSteps(content);
   if (!steps.length) return "no steps";
   const names = steps.slice(0, 4).map((step) => `${step.name}${step.type ? ` (${step.type})` : ""}`);
-  return `${steps.length} ${steps.length === 1 ? "element" : "elements"}: ${names.join(", ")}${steps.length > 4 ? ", ..." : ""}`;
+  const start = steps.some((step) => step.isStart) ? " · contains a start element: Integration Process only" : "";
+  return `${steps.length} ${steps.length === 1 ? "element" : "elements"}: ${names.join(", ")}${steps.length > 4 ? ", ..." : ""}${start}`;
 }
 
 async function renderSnippetList(container, filter = "") {
@@ -157,6 +200,19 @@ async function renderSnippetList(container, filter = "") {
   const alreadySaved = clipboard && snippets.some((snippet) => snippet.content?.diagramContent === clipboard.diagramContent);
 
   container.innerHTML = `
+    <div class="ui negative icon message cpiHelper_snippets_danger">
+      <i class="exclamation triangle icon"></i>
+      <div class="content">
+        <div class="header">Extremely experimental: danger zone</div>
+        <p>Snippets use internals of the SAP iFlow editor. A lot will not work, and SAP can change the editor at any time. Check the iFlow carefully before you save, and if anything looks wrong, cancel the edit without saving.</p>
+        <ul class="list">
+          <li>Paste only works in edit mode into a selected <b>Integration Process</b> or <b>Local Integration Process</b>.</li>
+          <li>Snippets with start elements (e.g. <b>Timer</b> or <b>Start Message</b>) can only go into an Integration Process, not into a Local Integration Process.</li>
+          <li>The editor copies no connections and no senders or receivers.</li>
+          <li><b>Privacy, especially when sharing:</b> ${SNIPPETS_PRIVACY_TEXT}</li>
+        </ul>
+      </div>
+    </div>
     <div class="ui segment cpiHelper_snippets_clipboard">
       <div class="cpiHelper_snippets_clipboardHead">
         <h4 class="ui header"><i class="copy outline icon"></i><div class="content">CPI clipboard <span class="cpiHelper_experimental" title="Uses internals of the SAP iFlow editor, feedback welcome">experimental</span><div class="sub header"></div></div></h4>
@@ -165,7 +221,7 @@ async function renderSnippetList(container, filter = "") {
           <button type="button" class="ui primary small button" data-action="capture"><i class="save icon"></i>Save as snippet</button>
         </div>
       </div>
-      <p class="cpiHelper_snippets_hint">Copy steps in the iFlow editor (select, Shift+click for more, then Copy) and save them here. <b>Use</b> puts a snippet back into the CPI clipboard: select the Integration Process in edit mode and press Paste. The editor copies steps with their configuration, but no connections and no sender or receiver.</p>
+      <p class="cpiHelper_snippets_hint">Copy steps in the iFlow editor (select, Shift+click for more, then Copy) and save them here. <b>Use</b> puts a snippet back into the CPI clipboard: select the Integration Process or Local Integration Process in edit mode and press Paste.</p>
     </div>
     <div class="cpiHelper_snippets_bar">
       <div class="ui icon input small"><input type="text" class="cpiHelper_snippets_filter" placeholder="Search snippets" aria-label="Search snippets"><i class="search icon"></i></div>
@@ -251,10 +307,17 @@ async function renderSnippetList(container, filter = "") {
       }
       case "use": {
         const bridge = await putSnippetIntoCpiClipboard(snippet);
-        showToast(bridge ? "Select the Integration Process in edit mode and press Paste." : "Written to the CPI clipboard. If Paste inserts something else, reload the editor.", `"${snippet.name}" is in the CPI clipboard`, "success");
+        const hasStart = snippetSteps(snippet.content).some((step) => step.isStart);
+        const target = hasStart ? "the Integration Process (not a Local Integration Process, the snippet contains a start element)" : "the Integration Process or Local Integration Process";
+        showToast(
+          bridge ? `Select ${target} in edit mode and press Paste. Experimental: check the iFlow before you save.` : "Written to the CPI clipboard. If Paste inserts something else, reload the editor.",
+          `"${snippet.name}" is in the CPI clipboard`,
+          hasStart ? "warning" : "success"
+        );
         return renderSnippetList(container, filterInput.value);
       }
       case "export":
+        if (!(await cpihConfirm({ title: "Share this snippet?", content: `<p>${SNIPPETS_PRIVACY_TEXT}</p>`, approveText: "Copy as text", denyText: "Cancel" }))) return;
         await navigator.clipboard.writeText(snippetExportText(snippet));
         return showToast("Paste it anywhere to share it. Others add it with Import.", "Snippet copied as text", "success");
       case "duplicate": {

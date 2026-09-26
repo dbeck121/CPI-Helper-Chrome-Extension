@@ -944,3 +944,22 @@ i.icon.list::before {
 i.icon.chart.area::before {
   content: '\f1fe';
 }
+
+/* settings: danger zone for extremely experimental features */
+.danger-zone {
+  padding: 10px 12px;
+  border: 1px solid #e0a3a3;
+  border-left: 4px solid #d04343;
+  border-radius: 8px;
+  background: rgba(208, 67, 67, 0.06);
+}
+
+.danger-zone > p {
+  margin: 0 0 8px;
+  font-size: 12px;
+}
+
+.danger-zone .hint {
+  margin: 8px 0 0;
+  color: var(--text-dim);
+}

@@ -553,15 +553,8 @@ async function buildFloatingToolbar() {
       },
     });
 
-    addFloatingToolbarButton(toolbar, {
-      id: "__buttonsnippets",
-      icon: "snippets",
-      title: "Snippets",
-      onClick: () => {
-        statistic("headerbar_btn_snippets_click");
-        openSnippetsPopup();
-      },
-    });
+    // extremely experimental, switched on in the settings of the browser popup
+    if (await snippetsEnabled()) addSnippetsToolbarButton(toolbar);
 
     addFloatingToolbarButton(toolbar, {
       id: "__buttoninfo",

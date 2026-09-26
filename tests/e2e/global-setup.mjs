@@ -1,7 +1,9 @@
 // the e2e browser keeps the extension it loaded at start. reload it before every run, so the tests see the
 // current files of the repo. tabs opened afterwards get the new content scripts
 import { chromium } from "@playwright/test";
-import { env } from "./env.mjs";
+import fs from "node:fs";
+import path from "node:path";
+import { env, repoRoot } from "./env.mjs";
 
 export default async function globalSetup() {
   let browser;
@@ -24,9 +26,14 @@ export default async function globalSetup() {
       const reload = item?.shadowRoot.querySelector("#dev-reload-button");
       if (!reload) return false;
       reload.click();
-      return true;
+      return item.id;
     });
     if (!reloaded) console.warn("CPI Helper could not be reloaded, the tests may run against an older state");
+    // tests that open extension pages (e.g. the popup settings) need the id
+    else {
+      fs.mkdirSync(path.join(repoRoot, "test-results"), { recursive: true });
+      fs.writeFileSync(path.join(repoRoot, "test-results", ".extension-id"), reloaded);
+    }
     await page.waitForTimeout(1500);
   } finally {
     await page.close();

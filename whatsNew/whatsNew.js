@@ -181,10 +181,12 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
                 <li>Steps that ran many times, e.g. after a splitter, open fast: a run loads only when you open it.</li>
                 <li>Hover a name or value in the trace, log and info tables to <b>copy</b> it.</li>
             </ul>
-            <h4 class="ui header">Snippets (experimental)</h4>
+            <h4 class="ui header">Snippets (extremely experimental)</h4>
+            <div class="ui negative message">Danger zone: Snippets use internals of the SAP iFlow editor and a lot will not work. Check your iFlow before you save, and cancel the edit if anything looks wrong.</div>
             <ul class="ui list">
                 <li>Copy steps in the iFlow editor, open <b>Snippets</b> in the toolbar and save them under a name.</li>
-                <li><b>Use</b> puts a snippet back into the CPI clipboard: select the Integration Process in edit mode and press Paste, also in another iFlow.</li>
+                <li><b>Use</b> puts a snippet back into the CPI clipboard: select the Integration Process or Local Integration Process in edit mode and press Paste, also in another iFlow.</li>
+                <li>Snippets with start elements such as <b>Timer</b> or <b>Start Message</b> only go into an Integration Process, not into a Local Integration Process.</li>
                 <li>Rename the steps of a snippet, duplicate it, or share it with <b>Copy as text</b> and <b>Import</b>. Connections, senders and receivers are not copied by the editor.</li>
             </ul>
             <button type="button" class="ui primary button cpihelperWhatsNewTour"><i class="map signs icon"></i>Take the tour again</button>

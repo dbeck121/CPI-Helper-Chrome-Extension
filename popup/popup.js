@@ -474,6 +474,15 @@ function renderSettings(state) {
       ${segmented("cpi_tab_click_mode", "Switch tabs on", "Hover", "Click", localStorage.getItem("cpi_tab_click_mode") !== "true")}
     </div>
 
+    ${groupTitle("alert", "Danger zone: extremely experimental features")}
+    <div class="danger-zone">
+      <p>These features use internals of SAP Cloud Integration. A lot will not work and SAP can break them at any time. Use them only if you know what you are doing and check your iFlow before you save.</p>
+      <div class="settings">
+        ${segmented("cpiHelper_experimental_snippets", "Snippets in the iFlow editor", "On", "Off", !!state.experimentalSnippets)}
+      </div>
+      <p class="hint"><b>Snippets:</b> save copied steps under a name and paste them again, also in other iFlows. Only into an Integration Process or Local Integration Process, steps with Timer or Start Message only into an Integration Process. <b>Privacy, especially when sharing:</b> a snippet always contains the whole iFlow the steps were copied from.</p>
+    </div>
+
     <details class="help" id="cpi_help_mode" ${helpOpen ? "open" : ""}>
       <summary>Need more help / details?</summary>
       <div class="help-body">
@@ -548,6 +557,7 @@ function wireSettings(state) {
     renderLastVisited(state.visitedIflows, value);
   });
   wireSegmented("#cpi_tab_click_mode", (hover) => localStorage.setItem("cpi_tab_click_mode", String(!hover)));
+  wireSegmented("#cpiHelper_experimental_snippets", (value) => chrome.storage.sync.set({ cpiHelper_experimental_snippets: value }));
 
   wireTenantSettings(state);
 
@@ -759,7 +769,7 @@ async function main() {
   // one round trip each instead of a chain of nested callbacks - the popup is rebuilt on every open
   const visitedKey = tenant ? "visitedIflows_" + tenant : "__none__";
   const [sync, local, hostData] = await Promise.all([
-    chrome.storage.sync.get([visitedKey, "openMessageSidebarOnStartup", "autoRefreshMessageSidebar", "CPIhelperThemeInfo"]),
+    chrome.storage.sync.get([visitedKey, "openMessageSidebarOnStartup", "autoRefreshMessageSidebar", "CPIhelperThemeInfo", "cpiHelper_experimental_snippets"]),
     chrome.storage.local.get(["cpi_top_mode"]),
     askContentScript(activeTabId, "get"),
   ]);
@@ -770,6 +780,7 @@ async function main() {
     visitedIflows: sync[visitedKey],
     openMessageSidebarOnStartup: sync.openMessageSidebarOnStartup,
     autoRefreshMessageSidebar: sync.autoRefreshMessageSidebar ?? true,
+    experimentalSnippets: sync.cpiHelper_experimental_snippets === true,
     // no CPI page visited yet - fall back to the operating system preference
     isLightTheme: sync.CPIhelperThemeInfo === undefined ? !window.matchMedia("(prefers-color-scheme: dark)").matches : !!sync.CPIhelperThemeInfo,
     traceCount: local.cpi_top_mode ? local.cpi_top_mode : 300,
