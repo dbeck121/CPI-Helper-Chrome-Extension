@@ -68,7 +68,6 @@
         "/plugins/environmentTrafficLight.js",
         "/plugins/cpitransporter.js",
         "/plugins/figaf.js",
-        "/plugins/OpenAIServices.js",
         "/plugins/WHINT_IFD.js",
         "/plugins/settingsPaneResizer.js",
         "/plugins/timeline.js",
