@@ -1,6 +1,7 @@
 // state of the package view: id and type of the artifacts of the open package (the table only shows the name,
-// while the editor url needs the id), the runtime artifacts for the deploy status and the housekeeping of both calls
-var epvState = { packageKey: null, artifactsByName: {}, artifactsFetching: null, artifactsNextFetchAt: 0, runtimeByName: new Map(), runtimeRequested: new Set(), runtimeRunning: 0, runtimeFailedAt: 0 };
+// while the editor url needs the id), the runtime entries per name for the deploy status (null until read) and the
+// housekeeping of both calls
+var epvState = { packageKey: null, artifactsByName: {}, artifactsFetching: null, artifactsNextFetchAt: 0, runtimeByName: null, runtimeLoading: false, runtimeFailedAt: 0 };
 
 var plugin = {
   metadataVersion: "1.0.0",
@@ -15,7 +16,7 @@ var plugin = {
   settings: {
     icon: { type: "icon", src: "/images/plugin_logos/snapconsult-at.png" },
     info: {
-      text: "Every part can be switched on separately. Deploy status: the status is read per artifact from /api/1.0/deployedartifacts, once per artifact of the opened package and then kept until the package is left, the refresh button next to the search field refreshes it; the version column is colored too (green: the deployed version is the current one, orange: the deployed version is older, red: nothing is deployed) every runtime the artifact is deployed to gets its own status label (cloud icon: Cloud Integration, server icon: Edge Integration Cell), and the version and the labels show runtime, deployed version, date and user on hover. Open in a new tab: the icon next to the name opens the artifact in a new browser tab, a normal click on the row keeps navigating in the current tab; id and type of the artifacts are read from the workspace API in the background, so the icon appears as soon as the artifact is resolved. Copy the name: the copy icon copies the name of the artifact to the clipboard. Switching a part off removes its icons, the color of the version column stays until the page is reloaded.",
+      text: "Every part can be switched on separately. Deploy status: the status is read from the list of the Integration Content monitor, one call per runtime location when a package is opened, and then kept until the package is left, the refresh button next to the search field refreshes it; the version column is colored too (green: the deployed version is the current one, orange: the deployed version is older, red: nothing is deployed), every runtime the artifact is deployed to gets its own status label (cloud icon: Cloud Integration, server icon: Edge Integration Cell), and the version and the labels show runtime, deployed version, date and user on hover. Open in a new tab: the icon next to the name opens the artifact in a new browser tab, a normal click on the row keeps navigating in the current tab; id and type of the artifacts are read from the workspace API in the background, so the icon appears as soon as the artifact is resolved. Copy the name: the copy icon copies the name of the artifact to the clipboard. Switching a part off removes its icons, the color of the version column stays until the page is reloaded.",
       type: "label",
     },
     deployStatus: {
@@ -50,14 +51,10 @@ var plugin = {
       epvState.packageKey = key;
       epvState.artifactsByName = {};
       epvState.artifactsNextFetchAt = 0;
-      epvState.runtimeByName = new Map();
-      epvState.runtimeRequested = new Set();
-      // calls of the package left behind stop writing, so their share of the counter is dropped here
-      epvState.runtimeRunning = 0;
-      epvUpdateRefreshButton();
+      epvState.runtimeByName = null;
     }
 
-    // id and type of the artifacts are read in the background: the runtime call asks by id and the new tab icon needs the id for its url
+    // id and type of the artifacts are read in the background: the deploy status is matched by id and the new tab icon needs the id for its url
     if (deployStatus || openInNewTab) {
       epvEnsureArtifacts(pluginHelper.currentPackageId);
     }
@@ -67,11 +64,9 @@ var plugin = {
 
     if (deployStatus) {
       epvAddRefreshButton();
-      // the table loads its rows lazily while scrolling, so ask only for the names not asked for yet
-      var missing = epvNames(rows).filter((name) => !epvState.runtimeRequested.has(name));
-      // after a failed call wait a minute, otherwise a broken tenant is called every 3 seconds
-      if (missing.length > 0 && Date.now() - epvState.runtimeFailedAt > 60000) {
-        epvLoadRuntime(missing);
+      // read once per package, the refresh button reads again. after a failed call wait a minute
+      if (!epvState.runtimeByName && !epvState.runtimeLoading && Date.now() - epvState.runtimeFailedAt > 60000) {
+        epvLoadRuntime();
       }
     } else {
       epvRemove(".cpiHelper_epvDeployStatus, .cpiHelper_epvRefresh");
@@ -93,10 +88,6 @@ function epvRows() {
 
 function epvName(row) {
   return row.querySelector(".sapMObjectIdentifierTitle")?.textContent.trim();
-}
-
-function epvNames(rows = epvRows()) {
-  return [...new Set([...rows].map(epvName).filter(Boolean))];
 }
 
 function epvRemove(selector) {
@@ -229,28 +220,6 @@ async function epvFetchArtifacts(packageId) {
   log.info(`enhancedPackageView: ${Object.keys(artifactsByName).length} artifacts read for package ${packageId}`);
 }
 
-// the runtime API of the web ui answers for a single artifact, so only the artifacts of the open package are
-// asked for instead of pulling the runtime artifacts of the whole tenant (IntegrationRuntimeArtifacts does not
-// support $filter, so the OData way would always mean reading every deployed artifact of the tenant)
-function epvRuntimeUrl(artifact) {
-  return `/${cpiData.urlExtension}api/1.0/deployedartifacts?bundleType=${epvBundleTypes[artifact.type]}&id=${encodeURIComponent(artifact.id)}&artifactType=${artifact.type}`;
-}
-
-// artifact type of the workspace API -> bundle type of the runtime API. no status is asked for and no label is shown
-// for a type missing here: message mapping, and script collection, which is deployable but the runtime API does not
-// answer for it with "ScriptCollection" as bundle type and the web ui never asks it for one. the type comes from the
-// API, not from the type column, so a translated tenant works the same
-var epvBundleTypes = {
-  IFlow: "IntegrationFlow",
-  RestAPI: "IntegrationFlow",
-  SoapAPI: "IntegrationFlow",
-  ODataService: "IntegrationFlow",
-  ValueMapping: "ValueMapping",
-};
-
-// how many artifacts are asked for at the same time, a package can hold far more rows than the tenant likes to answer at once
-var epvRuntimeParallel = 4;
-
 var epvGreen = "#107e3e";
 var epvOrange = "#e9730c";
 var epvRed = "#bb0000";
@@ -275,98 +244,95 @@ var epvLabelStyles = {
   grey: { icon: "minus circle", background: "rgba(118, 118, 118, 0.1)" },
 };
 
-async function epvLoadRuntime(names, notify = false) {
-  // the runtime API asks by id while the table only shows the name, so the workspace call has to be done first
-  await epvEnsureArtifacts(cpiData.currentPackageId);
-
-  // mark before awaiting, otherwise the next heartbeat asks for the same names again. names without a resolved
-  // artifact stay unmarked on purpose, they are asked for again once the workspace call answered
-  var queue = names.filter((name) => !epvState.runtimeRequested.has(name) && epvBundleTypes[epvState.artifactsByName[name]?.type]);
-  queue.forEach((name) => epvState.runtimeRequested.add(name));
-
-  if (queue.length === 0) {
-    if (notify) {
-      showToast("No deployable artifact found in this package", "Deploy status", "info");
-    }
-    return;
-  }
-
-  epvState.runtimeRunning += queue.length;
+async function epvLoadRuntime(notify = false) {
+  epvState.runtimeLoading = true;
   epvUpdateRefreshButton();
-
   // answers of a package that was left in the meantime must not land in the state of the package now open
   var packageKey = epvState.packageKey;
 
-  var pending = queue.slice();
-  var failed = 0;
-
-  var worker = async () => {
-    var name;
-    while ((name = pending.shift())) {
-      var entry;
-      try {
-        entry = await epvFetchRuntime(name);
-      } catch (error) {
-        // a tenant answering html instead of json must not leave the plugin waiting for this call forever
-        log.warn(`enhancedPackageView: reading the deploy status of ${name} failed: ${error}`);
-      }
-
-      if (epvState.packageKey !== packageKey) {
-        return;
-      }
-
-      if (entry === undefined) {
-        // nothing was read, so this name must not stay marked as "asked for, nothing found"
-        epvState.runtimeRequested.delete(name);
-        epvState.runtimeFailedAt = Date.now();
-        failed++;
-      } else {
-        epvState.runtimeByName.set(name, entry);
-      }
-
-      epvState.runtimeRunning--;
-      epvUpdateRefreshButton();
-      // render on every answer, so the labels appear one by one instead of after the last call
-      for (var row of epvRows()) {
-        epvRenderDeployStatus(row);
-      }
+  try {
+    // the list is matched by id while the table only shows the name, so the workspace call has to be done first
+    await epvEnsureArtifacts(cpiData.currentPackageId);
+    if (Object.keys(epvState.artifactsByName).length === 0) {
+      throw "the artifacts of the package could not be resolved";
     }
-  };
 
-  await Promise.all(Array.from({ length: Math.min(epvRuntimeParallel, queue.length) }, worker));
+    // the refresh button has to see the current state, the load on opening a package may share the answer of the last minute
+    var deployed = await epvFetchDeployed(notify ? false : 60);
+    if (epvState.packageKey !== packageKey) {
+      return;
+    }
 
-  // only the manual refresh gets a toast, the fetch on opening a package stays silent
-  if (notify) {
-    var deployed = queue.filter((name) => epvState.runtimeByName.get(name)?.length > 0).length;
-    if (failed === queue.length) {
+    var runtimeByName = new Map();
+    for (var [name, artifact] of Object.entries(epvState.artifactsByName)) {
+      runtimeByName.set(
+        name,
+        deployed.filter((entry) => entry.symbolicName === artifact.id)
+      );
+    }
+    epvState.runtimeByName = runtimeByName;
+
+    for (var row of epvRows()) {
+      epvRenderDeployStatus(row);
+    }
+
+    // only the manual refresh gets a toast, the load on opening a package stays silent
+    if (notify) {
+      var count = [...runtimeByName.values()].filter((entries) => entries.length > 0).length;
+      showToast(`Deploy status refreshed, ${count} of ${runtimeByName.size} artifacts are deployed`, "Deploy status", "success");
+    }
+  } catch (error) {
+    // after a failed call the heartbeat waits a minute, otherwise a broken tenant is called every 3 seconds
+    epvState.runtimeFailedAt = Date.now();
+    log.warn(`enhancedPackageView: reading the deploy status failed: ${error}`);
+    if (notify) {
       showToast("Could not refresh the deploy status, check the log for details", "Deploy status", "error");
-    } else {
-      showToast(`Deploy status refreshed, ${deployed} of ${queue.length} artifacts are deployed` + (failed > 0 ? `, ${failed} could not be read` : ""), "Deploy status", "success");
     }
+  } finally {
+    epvState.runtimeLoading = false;
+    epvUpdateRefreshButton();
   }
 }
 
-// the runtime entries of one artifact, one per runtime location it is deployed to, undefined when the call failed
-async function epvFetchRuntime(name) {
-  var artifact = epvState.artifactsByName[name];
+// every deployed artifact of the tenant, read with the list of the Integration Content monitor: one call per runtime
+// location instead of one per artifact, so the traffic does not grow with the size of the package
+async function epvFetchDeployed(cache) {
+  var operations = "/" + cpiData.urlExtension + "Operations/";
 
-  // useCache false: the refresh button has to see the current state, not the cached one
-  var resp = await makeCallPromiseV2("GET", epvRuntimeUrl(artifact), false, "application/json", null, null, null, false);
-  if (!resp.successful) {
-    log.warn(`enhancedPackageView: could not read the deploy status of ${name}: ${resp.status} ${resp.statusText}`);
-    return undefined;
+  // neo has no runtime locations, there the list without a location is the whole runtime
+  var locations = [null];
+  if (cpiData.cpiPlatform !== "neo") {
+    var locationResp = await makeCallPromiseV2("GET", operations + "com.sap.it.op.srv.web.cf.RuntimeLocationListCommand", 300, null, null, null, null, false);
+    if (!locationResp.successful) {
+      throw `could not read the runtime locations: ${locationResp.status} ${locationResp.statusText}`;
+    }
+    var locationList = new XmlToJson().parse(locationResp.responseText)["com.sap.it.op.srv.web.cf.RuntimeLocationListResponse"].runtimeLocations;
+    // a single element is not wrapped in an array by the xml parser
+    locations = []
+      .concat(locationList || [])
+      .filter((location) => location.state?.toUpperCase() === "ACTIVE")
+      .map((location) => location.id);
   }
 
-  // one entry per runtime location, an artifact that was never deployed still answers with an entry saying NOT_DEPLOYED
-  var entries = JSON.parse(resp.responseText);
-  return entries.filter((entry) => entry.deployState && entry.deployState.toUpperCase() !== "NOT_DEPLOYED");
+  var lists = await Promise.all(
+    locations.map(async (locationId) => {
+      var resp = await makeCallPromiseV2("GET", operations + "com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand" + (locationId ? "?runtimeLocationId=" + locationId : ""), cache, null, null, null, null, false);
+      // a missing location would show its artifacts as not deployed, so a failed one fails the whole status
+      if (!resp.successful) {
+        throw `could not read the deployed artifacts of ${locationId || "the runtime"}: ${resp.status} ${resp.statusText}`;
+      }
+      var list = new XmlToJson().parse(resp.responseText)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"].artifactInformations;
+      return [].concat(list || []).map((entry) => ({ ...entry, runtimeLocationId: locationId || "cloudintegration" }));
+    })
+  );
+  return lists.flat();
 }
 
 function epvUpdateRefreshButton() {
   var button = document.querySelector(".cpiHelper_epvRefresh");
   if (button) {
-    button.disabled = epvState.runtimeRunning > 0;
-    button.querySelector("i.icon")?.classList.toggle("loading", epvState.runtimeRunning > 0);
+    button.disabled = epvState.runtimeLoading;
+    button.querySelector("i.icon")?.classList.toggle("loading", epvState.runtimeLoading);
   }
 }
 
@@ -387,34 +353,25 @@ function epvAddRefreshButton() {
   button.title = "Refresh deploy status (CPI Helper)";
   button.innerHTML = '<span class="sapMBtnInner sapMBtnHoverable sapMFocusable sapMBtnDefault"><span class="sapMBtnContent"><i class="sync alternate fitted icon"></i></span></span>';
   button.addEventListener("click", () => {
-    epvState.runtimeByName = new Map();
-    epvState.runtimeRequested = new Set();
     epvState.runtimeFailedAt = 0;
     // the ids may be stale too, the package can have been changed somewhere else since it was opened
     epvState.artifactsNextFetchAt = 0;
-    epvLoadRuntime(epvNames(), true);
+    epvLoadRuntime(true);
   });
   toolbar.appendChild(button);
   epvUpdateRefreshButton();
 }
 
-// runtime location -> fomantic icon. an integration cell in the cloud is not known yet, it keeps the icon of its status
+// runtime location -> fomantic icon, every location besides the cloud runtime is an edge integration cell
 function epvRuntimeIcon(entry) {
-  if (entry.runtimeLocationId === "cloudintegration") {
-    return "cloud";
-  }
-  // the design time profile of an edge integration cell is "edge-<runtime location id>"
-  if (entry.additionalProperties?.designTimeProfileId?.startsWith("edge-")) {
-    return "server";
-  }
-  return null;
+  return entry.runtimeLocationId === "cloudintegration" ? "cloud" : "server";
 }
 
 function epvRenderDeployStatus(row) {
   var name = epvName(row);
   var infoElement = row.querySelector(".cntPkgResourceInfoPipes");
   // without an answer for this name "not deployed" would be a guess, so leave the row alone
-  if (!name || !infoElement || !epvState.runtimeByName.has(name)) {
+  if (!name || !infoElement || !epvState.runtimeByName?.has(name)) {
     return;
   }
 
@@ -437,7 +394,7 @@ function epvRenderDeployStatus(row) {
       `Deployed on: ${entry.deployedOn || "-"}`,
       `Deployed by: ${entry.deployedBy || "-"}`,
     ].join("\n");
-    return { text: epvStatusLabel(status), color, icon: epvRuntimeIcon(entry) || epvLabelStyles[color].icon, tooltip, versionDiffers };
+    return { text: epvStatusLabel(status), color, icon: epvRuntimeIcon(entry), tooltip, versionDiffers };
   });
   if (labels.length === 0) {
     labels.push({ text: "Not deployed", color: "red", icon: epvLabelStyles.red.icon, tooltip: "No deployed runtime artifact found for this artifact", versionDiffers: false });
@@ -485,7 +442,7 @@ function epvRenderDeployStatus(row) {
       label.append(entry.text);
       label.title = entry.tooltip;
       return label;
-    }),
+    })
   );
 }
 
