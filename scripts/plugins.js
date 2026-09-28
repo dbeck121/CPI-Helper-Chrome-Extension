@@ -4,6 +4,8 @@
 
 //creates plugin content area in message sidebar
 
+// The obsolete OpenAI Services plugin was intentionally removed because it is no longer useful.
+
 // runs a plugin hook so that a failing plugin cannot break the other plugins or the core around it
 async function safePluginCall(plugin, hook, fn, ...args) {
   try {
