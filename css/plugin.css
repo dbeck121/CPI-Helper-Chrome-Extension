@@ -48,3 +48,40 @@ Users are encouraged to integrate this library with care to ensure compatibility
 .credentialHelperDropdown-item:hover {
   background-color: rgba(190, 190, 190, 0.9) !important;
 }
+
+tr.negative > td,
+tr > td.negative {
+  background-color: var(--cpih-error-bg) !important;
+}
+
+tr.positive > td,
+tr > td.positive {
+  background-color: var(--cpih-success-bg) !important;
+}
+
+tr.warning > td,
+tr.orange > td,
+tr > td.warning,
+tr > td.orange {
+  background-color: var(--cpih-warning-bg) !important;
+}
+
+tr.info > td,
+tr > td.info {
+  background-color: var(--cpih-info-bg) !important;
+}
+
+tr.grey > td,
+tr > td.grey {
+  background-color: var(--cpih-bg-subtle) !important;
+}
+
+tr.red > td,
+tr > td.red {
+  background-color: var(--cpih-error-bg) !important;
+}
+
+tr.yellow > td,
+tr > td.yellow {
+  background-color: var(--cpih-warning-bg) !important;
+}

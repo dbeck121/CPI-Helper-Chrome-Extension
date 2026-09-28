@@ -76,6 +76,7 @@ function createContent(data, pluginHelper) {
   data.forEach(function (artifact) {
     // Status coloring for status field
     var statusColor = getStatusColor(artifact.Status);
+    var isCurrentArtifact = artifact.IntegrationArtifact.Id == pluginHelper.integrationFlowId;
     var start = JSON.parse(formatTimestamp(artifact.LogStart));
     var end = JSON.parse(formatTimestamp(artifact.LogEnd));
     var packageLink = `https://${pluginHelper.tenant}/${pluginHelper.urlExtension}shell/design/contentpackage/${artifact.IntegrationArtifact.PackageId}?section=ARTIFACTS`;
@@ -84,12 +85,8 @@ function createContent(data, pluginHelper) {
     // Has different background coloring and indicating text
     var link = `https://${pluginHelper.tenant}/${pluginHelper.urlExtension}shell/design/contentpackage/${artifact.IntegrationArtifact.PackageId}/integrationflows/${artifact.IntegrationArtifact.Id}`;
     popupContentPrefix += `
-            <tr class="${statusColor}">
-                <td data-label="Integration Flow Name" ${
-                  artifact.IntegrationArtifact.Id != pluginHelper.integrationFlowId
-                    ? `class="selectable"><a href="${link}" target="_blank">${artifact.IntegrationArtifact.Name}</a>`
-                    : `class="yellow">${artifact.IntegrationArtifact.Name} (currently viewing)`
-                }
+            <tr class="${statusColor}${isCurrentArtifact ? " yellow" : ""}">
+                <td data-label="Integration Flow Name" ${!isCurrentArtifact ? `class="selectable"><a href="${link}" target="_blank">${artifact.IntegrationArtifact.Name}</a>` : `>${artifact.IntegrationArtifact.Name} (currently viewing)`}
                 </td>
                 <td data-label="Integration Package" class="selectable"><a href="${packageLink}" target="_blank">${artifact.IntegrationArtifact.PackageName}</a></td>
                 <td data-label="Status">${artifact.Status}</td>
