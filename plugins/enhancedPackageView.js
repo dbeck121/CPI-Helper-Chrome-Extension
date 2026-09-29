@@ -163,6 +163,8 @@ var epvPaths = [
   ["api", "apis"],
 ];
 var epvUnknownTypes = new Set();
+// editor paths of design time only artifacts, they get no deploy status
+var epvNotDeployable = new Set(["serviceinterfaces"]);
 
 function epvPath(type) {
   var normalized = (type || "").toLowerCase().replace(/[^a-z]/g, "");
@@ -252,6 +254,10 @@ function epvMatchRuntime() {
   }
   var runtimeByName = new Map();
   for (var [name, artifact] of Object.entries(epvState.artifactsByName)) {
+    // a service interface is never deployed, a runtime entry with its id belongs to another artifact
+    if (epvNotDeployable.has(epvPath(artifact.type))) {
+      continue;
+    }
     runtimeByName.set(
       name,
       epvState.deployed.filter((entry) => entry.symbolicName === artifact.id)
