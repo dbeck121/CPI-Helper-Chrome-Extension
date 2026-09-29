@@ -132,7 +132,7 @@ function epvAddIcon(row, nameElement, className, iconName, title, action) {
   icon.className = `${iconName} icon ${className}`;
   icon.title = title;
   // a bit smaller than the name, with the pointer cursor of a link
-  icon.style.cssText = "margin-left: 0.4rem; font-size: 0.85em; cursor: pointer;";
+  icon.style.cssText = "margin-left: 0.4rem; font-size: 0.7em; cursor: pointer;";
   icon.addEventListener("mousedown", epvStopEvent);
   icon.addEventListener("click", (event) => {
     epvStopEvent(event);
