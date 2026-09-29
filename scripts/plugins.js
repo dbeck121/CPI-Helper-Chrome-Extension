@@ -192,7 +192,6 @@ async function createPluginButtons(type) {
   return pluginButtons;
 }
 
-
 // ----------------------
 //plugin popup
 // ----------------------
@@ -204,7 +203,7 @@ async function createPluginPopupUI(plugin) {
   container.appendChild(
     createElementFromHTML(`<div class="extra content">
         ${plugin.settings["icon"] ? `<img class="right floated mini ui image" src="${chrome.runtime.getURL(plugin.settings["icon"].src)}" alt="">` : ""}
-        <div class="header">${plugin.name}</div>
+        <div class="header">${plugin.name}${plugin.isCustom ? ` <span class="ui mini orange label" title="Loaded from plugins/custom/">private</span>` : ""}</div>
         <a href="${plugin.website}" target="_blank" rel="noreferrer" class="meta">${plugin.author}</a>
     </div>`)
   );
@@ -452,6 +451,7 @@ async function createContentNodeForPlugins() {
   var pluginUIList = document.createElement("div");
   pluginUIList.id = "cpiHelper_popup_plugins";
   pluginUIList.className = "ui cards";
+  if (customPluginState.available) pluginUIList.appendChild(createCustomPluginsOptInCard());
 
   //figaf plugins first, then by alphabet. sorts a copy, the toolbar keeps the load order
   const isFigaf = (plugin) => (plugin.id.toLowerCase().includes("figaf") ? 1 : 0);
@@ -526,3 +526,51 @@ async function getPluginSettings(id) {
   });
   log.log(`${pluginList.length} plugins loaded`);
 })();
+
+// private plugins from plugins/custom/ (see background.js), only after the opt-in in the plugins popup. they arrive
+// after this file and push into pluginList like the others; everything that renders plugins reads pluginList when it runs
+var customPluginState = { available: false, enabled: false, loaded: false };
+
+async function loadCustomPlugins() {
+  try {
+    const before = pluginList.length;
+    const result = await chrome.runtime.sendMessage({ type: "cpiHelperLoadCustomPlugins" });
+    // the injected files have pushed their plugins before the answer arrives: everything after "before" is private
+    pluginList.slice(before).forEach((plugin) => (plugin.isCustom = true));
+    customPluginState.available = !!result?.available;
+    customPluginState.enabled = !!result?.enabled;
+    if (result?.loaded?.length) {
+      customPluginState.loaded = true;
+      log.log(`custom plugins loaded: ${result.loaded.join(", ")}`);
+      removeFloatingToolbar(); // a toolbar built before they arrived misses their buttons, the heartbeat rebuilds it
+    }
+    if (result?.failed?.length) log.warn("custom plugins failed", result.failed);
+  } catch (error) {
+    log.debug("custom plugins not available", error);
+  }
+}
+loadCustomPlugins();
+
+// shown only when plugins/custom/plugins.json exists (unpacked extension). stored per browser in storage.local
+function createCustomPluginsOptInCard() {
+  const card = createElementFromHTML(`<div class="ui card">
+    <div class="content">
+      <div class="header">Private plugins</div>
+      <div class="meta">plugins/custom/</div>
+      <div class="description">Loads the plugins listed in plugins/custom/plugins.json. They run with the same rights as CPI Helper and can read everything in your tenant. Only enable this for code you trust.</div>
+    </div>
+    <div class="extra content ui toggle ${customPluginState.enabled ? "checked" : ""}" style="padding:0">
+      <input id="cpiHelper_popup_plugins-customPluginsOptIn" type="checkbox" style="display:none" ${customPluginState.enabled ? "checked" : ""}>
+      <label for="cpiHelper_popup_plugins-customPluginsOptIn"> Activate</label>
+    </div>
+  </div>`);
+  const checkbox = card.querySelector("input");
+  checkbox.addEventListener("change", async () => {
+    await chrome.storage.local.set({ "customPlugins---enabled": checkbox.checked });
+    customPluginState.enabled = checkbox.checked;
+    if (checkbox.checked && !customPluginState.loaded) await loadCustomPlugins();
+    if (!checkbox.checked && customPluginState.loaded) showToast("Reload the page to unload the private plugins.");
+    showBigPopup(await createContentNodeForPlugins(), "Plugins");
+  });
+  return card;
+}
