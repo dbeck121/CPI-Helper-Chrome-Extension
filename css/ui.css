@@ -1467,8 +1467,12 @@ ol.ui.list > li {
 
 .ui.card > .content + .content,
 .ui.card > .extra.content {
-  flex: none;
   border-top: 1px solid var(--cpih-border);
+}
+
+/* only the extra parts keep their height, the description grows and pushes the footer down */
+.ui.card > .extra.content {
+  flex: none;
 }
 
 .ui.card .header {
