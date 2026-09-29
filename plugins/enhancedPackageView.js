@@ -158,6 +158,9 @@ var epvPaths = [
   ["rest", "restapis"],
   ["soap", "soapapis"],
   ["odata", "odataservices"],
+  ["serviceinterface", "serviceinterfaces"],
+  // the generic api artifact, last so the rest, soap and odata apis above keep their own editor
+  ["api", "apis"],
 ];
 var epvUnknownTypes = new Set();
 
