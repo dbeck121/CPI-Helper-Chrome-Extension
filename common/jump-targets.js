@@ -54,6 +54,11 @@ function cpihArtifactJumpTargets({ artifactId, artifactType, packageId, runtimeL
   return targets;
 }
 
+// messages of every artifact of a package
+function cpihPackageMessagesPath(packageId, runtimeLocationId) {
+  return "/shell/monitoring/Messages/" + cpihMonitorFilter(runtimeLocationId, { status: "ALL", packageId, type: "ALL", time: "PASTHOUR" });
+}
+
 function cpihPackagePath(packageId) {
   return `/shell/design/contentpackage/${encodeURIComponent(packageId)}?section=ARTIFACTS`;
 }
@@ -80,5 +85,5 @@ function cpihArtifactPath(packageId, workspaceType, artifactId) {
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { CPIH_JUMP_TARGETS, CPIH_FAILED_MESSAGES_PATH, CPIH_WORKSPACE_TYPES, cpihArtifactJumpTargets, cpihArtifactPath, cpihPackagePath };
+  module.exports = { CPIH_JUMP_TARGETS, CPIH_FAILED_MESSAGES_PATH, CPIH_WORKSPACE_TYPES, cpihArtifactJumpTargets, cpihArtifactPath, cpihPackagePath, cpihPackageMessagesPath };
 }
