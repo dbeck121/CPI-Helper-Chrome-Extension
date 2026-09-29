@@ -888,6 +888,31 @@ button.cpiHelper_sidebar_iconbutton span {
   border-radius: calc(var(--cpih-radius) - 1px) calc(var(--cpih-radius) - 1px) 0 0;
 }
 
+/* the card is 290px wide: long texts wrap and controls shrink instead of leaving the card */
+#cpiHelper_popup_plugins .card {
+  overflow-wrap: anywhere;
+}
+
+#cpiHelper_popup_plugins .card .ui.label {
+  white-space: normal;
+  max-width: 100%;
+}
+
+#cpiHelper_popup_plugins .card .ui.input > .label {
+  flex: 0 1 auto;
+}
+
+#cpiHelper_popup_plugins .card .ui.input > select.ui.dropdown {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+#cpiHelper_popup_plugins .card img,
+#cpiHelper_popup_plugins .card table,
+#cpiHelper_popup_plugins .card pre {
+  max-width: 100%;
+}
+
 /* the whole footer is the activate switch */
 .card .extra.content > label {
   display: flex;
