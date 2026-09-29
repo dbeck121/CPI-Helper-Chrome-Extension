@@ -1,4 +1,4 @@
-async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
+async function whatsNewCheck(showOnlyOnce = true) {
   var manifestVersion = chrome.runtime.getManifest().version;
 
   //new version
@@ -16,24 +16,14 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
     }
   }
 
-  // 3.x -> 4.x: a one time welcome with a tour of the new toolbar (scripts/celebration.js) instead of this dialog.
-  // saved before it shows, the check runs again for every artifact that builds a toolbar
-  if (showOnlyOnce && isV4Upgrade(last_version, manifestVersion) && !(await storageGetPromise(CELEBRATION_STORAGE_KEY))) {
-    await storageSetPromise({ [CELEBRATION_STORAGE_KEY]: true, cpiHelper_Version: manifestVersion });
-    showV4Celebration();
-    return true;
-  }
-
   silentupdates = ["3.0.3", "3.14.4"];
 
+  //const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo-or3aup2a4kcerbzkw8qe9fj133kv700baqsm2nnpj4.png");
   const FIGAF_IMG = chrome.runtime.getURL("images/figaf_logo.png");
   const FIGAF_VIBE_SCREENSHOT = chrome.runtime.getURL("images/figaf-vibe-coding/figaf vibe code org.png");
   const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
-  const TOOLBAR_SCREENSHOT = chrome.runtime.getURL("images/whatsnew/4.0-toolbar.png");
-  const TOOLBAR_PLUGINS_SCREENSHOT = chrome.runtime.getURL("images/whatsnew/4.0-plugins.png");
-  const SEARCH_SCREENSHOT = chrome.runtime.getURL("images/whatsnew/4.0-search.png");
-  const JUMP_SCREENSHOT = chrome.runtime.getURL("images/whatsnew/4.0-jump.png");
   const devtoberfestPicture = chrome.runtime.getURL("images/devtoberfestPicture.png");
+  const devtoberfestInvite = chrome.runtime.getURL("images/Devtoberfest_CPIHelper.ics");
   const md = window.markdownit();
 
   // old
@@ -75,7 +65,6 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
     <div class="ui segment">
         <div class="ui top attached tabular menu" id="cpiHelper_whatsnew_tabs">
             <a class="item active" data-tab="one">News</a>
-            <a class="item" data-tab="changes">What changed</a>
             <a class="item" data-tab="two">Features</a>
             <a class="item" data-tab="three">About</a>
             <a class="item" data-tab="four">Devtoberfest</a>
@@ -100,10 +89,6 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
                     </div>
                      <div class="sixteen wide column" style="paddingTop: '0px'">
                  </div>
-            </div>
-            <div class="ui info message">
-                <b>New in 4.0:</b> the buttons moved into a floating toolbar that is on every CPI page, with a search for the whole tenant (Ctrl/⌘ + K), and plugins got their own section in it.
-                <a href="#" class="cpihelperWhatsNewShowChanges">See what changed</a>
             </div>
             <h3 class="ui header">
                 <i class="bell icon"></i>
@@ -148,61 +133,6 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
                     <div class="content"> More details on <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">Github</a></div>
                 </h3>
             </div>
-        </div>
-        <div class="ui bottom attached tab segment" data-tab="changes">
-            <h3 class="ui header">
-                <i class="magic icon"></i>
-                <div class="content">What changed in 4.0</div>
-            </h3>
-            <a href="${TOOLBAR_SCREENSHOT}" target="_blank"><img class="ui fluid bordered rounded image" src="${TOOLBAR_SCREENSHOT}" alt="The new CPI Helper toolbar next to the message popup"></a>
-            <h4 class="ui header">A toolbar instead of the buttons in the header</h4>
-            <ul class="ui list">
-                <li><b>Trace, Messages, Info, Logs and Runtime</b> live in a toolbar that floats above the page. Drag it by its header wherever it bothers you least, it remembers the place.</li>
-                <li><b>Wide or compact:</b> the switch at the bottom toggles between icons with labels and icons only. In the compact variant hovering an icon shows its name and keyboard shortcut.</li>
-                <li>The header of the toolbar and of the message popup has the <b>color of your tenant</b>, as set in the browser popup.</li>
-                <li>The toolbar also shows up on <b>API and MCP Server</b> pages. There the integration cell is the default runtime.</li>
-            </ul>
-            <a href="${SEARCH_SCREENSHOT}" target="_blank"><img class="ui fluid bordered rounded image" src="${SEARCH_SCREENSHOT}" alt="The search of CPI Helper finds iFlows, APIs, mappings and packages of the tenant"></a>
-            <h4 class="ui header">Search and jump from anywhere</h4>
-            <ul class="ui list">
-                <li>The toolbar is on <b>every CPI page</b> now. Outside of an iFlow it has Search, Jump to, Recent and Plugins.</li>
-                <li><b>Search</b> (or <b>Ctrl/⌘ + K</b>) finds every iFlow, API, mapping and package of the tenant and the monitor pages. On an iFlow it also runs actions: start or stop the trace, deploy, trace and deploy, open the message sidebar, info, logs and your plugins. Deploy still asks in the dialog of the CPI.</li>
-                <li><b>Jump to</b> opens the monitor pages. On an iFlow it also has the messages of this iFlow, its deployment status and its package.</li>
-                <li><b>Recent</b> lists your last artifacts. Star the ones you need often, favorites stay on top.</li>
-                <li>A red number on Jump to shows the <b>failed messages of the past hour</b>. It can be switched off in the browser popup.</li>
-                <li>While an iFlow is in edit mode the toolbar does not navigate away, save or cancel first. Ctrl/⌘ + click opens a page in a new tab.</li>
-            </ul>
-            <a href="${JUMP_SCREENSHOT}" target="_blank"><img class="ui fluid bordered rounded image" src="${JUMP_SCREENSHOT}" alt="Jump to with the messages of this iFlow and the monitor pages"></a>
-            <a href="${TOOLBAR_PLUGINS_SCREENSHOT}" target="_blank"><img class="ui fluid bordered rounded image" src="${TOOLBAR_PLUGINS_SCREENSHOT}" alt="Compact toolbar with an open plugin panel"></a>
-            <h4 class="ui header">Plugins moved into the toolbar</h4>
-            <ul class="ui list">
-                <li>Active plugins have their own section in the toolbar. <b>A plugin with a single action runs it directly</b>, e.g. Undeploy or Version History.</li>
-                <li><b>A plugin with more content opens a panel</b> next to the toolbar, e.g. the notepad. It closes when you click somewhere else or press Escape.</li>
-                <li>Plugins are switched on and off under <b>Manage plugins</b>, the last entry of the section. The message popup shows messages only now, and the setting "Plugin page as separate sidebar" is gone.</li>
-                <li>Plugin developers: see <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension/blob/main/docs/readme/PluginREADME.md" target="_blank">toolbarButton and the new icon field</a> in the plugin documentation.</li>
-            </ul>
-            <h4 class="ui header">A new payload viewer</h4>
-            <ul class="ui list">
-                <li>Trace bodies open <b>formatted right away</b>. Pretty print keeps CDATA, comments and big JSON numbers exactly as they are, Raw shows the original.</li>
-                <li><b>Drag the handle below the editor</b> to make it bigger, CPI Helper remembers the height. The fullscreen button uses the whole window, Escape leaves it.</li>
-                <li>Search, fold, wrap, font size, theme and edit sit in the toolbar above the payload.</li>
-            </ul>
-            <h4 class="ui header">A better inline trace</h4>
-            <ul class="ui list">
-                <li>The new <b>Changes</b> tab of a step (experimental) shows side by side what the step did to body, headers and properties.</li>
-                <li><b>All steps of a message</b> are highlighted, the first ones right away and the rest while you look (up to 5,000 instead of 300).</li>
-                <li>Steps that ran many times, e.g. after a splitter, open fast: a run loads only when you open it.</li>
-                <li>Hover a name or value in the trace, log and info tables to <b>copy</b> it.</li>
-            </ul>
-            <h4 class="ui header">Snippets (extremely experimental)</h4>
-            <div class="ui negative message">Danger zone: Snippets use internals of the SAP iFlow editor and a lot will not work. Check your iFlow before you save, and cancel the edit if anything looks wrong. <b>You alone are responsible for what you do and what you break.</b></div>
-            <ul class="ui list">
-                <li>Copy steps in the iFlow editor, open <b>Snippets</b> in the toolbar and save them under a name.</li>
-                <li><b>Use</b> puts a snippet back into the CPI clipboard: select the Integration Process or Local Integration Process in edit mode and press Paste, also in another iFlow.</li>
-                <li>Snippets with start elements such as <b>Timer</b> or <b>Start Message</b> only go into an Integration Process, not into a Local Integration Process.</li>
-                <li>Rename the steps of a snippet, duplicate it, or share it with <b>Copy as text</b> and <b>Import</b>. Connections, senders and receivers are not copied by the editor.</li>
-            </ul>
-            <button type="button" class="ui primary button cpihelperWhatsNewTour"><i class="map signs icon"></i>Take the tour again</button>
         </div>
         <div class="ui bottom attached tab segment" data-tab="two">
             <h3 class="ui header">
@@ -284,38 +214,34 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
       closeText: "OK",
       iconInButton: "checkmark",
       callback: () => {
-        document.querySelector(".cpihelperWhatsNewShowChanges")?.addEventListener("click", (event) => {
-          event.preventDefault();
-          cpihActivateTab(document.querySelector("#cpiHelper_bigPopup_content_semanticui"), "changes");
+        $("#cpiHelper_whatsnew_tabs .item").tab({
+          context: $("#cpiHelper_bigPopup_content_semanticui"),
         });
-        if (initialTab) {
-          cpihActivateTab(document.querySelector("#cpiHelper_bigPopup_content_semanticui"), initialTab);
-        }
-        // the tour needs the toolbar, which may not be built yet
-        const tourButton = document.querySelector(".cpihelperWhatsNewTour");
-        if (!getFloatingToolbar()) {
-          tourButton?.remove();
-        }
-        tourButton?.addEventListener("click", () => {
-          cpihModal.hide("#cpiHelper_semanticui_modal");
-          startToolbarTour();
+        $(".cpihelper83782").popup({
+          inline: true,
+          hoverable: true,
+          position: "bottom left",
+          delay: {
+            show: 300,
+            hide: 800,
+          },
         });
-        cpihQsa(".cpihelperFigafScreenshot").forEach((screenshot) => {
-          screenshot.addEventListener("click", function () {
-            const overlay = createElementFromHTML(`
-              <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-                <div style="max-width: 90vw; max-height: 90vh; overflow: auto; background: white; padding: 10px; border-radius: 5px;">
-                  <img src="${FIGAF_VIBE_SCREENSHOT}" style="width: auto; height: auto; max-width: none;" />
-                </div>
+        $(".cpihelperFigafScreenshot").on("click", function () {
+          const overlay = $(`
+            <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+              <div style="max-width: 90vw; max-height: 90vh; overflow: auto; background: white; padding: 10px; border-radius: 5px;">
+                <img src="${FIGAF_VIBE_SCREENSHOT}" style="width: auto; height: auto; max-width: none;" />
               </div>
-            `);
+            </div>
+          `);
 
-            overlay.addEventListener("click", function () {
-              cpihFadeOut(this, 300);
+          overlay.on("click", function () {
+            $(this).fadeOut(300, function () {
+              $(this).remove();
             });
-
-            document.body.appendChild(overlay);
           });
+
+          $("body").append(overlay);
         });
       },
       onclose: async () => {
@@ -341,55 +267,52 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
   //persist so that the popup does not appear again
 }
 
-// Recruiting popup for German speaking users: shown once, at a random moment within a year after CPI Helper first
-// saw the user. Never again after it was shown, after "Interessiert mich nicht", or for users who chose
-// "Erinnere mich nicht mehr" in the old version (that set a timestamp 9999 days ahead).
-const RECRUITING_SHOW_AT_KEY = "recruitingPopupShowAt";
-const RECRUITING_DONE_KEY = "recruitingPopupDone";
-const RECRUITING_LEGACY_TIMESTAMP_KEY = "recrutingPopupTimestamp";
-var recruitingPopupScheduled = false;
-
-// only browsers set to German (Germany)
-function isGermanSpeakingUser() {
-  return (navigator.language || navigator.userLanguage) === "de-DE";
-}
-
-async function recruitingPopupDue() {
-  if (!isGermanSpeakingUser()) return false;
-  if (await storageGetPromise(RECRUITING_DONE_KEY)) return false;
-  const legacy = parseInt(await storageGetPromise(RECRUITING_LEGACY_TIMESTAMP_KEY));
-  if (legacy && legacy > Date.now() + 5 * 365 * 24 * 60 * 60 * 1000) {
-    await storageSetPromise({ [RECRUITING_DONE_KEY]: "declined-before" });
-    return false;
-  }
-  let showAt = parseInt(await storageGetPromise(RECRUITING_SHOW_AT_KEY));
-  if (!showAt) {
-    showAt = Date.now() + Math.floor(Math.random() * 365 * 24 * 60 * 60 * 1000);
-    await storageSetPromise({ [RECRUITING_SHOW_AT_KEY]: showAt });
-    log.log("recruiting popup scheduled for " + new Date(showAt).toISOString());
-  }
-  return showAt <= Date.now();
-}
-
-// checked a few minutes after a CPI page opened, only when nothing else is shown at that moment
-function scheduleRecruitingPopup(delay = 3 * 60 * 1000) {
-  setTimeout(async () => {
-    try {
-      if (!extensionAlive() || cpihModal.top() || document.getElementById("cpiHelper_celebration")) return;
-      if (await recruitingPopupDue()) await recrutingPopup(false);
-    } catch (error) {
-      log.debug("recruiting popup check failed", error);
-    }
-  }, delay);
-}
-
 async function recrutingPopup(force = false) {
-  const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
-  // shown once: whatever the user does now, the automatic popup does not come back
-  if (!force) await storageSetPromise({ [RECRUITING_DONE_KEY]: "shown" });
-  statistic("recrutingPopup", force ? "show_from_info" : "show");
+  //shows a popup if browser language is German and if timestamp is not set or today is after timestamp in chrome storage
 
-  var html = `<div>
+  //show only for a fraction of user for testing
+
+  //remove timestamps for testing
+  //await chrome.storage.local.remove("recrutingPopupTimestamp");
+  //await chrome.storage.local.remove("recrutingPopupRandomGroup");
+  //var ts = 1728995035000;
+  //var obj2 = {};
+  //obj2["recrutingPopupTimestamp"] = ts;
+  //await storageSetPromise(obj2);
+
+  const Kangoolutions_Logo = chrome.runtime.getURL("images/kangoolutions_icon.png");
+
+  var randomGroup = parseInt(await storageGetPromise("recrutingPopupRandomGroup"));
+
+  if (!randomGroup) {
+    randomGroup = Math.floor(Math.random() * 100);
+    var obj = {};
+    obj["recrutingPopupRandomGroup"] = randomGroup;
+    await storageSetPromise(obj);
+  }
+
+  var lang = navigator.language || navigator.userLanguage;
+  var timestamp = parseInt(await storageGetPromise("recrutingPopupTimestamp"));
+  var today = +new Date();
+
+  if (!timestamp) {
+    //get random int between 1 and 11
+    var randomTimestamp = Math.floor(Math.random() * 10) + 1;
+
+    var oneweek = +new Date() + randomTimestamp * 24 * 60 * 60 * 1000 * 2;
+
+    var obj = {};
+    obj["recrutingPopupTimestamp"] = oneweek;
+    await storageSetPromise(obj);
+    log.log("recruting popup timestamp set to today + " + randomTimestamp + " days");
+  } else {
+    var hrts = new Date(timestamp);
+    log.debug("recruting popup in human readable time: " + hrts);
+  }
+
+  if (lang == "de-DE" && (force || (!timestamp && randomGroup <= 50) || (timestamp && timestamp < today))) {
+    statistic("recrutingPopup", "show");
+    var html = `<div>
     <div class="ui message">
         <img class="ui small floated image" src="${Kangoolutions_Logo}">
         <div class="content">
@@ -413,35 +336,82 @@ async function recrutingPopup(force = false) {
             <div class="item">Eigenverantwortung und Freiraum, statt Formularen und starren Prozessen</div>
             <div class="item">Summer Event mit der ganzen Firma (2023 auf Sizilien und 2024 auf Kreta).</div>
         </div>
-        <p>Wir haben viel Humor und das vielleicht coolste <a href="https://kangoolutions.com/team/" target="_blank">Team</a> der Welt. Lass uns doch mal plaudern:
+        <p>Wir haben viel Humor und das vielleicht coolste <a href="https://kangoolutions.com/team/" style="color: green; text-decoration: none;" 
+    onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'" target="_blank" >Team</a> der Welt. Lass uns doch mal plaudern:
         </p>
     </div>
     </div>`;
 
-  var popup = createElementFromHTML(html);
+    var popup = createElementFromHTML(html);
 
-  var nextStepButton = document.createElement("button");
-  nextStepButton.className = "ui teal button";
-  nextStepButton.innerHTML = 'Jau! Ich will mehr wissen.<i class="right arrow icon"></i>';
-  nextStepButton.onclick = function () {
-    statistic("recrutingPopup", "nextStep");
-    window.open("https://kangoolutions.com/karriere/", "_blank");
-    cpihModal.hide("#cpiHelper_semanticui_modal");
-  };
+    var createRemindButtopn = function (text, days, color = "teal") {
+      var button = document.createElement("button");
+      button.className = "ui " + color + " right labled icon button";
+      var icon = document.createElement("i");
+      icon.className = "right bell icon";
+      button.textContent = text;
+      button.appendChild(icon);
 
-  var notInterestedButton = document.createElement("button");
-  notInterestedButton.className = "ui button";
-  notInterestedButton.textContent = "Interessiert mich nicht";
-  notInterestedButton.onclick = async function () {
-    statistic("recrutingPopup", "notInterested");
-    await storageSetPromise({ [RECRUITING_DONE_KEY]: "not-interested" });
-    cpihModal.hide("#cpiHelper_semanticui_modal");
-  };
+      button.style.marginBottom = "10px";
 
-  var actions = document.createElement("div");
-  actions.className = "cpiHelper_recruiting_actions";
-  actions.append(nextStepButton, notInterestedButton);
-  popup.appendChild(actions);
+      button.onclick = async function () {
+        statistic("recrutingPopup", "remind", days);
 
-  await showBigPopup(popup, "Wir suchen Verstärkung!", { fullscreen: false });
+        //get unix timestamp for tomorrow
+        var tomorrow = +new Date() + days * 24 * 60 * 60 * 1000;
+
+        var obj = {};
+        obj["recrutingPopupTimestamp"] = tomorrow;
+        await storageSetPromise(obj);
+        log.log("recruting popup timestamp set to today + " + days + " days");
+
+        $("#cpiHelper_semanticui_modal").modal("hide");
+      };
+      return button;
+    };
+
+    var nextStepButtion = document.createElement("button");
+    nextStepButtion.className = "ui teal right labled icon button";
+    var icon = document.createElement("i");
+    icon.className = "right arrow icon";
+
+    nextStepButtion.textContent = "Jau! Ich will mehr wissen.";
+    nextStepButtion.appendChild(icon);
+    nextStepButtion.onclick = async function () {
+      statistic("recrutingPopup", "nextStep");
+      window.open("https://kangoolutions.com/karriere/", "_blank");
+      $("#cpiHelper_semanticui_modal").modal("hide");
+    };
+
+    //create br
+    var br = document.createElement("br");
+    var span = document.createElement("span");
+    span.textContent = "Erinnere mich: ";
+    popup.appendChild(br);
+
+    popup.appendChild(nextStepButtion);
+    popup.appendChild(br);
+    popup.appendChild(createRemindButtopn("Schon ok... Erinnere mich nicht mehr", 9999, "violet"));
+
+    popup.appendChild(br);
+    popup.appendChild(span);
+    popup.appendChild(createRemindButtopn("Morgen", 1));
+
+    popup.appendChild(createRemindButtopn("In einem Monat", 30));
+
+    popup.appendChild(createRemindButtopn("In einem halben Jahr", 190));
+
+    await showBigPopup(popup, "Wir suchen Verstärkung!", {
+      fullscreen: false,
+      onclose: async () => {
+        if (!force) {
+          //get unix timestamp for in 2 month
+          var remindIn = +new Date() + 2 * 30 * 24 * 60 * 60 * 1000;
+          var obj = {};
+          obj["recrutingPopupTimestamp"] = remindIn;
+          await storageSetPromise(obj);
+        }
+      },
+    });
+  }
 }

@@ -39,27 +39,31 @@ function showRevertConfirmation(tenant, workspace, artifact, version, currentVer
 
   const modalContainer = document.querySelector("#cpihelperglobal") || document.body;
   modalContainer.appendChild(modal);
+  $(modal).find(".ui.checkbox").checkbox();
+  const $modal = $(modal);
   let returnToVersionHistory = false;
-  const modalSettings = {
+  $modal.modal({
+    detachable: false,
+    blurring: true,
     closable: true,
     onHidden: () => {
       modal.remove();
       if (returnToVersionHistory) {
-        cpihModal.show("#cpiHelper_semanticui_modal");
+        $("#cpiHelper_semanticui_modal").modal("show");
       }
     },
-  };
+  });
   modal.querySelector("[data-revert-cancel]").addEventListener("click", () => {
     returnToVersionHistory = true;
-    cpihModal.hide(modal);
+    $modal.modal("hide");
   });
   modal.querySelector("[data-revert-confirm]").addEventListener("click", async (event) => {
     const confirmButton = event.currentTarget;
     confirmButton.classList.add("loading", "disabled");
     await revertVersion(tenant, workspace, artifact, { ...version, semanticVersion: semanticVersionInput.value, comment: commentInput.value });
-    cpihModal.hide(modal);
+    $modal.modal("hide");
   });
-  cpihModal.show(modal, modalSettings);
+  $modal.modal("show");
 }
 
 async function revertVersion(tenant, workspace, artifact, version) {
@@ -92,66 +96,76 @@ var plugin = {
   website: "",
   description: "Manage and view the version history of iFlows within the editor.",
   settings: {},
-  toolbarButton: {
-    title: "Version History",
-    onClick: async (pluginHelper, settings) => {
-      const urlForWorkspace = `https://${pluginHelper.tenant}/api/1.0/workspace`;
-      // Find the workspace that contains the current package.
-      var dataOfWorkspaces = JSON.parse(await makeCallPromise("GET", urlForWorkspace, false));
-      const workspace = dataOfWorkspaces.find((entry) => entry.technicalName === pluginHelper.currentPackageId).id;
+  messageSidebarContent: {
+    static: true,
+    onRender: (pluginHelper) => {
+      var div = document.createElement("div");
+      var button = document.createElement("button");
+      button.innerHTML = "View & Manage";
 
-      const urlForArtifactsInWorkspace = `https://${pluginHelper.tenant}/api/1.0/workspace/${workspace}/artifacts`;
-      // Find the current iFlow artifact in that workspace.
-      var dataOfArtifactsInWorkspace = JSON.parse(await makeCallPromise("GET", urlForArtifactsInWorkspace, false));
-      const artifact = dataOfArtifactsInWorkspace.find((entry) => entry.name === pluginHelper.currentIflowName).id;
+      button.onclick = async (x) => {
+        const urlForWorkspace = `https://${pluginHelper.tenant}/api/1.0/workspace`;
+        // Find the workspace that contains the current package.
+        var dataOfWorkspaces = JSON.parse(await makeCallPromise("GET", urlForWorkspace, false));
+        const workspace = dataOfWorkspaces.find((entry) => entry.technicalName === pluginHelper.currentPackageId).id;
 
-      const urlForVersionHistory = `https://${pluginHelper.tenant}/api/1.0/workspace/${workspace}/artifacts/${artifact}?versionhistory=true&webdav=REPORT`;
-      // Load the artifact's version history.
-      var dataOfVersionHistory = JSON.parse(await makeCallPromise("PUT", urlForVersionHistory, false, null, null, true));
+        const urlForArtifactsInWorkspace = `https://${pluginHelper.tenant}/api/1.0/workspace/${workspace}/artifacts`;
+        // Find the current iFlow artifact in that workspace.
+        var dataOfArtifactsInWorkspace = JSON.parse(await makeCallPromise("GET", urlForArtifactsInWorkspace, false));
+        const artifact = dataOfArtifactsInWorkspace.find((entry) => entry.name === pluginHelper.currentIflowName).id;
 
-      const popupContent = document.createElement("div");
-      if (!dataOfVersionHistory || dataOfVersionHistory.length === 0) {
-        popupContent.innerHTML = "<p>No version history found.</p>";
-      } else {
-        // The highest technical version is the currently active version.
-        const currentVersion = dataOfVersionHistory.reduce((highestVersion, version) => {
-          return Number(version.technicalVersion) > Number(highestVersion.technicalVersion) ? version : highestVersion;
-        });
-        let tableHtml = `<table class="ui celled table"> 
-                            <thead> 
-                              <tr class="blue"> 
-                                <th>Comment</th> 
-                                <th>Semantic Version</th> 
-                                <th>Technical Version</th> 
-                                <th>Created Date</th> 
-                                <th>Created By</th> 
-                                <th>State</th> 
-                                <th>Revert</th> 
-                              </tr> 
-                            </thead><tbody> `;
-        dataOfVersionHistory.forEach((version, index) => {
-          const createdDate = new Date(Number(version.createdDate)).toLocaleString();
-          const isCurrentVersion = version === currentVersion;
-          tableHtml += `<tr ${isCurrentVersion ? (version.state == "workingcopy" ? 'class="red"' : 'class="yellow"') : ""}> 
-                          <td data-label="Comment">${escapeHtml(version.comment)}</td> 
-                          <td data-label="Semantic Version">${escapeHtml(version.semanticVersion)}</td> 
-                          <td data-label="Technical Version">${escapeHtml(version.technicalVersion)}</td> 
-                          <td data-label="Created Date">${escapeHtml(createdDate)}</td> 
-                          <td data-label="Created By">${escapeHtml(version.createdBy)}</td> 
-                          <td data-label="State">${escapeHtml(version.state)}</td> 
-                          <td data-label="Revert">
-                            ${isCurrentVersion ? "Current Version" : `<button class="ui button" data-version-index="${index}">Revert</button>`}
-                          </td> 
-                        </tr>`;
-        });
-        tableHtml += `</tbody> </table>`;
-        popupContent.innerHTML = tableHtml;
-        popupContent.querySelectorAll("[data-version-index]").forEach((revertButton) => {
-          const version = dataOfVersionHistory[Number(revertButton.dataset.versionIndex)];
-          revertButton.addEventListener("click", () => showRevertConfirmation(pluginHelper.tenant, workspace, artifact, version, currentVersion));
-        });
-      }
-      pluginHelper.functions.popup(popupContent, "Version History");
+        const urlForVersionHistory = `https://${pluginHelper.tenant}/api/1.0/workspace/${workspace}/artifacts/${artifact}?versionhistory=true&webdav=REPORT`;
+        // Load the artifact's version history.
+        var dataOfVersionHistory = JSON.parse(await makeCallPromise("PUT", urlForVersionHistory, false, null, null, true));
+
+        const popupContent = document.createElement("div");
+        if (!dataOfVersionHistory || dataOfVersionHistory.length === 0) {
+          popupContent.innerHTML = "<p>No version history found.</p>";
+        } else {
+          // The highest technical version is the currently active version.
+          const currentVersion = dataOfVersionHistory.reduce((highestVersion, version) => {
+            return Number(version.technicalVersion) > Number(highestVersion.technicalVersion) ? version : highestVersion;
+          });
+          let tableHtml = `<table class="ui celled table"> 
+                              <thead> 
+                                <tr class="blue"> 
+                                  <th>Comment</th> 
+                                  <th>Semantic Version</th> 
+                                  <th>Technical Version</th> 
+                                  <th>Created Date</th> 
+                                  <th>Created By</th> 
+                                  <th>State</th> 
+                                  <th>Revert</th> 
+                                </tr> 
+                              </thead><tbody> `;
+          dataOfVersionHistory.forEach((version, index) => {
+            const createdDate = new Date(Number(version.createdDate)).toLocaleString();
+            const isCurrentVersion = version === currentVersion;
+            tableHtml += `<tr ${isCurrentVersion ? (version.state == "workingcopy" ? 'class="red"' : 'class="yellow"') : ""}> 
+                            <td data-label="Comment">${escapeHtml(version.comment)}</td> 
+                            <td data-label="Semantic Version">${escapeHtml(version.semanticVersion)}</td> 
+                            <td data-label="Technical Version">${escapeHtml(version.technicalVersion)}</td> 
+                            <td data-label="Created Date">${escapeHtml(createdDate)}</td> 
+                            <td data-label="Created By">${escapeHtml(version.createdBy)}</td> 
+                            <td data-label="State">${escapeHtml(version.state)}</td> 
+                            <td data-label="Revert">
+                              ${isCurrentVersion ? "Current Version" : `<button class="ui button" data-version-index="${index}">Revert</button>`}
+                            </td> 
+                          </tr>`;
+          });
+          tableHtml += `</tbody> </table>`;
+          popupContent.innerHTML = tableHtml;
+          popupContent.querySelectorAll("[data-version-index]").forEach((revertButton) => {
+            const version = dataOfVersionHistory[Number(revertButton.dataset.versionIndex)];
+            revertButton.addEventListener("click", () => showRevertConfirmation(pluginHelper.tenant, workspace, artifact, version, currentVersion));
+          });
+        }
+        pluginHelper.functions.popup(popupContent, "Version History");
+      };
+
+      div.appendChild(button);
+
+      return div;
     },
   },
 };

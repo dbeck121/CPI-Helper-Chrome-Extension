@@ -44,11 +44,11 @@ var plugin = {
       var dynamicResizing = settings["settingsPaneResizer---dynamicResizing"] ? true : false;
 
       // get element references (by partial selector due to sometimes changing ID prefixes)
-      const view = document.querySelector('[id $="iflowObjectPageLayout-scroll"]'); // upper and lower split areas together
-      const workArea = document.querySelector('[id $="iflowSplitter-content-0"]'); // upper split area, work area
-      const settingsPane = document.querySelector('[id $="iflowSplitter-content-1"]'); // lower split area (settings pane) incl. tabs/title bars (has height attr.)
-      const paneAllContent = document.querySelector('[id $="iflowPropertySheetView--iflowPropLayout"]'); // actual settings data container (also invisible part), no height attr.
-      const paneContentVisible = document.querySelector('[id $="iflowPropertySheetView--propertySheetScrollContainer"]'); // div with visible part of data sheet (has height attr.)
+      const view = $('[id $="iflowObjectPageLayout-scroll"]'); // upper and lower split areas together
+      const workArea = $('[id $="iflowSplitter-content-0"]'); // upper split area, work area
+      const settingsPane = $('[id $="iflowSplitter-content-1"]'); // lower split area (settings pane) incl. tabs/title bars (has height attr.)
+      const paneAllContent = $('[id $="iflowPropertySheetView--iflowPropLayout"]'); // actual settings data container (also invisible part), no height attr.
+      const paneContentVisible = $('[id $="iflowPropertySheetView--propertySheetScrollContainer"]'); // div with visible part of data sheet (has height attr.)
 
       // create button/text in messages window
       var div = document.createElement("div");
@@ -104,7 +104,7 @@ var plugin = {
         // get configured height in pixel for initial resizing via UI5
         var newHeightInPct;
         if (configPaneHeightPx) {
-          newHeightInPct = Math.floor((100 / view?.clientHeight) * configPaneHeightPx);
+          newHeightInPct = Math.floor((100 / view.innerHeight()) * configPaneHeightPx);
         } else if (configPaneHeightPercent) {
           newHeightInPct = configPaneHeightPercent;
         }
@@ -153,32 +153,12 @@ var plugin = {
       }
 
       function applyHeights(workArea, settingsPane, paneContentVisible, workAreaHeight, paneHeight, delay) {
-        animateHeight(workArea, workAreaHeight + "px", delay);
-        if (settingsPane) settingsPane.style.height = paneHeight + "px";
-        if (paneContentVisible) paneContentVisible.style.height = paneHeight - 110 + "px";
-      }
-
-      // replaces jQuery .stop().delay(delay).animate({ height }): waits for the delay, then animates to the new height in 400ms
-      function animateHeight(element, height, delay) {
-        if (!element) return;
-        stopHeightAnimation(element);
-        element.cpihResizeTimer = setTimeout(() => {
-          const from = getComputedStyle(element).height;
-          element.style.height = height;
-          element.cpihResizeAnimation = element.animate([{ height: from }, { height: height }], { duration: 400, easing: "ease-in-out" });
-        }, delay);
-      }
-
-      // like jQuery .stop(): cancel a pending delay and freeze a running animation at its current height
-      function stopHeightAnimation(element) {
-        if (!element) return;
-        clearTimeout(element.cpihResizeTimer);
-        const animation = element.cpihResizeAnimation;
-        if (animation && animation.playState === "running") {
-          element.style.height = getComputedStyle(element).height;
-          animation.cancel();
-        }
-        element.cpihResizeAnimation = null;
+        workArea
+          .stop()
+          .delay(delay)
+          .animate({ height: workAreaHeight + "px" });
+        settingsPane.css("height", paneHeight + "px");
+        paneContentVisible.css("height", paneHeight - 110 + "px");
       }
 
       // Resizing function
@@ -188,10 +168,10 @@ var plugin = {
         var newHeightInPx;
 
         // get height of view and content
-        var viewHeight = view?.clientHeight;
-        var paneContentHeight = paneAllContent?.clientHeight;
+        var viewHeight = view.innerHeight();
+        var paneContentHeight = paneAllContent.innerHeight();
 
-        var minButton = document.querySelectorAll('[id $="iflowSplitter-bar0-min-btn-img"]'); // minimize button of the settings pane - only resize when this is visible (= pane expanded)
+        var minButton = $('[id $="iflowSplitter-bar0-min-btn-img"]'); // minimize button of the settings pane - only resize when this is visible (= pane expanded)
 
         // load both pause status first
         chrome.storage.local.get("paneDynResizePause", function (data) {
@@ -204,7 +184,7 @@ var plugin = {
 
             // Reset size depending on settings and pause modes, and check if pane is expanded, otherwise don't resize
             if (!resizePause && minButton.length == 1) {
-              stopHeightAnimation(workArea); // stop resize delay timer/animation if still active from previous click
+              workArea.stop(); // stop resize delay timer/animation if still active from previous click
 
               if (settingsPane != undefined) {
                 // configured height in pixel takes precedence

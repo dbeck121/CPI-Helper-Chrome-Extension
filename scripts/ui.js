@@ -4,29 +4,43 @@ function workingIndicator(status) {
   if (!document.querySelector("#cpiHelper_workingIndicator")) {
     body().appendChild(createElementFromHTML(`<i id='cpiHelper_workingIndicator' class='sync alternate loading icon' hidden></i>`));
   }
-  document.querySelector("#cpiHelper_workingIndicator").hidden = !status;
+  var x = $("#cpiHelper_workingIndicator");
+  status ? x.removeAttr("hidden") : x.attr("hidden", "");
 }
 
 //snackbar for messages (e.g. trace is on)
 function showToast(message, title, type = "") {
   //type = success, error, warning
-  return cpihToast({ message, title, type });
+  $.toast({
+    class: type + ($("html").hasClass("sapUiTheme-sap_horizon_dark") ? " ch_dark " : ""),
+    position: "bottom center",
+    showProgress: "bottom",
+    ...(title ? { title: title } : {}),
+    message,
+    newestOnTop: true,
+  });
 }
 function showWaitingPopup(content = undefined, classname = "small", title = "CPI Helper Is thinking", time = undefined) {
-  const waitingModal = document.querySelector("#cpiHelper_waiting_model") || (createGlobalId(), document.querySelector("#cpiHelper_waiting_model"));
-  waitingModal.className = `cpiHelper ui modal ${classname || ""}`;
-  waitingModal.innerHTML = `
+  $("#cpiHelper_waiting_model").html(`
       <div class="ui positive  icon message">
         <i class="sync alternate loading icon"></i>
         <div class="content">
           <div class="header">${title}</div>
           <p>${content || `Please Wait while we fetch content for you.`}</p>
         </div>
-    </div>`;
-  cpihModal.show(waitingModal, { closable: true });
+    </div>`);
+  $("#cpiHelper_waiting_model")
+    .modal({
+      class: classname,
+      closeIcon: false,
+      blurring: true,
+      closable: true,
+      detachable: false,
+    })
+    .modal("show");
   if (time) {
     setTimeout(() => {
-      cpihModal.hide("#cpiHelper_waiting_model");
+      $("#cpiHelper_waiting_model").modal("hide");
     }, time);
   }
 }
@@ -41,7 +55,7 @@ async function showBigPopup(
     callback: null,
     closeText: "Close",
     onclose: () => {
-      cpihModal.hide(["#cpiHelper_waiting_model", "#cpiHelper_semanticui_modal"]);
+      $("#cpiHelper_waiting_model, #cpiHelper_semanticui_modal").modal("hide");
     },
   },
   count = 0,
@@ -60,16 +74,16 @@ async function showBigPopup(
   }
 
   if (!parameters.closeText) parameters.closeText = "Close";
-  cpihModal.hide(["#cpiHelper_waiting_model", "#cpiHelper_semanticui_modal"]);
-  var modal = document.querySelector("#cpiHelper_semanticui_modal");
-  if (modal) {
-    modal.className = "cpiHelper ui modal";
+  $("#cpiHelper_waiting_model, #cpiHelper_semanticui_modal").modal("hide");
+  var $modal = $("#cpiHelper_semanticui_modal");
+  if ($modal.length) {
+    $modal.attr("class", "cpiHelper ui modal");
     if (parameters.large) {
-      modal.classList.add("large");
+      $modal.addClass("large");
     }
 
-    modal.innerHTML = `
-          <i class="close icon"></i>
+    $modal.html(`
+          <i class="close icon" style="color:var(--cpi-text-color)"></i>
           <div class="header" maxcount="${maxcount}" count="${count}">
             CPI Helper ${header ? "- " + header : ""}
           </div>
@@ -85,21 +99,23 @@ async function showBigPopup(
             ${maxcount && count !== maxcount - 1 ? '<div class="ui positive animated button"><div class="visible content">Next</div><div class="hidden content"><i class="angle double right icon"></i></div></div>' : ""}
             <div class="${buttonParameters.join(" ")}">${icon}${parameters.closeText}</div>
           </div>
-        `;
+        `);
 
     if (maxcount > 0) {
       ["negative", "positive"].forEach((type, index) => {
-        const button = modal.querySelector(`.actions .${type}.animated`);
-        if (button) {
-          button.addEventListener("click", () => {
-            const sortedArray = [...document.querySelectorAll(".cpiHelper_onclick[inline_cpi_child]")].map((e) => parseInt(e.getAttribute("inline_cpi_child"), 10)).sort((a, b) => a - b);
-            const currentCount = modal.querySelector(".header")?.getAttribute("count");
-            console.log(sortedArray, currentCount, sortedArray[currentCount], index === 0 ? "previous" : "next");
-            if (sortedArray[currentCount]) {
-              let element = findNearest(sortedArray, sortedArray[currentCount], index === 0 ? "previous" : "next");
-              document.querySelector(`[inline_cpi_child="${element}"] .cpiHelper_inlineInfo`)?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        const $button = $modal.find(`.${type}`);
+        if ($button.length) {
+          $button.on("click", () => {
+            const sortedArray = $(".cpiHelper_onclick[inline_cpi_child]")
+              .map((_, e) => parseInt($(e).attr("inline_cpi_child"), 10))
+              .get()
+              .sort((a, b) => a - b);
+            console.log(sortedArray, $("#cpiHelper_semanticui_modal .header").attr("count"), sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")], index === 0 ? "previous" : "next");
+            if (sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")]) {
+              let element = findNearest(sortedArray, sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")], index === 0 ? "previous" : "next");
+              $(`[inline_cpi_child=${element}] .cpiHelper_inlineInfo`).trigger("click");
               showToast(`${index ? "Next" : "Previous"} Step ${element} will be displayed shortly`);
-              cpihModal.hide(modal);
+              $modal.modal("hide");
               showWaitingPopup();
             } else {
               showToast(`${index ? "Next" : "Previous"} Step is not found`, "something went wrong", "error");
@@ -109,30 +125,39 @@ async function showBigPopup(
       });
     }
 
-    var infocontent = document.querySelector("#cpiHelper_bigPopup_content_semanticui");
+    var $infocontent = $("#cpiHelper_bigPopup_content_semanticui");
 
     if (typeof content === "string") {
-      infocontent.innerHTML = content;
+      $infocontent.html(content);
     } else if (typeof content === "object") {
-      infocontent.replaceChildren(content);
+      $infocontent.empty().append(content);
     } else if (typeof content === "function") {
       const result = await content();
-      if (typeof result === "string") infocontent.innerHTML = result;
-      else infocontent.replaceChildren(result);
+      $infocontent.empty().append(result);
     }
 
     if (parameters.callback) {
       parameters.callback();
     }
 
-    modal.classList.toggle("fullscreen", !!parameters.fullscreen);
-    cpihModal.show(modal, {
-      onHidden: function () {
-        if (parameters.onclose && parameters.onclose instanceof Function) {
-          parameters.onclose();
-        }
-      },
-    });
+    $modal
+      .toggleClass("fullscreen", parameters.fullscreen)
+      .modal({
+        detachable: false,
+        blurring: true,
+        autoShow: true,
+        onShow: function () {
+          if (!$modal.parent().is("#cpihelperglobal")) {
+            $("#cpihelperglobal").append($modal); // Ensuring the modal stays within its parent container
+          }
+        },
+        onHidden: function () {
+          if (parameters.onclose && parameters.onclose instanceof Function) {
+            parameters.onclose();
+          }
+        },
+      })
+      .modal("show");
   } else {
     showToast("", "Element is missing.. Reload the page", "error");
   }
@@ -283,18 +308,18 @@ async function openIflowInfoPopup() {
       `;
     x.appendChild(createElementFromHTML(textElement));
     textElement = `<div class="cpiHelper_infoPopUp_items">
-      <div>Name: <span class="cpiHelper_copyable">${cpiData?.flowData?.artifactInformation?.name}</span></div>
-      <div>Runtime: <span class="cpiHelper_copyable">${cpiData.runtimeLocationId}</span></div>
-      <div>SymbolicName: <span class="cpiHelper_copyable">${cpiData?.flowData?.artifactInformation?.symbolicName}</span></div>
+      <div>Name: ${cpiData?.flowData?.artifactInformation?.name}</div>
+      <div>Runtime: ${cpiData.runtimeLocationId}</div>
+      <div>SymbolicName: ${cpiData?.flowData?.artifactInformation?.symbolicName}</div>
       <div>DeploymentState: ${cpiData?.flowData?.artifactInformation?.deployState}</div>
       ${
         cpiData?.flowData?.artifactInformation?.deployState !== "UNDEPLOYED"
           ? `
       <div>Trace: ${cpiData?.flowData?.logConfiguration?.traceActive}</div>
-      <div>DeployedVersion: <span class="cpiHelper_copyable">${cpiData?.flowData?.artifactInformation?.version}</span></div>
+      <div>DeployedVersion: ${cpiData?.flowData?.artifactInformation?.version}</div>
       <div>DeployedOn: ${deployedOn}</div>
       <div>SemanticState: ${cpiData?.flowData?.artifactInformation?.semanticState}</div>
-      <div>DeployedBy: <span class="cpiHelper_copyable">${cpiData?.flowData?.artifactInformation?.deployedBy}</span></div>
+      <div>DeployedBy: ${cpiData?.flowData?.artifactInformation?.deployedBy}</div>
       `
           : ""
       }
@@ -600,6 +625,7 @@ async function openIflowInfoPopup() {
     whatsNewButton.innerText = "Whats New?";
     whatsNewButton.addEventListener("click", (a) => {
       whatsNewCheck(false);
+      $("#cpiHelper_semanticui_modal").modal({ autoShow: true, detachable: false, blurring: true }).modal("show");
       statistic("info_popup_whatsnew_click");
     });
     x.appendChild(whatsNewButton);
@@ -620,10 +646,19 @@ async function openIflowInfoPopup() {
     recrutingButton.classList.add("ui");
     recrutingButton.classList.add("button");
 
-    if (isGermanSpeakingUser()) {
+    var lang = navigator.language || navigator.userLanguage;
+
+    if (lang == "de-DE") {
       recrutingButton.innerText = "Werde Berater bei Kangoolutions";
       recrutingButton.addEventListener("click", (a) => {
         recrutingPopup(true);
+        $("#cpiHelper_semanticui_modal")
+          .modal({
+            autoShow: true,
+            detachable: false,
+            blurring: true,
+          })
+          .modal("show");
         statistic("info_popup_recruting_click");
       });
       x.appendChild(recrutingButton);

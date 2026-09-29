@@ -177,6 +177,8 @@ var plugin = {
         pluginHelper.functions.popup(element, "Notepad", {
           fullscreen: false,
           callback: async () => {
+            $(".tabular.menu .item").tab();
+
             await handleTextboxRefresh(`cpiHelper_notepad_plugin_local_${pluginHelper.tenant}_${pluginHelper.integrationFlowId}`, "cpiHelper_local_textbox");
             document.getElementById("cpiHelper_local_textbox_refresh").onclick = async () => await handleTextboxRefresh(`cpiHelper_notepad_plugin_local_${pluginHelper.tenant}_${pluginHelper.integrationFlowId}`, "cpiHelper_local_textbox");
             document.getElementById("cpiHelper_local_textbox_save").onclick = async () => await handleTextboxSave(`cpiHelper_notepad_plugin_local_${pluginHelper.tenant}_${pluginHelper.integrationFlowId}`, "cpiHelper_local_textbox");

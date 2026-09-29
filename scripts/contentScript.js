@@ -30,6 +30,7 @@ cpiData.flowData.logConfiguration.traceActive = null;
 
 cpiData.flowData.endpointInformation = [];
 
+//cpiData.isEdge = false;
 cpiData.runtimeLocationId = "cloudintegration";
 cpiData.runtimeLocations = [];
 cpiData.runtimeLocationWithActiveIFlow = [];
@@ -47,8 +48,6 @@ cpiArtifactURIRegexp = [
   [/\/odataservices\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "ODATA API"],
   [/\/restapis\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "REST API"],
   [/\/soapapis\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "SOAP API"],
-  [/\/apis\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "API"],
-  [/\/mcpservers\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "MCP Server"],
   [/\/valuemappings\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Value Mapping"],
   [/\/scriptcollections\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Script Collection"],
   [/\/messagemappings\/(?<artifactId>[0-9a-zA-Z_\-.]+)/, "Message Mapping"],
@@ -64,6 +63,7 @@ cpiArtifactURIRegexp = [
 var cpiTypeRegexp = /^[^\/]*\.integrationsuite(-trial)?.*/;
 
 var cpiCollectionURIRegexp = /\/contentpackage\/(?<artifactId>[0-9a-zA-Z_\-.]+)/;
+var cpiIflowUriRegexp = /\/integrationflows\/(?<artifactId>[0-9a-zA-Z_\-.]+)/;
 
 cpiData.functions.openTrace = openTrace;
 
@@ -137,6 +137,7 @@ async function renderMessageSidebar(cache = true) {
   } catch (e) {
     log.error("There was a faulty message from CI-API. CPI Helper will ignore it: " + e);
   }
+  //    document.getElementById('iflowName').innerText = cpiData.integrationFlowId;
 
   let updatedText = document.getElementById("cpiHelper_sidebar_refresh_text");
 
@@ -175,7 +176,12 @@ async function renderMessageSidebar(cache = true) {
         messageList.innerHTML = "";
         var lastDay;
 
+        //display few :
+        // var count = parseInt(document.querySelector("head > meta[name='cpi-count']") !== null ? document.querySelector("head > meta[name='cpi-count']").content : resp.length);
+
         for (var i = 0; i < resp.length; i++) {
+          //var logStart = resp[i].LogStart == null ? "-" : resp[i].LogStart;
+
           var logStart = new Date(parseInt(resp[i].LogStart.match(/\d+/)[0]));
           var logStartFormatted = logStart.toISOString().substring(0, 19);
           var logEnd = new Date(parseInt(resp[i].LogEnd.match(/\d+/)[0]));
@@ -213,6 +219,7 @@ async function renderMessageSidebar(cache = true) {
             flash = " flash";
           }
           let loglevel = resp[i].LogLevel.toLowerCase();
+          // logLevel[0] = logLevel[0].toUpperCase();
           runInfoElement[thisMessageHash].logLevel = loglevel;
 
           let traceButton = createElementFromHTML(`<button title='jump to trace page' id='trace--${i}' class='${resp[i].MessageGuid} ${flash}'>${loglevel.substr(0, 1).toUpperCase()}</button>`);
@@ -233,6 +240,8 @@ async function renderMessageSidebar(cache = true) {
             `<button title='show log viewer on this page' id='logs--${i}' class='${resp[i].MessageGuid} ${flash}'><span data-sap-ui-icon-content=\"\" class='sapUiIcon sapUiIconMirrorInRTL' style='font-family: SAP-icons; font-size: 0.9rem;'></span></button>`
           );
 
+          //let listItem = document.createElement("div");
+          //listItem.classList.add("cpiHelper_messageListItem")
           let statusColor = getStatusColorCode(resp[i].Status);
           let statusIcon = "xe05b";
           if (resp[i].Status == "PROCESSING") {
@@ -248,6 +257,8 @@ async function renderMessageSidebar(cache = true) {
             statusIcon = "xe23e";
           }
 
+          //listItem.style["color"] = statusColor;
+
           activeInlineItem == quickInlineTraceButton.classList[0] && quickInlineTraceButton.classList.add("cpiHelper_inlineInfo-active");
 
           let statusicon = createElementFromHTML(
@@ -260,7 +271,7 @@ async function renderMessageSidebar(cache = true) {
 
           statusicon.onclick = async (e) => {
             if (e.currentTarget.classList.contains("cpiHelper_sidebar_iconbutton")) {
-              cpihCloseToasts();
+              $(".ui.toast").toast("close");
               e.currentTarget.classList.remove("cpiHelper_sidebar_iconbutton");
             } else {
               document.querySelectorAll(".cpiHelper_sidebar_iconbutton").forEach((i) => i.classList.remove("cpiHelper_sidebar_iconbutton"));
@@ -320,8 +331,7 @@ async function renderMessageSidebar(cache = true) {
       log.error("There was an error when processing the log entries. Process aborted. " + e);
     }
   }
-  // like before the toolbar: plugins that are not static run their onRender on every message refresh
-  await runPluginContentHooks(true);
+  await messageSidebarPluginContent();
 }
 
 function calculateMessageSidebarTimerTime(lastTabHidden, lastDurationRefresh) {
@@ -420,7 +430,7 @@ cpiData.functions.undeploy = undeploy;
 
 // inject breadcrumbs for package if missing
 function addBreadcrumbs() {
-  const crumbs = document.querySelectorAll('nav[id*="breadcrumbs"] ol:first-child li');
+  const crumbs = $('nav[id*="breadcrumbs"]').find("ol:first-child").find("li");
   if (crumbs) {
     if (crumbs.length == 1) {
       const regex = /(.+\/contentpackage\/)(.+?)\/.*/;
@@ -436,11 +446,15 @@ function addBreadcrumbs() {
         }
         packageName = regexMatch[2];
       }
-      const newLi = createElementFromHTML(`<li class="sapMBreadcrumbsItem"><a href="${packageUrl}" tabindex="0" class="sapMLnk sapMLnkMaxWidth">${packageName}</a><span class="sapMBreadcrumbsSeparator">/</span></li>`);
-      crumbs[0].prepend(newLi);
+      const newLi = $(`<li class="sapMBreadcrumbsItem"><a href="${packageUrl}" tabindex="0" class="sapMLnk sapMLnkMaxWidth">${packageName}</a><span class="sapMBreadcrumbsSeparator">/</span></li>`);
+      crumbs.prepend(newLi);
     }
   }
 }
+
+//injected buttons are created here
+var powertrace = null;
+var recrutingTimerSet = false;
 
 // Function to update runtime location dropdown options
 function updateRuntimeLocationDropdown(traceDropdownMenu = null) {
@@ -475,212 +489,240 @@ function updateRuntimeLocationDropdown(traceDropdownMenu = null) {
 // Make update function globally accessible
 cpiData.functions.updateRuntimeLocationDropdown = updateRuntimeLocationDropdown;
 
-chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === "sync" && Object.keys(changes).some((key) => key.endsWith("---isActive"))) {
-    removeFloatingToolbar();
-  }
-});
-
-// the heartbeat calls this every 3 seconds without awaiting, so a build that is still running must not start a second one
-var floatingToolbarBuild = null;
-
 async function buildButtonBar() {
-  if (floatingToolbarBuild) return floatingToolbarBuild;
-  floatingToolbarBuild = buildFloatingToolbar().finally(() => {
-    floatingToolbarBuild = null;
-  });
-  return floatingToolbarBuild;
-}
+  //check if the header object is ready
+  let area = document.querySelector("[id*='--iflowObjectPageHeader-actions']");
+  if (!area) {
+    area = document.querySelector(".sapUxAPObjectPageHeaderIdentifierActions");
+  }
 
-// artifact pages with the full toolbar (trace, messages, ...). Every other CPI page gets the global one
-const FLOATING_TOOLBAR_ARTIFACT_TYPES = ["IFlow", "ODATA API", "REST API", "SOAP API", "API", "MCP Server"];
+  if (!area) {
+    log.error("header object not ready");
+    return;
+  }
 
-function isArtifactToolbarPage() {
-  return FLOATING_TOOLBAR_ARTIFACT_TYPES.includes(cpiData.currentArtifactType);
-}
+  try {
+    var headerBar = document.querySelector("[id*='--iflowObjectPageHeader-identifierLine']");
+    headerBar.style.overflow = "visible";
+  } catch (e) {
+    log.error("error when trying to set padding-bottom of headerbar");
+  }
 
-// The toolbar lives on <body> (scripts/floatingToolbar.js). Unlike the old header buttons it does not wait for
-// the UI5 header, which some pages do not have. On artifact pages it has the artifact actions, on all other pages
-// only the navigation (scripts/globalToolbar.js) and the plugin management.
-async function buildFloatingToolbar() {
-  const artifactMode = isArtifactToolbarPage();
-  // Load runtime location info before creating the runtime menu
-  if (artifactMode) await getIflowInfo(null, true, true);
+  // Load runtime location info before creating dropdown
+  await getIflowInfo(null, true, true);
 
-  var existingToolbar = getFloatingToolbar();
-  // another artifact can have other runtime locations, so its toolbar is built from scratch
-  const toolbarKey = artifactMode ? cpiData.currentArtifactId || "" : "global";
-  if (!existingToolbar || existingToolbar.dataset.artifactId !== toolbarKey) {
+  // get status of powertrace button
+  var powertraceText = await refreshPowerTrace();
+  if (!document.getElementById("__buttonxx")) {
     whatsNewCheck();
-    // once per page load, the check itself decides whether the recruiting popup is due
-    if (!recruitingPopupScheduled) {
-      recruitingPopupScheduled = true;
-      scheduleRecruitingPopup();
+
+    //timer for recruiting popup in some seconds
+    if (recrutingTimerSet == false) {
+      setTimeout(() => {
+        //     recrutingPopup();
+      }, 600000);
+      recrutingTimerSet = true;
     }
 
-    var toolbar = await createFloatingToolbar(toolbarKey);
+    // Create More button
+    var moreButton = createElementFromHTML(
+      `<button id="__more_button" title="More Options" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; float: right; margin-left: 0px;">
+        <span class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable">
+          <span class="sapMBtnContent">
+            <span class="sapUiIcon sapUiIconMirrorInRTL" style="font-family: SAP-icons; font-size: 1rem;">&#xe1e2;</span>
+          </span>
+        </span>
+      </button>`
+    );
 
-    if (!artifactMode) {
-      addGlobalNavigationButtons(toolbar);
-      addFloatingToolbarButton(toolbar, {
-        id: "__more_plugins",
-        icon: "plugins",
-        title: "Plugins",
-        onClick: async () => {
-          statistic("toolbar_btn_plugins_global_click");
-          showBigPopup(await createContentNodeForPlugins(), "Plugins");
-        },
-      });
-      return;
-    }
+    // Create More dropdown menu
+    var moreDropdownMenu = createElementFromHTML(
+      `<div id="__more_dropdown_menu" style="display: none; position: fixed; background: var(--sapGroup_ContentBackground, #fff); border: 1px solid var(--sapList_BorderColor, #ccc); border-radius: 0.25rem; box-shadow: var(--sapContent_Shadow2); min-width: 140px; z-index: 1000;">
+          <div class="__more_dropdown_item" id="__more_logs" style="padding: 0.5rem 1rem; cursor: pointer; font-size: 0.875rem; border-bottom: 1px solid var(--sapList_BorderColor, #eee); display: flex; align-items: center; color: var(--sapList_TextColor, #32363a);"><span class="sapUiIcon sapUiIconMirrorInRTL" style="font-family: SAP-icons; font-size: 1rem; margin-right: 0.5rem;">&#xe011;</span>Logs</div>
+          <div class="__more_dropdown_item" id="__more_plugins" style="padding: 0.5rem 1rem; cursor: pointer; font-size: 0.875rem; display: flex; align-items: center; color: var(--sapList_TextColor, #32363a);"><span class="sapUiIcon sapUiIconMirrorInRTL" style="font-family: SAP-icons; font-size: 1rem; margin-right: 0.5rem;">&#xe192;</span>Plugins</div>
+      </div>`
+    );
 
-    addFloatingToolbarButton(toolbar, {
-      id: "__buttonxx",
-      icon: "trace",
-      title: "Trace",
-      accessKey: "2",
-      onClick: async (tracebutton) => {
-        // Validate runtime location availability
-        if (!cpiData.runtimeLocationId) {
-          showToast("Please select a runtime location first.", "No runtime location selected", "error");
-          return;
-        }
+    // Create trace button
+    var tracebutton = createElementFromHTML(
+      `<button id="__buttonxx" accesskey="2" data-sap-ui="__buttonxx" title="Enable traces Kbd : 2" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; float: right;"><span id="__buttonxx-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button134345-content"><bdi id="button134345-BDI-content" class="${powertraceText}">Trace</bdi></span></span></button>`
+    );
 
-        const traceActive = !tracebutton.classList.contains("cpiHelper_floatingToolbar_button_active");
-        setFloatingToolbarButtonActive("__buttonxx", traceActive);
-        const objName = `${cpiData.integrationFlowId}_${cpiData.runtimeLocationId}_powertraceLastRefresh`;
-        if (traceActive) {
-          setLogLevel("TRACE", cpiData.integrationFlowId);
-          statistic("set_log_level", "TRACE");
-          const objectToStore = {};
-          objectToStore[objName] = new Date().getTime().toString();
-          await storageSetPromise(objectToStore);
-          log.log("powertraceLastRefresh saved");
-        } else {
-          showToast("Trace will not be retriggered anymore.");
-          const objectToStore = {};
-          objectToStore[objName] = null;
-          await storageSetPromise(objectToStore);
-          log.log("powertraceLastRefresh Cleared");
-        }
-      },
+    var infobutton = createElementFromHTML(
+      ' <button id="__buttoninfo" accesskey="4" data-sap-ui="__buttoninfo" title="Info Kbd : 4" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; float: right;"><span id="__buttonxy-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button13-content"><bdi id="__button134343-BDI-content">Info</bdi></span></span></button>'
+    );
+    infobutton.addEventListener("click", (btn) => {
+      statistic("headerbar_btn_info_click");
+      openIflowInfoPopup();
     });
 
-    addFloatingToolbarButton(toolbar, {
-      id: "__buttonxy",
-      icon: "messages",
-      title: "Messages",
-      accessKey: "3",
-      onClick: () => {
-        if (sidebar.active) {
-          sidebar.deactivate();
-        } else {
-          sidebar.init();
-          log.debug("headerbar message btn clicked.");
-          statistic("headerbar_btn_message_click");
-        }
-      },
-    });
-
-    // extremely experimental, switched on in the settings of the browser popup
-    if (await snippetsEnabled()) addSnippetsToolbarButton(toolbar);
-
-    addFloatingToolbarButton(toolbar, {
-      id: "__buttoninfo",
-      icon: "info",
-      title: "Info",
-      accessKey: "4",
-      onClick: () => {
-        statistic("headerbar_btn_info_click");
-        openIflowInfoPopup();
-      },
-    });
-
-
-    addFloatingToolbarButton(toolbar, {
-      id: "__more_logs",
-      icon: "logs",
-      title: "Logs",
-      onClick: async () => {
-        statistic("headerbar_btn_logs_click");
-        // the logs popup opens and it shows the sidebar. the sidebar elements are updated
-        showBigPopup(await createContentNodeForLogs(null, true), "Logs");
-        updateArtifactList();
-        updateLogList();
-      },
-    });
-
-
+    var runtimeButton;
+    var runtimeButtonContainer;
+    // Create runtime button container with dropdown
     if (cpiData.runtimeLocations && cpiData.runtimeLocations.length > 1) {
-      const runtimeButton = addFloatingToolbarMenuButton(toolbar, {
-        id: "__runtime_button",
-        icon: "runtime",
-        title: "Runtime",
-        getItems: async () => {
-          // Update runtime info on open to ensure fresh data
-          await getIflowInfo(null, true, false);
-          return cpiData.runtimeLocations.map((location) => {
-            const isActive = cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id === location.id);
-            return {
-              label: isActive ? `${location.id} (deployed)` : location.id,
-              selected: location.id === cpiData.runtimeLocationId,
-              onClick: () => {
-                runtimeLocationPickedByUser = true;
-                setRuntimeLocation(location);
-              },
-            };
-          });
-        },
+      //cpiData.runtimeLocations.length > 1) {
+      runtimeButtonContainer = createElementFromHTML(
+        `<div id="__runtime_button_container" style="display: inline-block; float: right; position: relative; margin-left: 10px;">
+        <button id="__runtime_button" title="Select Runtime Location" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="margin: 0 !important;">
+          <span class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable">
+            <span class="sapMBtnContent">
+              <bdi>Runtime</bdi>
+            </span>
+          </span>
+        </button>
+        <div id="__trace_dropdown_menu" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); min-width: 160px; z-index: 1000; margin-top: 2px;">
+        </div>
+      </div>`
+      );
+      runtimeButton = runtimeButtonContainer.querySelector("#__runtime_button");
+      // Close dropdown when clicking outside (registered once)
+      document.addEventListener("click", (e) => {
+        if (!runtimeButtonContainer.contains(e.target)) {
+          runtimeButtonContainer.querySelector("#__trace_dropdown_menu").style.display = "none";
+        }
+        if (!moreButton.contains(e.target) && !moreDropdownMenu.contains(e.target)) {
+          moreDropdownMenu.style.display = "none";
+        }
       });
-      // the number shows that there is more than one runtime to switch to
-      setFloatingToolbarBadge(runtimeButton, cpiData.runtimeLocations.length);
-      runtimeButton.setAttribute("aria-label", `Runtime: ${cpiData.runtimeLocationId} (${cpiData.runtimeLocations.length} available)`);
-      runtimeButton.dataset.cpiHint = `Runtime: ${cpiData.runtimeLocationId} (${cpiData.runtimeLocations.length} available)`;
+
+      // Handle dropdown item selection (registered once)
+      runtimeButtonContainer.querySelector("#__trace_dropdown_menu").addEventListener("click", (e) => {
+        const item = e.target.closest(".__trace_dropdown_item");
+        if (item) {
+          const locationId = item.getAttribute("data-location-id");
+          const location = cpiData.runtimeLocations.find((loc) => loc.id === locationId);
+          setRuntimeLocation(location || { id: locationId });
+
+          runtimeButtonContainer.querySelector("#__trace_dropdown_menu").style.display = "none";
+        }
+      });
+
+      runtimeButton.addEventListener("click", async (e) => {
+        e.stopPropagation();
+
+        var traceDropdownMenu = runtimeButtonContainer.querySelector("#__trace_dropdown_menu");
+        const isVisible = traceDropdownMenu.style.display === "block";
+
+        if (!isVisible) {
+          // Update runtime info on click to ensure fresh data
+          await getIflowInfo(null, true, false);
+          updateRuntimeLocationDropdown();
+        }
+
+        traceDropdownMenu.style.display = isVisible ? "none" : "block";
+      });
     }
 
-    addFloatingToolbarSeparator(toolbar, "Go to");
-    addGlobalNavigationButtons(toolbar);
+    var logsItem = moreDropdownMenu.querySelector("#__more_logs");
+    var pluginsItem = moreDropdownMenu.querySelector("#__more_plugins");
 
-    // plugin section: toolbarButton plugins run their action directly, messageSidebarContent plugins open a panel
-    await runPluginContentHooks();
-    addFloatingToolbarSeparator(toolbar, "Plugins");
-    for (const { plugin, kind } of await getToolbarPlugins()) {
-      const entry = {
-        id: `cpiHelperToolbarPlugin--${plugin.id}`,
-        iconNode: createPluginToolbarIcon(plugin),
-        title: plugin.toolbarButton?.title || plugin.name,
-      };
-      if (kind === "button") {
-        addFloatingToolbarButton(toolbar, {
-          ...entry,
-          onClick: async () => {
-            try {
-              await plugin.toolbarButton.onClick(cpiData, await getPluginSettings(plugin.id));
-            } catch (error) {
-              log.error(`plugin ${plugin.id}: toolbarButton.onClick failed`, error);
-              showToast("The plugin failed, see the browser console for details.", plugin.name, "error");
-            }
-          },
-        });
+    //Create Toggle Message Bar Button
+    var messagebutton = createElementFromHTML(
+      ' <button id="__buttonxy" accesskey="3" data-sap-ui="__buttonxy" title="Messages Kbd : 3" class="sapMBtn sapMBtnBase spcHeaderActionButton" style="display: inline-block; float: right;"><span id="__buttonxy-inner" class="sapMBtnHoverable sapMBtnInner sapMBtnText sapMBtnTransparent sapMFocusable"><span class="sapMBtnContent" id="__button13-content"><bdi id="__button18778-BDI-content">Messages</bdi></span></span></button>'
+    );
+
+    area.style.textAlign = "right";
+    document.querySelector("[id*='--searchStep-I']").accessKey = "s";
+    area = document.querySelector("[id*='--iflowObjectPageHeader-actions']");
+    if (!area) {
+      area = document.querySelector(".sapUxAPObjectPageHeaderIdentifierActions");
+    }
+    //   area.addEventListener("click", () => {
+    //     document.querySelector("[id*='--searchStep-I']").accessKey = "s";
+    //   });
+
+    //create div for better alignment of runtime button
+    var buttonbarDiv = document.createElement("div");
+    // ensure the container sits above other elements and is positioned for its dropdowns
+    buttonbarDiv.style.position = "relative";
+    buttonbarDiv.style.zIndex = "4";
+    buttonbarDiv.style.display = "flex";
+    buttonbarDiv.style.flexWrap = "wrap";
+    buttonbarDiv.style.justifyContent = "flex-end";
+
+    buttonbarDiv.appendChild(tracebutton);
+    buttonbarDiv.appendChild(messagebutton);
+    buttonbarDiv.appendChild(infobutton);
+    buttonbarDiv.appendChild(moreButton);
+
+    if (runtimeButtonContainer) {
+      runtimeButtonContainer.style.flexBasis = "100%";
+      buttonbarDiv.appendChild(runtimeButtonContainer);
+    }
+
+    area.appendChild(buttonbarDiv);
+
+    // Append dropdown to body to avoid clipping or relative positioning issues
+    document.body.appendChild(moreDropdownMenu);
+
+    // Toggle More dropdown
+    moreButton.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isVisible = moreDropdownMenu.style.display === "block";
+
+      if (!isVisible) {
+        moreDropdownMenu.style.visibility = "hidden";
+        moreDropdownMenu.style.display = "block";
+        const rect = moreButton.getBoundingClientRect();
+        const width = moreDropdownMenu.offsetWidth;
+        moreDropdownMenu.style.top = rect.bottom + 2 + "px";
+        moreDropdownMenu.style.left = rect.right - width + "px";
+        moreDropdownMenu.style.visibility = "visible";
       } else {
-        addFloatingToolbarPanelButton(toolbar, { ...entry, render: () => getPluginPanelContent(plugin) });
+        moreDropdownMenu.style.display = "none";
       }
-    }
-    addFloatingToolbarButton(toolbar, {
-      id: "__more_plugins",
-      icon: "settings",
-      title: "Manage plugins",
-      onClick: async () => {
-        statistic("headerbar_btn_plugins_click");
-        showBigPopup(await createContentNodeForPlugins(), "Plugins");
-      },
     });
 
-    // only the iflow editor has the step search
-    var searchStepInput = document.querySelector("[id*='--searchStep-I']");
-    if (searchStepInput) {
-      searchStepInput.accessKey = "s";
-    }
+    tracebutton.addEventListener("click", async () => {
+      // Validate runtime location availability
+      if (!cpiData.runtimeLocationId) {
+        showToast("Please select a runtime location first.", "No runtime location selected", "error");
+        return;
+      }
+
+      const btn = document.getElementById("button134345-BDI-content");
+      btn.classList.toggle("cpiHelper_powertrace");
+      const objName = `${cpiData.integrationFlowId}_${cpiData.runtimeLocationId}_powertraceLastRefresh`;
+      if (btn.classList.contains("cpiHelper_powertrace")) {
+        setLogLevel("TRACE", cpiData.integrationFlowId);
+        statistic("set_log_level", "TRACE");
+        const objectToStore = {};
+        objectToStore[objName] = new Date().getTime().toString();
+        await storageSetPromise(objectToStore);
+        log.log("powertraceLastRefresh saved");
+      } else {
+        showToast("Trace will not be retriggered anymore.");
+        const objectToStore = {};
+        objectToStore[objName] = null;
+        await storageSetPromise(objectToStore);
+        log.log("powertraceLastRefresh Cleared");
+      }
+    });
+    messagebutton.addEventListener("click", (btn) => {
+      if (sidebar.active) {
+        sidebar.deactivate();
+      } else {
+        sidebar.init();
+        log.debug("headerbar message btn clicked.");
+        statistic("headerbar_btn_message_click");
+      }
+    });
+
+    logsItem.addEventListener("click", async (btn) => {
+      statistic("headerbar_btn_logs_click");
+      // the logs popup opens and it shows the sidebar. the sidebar elements are updated
+      showBigPopup(await createContentNodeForLogs(null, true), "Logs");
+      updateArtifactList();
+      updateLogList();
+      moreDropdownMenu.style.display = "none";
+    });
+
+    pluginsItem.addEventListener("click", async (btn) => {
+      statistic("headerbar_btn_plugins_click");
+      // the logs popup opens and it shows the sidebar. the sidebar elements are updated
+      showBigPopup(await createContentNodeForPlugins(), "Plugins");
+      moreDropdownMenu.style.display = "none";
+    });
 
     log.debug("Artifect from checks for sidebar", cpiData.currentArtifactType);
     if ((sidebar.active == null || sidebar.active == false) && cpiData.currentArtifactType) {
@@ -731,41 +773,6 @@ async function getIflowInfo(callback, silent = false, cache = true) {
   return result;
 }
 
-// deployed artifact of the current iFlow / API on one runtime location, null when it is not deployed there
-async function fetchRuntimeArtifact(locationId, cacheValue, silent) {
-  const symbolicName = cpiData.integrationFlowId;
-  if (locationId === "cloudintegration") {
-    const resp = await makeCallPromiseV2("GET", `/api/v1/IntegrationRuntimeArtifacts('${symbolicName}')?$format=json`, cacheValue, "application/json", null, null, null, !silent);
-    if (!resp.successful) {
-      // 404 means not deployed (expected)
-      if (resp.status !== 404) log.warn(`Error fetching artifact for runtime location ${locationId}: ${resp.statusText}`);
-      return null;
-    }
-    const artifact = JSON.parse(resp.responseText).d; // OData wraps data in 'd' property
-    if (!artifact) return null;
-    // Map OData field names to the structure of the list command
-    return {
-      ...artifact,
-      symbolicName: symbolicName,
-      id: artifact.Id,
-      version: artifact.Version,
-      deployState: artifact.Status,
-      deployedOn: artifact.DeployedOn,
-      deployedBy: artifact.DeployedBy,
-      name: artifact.Name || symbolicName,
-    };
-  }
-  const resp = await makeCallPromiseV2("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListCommand?runtimeLocationId=" + encodeURIComponent(locationId), cacheValue, null, null, null, null, !silent);
-  if (!resp.successful) {
-    log.warn(`Error fetching integration components for runtime location ${locationId}: ${resp.statusText || resp.message}`);
-    return null;
-  }
-  const respJson = new XmlToJson().parse(resp.responseText)["com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentsListResponse"];
-  const list = respJson?.artifactInformations;
-  const artifacts = Array.isArray(list) ? list : list ? [list] : [];
-  return artifacts.find((element) => element.symbolicName == symbolicName) || null;
-}
-
 async function getIflowInfoCf(callback, silent = false, cache = true) {
   let cacheValue = 3000;
   if (!cache) {
@@ -803,8 +810,6 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
       throw "No active runtime locations found. Please check your environment.";
     }
 
-    applyDefaultRuntimeLocation();
-
     //iterate all runtime locations to find the ones that have active iflows
     cacheValue = 500; // default cache value for the next calls
     if (!cpiData.runtimeLocationWithActiveIFlow || cpiData.runtimeLocationWithActiveIFlow.length == 0) {
@@ -818,69 +823,171 @@ async function getIflowInfoCf(callback, silent = false, cache = true) {
       cacheValue = false;
     }
 
-    // one call for the selected location. The OData API only knows the main runtime (cloudintegration), other
-    // runtimes like the integration cell answer through the list command of that location, which stays small there
-    const activeLocations = [];
-    const selectedLocation = cpiData.runtimeLocations.find((loc) => loc.id == cpiData.runtimeLocationId) || (cpiData.runtimeLocationId ? { id: cpiData.runtimeLocationId } : null);
-    if (selectedLocation) {
+    runtimeLocationWithActiveIFlow = [];
+    for (const loc of cpiData.runtimeLocations) {
       try {
-        const artifact = await fetchRuntimeArtifact(selectedLocation.id, cacheValue, silent);
-        if (artifact) {
-          // keep the artifact information of the selected location, saves another call later
-          if (artifact.tenantId) cpiData.tenantId = artifact.tenantId;
-          cpiData.flowData.artifactInformation.lastUpdate = new Date().toISOString();
-          cpiData.flowData.artifactInformation.artifactId = artifact.id || null;
-          cpiData.flowData.artifactInformation.version = artifact.version || null;
-          cpiData.flowData.artifactInformation.deployState = artifact.deployState || null;
-          cpiData.flowData.artifactInformation.deployedOn = artifact.deployedOn || null;
-          cpiData.flowData.artifactInformation.name = artifact.name || null;
-          cpiData.flowData.artifactInformation.symbolicName = artifact.symbolicName || null;
-          cpiData.flowData.artifactInformation.id = artifact.id || null;
-          cpiData.flowData.artifactInformation.semanticState = artifact.semanticState || null;
-          cpiData.flowData.artifactInformation.deployedBy = artifact.deployedBy || null;
-          cpiData.flowData.manualSetUndeployed = false;
+        const symbolicName = cpiData.integrationFlowId;
+        const resp = await makeCallPromiseV2("GET", `/api/v1/IntegrationRuntimeArtifacts('${symbolicName}')?$format=json`, cacheValue, "application/json", null, null, null, !silent);
 
-          activeLocations.push({
-            id: selectedLocation.id,
-            state: selectedLocation.state,
-            type: selectedLocation.type,
-            typeId: selectedLocation.typeId,
+        if (!resp.successful) {
+          // 404 means IFlow not deployed on this runtime location (expected)
+          if (resp.status === 404) {
+            log.debug(`IFlow ${symbolicName} not found on runtime location ${loc.id}`);
+            continue;
+          }
+          // Other errors (500, network issues, etc.)
+          log.warn(`Error fetching artifact for runtime location ${loc.id}: ${resp.statusText}`);
+          continue;
+        }
+
+        const respJson = JSON.parse(resp.responseText);
+        const artifact = respJson.d; // OData v4 wraps data in 'd' property
+
+        // Map OData field names to plugin's expected structure
+        if (artifact) {
+          artifact.symbolicName = symbolicName;
+          artifact.id = artifact.Id;
+          artifact.version = artifact.Version;
+          artifact.deployState = artifact.Status;
+          artifact.deployedOn = artifact.DeployedOn;
+          artifact.deployedBy = artifact.DeployedBy;
+          artifact.name = artifact.Name || symbolicName; // Fallback to symbolicName if Name not present
+        }
+
+        if (artifact) {
+          // collect information about current tenant and artifact if runtime location matches the selected one. this is needed to avoid another call to get the artifact information later, because we already have it here
+          if (cpiData.runtimeLocationId && loc.id == cpiData.runtimeLocationId) {
+            cpiData.flowData.artifactInformation.lastUpdate = new Date().toISOString();
+            cpiData.flowData.artifactInformation.artifactId = artifact.id || null;
+            cpiData.flowData.artifactInformation.version = artifact.version || null;
+            cpiData.flowData.artifactInformation.deployState = artifact.deployState || null;
+            cpiData.flowData.artifactInformation.deployedOn = artifact.deployedOn || null;
+            cpiData.flowData.artifactInformation.name = artifact.name || null;
+            cpiData.flowData.artifactInformation.symbolicName = artifact.symbolicName || null;
+            cpiData.flowData.artifactInformation.id = artifact.id || null;
+            cpiData.flowData.artifactInformation.semanticState = artifact.semanticState || null;
+            cpiData.flowData.artifactInformation.deployedBy = artifact.deployedBy || null;
+            cpiData.flowData.manualSetUndeployed = false;
+          }
+
+          runtimeLocationWithActiveIFlow.push({
+            id: loc.id,
+            state: loc.state,
+            type: loc.type,
+            typeId: loc.typeId,
             artifact: artifact,
           });
         }
       } catch (locError) {
-        log.warn("Error fetching runtime location " + selectedLocation.id + ": ", locError);
+        log.warn("Error fetching runtime location " + loc.id + ": ", locError);
+        continue;
       }
     }
 
-    if (cpiData.runtimeLocationId && !activeLocations.length) {
+    if (cpiData.runtimeLocationId && !runtimeLocationWithActiveIFlow.find((loc) => loc.id == cpiData.runtimeLocationId)) {
       log.warn("No active IFlow found for location " + cpiData.runtimeLocationId);
       cpiData.flowData.artifactInformation.deployState = "UNDEPLOYED";
       cpiData.flowData.artifactInformation.deployedOn = null;
       cpiData.flowData.artifactInformation.deployedBy = null;
     }
 
-    cpiData.runtimeLocationWithActiveIFlow = activeLocations;
+    //check that there are no dublicates in runtimeLocationWithActiveIFlow, if yes, log it and remove duplicates
+    const uniqueIds = new Set();
+    runtimeLocationWithActiveIFlow = runtimeLocationWithActiveIFlow.filter((loc) => {
+      if (uniqueIds.has(loc.id)) {
+        log.warn("Duplicate runtime location found: " + loc.id + ". This should not happen, please check the environment.");
+        return false;
+      } else {
+        uniqueIds.add(loc.id);
+        return true;
+      }
+    });
+
+    /*
+    runtimeLocationWithActiveIFlowTemp = [];
+    for (const loc of runtimeLocationWithActiveIFlow) {
+      try {
+        // 4. Detaildaten holen
+        const detailResp = await makeCallPromiseV2(
+          "GET",
+          "/" + cpiData.urlExtension + "Operations/com.sap.it.op.tmn.commands.dashboard.webui.IntegrationComponentDetailCommand?artifactId=" + loc.artifact.id + "&runtimeLocationId=" + loc.id,
+          90,
+          "application/json",
+          null,
+          null,
+          null,
+          silent
+        );
+
+        if (!detailResp.successful) {
+          log.warn("Error fetching detail for location " + loc.id + ": " + detailResp.message);
+          continue;
+        }
+
+        const detail = JSON.parse(detailResp.responseText);
+
+        runtimeLocationWithActiveIFlowTemp.push({
+          detail: detail,
+          artifact: detail.artifactInformation,
+          artifactId: detail.artifactInformation?.id,
+          tenantId: detail.artifactInformation?.tenantId,
+          version: detail.artifactInformation?.version,
+          id: loc.id,
+          state: loc.state,
+          type: loc.type,
+          typeId: loc.typeId,
+        });
+      } catch (detailError) {
+        log.warn("Error fetching detail for location " + loc.id + ": ", detailError);
+        continue;
+      }
+    }
+
+    cpiData.runtimeLocationWithActiveIFlow = runtimeLocationWithActiveIFlowTemp;
+
+    //default
+    if (!cpiData.runtimeLocationId) {
+      if (cpiData.runtimeLocationWithActiveIFlow.length == 0) {
+        log.warn("No runtime location with active IFlow found. Set default to cloudintegration.");
+        setRuntimeLocation({ id: "cloudintegration" });
+      } else {
+        setRuntimeLocation(cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id == "cloudintegration") || cpiData.runtimeLocationWithActiveIFlow[0]);
+      }
+    }
+
+    setRuntimeLocation(
+      cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id === cpiData.runtimeLocationId),
+      true
+    );
+
+    */
+
+    /*   if (cpiData.runtimeLocationId) {
+      if (cpiData.runtimeLocationWithActiveIFlow.length == 0) {
+        log.warn("Previously selected runtime location " + cpiData.runtimeLocationId + " is not available anymore and no runtime location with active IFlow found. Please deploy the IFlow or check your environment.");
+        setRuntimeLocation({ id: "cloudintegration" });
+      } else if (!cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id === cpiData.runtimeLocationId)) {
+        if (cpiData.runtimeLocationWithActiveIFlow.length > 0) {
+          showToast("The previously selected runtime location " + cpiData.runtimeLocationId + " is not available anymore. Runtime location switched to " + cpiData.runtimeLocationWithActiveIFlow[0].id, "Runtime location switched", "warning");
+          setRuntimeLocation(cpiData.runtimeLocationWithActiveIFlow[0], true);
+        } else {
+          log.warn("Previously selected runtime location " + cpiData.runtimeLocationId + " is not available anymore and no other runtime location with active IFlow found. Please deploy the IFlow or check your environment.");
+          setRuntimeLocation({ id: "cloudintegration" });
+        }
+      } else {
+        //update
+        setRuntimeLocation(
+          cpiData.runtimeLocationWithActiveIFlow.find((loc) => loc.id === cpiData.runtimeLocationId),
+          true
+        );
+      }
+    }
+      */
 
     if (callback) callback();
   } catch (error) {
     log.error("Error getting Iflow Info: ", error);
     if (!silent) showToast("Error: " + JSON.stringify(error));
-  }
-}
-
-// The default runtime depends on the artifact type: APIs and MCP servers run on the integration cell,
-// everything else on cloudintegration. A runtime picked by hand in the toolbar wins until the page reloads.
-var runtimeLocationPickedByUser = false;
-function applyDefaultRuntimeLocation() {
-  if (runtimeLocationPickedByUser) return;
-  const locations = cpiData.runtimeLocations || [];
-  const wanted = ["API", "MCP Server"].includes(cpiData.currentArtifactType)
-    ? locations.find((loc) => loc.id === "integrationcell") || locations.find((loc) => loc.id !== "cloudintegration")
-    : locations.find((loc) => loc.id === "cloudintegration");
-  if (wanted && wanted.id !== cpiData.runtimeLocationId) {
-    log.debug(`default runtime location for ${cpiData.currentArtifactType}: ${wanted.id}`);
-    setRuntimeLocation(wanted, true);
   }
 }
 
@@ -908,13 +1015,6 @@ async function setRuntimeLocation(location, silent = false) {
   }
 
   log.debug(`Runtime location set to: ${cpiData.runtimeLocationId}`);
-
-  const runtimeButton = document.getElementById("__runtime_button");
-  if (runtimeButton) {
-    const hint = `Runtime: ${cpiData.runtimeLocationId} (${cpiData.runtimeLocations.length} available)`;
-    runtimeButton.setAttribute("aria-label", hint);
-    runtimeButton.dataset.cpiHint = hint;
-  }
 
   if (!change) {
     //do not update if runtime location is the same, to avoid unnecessary refreshes
@@ -1185,20 +1285,27 @@ var sidebar = {
     this.active = true;
     var elem = document.createElement("div");
     elem.innerHTML = `
-    <div id="cpiHelper_contentheader" content="${hostData.count}" >
-      <span id='sidebar_modal_minimize' class='cpiHelper_popupTitle'><span class='cpiHelper_floatingToolbar_dots'></span>CPI Helper</span>
-      <button type='button' id='sidebar_modal_close' class='cpiHelper_popupHeaderButton' title='Close' aria-label='Close'>${floatingToolbarIcon("close")}</button>
+    <div id="cpiHelper_contentheader" style="color:var(--cpi-text-color)" content="${hostData.count}" >
+      <span id='sidebar_modal_minimize' class='cpiHelper_closeButton_sidebar'>CPI Helper</span>
+      <span id='sidebar_modal_close' data-sap-ui-icon-content="&#xe03e" class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>
     </div>
     <div id="outerFrame" >
       <div>
         <div style="padding-left:0px" id="updatedText" class="contentText">
         <span id="cpiHelper_sidebar_refresh_text" style="padding-left: 0px; padding-top: 0px;">
     </span>
-    <button type="button" id="cpiHelper_sidebar_refresh_icon" class="cpiHelper_popupIconButton" title="Refresh" aria-label="Refresh">${floatingToolbarIcon("refresh")}</button>
+    <button id="cpiHelper_sidebar_refresh_icon" title="Refresh" style="background:none;border:none;cursor:pointer;vertical-align:middle;margin-left:0.5em;">
+      <i class="sync alternate icon"></i>
+    </button>
         </div>
         <div style="padding-left:0px; padding-top:0px" id="deploymentText" class="contentText"></div>
         <div><table id="messageList" class="contentText"></table></div>
       </div>
+    </div>
+    <div id="cpiHelper_messageSidebar_pluginArea" class="ui vertical fluid menu cpiHelper_hidden" style="color:#000"> 
+      <div class="ui centered header cpiHelper_hidden">
+      <div class="content">Plugin Page</div>
+      <span data-sap-ui-icon-content="&#xe03e" class='cpiHelper_closeButton_sidebar sapUiIcon sapUiIconMirrorInRTL' style='font-size: 1.2rem;padding-inline-start: 1rem;font-family: SAP-icons'></span>
     </div>
     `;
     elem.id = "cpiHelper_content";
@@ -1213,10 +1320,39 @@ var sidebar = {
       if (result["set_ch_popup_mouse"]) {
         popuparea.style.left = result["set_ch_popup_mouse"].left;
         popuparea.style.top = result["set_ch_popup_mouse"].top;
-      } else {
-        placeSidebarNextToToolbar(popuparea);
       }
     });
+    //plugin area setup popup+join mode
+    chrome.storage.sync.get(["openSidebarOnStartup"], function (result) {
+      pluginarea = document.querySelector("#cpiHelper_messageSidebar_pluginArea");
+      if (result["openSidebarOnStartup"]) {
+        pluginarea.classList.add("sidebar");
+        pluginarea.classList.toggle("fluid");
+        document.querySelector("#cpiHelper_messageSidebar_pluginArea span").addEventListener("click", () => {
+          pluginarea.classList.toggle("fluid");
+          twoClasssToggleSwitch(pluginarea, "visible", "cpiHelper_hidden");
+          twoClasssToggleSwitch(document.querySelector("#sidebar_Plugin"), "plus", "minus");
+        });
+      }
+    });
+    //add minimize button on CPI helper title & color match with tenant color
+    var span = document.getElementById("sidebar_modal_minimize");
+    var content_header = document.getElementById("cpiHelper_contentheader");
+    var outerFrame_element = document.getElementById("outerFrame");
+    var borderofouterFrame = getComputedStyle(outerFrame_element).borderRadius.split(" ");
+    span.onclick = () => {
+      if (outerFrame_element.offsetHeight > 0) {
+        content_header.style["min-width"] = getComputedStyle(outerFrame_element).width;
+        outerFrame_element.style.display = "none";
+        content_header.style["border-bottom-left-radius"] = borderofouterFrame[2];
+        content_header.style["border-bottom-right-radius"] = borderofouterFrame[3];
+      } else {
+        outerFrame_element.style.display = "block";
+        content_header.style["border-bottom-left-radius"] = borderofouterFrame[0];
+        content_header.style["border-bottom-right-radius"] = borderofouterFrame[1];
+      }
+    };
+
     //add close button
     var span = document.getElementById("sidebar_modal_close");
     span.onclick = (element) => {
@@ -1230,6 +1366,7 @@ var sidebar = {
     cpiData.messageSidebar.lastMessageHashList = [];
     setTimeout(() => document.getElementById("cpiHelper_content").removeAttribute("hidden"), 200);
     //refresh messages
+    messageSidebarPluginContent(true);
     refreshActive = true;
     renderMessageSidebar()
       .then(() => {
@@ -1242,24 +1379,6 @@ var sidebar = {
 };
 
 //function that handles the dragging
-// both start at the right edge. as long as the user did not move the sidebar, it opens next to the
-// toolbar instead of below it, where the toolbar covered the message buttons
-function placeSidebarNextToToolbar(popuparea) {
-  const toolbar = getFloatingToolbar();
-  if (!popuparea || !toolbar) return;
-  const bar = toolbar.getBoundingClientRect();
-  if (!bar.width) return;
-  const gap = 8;
-  popuparea.style.top = Math.max(bar.top, 0) + "px";
-  if (bar.left + bar.width / 2 > window.innerWidth / 2) {
-    popuparea.style.left = "auto";
-    popuparea.style.right = Math.max(window.innerWidth - bar.left + gap, 0) + "px";
-  } else {
-    popuparea.style.right = "auto";
-    popuparea.style.left = bar.right + gap + "px";
-  }
-}
-
 function dragElement(elmnt) {
   var pos1 = 0,
     pos2 = 0,
@@ -1318,6 +1437,27 @@ function dragElement(elmnt) {
   }
 }
 
+function injectCss(cssStyle, id, className) {
+  var style = document.createElement("style");
+  style.type = "text/css";
+  style.appendChild(document.createTextNode(cssStyle));
+  id && (style.id = id);
+  className && style.classList.add(className);
+  document.getElementsByTagName("head")[0].appendChild(style);
+}
+
+function removeElementsWithId(name) {
+  document.getElementById(name).remove();
+  return true;
+}
+
+function removeElementsWithClass(classToDelete) {
+  let elements = document.getElementsByClassName(classToDelete);
+  for (let i = elements.length - 1; i >= 0; i--) {
+    elements[i].remove(element);
+  }
+  return true;
+}
 function formatDuration(durationMs) {
   const h = Math.floor(durationMs / (1000 * 60 * 60)) % 24;
   const m = Math.floor(durationMs / (1000 * 60)) % 60;
@@ -1400,19 +1540,23 @@ async function popupTable(message) {
   return popupHTML;
 }
 function apireserror(message) {
-  cpihCloseToasts();
-  cpihToast({
+  $(".ui.toast").toast("close");
+  $.toast({
     message: "Please wait while we prepare...",
     position: "bottom right",
     showProgress: "bottom",
+    class: $("html").hasClass("sapUiTheme-sap_horizon_dark") ? " ch_dark " : "",
     onVisible: async () =>
       popupTable(message)
         .then((message) => {
-          cpihCloseToasts();
-          cpihToast({
+          $(".ui.toast").toast("close");
+          $.toast({
             closeIcon: true,
             showProgress: "top",
+            classProgress: "blue",
+            progressUp: true,
             position: "bottom right",
+            class: $("html").hasClass("sapUiTheme-sap_horizon_dark") ? " ch_dark " : "",
             displayTime: 5000,
             onRemove: () => {
               document.querySelectorAll(".cpiHelper_sidebar_iconbutton").forEach((i) => i.classList.remove("cpiHelper_sidebar_iconbutton"));
@@ -1434,58 +1578,41 @@ function lookupError(message) {
   return null;
 }
 
-// run steps of a message: the first page comes back right away. with onMorePages the remaining pages load
-// in the background (onMorePages(runs, loaded, total) per page) until all are there or RUN_STEPS_MAX is reached.
-// isStale() lets the caller stop a background load that is no longer needed (e.g. another inline trace started)
-const RUN_STEPS_PAGE_SIZE = 1000;
-const RUN_STEPS_MAX = 5000;
-
-async function getRunStepsFirstPageSize() {
-  // cpi_top_mode (browser popup) and the traceModifer plugin set the size of the first page, 0 means one full page
-  let size = parseInt(await storageGetPromise("cpi_top_mode"));
-  if (await getStorageValue("traceModifer", "isActive", null)) {
-    const flowSize = parseInt(await storageGetPromise(`traceModifer_${cpiData.integrationFlowId} `));
-    if (flowSize > 0) size = flowSize;
-  }
-  if (!(size >= 0)) size = 300;
-  return size === 0 ? RUN_STEPS_PAGE_SIZE : size;
-}
-
 //to check for errors and inline trace
-async function getMessageProcessingLogRuns(MessageGuid, store = true, { onMorePages, isStale } = {}) {
-  const base = "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/";
-  try {
-    const runs = JSON.parse(await makeCallPromise("GET", base + "MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store));
-    const status = runs.d.results[0].OverallState;
-    //take the correct run log (last or second last) for displaying the inline trace, depending on message status.
-    const runId = runs.d.results.length > 1 && status != "COMPLETED" && status != "ESCALATED" ? runs.d.results[1].Id : runs.d.results[0].Id;
-
-    const firstPageSize = await getRunStepsFirstPageSize();
-    const first = JSON.parse(await makeCallPromise("GET", base + "MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json&$top=" + firstPageSize, store)).d;
-    const total = Math.min(parseInt(first.__count) || first.results.length, RUN_STEPS_MAX);
-
-    if (onMorePages && total > first.results.length) {
-      (async () => {
-        let loaded = first.results.length;
-        while (loaded < total && !isStale?.()) {
-          const page = JSON.parse(
-            await makeCallPromise("GET", base + "MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json&$top=" + RUN_STEPS_PAGE_SIZE + "&$skip=" + loaded, store)
-          ).d.results;
-          if (!page.length || isStale?.()) break;
-          loaded += page.length;
-          onMorePages(
-            page.filter((e) => e.StepStop != null),
-            loaded,
-            total
-          );
-        }
-      })().catch((error) => log.warn("loading more run steps failed", error));
-    }
-    return first.results.filter((e) => e.StepStop != null);
-  } catch (e) {
-    log.log(e);
-    return null;
+async function getMessageProcessingLogRuns(MessageGuid, store = true) {
+  var top_mode_count = await storageGetPromise("cpi_top_mode");
+  top_mode_count = top_mode_count == null && top_mode_count == undefined ? "&$top=300" : `& $top=${parseInt(top_mode_count)} `; //Default
+  if (top_mode_count === "&$top=0") {
+    top_mode_count = "";
   }
+  //Plugin over-write
+  if (await getStorageValue("traceModifer", "isActive", null)) {
+    var top_mode_count_flow = await storageGetPromise(`traceModifer_${cpiData.integrationFlowId} `);
+    console.debug("traceModifer_flow", cpiData.integrationFlowId, top_mode_count, top_mode_count_flow);
+    top_mode_count = (top_mode_count_flow == null && top_mode_count_flow == undefined) || top_mode_count_flow == 0 ? top_mode_count : `& $top=${parseInt(top_mode_count_flow)} `;
+  }
+
+  return makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store)
+    .then((responseText) => {
+      var resp = JSON.parse(responseText);
+      var status = resp.d.results[0].OverallState;
+      //take the correct run log (last or second last) for displaying the inline trace, depending on message status.
+      if (resp.d.results.length > 1 && status != "COMPLETED" && status != "ESCALATED") {
+        return resp.d.results[1].Id;
+      } else {
+        return resp.d.results[0].Id;
+      }
+    })
+    .then((runId) => {
+      return makeCallPromise("GET", "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json" + top_mode_count, store);
+    })
+    .then((response) => {
+      return JSON.parse(response).d.results.filter((e) => e.StepStop != null);
+    })
+    .catch((e) => {
+      log.log(e);
+      return null;
+    });
 }
 
 //function to get the current artifact name from the URL
@@ -1494,6 +1621,7 @@ function collectDataOfCurrentArtifact() {
   var result;
   var artifactType;
 
+  //try {
   let groups = "";
 
   for (const dataRegexp of cpiArtifactURIRegexp) {
@@ -1533,7 +1661,7 @@ async function getArtifactFullName() {
     executionCount++;
 
     if (cpiData.currentArtifactType == "Package") {
-        artifactName = document.querySelectorAll('[id*=idObjectPageHeaderTitle-left-inner] > div > div > span')[0]?.innerText; // package
+        artifactName = document.querySelectorAll('[id*=idObjectPageHeaderTitle-left-inner] > div > div > span')[0].innerText; // package
     }
     else {
         artifactName = document.querySelectorAll(".sapUxAPObjectPageHeaderTitleText"); // iflow
@@ -1556,6 +1684,7 @@ async function getArtifactFullName() {
 function getPackageId() {
   var url = window.location.href;
   var result;
+  //try {
   let groups = "";
   if (cpiCollectionURIRegexp.test(url) === true) {
     groups = url.match(cpiCollectionURIRegexp).groups;
@@ -1712,23 +1841,57 @@ async function handleUrlChange() {
   }
 }
 
-// Visited artifacts are shown in the browser popup, the Recent panel of the toolbar and the command palette.
-// common/visit-history.js keeps favorites and trims the list
+//Visited IFlows are stored to show in the popup that appears when pressing the button in browser bar
 async function storeVisitedIflowsForPopup() {
-  const url = window.location.href;
-  const key = "visitedIflows_" + url.split("/")[2].split(".")[0];
-  const match = cpiArtifactURIRegexp.find(([regexp]) => regexp.test(url));
-  const artifactId = match && url.match(match[0]).groups?.artifactId;
-  if (!artifactId) return;
-  const type = match[1];
+  var url = window.location.href;
+  var tenant = url.split("/")[2].split(".")[0];
+  var name = "visitedIflows_" + tenant;
 
-  const urlext = type == "Package" && !url.includes("?section=ARTIFACTS") ? "?section=ARTIFACTS" : "";
-  try {
-    const stored = (await chrome.storage.sync.get([key]))[key];
-    const visit = { name: `${artifactId}`, fullName: `${cpiData.currentIflowName}`, url: url + urlext, type };
-    await chrome.storage.sync.set({ [key]: cpihAddVisit(stored, visit) });
-  } catch (error) {
-    log.debug("visited artifact not stored", error);
+  for (const dataRegexp of cpiArtifactURIRegexp) {
+    if (dataRegexp[0].test(url) === true) {
+      let groups = url.match(dataRegexp[0]);
+      if (groups.length >= 2) {
+        let cpiArtifactId = groups.groups.artifactId;
+        chrome.storage.sync.get([name], function (result) {
+          var visitedIflows = result[name];
+
+          if (!visitedIflows) {
+            visitedIflows = [];
+          }
+
+          //filter out the current flow
+          if (visitedIflows.length > 0) {
+            visitedIflows = visitedIflows.filter((element) => {
+              return !(element.name == String(cpiArtifactId) && dataRegexp[1] == element.type);
+            });
+          }
+
+          let urlext = "";
+          if (dataRegexp[1] == "Package" && !document.location.href.includes("?section=ARTIFACTS")) {
+            urlext = "?section=ARTIFACTS";
+          }
+
+          //put the current flow to the last element. last position indicates last visited element
+          visitedIflows.push({
+            name: `${cpiArtifactId}`,
+            fullName: `${cpiData.currentIflowName}`,
+            url: document.location.href + urlext,
+            favorit: false,
+            type: `${dataRegexp[1]}`,
+          });
+
+          //delete the first one when there are more than 15 iflows in visited list
+          if (visitedIflows.length > 15) {
+            visitedIflows.shift();
+          }
+
+          var obj = {};
+          obj[name] = visitedIflows;
+
+          chrome.storage.sync.set(obj, function () {});
+        });
+      }
+    }
   }
 }
 
@@ -1746,11 +1909,20 @@ async function refreshPowerTrace() {
     if (time != NaN && time < 1000 * 60 * 11) {
       log.debug("update powertrace button status");
       powertraceText = "cpiHelper_powertrace";
+
+      // if button list already exists (e.g. after url change), reapply class to button
+      var btn = document.getElementById("button134345-BDI-content");
+      if (btn != undefined && !btn.classList.contains("cpiHelper_powertrace")) {
+        btn.classList.add("cpiHelper_powertrace");
+      }
+    }
+  } else {
+    // if button list already exists (e.g. after url change), reapply class to button
+    var btn = document.getElementById("button134345-BDI-content");
+    if (btn != undefined && !btn.classList.contains("cpiHelper_powertrace")) {
+      btn.classList.remove("cpiHelper_powertrace");
     }
   }
-
-  // if the toolbar already exists (e.g. after url change), reapply the state to the trace button
-  setFloatingToolbarButtonActive("__buttonxx", powertraceText !== "");
 
   return powertraceText;
 }
@@ -1765,42 +1937,24 @@ var lastDurationRefresh = 0; //time for a refresh of the sidebar mostly because 
 var refreshActive = false;
 
 //CPI Helper Heartbeat
-var cpiHelperHeartbeatInterval = setInterval(async function () {
-  // the page keeps this interval alive after the extension was reloaded or updated, but every
-  // chrome.* call below throws from then on, so stop the heartbeat instead of failing every 3 seconds
-  if (!extensionAlive()) {
-    clearInterval(cpiHelperHeartbeatInterval);
-    log.log("CPI Helper stopped: the extension was reloaded, refresh the page to continue");
-    return;
-  }
-
-  // an error here must not skip the rest of the beat, e.g. putting the CPI Helper button back
-  try {
-    await checkURLchange(window.location.href);
-  } catch (error) {
-    log.error("checkURLchange failed", error);
-  }
-
-  // UI5 overwrites the tab title while the app renders, so re-apply it on every beat
-  setDocumentTitle(hostData.title);
+setInterval(async function () {
+  await checkURLchange(window.location.href);
 
   //check if sidebar should be deactivated because we are not on a suitable page
   // not allowed type of artifact and buildbutton is not visible then deactivate.
-  AllowedTypes = isArtifactToolbarPage();
+  AllowedTypes = ["IFlow", "ODATA API", "REST API", "SOAP API"].includes(cpiData.currentArtifactType);
   if (!AllowedTypes && sidebar.active && !document.getElementById("__buttonxx")) {
     sidebar.deactivate();
   }
 
-  // the toolbar is on every page: artifact actions on artifact pages, navigation everywhere else
-  buildButtonBar();
+  //add button bar and breadcrumbs if page rendered
   if (AllowedTypes) {
+    buildButtonBar();
     addBreadcrumbs();
   }
-  refreshFailedMessagesBadge();
-  // theme information for the browser popup: CPIhelperThemeInfo is true for the light theme.
-  // compared with the stored value, the promise itself was compared before and never matched
-  if ((await callChromeStoragePromise("CPIhelperThemeInfo")) !== !cpihIsDark()) {
-    await syncChromeStoragePromise("CPIhelperThemeInfo", !cpihIsDark());
+  // theme information synchronous storage
+  if (callChromeStoragePromise("CPIhelperThemeInfo") == $("html").hasClass("sapUiTheme-sap_horizon_dark")) {
+    await syncChromeStoragePromise("CPIhelperThemeInfo", $("html").hasClass("sapUiTheme-sap_horizon_dark"));
   }
   log.debug("check for button bar");
   try {
@@ -1817,7 +1971,7 @@ var cpiHelperHeartbeatInterval = setInterval(async function () {
     log.log("refresh active. Will not refresh message sidebar");
   }
 
-  const autoRefreshEnabled = (await chrome.storage.sync.get(["autoRefreshMessageSidebar"]))["autoRefreshMessageSidebar"] ?? true; // default to true if not set
+  const autoRefreshEnabled = (await chrome.storage.sync.get(["autoRefreshMessageSidebar"])["autoRefreshMessageSidebar"]) ?? true; // default to true if not set
 
   //check if message sidebar should be refreshed
   if (autoRefreshEnabled) {

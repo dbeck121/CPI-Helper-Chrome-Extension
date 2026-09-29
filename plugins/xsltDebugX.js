@@ -73,37 +73,39 @@ if (!window.xsltDebugSendToIDE) {
       fullscreen: false,
       large: false,
       callback: () => {
-        let actionsDiv = document.querySelector("#cpiHelper_semanticui_modal .actions");
-        actionsDiv.replaceChildren();
+        let actionsDiv = $("#cpiHelper_semanticui_modal .actions");
+        actionsDiv.empty();
 
-        let cancelBtn = createElementFromHTML('<div class="ui button">Cancel</div>');
-        cancelBtn.addEventListener("click", () => {
-          cpihModal.hide("#cpiHelper_semanticui_modal");
+        let cancelBtn = $('<div class="ui button">Cancel</div>');
+        cancelBtn.on("click", () => {
+          $("#cpiHelper_semanticui_modal").modal("hide");
         });
-        actionsDiv.appendChild(cancelBtn);
+        actionsDiv.append(cancelBtn);
 
-        let continueBtn = createElementFromHTML('<div class="ui positive button"><i class="rocket icon"></i>Continue</div>');
+        let continueBtn = $('<div class="ui positive button"><i class="rocket icon"></i>Continue</div>');
 
         const updateContinueButton = () => {
           const anyChecked =
-            document.querySelector("#xslt-transfer-body input")?.checked ||
-            document.querySelector("#xslt-transfer-properties input")?.checked ||
-            document.querySelector("#xslt-transfer-headers input")?.checked ||
-            document.querySelector("#xslt-transfer-script input")?.checked;
-          continueBtn.classList.toggle("disabled", !anyChecked);
+            $("#xslt-transfer-body input").prop("checked") ||
+            $("#xslt-transfer-properties input").prop("checked") ||
+            $("#xslt-transfer-headers input").prop("checked") ||
+            $("#xslt-transfer-script input").prop("checked");
+          continueBtn.toggleClass("disabled", !anyChecked).prop("disabled", !anyChecked);
         };
 
-        // keep the Continue button in sync with the checkboxes
-        document.querySelectorAll("#cpiHelper_semanticui_modal .ui.checkbox input").forEach((input) => input.addEventListener("change", updateContinueButton));
+        // Semantic UI requires explicit .checkbox() initialization for toggle behavior
+        $("#cpiHelper_semanticui_modal .ui.checkbox").checkbox({
+          onChange: updateContinueButton,
+        });
 
         updateContinueButton();
 
-        continueBtn.addEventListener("click", async () => {
+        continueBtn.on("click", async () => {
           const transferOptions = {
-            body: document.querySelector("#xslt-transfer-body input")?.checked,
-            properties: document.querySelector("#xslt-transfer-properties input")?.checked,
-            headers: document.querySelector("#xslt-transfer-headers input")?.checked,
-            script: document.querySelector("#xslt-transfer-script input")?.checked,
+            body: $("#xslt-transfer-body input").prop("checked"),
+            properties: $("#xslt-transfer-properties input").prop("checked"),
+            headers: $("#xslt-transfer-headers input").prop("checked"),
+            script: $("#xslt-transfer-script input").prop("checked"),
           };
 
           await Promise.all([
@@ -116,7 +118,7 @@ if (!window.xsltDebugSendToIDE) {
           // Re-read settings so any IDE change made while the dialog was open takes effect
           const latestSettings = await getPluginSettings("xsltDebugX");
 
-          cpihModal.hide("#cpiHelper_semanticui_modal");
+          $("#cpiHelper_semanticui_modal").modal("hide");
 
           const debugData = debugDataOverride || window.currentXSLTDebugData;
           if (!debugData) {
@@ -131,7 +133,7 @@ if (!window.xsltDebugSendToIDE) {
             showToast("Failed to send to IDE: " + e.message, "XSLT Debugger", "Error");
           }
         });
-        actionsDiv.appendChild(continueBtn);
+        actionsDiv.append(continueBtn);
       },
     });
   };
@@ -228,7 +230,7 @@ var plugin = {
         const xsltElements = extractXSLTElements(iFlowData);
 
         if (xsltElements.length === 0) {
-          cpihModal.hide("#cpiHelper_waiting_model");
+          $("#cpiHelper_waiting_model").modal("hide");
           showToast("No XSLT Mapping steps found in this integration flow", "XSLT Debugger", "Warning");
           return;
         }
@@ -241,7 +243,7 @@ var plugin = {
         // Snapshot: inlineTraceElements is a global that other calls can mutate
         const traceElementsCopy = [...inlineTraceElements];
         if (!traceElementsCopy.length) {
-          cpihModal.hide("#cpiHelper_waiting_model");
+          $("#cpiHelper_waiting_model").modal("hide");
           showToast("No trace data found for this message", "XSLT Debugger", "Warning");
           return;
         }
@@ -255,7 +257,7 @@ var plugin = {
         });
 
         if (xsltElementsWithTrace.length === 0) {
-          cpihModal.hide("#cpiHelper_waiting_model");
+          $("#cpiHelper_waiting_model").modal("hide");
           showToast("No XSLT steps with trace data found in this message", "XSLT Debugger", "Warning");
           return;
         }
@@ -274,12 +276,12 @@ var plugin = {
 
         setupXSLTClickHandlers(settings, runInfo, xsltElementsWithTrace, iFlowData, artifactId, pluginHelper.tenant);
 
-        cpihModal.hide("#cpiHelper_waiting_model");
+        $("#cpiHelper_waiting_model").modal("hide");
         showToast("XSLT steps with data highlighted - click on any highlighted XSLT step to debug", "Success");
       } catch (error) {
         log.error("Error in XSLT Debugger:", error);
         showToast("Error: " + error.message, "XSLT Debugger", "Error");
-        cpihModal.hide("#cpiHelper_waiting_model");
+        $("#cpiHelper_waiting_model").modal("hide");
       }
     },
     condition: (pluginHelper, settings, runInfo) => {
@@ -371,10 +373,10 @@ function setupXSLTClickHandlers(settings, runInfo, xsltElements, iFlowData, arti
           showBigPopup(await createXSLTDebugContent(debugData), `XSLT Debug Data - ${element.name || element.displayName || element.id}`, {
             fullscreen: false,
             callback: () => {
-              let actionsDiv = document.querySelector("#cpiHelper_semanticui_modal .actions");
-              let debugBtn = createElementFromHTML('<div class="ui positive button"><i class="rocket icon"></i>Debug Externally</div>');
-              debugBtn.addEventListener("click", () => window.xsltDebugSendToIDE(debugData));
-              actionsDiv?.prepend(debugBtn);
+              let actionsDiv = $("#cpiHelper_semanticui_modal .actions");
+              let debugBtn = $('<div class="ui positive button"><i class="rocket icon"></i>Debug Externally</div>');
+              debugBtn.on("click", () => window.xsltDebugSendToIDE(debugData));
+              actionsDiv.prepend(debugBtn);
             },
           });
         } catch (error) {
@@ -672,11 +674,16 @@ async function resolveXSLTTransferData(debugData, transferOptions) {
   return { xsltScript, payload, headers, properties };
 }
 
-// Compress with deflate-raw (CompressionStream) + URL-safe base64 (matches xsltdebugx.pages.dev #share/ format)
+// Compress with pako.deflateRaw + URL-safe base64 (matches xsltdebugx.pages.dev #share/ format)
 async function sendToXSLTIDE(settings, debugData, transferOptions = { body: true, properties: true, headers: true, script: true }) {
   const ideSelection = settings["xsltDebugX---ideSelection"] || "https://xsltdebugx.pages.dev/";
   const customUrl = settings["xsltDebugX---customIdeUrl"] || "";
   const ideUrl = ideSelection === "custom" ? customUrl.trim() || "https://xsltdebugx.pages.dev/" : ideSelection;
+
+  if (typeof pako === "undefined") {
+    showToast("Compression library not loaded. Please reload the page.", "XSLT Debugger", "Error");
+    return;
+  }
 
   const { xsltScript, payload, headers, properties } = await resolveXSLTTransferData(debugData, transferOptions);
 
@@ -687,7 +694,8 @@ async function sendToXSLTIDE(settings, debugData, transferOptions = { body: true
     properties: Object.keys(properties).map(name => ({ name, value: properties[name] })),
   };
 
-  const compressed = await cpihCompress(JSON.stringify(sharePayload), "deflate-raw");
+  const bytes      = new TextEncoder().encode(JSON.stringify(sharePayload));
+  const compressed = pako.deflateRaw(bytes, { level: 9 });
   const CHUNK = 8192;
   let binary = '';
   for (let i = 0; i < compressed.length; i += CHUNK) {

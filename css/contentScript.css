@@ -12,9 +12,14 @@
   --cpi-fui-active-color: #0039d4;
   --cpi-background-color: #020203;
 }
-/* our buttons follow the light/dark text color; :where keeps the specificity as low as a plain button selector so .ui.button wins */
-:where(#cpihelperglobal, .cpiHelper) button {
+/* whats new */
+button {
   color: var(--cpi-text-color);
+}
+#cpiHelper_WhatsNew {
+  padding: 25px;
+  box-sizing: border-box;
+  border-radius: 5px;
 }
 
 /* start working indicator */
@@ -101,26 +106,82 @@ button.cpiHelper_sidebar_iconbutton span {
   outline: none;
 }
 
-.cpiHelper #outerFrame {
-  border: 0;
-  background: transparent;
-  color: var(--sapTextColor, #1d2d3e);
-  padding: 8px 10px 10px;
-  box-sizing: border-box;
-  border-radius: 0 0 10px 10px;
+div#cpiHelper_semanticui_modal {
+  position: absolute;
+  top: 10% !important;
 }
 
-/* message popup, same look as the floating toolbar */
+#cpiHelper_sidebar_popup {
+  position: fixed;
+  z-index: 390;
+  max-height: 50vh;
+  overflow: scroll;
+  background: var(--cpi-background-color);
+  bottom: 10%;
+  right: 2%;
+  width: 75%;
+  min-height: 1rem;
+  padding: 1rem;
+  border: solid 1px #e1e1e1;
+}
+
+#cpiHelper_sidebar_popup.show {
+  visibility: visible;
+  animation: cpiHelper_sidebar_popup_fadein 0.5s;
+}
+
+#cpiHelper_sidebar_popup.hide_popup {
+  visibility: hidden;
+  animation:
+    visibility 0s linear 0.5s,
+    cpiHelper_sidebar_popup_fadeout 0.5s;
+}
+
+@keyframes cpiHelper_sidebar_popup_fadein {
+  from {
+    bottom: 0;
+    opacity: 0;
+  }
+
+  to {
+    bottom: 10%;
+    opacity: 1;
+  }
+}
+
+@keyframes cpiHelper_sidebar_popup_fadeout {
+  from {
+    bottom: 10%;
+    opacity: 1;
+  }
+
+  to {
+    bottom: 0;
+    opacity: 0;
+  }
+}
+
+.cpiHelper #outerFrame {
+  border: solid 1px var(--cpi-background-color);
+  background: var(--cpi-background-color);
+  color: var(--cpi-text-color);
+  padding: 10px;
+  box-sizing: border-box;
+  border-radius: 0px 0px 5px 5px;
+}
+
 #cpiHelper_content {
   position: fixed;
   z-index: 400;
-  background: var(--cpiHelper-glass);
+  background: var(--cpi-background-color);
   top: 25%;
   right: 0.5rem;
   width: fit-content;
-  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
+  border: 0;
   border-radius: 10px;
-  box-shadow: var(--sapContent_Shadow2, 0 4px 16px rgba(0, 0, 0, 0.18));
+  box-shadow:
+    0 1px 2px 0 rgba(60, 64, 67, 0.3),
+    0 1px 3px 1px rgba(60, 64, 67, 0.15);
   opacity: 1 !important;
 }
 
@@ -128,74 +189,24 @@ button.cpiHelper_sidebar_iconbutton span {
   pointer-events: none;
 }
 
-/* the header keeps the tenant color, it tells which tenant this is */
+.ui.table .black {
+  background: #000 !important;
+  color: var(--cpi-background-color) !important;
+}
+
 #cpiHelper_contentheader {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 2px 4px 2px 8px;
+  padding: 10px;
   cursor: move;
-  font-size: 0.75rem;
-  font-weight: 600;
+  align-items: center;
+  font-weight: bold;
   z-index: 10;
-  background-color: var(--cpiHelper-glass-header);
+  background-color: var(--cpi-custom-color);
   color: var(--cpi-text-color);
   box-sizing: border-box;
-  border-radius: 9px 9px 0 0;
-}
-
-.cpiHelper_popupTitle {
+  border-radius: 5px 5px 0px 0px;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  white-space: nowrap;
-}
-
-.cpiHelper_popupTitle .cpiHelper_floatingToolbar_dots {
-  width: 16px;
-}
-
-.cpiHelper_popupHeaderButton,
-.cpiHelper_popupIconButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  padding: 0;
-  border: 0 !important;
-  border-radius: 6px;
-  background: transparent !important;
-  color: inherit;
-  cursor: pointer;
-}
-
-.cpiHelper_popupHeaderButton:hover {
-  background: rgba(127, 127, 127, 0.22) !important;
-}
-
-.cpiHelper_popupIconButton {
-  color: var(--sapButton_Lite_TextColor, #0064d9);
-  vertical-align: middle;
-  margin-left: 0.25em;
-}
-
-.cpiHelper_popupIconButton:hover {
-  background: var(--sapButton_Lite_Hover_Background, rgba(0, 100, 217, 0.08)) !important;
-}
-
-.cpiHelper_popupHeaderButton svg,
-.cpiHelper_popupIconButton svg {
-  width: 16px;
-  height: 16px;
-}
-
-.cpiHelper_popupHeaderButton:focus-visible,
-.cpiHelper_popupIconButton:focus-visible,
-#cpiHelper_content #messageList button:focus-visible {
-  outline: 2px solid var(--sapContent_FocusColor, #0070f2);
-  outline-offset: 1px;
+  justify-content: space-between;
+  border: 1px solid black;
 }
 
 .cpiHelper .contentText {
@@ -272,6 +283,64 @@ button.cpiHelper_sidebar_iconbutton span {
   fill: #8282ff !important;
 }
 
+#cpiHelper_bigPopup {
+  display: none;
+  /* Hidden by default */
+  position: fixed;
+  /* Stay in place */
+  z-index: 450;
+  /* Sit on top */
+  width: 100%;
+  /* Full width */
+  height: 100%;
+  /* Full height */
+  left: 0;
+  top: 0;
+  overflow: auto;
+  /* Enable scroll if needed */
+  background-color: #000;
+  /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4);
+  /* Black w/ opacity */
+}
+
+#cpiHelper_bigPopup_outerFrame {
+  background: var(--cpi-background-color);
+  margin: auto;
+  margin-top: 100px;
+  width: 95%;
+  min-height: 1rem;
+  box-sizing: border-box;
+  border-radius: 5px 5px 5px 5px;
+}
+
+#cpiHelper_bigPopup_content {
+  border: solid 0px #e1e1e1;
+}
+
+#cpiHelper_bigPopup_contentheader {
+  font-size: 1.2rem;
+  padding: 10px;
+  z-index: 10;
+  background-color: var(--cpi-custom-color);
+  color: var(--cpi-background-color);
+  box-sizing: border-box;
+  border-radius: 5px 5px 0px 0px;
+}
+
+/* The Close Button */
+
+.cpiHelper_closeButton_sidebar:hover,
+.cpiHelper_closeButton_sidebar:focus {
+  color: #ff4e4e;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.cpiHelper_closeButton_sidebar {
+  float: right;
+}
+
 /*tabs  */
 
 .cpiHelper_tabs {
@@ -290,53 +359,59 @@ button.cpiHelper_sidebar_iconbutton span {
   opacity: 0;
 }
 
-/* same look as the .ui.menu tabs of css/ui.css */
-.cpiHelper_tabs_label {
-  position: relative;
-  padding: 0.625rem 0.875rem;
+.cpiHelper_tabs_label_branch {
+  width: 1.5em;
+  padding: 7px 7px;
   cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--cpih-text-muted);
+  font-weight: bold;
+  color: #7f7f7f;
+  transition:
+    background 0.1s,
+    color 0.1s;
   text-align: center;
-  user-select: none;
 }
 
-.cpiHelper_tabs_label::after {
-  content: '';
-  position: absolute;
-  left: 0.5rem;
-  right: 0.5rem;
-  bottom: 0;
-  height: 0.1875rem;
-  border-radius: 0.1875rem 0.1875rem 0 0;
-  background: transparent;
+.cpiHelper_tabs_label {
+  padding: 5px 5px;
+  margin-right: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #7f7f7f;
+  transition:
+    background 0.1s,
+    color 0.1s;
+  text-align: center;
 }
 
-.cpiHelper_tabs_label:hover {
-  color: var(--cpih-text);
+.cpiHelper_tabs_label:active {
+  color: #000;
 }
 
-.cpiHelper_tabs_input:focus-visible + .cpiHelper_tabs_label {
+.cpiHelper_tabs_input:focus + .cpiHelper_tabs_label {
   z-index: 1;
-  outline: 2px solid var(--cpih-focus);
-  outline-offset: -2px;
-  border-radius: var(--cpih-radius-small);
 }
 
 .cpiHelper_tabs_input:checked + .cpiHelper_tabs_label {
-  color: var(--cpih-brand);
+  color: #000;
+  border-block-end: 2px solid black;
 }
 
-.cpiHelper_tabs_input:checked + .cpiHelper_tabs_label::after {
-  background: var(--cpih-brand);
+.ch_dark .cpiHelper_tabs_input:checked + .cpiHelper_tabs_label {
+  color: #6495ed;
+}
+
+.cpiHelper_tabs_label:hover,
+.cpiHelper_tabs_input:checked + .cpiHelper_tabs_label:hover {
+  color: #ff5722;
+  background: var(--cpi-custom-color);
+  border-radius: 0.2857rem;
 }
 
 .cpiHelper_tabs_panel {
-  padding: 0.75rem 0 0;
+  padding: 4px;
   display: none;
   width: 100%;
-  border-top: 1px solid var(--cpih-border);
+  background: var(--cpi-background-color);
 }
 
 @media (min-width: 600px) {
@@ -347,243 +422,6 @@ button.cpiHelper_sidebar_iconbutton span {
 
 .cpiHelper_tabs_input:checked + .cpiHelper_tabs_label + .cpiHelper_tabs_panel {
   display: block;
-}
-
-/* snippets popup (scripts/snippets.js) */
-.cpiHelper_snippets_clipboard {
-  margin-bottom: 0.75rem !important;
-}
-
-.cpiHelper_snippets_clipboardHead {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.cpiHelper_snippets_clipboardHead .ui.header {
-  margin: 0;
-}
-
-.cpiHelper_snippets_save {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.cpiHelper_snippets_save input,
-.cpiHelper_snippets_bar input {
-  min-height: 2rem;
-  padding: 0.25rem 0.625rem;
-  font: inherit;
-  font-size: 0.875rem;
-  color: var(--cpih-text);
-  background: var(--cpih-field-bg);
-  border: 1px solid var(--cpih-border-strong);
-  border-radius: var(--cpih-radius-small);
-}
-
-.cpiHelper_snippets_save input {
-  width: 18rem;
-}
-
-.cpiHelper_snippets_save .button,
-.cpiHelper_snippets_bar .button {
-  margin: 0;
-}
-
-.cpiHelper_snippets_hint {
-  margin: 0.5rem 0 0;
-  font-size: 0.8125rem;
-  color: var(--cpih-text-muted);
-}
-
-.cpiHelper_snippets_bar {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.cpiHelper_snippets_count {
-  margin-left: auto;
-  font-size: 0.8125rem;
-  color: var(--cpih-text-muted);
-}
-
-.cpiHelper_snippets_item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.625rem 0.75rem;
-  border-top: 1px solid var(--cpih-border);
-}
-
-.cpiHelper_snippets_item:hover {
-  background: var(--cpih-bg-hover);
-}
-
-.cpiHelper_snippets_main {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.cpiHelper_snippets_title {
-  font-weight: 700;
-}
-
-.cpiHelper_snippets_meta,
-.cpiHelper_snippets_description {
-  font-size: 0.8125rem;
-  color: var(--cpih-text-muted);
-  overflow-wrap: anywhere;
-}
-
-.cpiHelper_snippets_description:empty {
-  display: none;
-}
-
-.cpiHelper_snippets_actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  justify-content: flex-end;
-}
-
-.cpiHelper_snippets_actions .button {
-  margin: 0;
-}
-
-.cpiHelper_snippets_stepRow {
-  margin-bottom: 0.375rem;
-}
-
-.cpiHelper_snippets_stepRow input {
-  width: auto !important;
-}
-
-.cpiHelper_snippets_json {
-  height: 40vh;
-  border: 1px solid var(--cpih-border);
-  border-radius: 8px;
-}
-
-.cpiHelper_snippets_editorActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-}
-
-/* recruiting popup (whatsNew/whatsNew.js) */
-.cpiHelper_recruiting_actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-
-/* small tag for experimental features, e.g. the Changes tab */
-.cpiHelper_experimental {
-  display: inline-block;
-  margin-left: 4px;
-  padding: 1px 5px;
-  border-radius: 4px;
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  vertical-align: middle;
-  color: var(--sapCriticalTextColor, #aa5300);
-  background: var(--sapWarningBackground, #fff8d6);
-}
-
-/* changes tab of the inline trace: side by side diff */
-.cpiHelper_changes_bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 6px;
-}
-
-.cpiHelper_changes_bar button {
-  height: 26px;
-  padding: 0 10px;
-  font: inherit;
-  font-size: 0.8125rem;
-  border: 0 !important;
-  border-radius: 6px;
-  background: transparent !important;
-  color: var(--sapButton_Lite_TextColor, #0064d9);
-  cursor: pointer;
-}
-
-.cpiHelper_changes_bar button[aria-pressed='true'] {
-  background: var(--sapButton_Lite_Active_Background, rgba(0, 100, 217, 0.16)) !important;
-}
-
-/* a dot on the parts that changed */
-.cpiHelper_changes_bar button.cpiHelper_changes_changed::after {
-  content: '';
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  margin-left: 6px;
-  border-radius: 50%;
-  background: var(--sapCriticalColor, #e76500);
-  vertical-align: middle;
-}
-
-.cpiHelper_changes_info {
-  font-size: 0.8125rem;
-  color: var(--cpih-text-muted);
-}
-
-.cpiHelper_changes_labels {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 4px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--cpih-text-muted);
-}
-
-.cpiHelper_changes_diff {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  height: 55vh;
-}
-
-.cpiHelper_changes_side {
-  min-height: 120px;
-  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
-  border-radius: 8px;
-}
-
-/* run picker for steps with many executions (scripts/inline-trace.js) */
-.cpiHelper_runPicker_bar {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  margin-bottom: 0.5rem;
-}
-
-.cpiHelper_runPicker_bar .button {
-  margin: 0;
-}
-
-.cpiHelper_runPicker_bar select.ui.dropdown {
-  min-width: 16rem;
-  min-height: 2rem;
-}
-
-.cpiHelper_runPicker_count {
-  margin-left: 0.5rem;
-  font-size: 0.8125rem;
-  color: var(--cpih-text-muted);
 }
 
 .cpi_padding_blockend {
@@ -598,234 +436,33 @@ button.cpiHelper_sidebar_iconbutton span {
   font-family: monospace;
   font-size: 1.2em;
   padding: 20px;
-}
-
-/* payload viewer (formatTrace in common/tools.js) */
-.cpiHelper_payload {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-family: var(--sapFontFamily, '72', Arial, sans-serif);
-}
-
-.cpiHelper_payload_toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 10px;
-}
-
-.cpiHelper_payload_group {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.cpiHelper_payload_toolbar button {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  height: 28px;
-  margin: 0;
-  padding: 0 8px;
-  font: inherit;
-  font-size: 0.8125rem;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--sapButton_Lite_TextColor, #0064d9);
-  cursor: pointer;
-}
-
-.cpiHelper_payload_toolbar button:hover {
-  border: 0;
-  background: var(--sapButton_Lite_Hover_Background, rgba(0, 100, 217, 0.08));
-}
-
-.cpiHelper_payload_toolbar button:focus-visible {
-  outline: 2px solid var(--sapContent_FocusColor, #0070f2);
-  outline-offset: 1px;
-}
-
-.cpiHelper_payload_toolbar button[aria-pressed='true'] {
-  background: var(--sapButton_Lite_Active_Background, rgba(0, 100, 217, 0.16));
-}
-
-.cpiHelper_payload_toolbar button > .icon {
-  margin: 0;
-}
-
-.cpiHelper_payload_segmented {
-  padding: 2px;
-  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
-  border-radius: 8px;
-}
-
-.cpiHelper_payload_segmented button {
-  height: 24px;
-}
-
-.cpiHelper_payload_info {
-  margin-left: auto;
-  color: var(--sapContent_LabelColor, #556b82);
-  font-size: 0.75rem;
-  white-space: nowrap;
-}
-
-.cpiHelper_payload_toolbar .cpiHelper_payload_fullscreenButton {
-  font-size: 1rem;
-}
-
-.cpiHelper_payload_hint {
-  padding: 6px 10px;
-  font-size: 0.8125rem;
-  border-radius: 6px;
-  background: var(--sapInformationBackground, #e1f4ff);
-}
-
-.cpiHelper_payload_hint.warning {
-  background: var(--sapWarningBackground, #fff8d6);
-}
-
-.cpiHelper_payload_hint[hidden] {
   display: none;
 }
 
-.cpiHelper_payload_editor {
-  height: 55vh;
-  min-height: 120px;
+.cpiHelper_traceText.cpiHelper_traceText_active {
+  display: block;
+}
+
+/* editor */
+.cpi_editor {
+  height: 50dvh;
+  min-height: 30vh;
   width: 100%;
-  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
-  border-radius: 8px;
-}
-
-/* grab bar below the editor */
-.cpiHelper_payload_resize {
-  align-self: center;
-  width: 64px;
-  height: 10px;
-  margin-top: -2px;
-  border-radius: 5px;
-  background: radial-gradient(circle, currentColor 1.2px, transparent 1.6px) 0 50% / 6px 6px repeat-x;
-  color: var(--sapContent_LabelColor, #556b82);
-  opacity: 0.5;
-  cursor: ns-resize;
-  touch-action: none;
-}
-
-.cpiHelper_payload_resize:hover,
-.cpiHelper_payload_resizing .cpiHelper_payload_resize {
-  opacity: 1;
-}
-
-.cpiHelper_payload_resizing {
-  user-select: none;
-}
-
-.cpiHelper_payload_fullscreen {
-  position: fixed;
-  inset: 0;
-  z-index: 2500;
-  padding: 8px 12px 12px;
-  background: var(--sapGroup_ContentBackground, #fff);
-}
-
-.cpiHelper_payload_fullscreen .cpiHelper_payload_editor {
-  flex: 1 1 auto;
-  height: auto !important;
-}
-
-.cpiHelper_payload_fullscreen .cpiHelper_payload_resize {
-  display: none;
+  border-radius: 1rem;
 }
 
 .cpiHelper_powertrace {
   color: #ff0000 !important;
 }
 
+.cpiHelper li[class^='L'] {
+  list-style-type: decimal !important;
+}
+
 .cpiHelper_logs_left {
   box-sizing: border-box;
-  flex: none;
-  width: 220px;
-  padding: 0 16px 0 0;
-  margin-right: 16px;
-  border-right: 1px solid var(--cpih-border);
-}
-
-.cpiHelper_logs_filters .field {
-  margin-bottom: 0.625rem;
-}
-
-.cpiHelper_logs_filters .field > label {
-  font-size: 0.75rem;
-  margin-bottom: 0.1875rem;
-}
-
-.cpiHelper_logs_filters select,
-.cpiHelper_logs_filters input {
-  min-height: 2rem !important;
-  padding: 0.25rem 0.5rem !important;
-}
-
-.cpiHelper_logs_datetime {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 0.375rem;
-}
-
-.cpiHelper_logs_filters .button {
-  margin: 0.25rem 0 0.75rem;
-}
-
-/* message list: day headings, one flat row per message */
-.cpiHelper_logs_list {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.cpiHelper_logs_list td {
-  padding: 0;
-}
-
-.cpiHelper_logs_day td {
-  padding: 0.625rem 0.5rem 0.25rem !important;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--cpih-text-muted);
-}
-
-.cpiHelper .cpiHelper_logs_entry,
-.cpiHelper_logs_entry {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  margin: 1px 0;
-  padding: 0.3125rem 0.5rem;
-  font: inherit;
-  font-size: 0.875rem;
-  font-variant-numeric: tabular-nums;
-  text-align: left;
-  color: var(--cpih-text);
-  background: transparent;
-  border: 0 !important;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.cpiHelper .cpiHelper_logs_entry:hover,
-.cpiHelper_logs_entry:hover {
-  border: 0;
-  background: var(--cpih-lite-hover);
-}
-
-.cpiHelper_logs_entry:focus-visible {
-  outline: 2px solid var(--cpih-focus);
-  outline-offset: -2px;
-}
-
-.cpiHelper_logs_entry .sapUiIcon {
-  pointer-events: none;
+  width: 200px;
+  padding: 10px;
 }
 
 .cpiHelper_logs_right {
@@ -835,8 +472,7 @@ button.cpiHelper_sidebar_iconbutton span {
 
 .cpiHelper_logs_right_small {
   box-sizing: border-box;
-  flex: 1 1 auto;
-  min-width: 0;
+  width: calc(100% - 200px);
 }
 
 .cpiHelper_hidden {
@@ -849,30 +485,17 @@ button.cpiHelper_sidebar_iconbutton span {
   display: flex;
 }
 
-.cpiHelper .cpiHelper_logs_entry.cpiHelper_logs_selected_button {
-  background: var(--sapButton_Lite_Active_Background, rgba(0, 100, 217, 0.16));
-  font-weight: 600;
-}
-
-/* section rows inside the info table of the log viewer (Custom Headers, Artifact Details, ...) */
-#cpiHelper_logsInfo tr.blue > td {
-  padding-top: 0.875rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: var(--cpih-text-muted);
-  background: var(--cpih-bg-subtle);
+.cpiHelper_logs_selected_button {
+  background-color: #add8e6 !important;
 }
 
 .cpiHelper_logs_table_div {
-  overflow-y: auto;
-  max-height: calc(95vh - 22rem);
-  min-height: 12rem;
+  overflow-y: scroll;
+  height: 400px;
 }
 
 #logs-left-side_cpiHelper {
-  overflow-y: auto;
+  overflow-y: scroll;
   max-height: 100%;
 }
 
@@ -881,50 +504,94 @@ button.cpiHelper_sidebar_iconbutton span {
   float: right;
 }
 
-
-/* plugin cards in the plugin settings */
-#cpiHelper_popup_plugins .card > .extra.content:first-child {
-  background: var(--cpih-bg-subtle);
-  border-radius: calc(var(--cpih-radius) - 1px) calc(var(--cpih-radius) - 1px) 0 0;
+div#cpiHelper_messageSidebar_pluginArea {
+  padding: 1em 0.5em;
+  margin: 0;
+  height: auto !important;
 }
 
-/* the whole footer is the activate switch */
+#cpiHelper_popup_plugins .card > .extra.content:first-child {
+  background: #eee !important;
+}
+
+.ch_dark #cpiHelper_popup_plugins .card > .extra.content:first-child {
+  background: #121212 !important;
+}
+
+/* problem with event mesh page
+.card {
+  width: calc(33% - 1em) !important;
+}
+*/
+
+@media screen and (max-width: 1024px) {
+  .card {
+    width: calc(100% - 1em) !important;
+  }
+}
+
+/* .card .extra.content:has(input)>label, */
 .card .extra.content > label {
   display: flex;
   width: 100%;
   height: 100%;
-  gap: 0.375rem;
   text-align: center;
   justify-content: center;
   align-items: center;
-  padding: 0.625rem;
-  font-weight: 600;
-  color: var(--cpih-lite-text);
-  border-radius: 0 0 calc(var(--cpih-radius) - 1px) calc(var(--cpih-radius) - 1px);
-  cursor: pointer;
+  color: #000;
+  padding: 0.5em;
 }
 
-.card .extra.content > label:hover {
-  background: var(--cpih-lite-hover);
-}
-
-.card .extra.content.checked > label {
-  color: var(--cpih-text);
-  background: var(--cpih-success-bg);
-}
-
-/* "Activate" becomes "Activated" */
-.card .extra.content.checked > label::after {
-  content: 'd';
-  margin-left: -0.375rem;
-}
-
-.card .extra.content.checked > label:hover {
-  background: var(--cpih-error-bg);
+.ch_dark .card .extra.content > label {
+  color: #fff;
 }
 
 .ui.fluid.input > input {
   width: 5em !important;
+}
+
+/* .card .extra.content:has(input:checked)>label, */
+.card .extra.content.checked > label {
+  background: #bbffb3 !important;
+}
+
+/* .card .extra.content:has(input:checked)>label::after, */
+.card .extra.content.checked > label::after {
+  content: 'd';
+}
+
+.card .extra.content > label:hover {
+  color: var(--cpi-custom-color);
+  background: #ffb3b3;
+}
+
+fieldset {
+  margin-block: 0 !important;
+}
+
+.ui.modal.active > .header {
+  background: var(--cpi-custom-color);
+  color: var(--cpi-text-color);
+}
+
+.ui.selection.dropdown .menu > .item {
+  min-height: 0 !important;
+}
+
+.ui.modal > .content {
+  color: #000;
+}
+
+#cpihelperglobal .ui.modal > .close {
+  color: var(--cpi-text-color) !important;
+  opacity: 0.8;
+  right: 1rem;
+  top: 1rem;
+  z-index: 2;
+}
+
+#cpihelperglobal .ui.modal > .header {
+  padding-right: 3rem;
 }
 
 .version-revert-modal {
@@ -976,7 +643,12 @@ button.cpiHelper_sidebar_iconbutton span {
   transition: all 0.2s ease-in-out;
 }
 
-.cpiHelper_sidebar_refresh_icon_spin svg {
+.cpiHelper_sidebar_refresh_icon_active {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.cpiHelper_sidebar_refresh_icon_spin i {
   animation: cpiHelper_refresh_spin 2.5s linear 1;
   color: #818181 !important;
   opacity: 0.8;
@@ -998,1062 +670,6 @@ button.cpiHelper_sidebar_iconbutton span {
 }
 
 /* Verhindert das "Zurückspringen" nach der Animation */
-#cpiHelper_sidebar_refresh_icon svg {
+#cpiHelper_sidebar_refresh_icon i {
   animation-fill-mode: forwards;
-}
-
-/* floating toolbar (scripts/floatingToolbar.js). SAP theme variables, so it follows light and dark UI5 themes */
-/* the card background lets the page shine through a little, text stays fully opaque */
-#cpiHelper_floatingToolbar,
-#cpiHelper_content {
-  --cpiHelper-glass: color-mix(in srgb, var(--sapGroup_ContentBackground, #fff) 80%, transparent);
-  --cpiHelper-glass-header: color-mix(in srgb, var(--cpi-custom-color) 90%, transparent);
-  backdrop-filter: blur(3px);
-}
-
-#cpiHelper_floatingToolbar {
-  position: fixed;
-  z-index: 999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: 4px;
-  background: var(--cpiHelper-glass);
-  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
-  border-radius: 10px;
-  box-shadow: var(--sapContent_Shadow2, 0 4px 16px rgba(0, 0, 0, 0.18));
-  font-family: var(--sapFontFamily, '72', Arial, sans-serif);
-  user-select: none;
-}
-
-#cpiHelper_floatingToolbar.cpiHelper_floatingToolbar_dragging {
-  opacity: 0.85;
-}
-
-/* header of the bar, in the tenant color like the message popup header */
-.cpiHelper_floatingToolbar_grip {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  align-self: stretch;
-  min-height: 14px;
-  margin: -4px -4px 2px;
-  padding: 5px 8px;
-  border-radius: 9px 9px 0 0;
-  background: var(--cpiHelper-glass-header);
-  color: var(--cpi-text-color);
-  cursor: grab;
-  touch-action: none;
-}
-
-.cpiHelper_floatingToolbar_dots {
-  width: 28px;
-  height: 12px;
-  flex: none;
-  background: radial-gradient(circle, currentColor 1.2px, transparent 1.6px) 0 0 / 6px 6px;
-  opacity: 0.6;
-}
-
-.cpiHelper_floatingToolbar_title {
-  display: none;
-  color: inherit;
-  font-size: 0.75rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_title {
-  display: inline;
-}
-
-.cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_grip {
-  justify-content: flex-start;
-}
-
-.cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_dots {
-  width: 16px;
-}
-
-.cpiHelper_floatingToolbar_dragging .cpiHelper_floatingToolbar_grip {
-  cursor: grabbing;
-}
-
-.cpiHelper_floatingToolbar_grip:hover .cpiHelper_floatingToolbar_dots,
-.cpiHelper_floatingToolbar_grip:focus-visible .cpiHelper_floatingToolbar_dots {
-  opacity: 1;
-}
-
-.cpiHelper_floatingToolbar_button {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  font: inherit;
-  font-size: 0.8125rem;
-  white-space: nowrap;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--sapButton_Lite_TextColor, #0064d9);
-  cursor: pointer;
-}
-
-.cpiHelper_floatingToolbar_button:hover {
-  background: var(--sapButton_Lite_Hover_Background, rgba(0, 100, 217, 0.08));
-}
-
-.cpiHelper_floatingToolbar_button:focus-visible,
-.cpiHelper_floatingToolbar_grip:focus-visible,
-.cpiHelper_floatingToolbar_menuItem:focus-visible {
-  outline: 2px solid var(--sapContent_FocusColor, #0070f2);
-  outline-offset: 1px;
-}
-
-/* open menu. the variant toggle uses aria-expanded too, so match menu buttons only */
-.cpiHelper_floatingToolbar_button[aria-haspopup][aria-expanded='true'] {
-  background: var(--sapButton_Lite_Active_Background, rgba(0, 100, 217, 0.16));
-}
-
-/* trace is on: red icon and a dot, like the red "Trace" text before */
-.cpiHelper_floatingToolbar_button_active {
-  color: var(--sapNegativeColor, #d32030);
-  background: var(--sapErrorBackground, rgba(211, 32, 48, 0.1));
-}
-
-/* same corner as the trace dot */
-.cpiHelper_floatingToolbar_badge {
-  position: absolute;
-  top: 3px;
-  right: 3px;
-  min-width: 14px;
-  height: 14px;
-  padding: 0 3px;
-  border-radius: 7px;
-  background: var(--sapButton_Emphasized_Background, #0070f2);
-  color: var(--sapButton_Emphasized_TextColor, #fff);
-  font-size: 0.625rem;
-  font-weight: 700;
-  line-height: 14px;
-  text-align: center;
-  pointer-events: none;
-}
-
-/* compact buttons are small, the badge sits on the corner there */
-#cpiHelper_floatingToolbar:not(.cpiHelper_floatingToolbar_expanded) .cpiHelper_floatingToolbar_badge {
-  top: -4px;
-  right: -5px;
-  box-shadow: 0 0 0 2px var(--sapGroup_ContentBackground, #fff);
-}
-
-.cpiHelper_floatingToolbar_button_active::after {
-  content: '';
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--sapNegativeColor, #d32030);
-}
-
-.cpiHelper_floatingToolbar_menu {
-  position: absolute;
-  left: calc(100% + 8px);
-  min-width: 180px;
-  padding: 4px;
-  background: var(--sapGroup_ContentBackground, #fff);
-  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
-  border-radius: 8px;
-  box-shadow: var(--sapContent_Shadow2, 0 4px 16px rgba(0, 0, 0, 0.18));
-}
-
-.cpiHelper_floatingToolbar_menu.cpiHelper_floatingToolbar_popover_left,
-.cpiHelper_floatingToolbar_panel.cpiHelper_floatingToolbar_popover_left {
-  left: auto;
-  right: calc(100% + 8px);
-}
-
-.cpiHelper_floatingToolbar_menuItem {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 6px 10px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--sapList_TextColor, #1d2d3e);
-  font: inherit;
-  font-size: 0.875rem;
-  text-align: left;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.cpiHelper_floatingToolbar_menuItem:hover:not(:disabled) {
-  background: var(--sapList_Hover_Background, rgba(0, 0, 0, 0.05));
-}
-
-.cpiHelper_floatingToolbar_menuItem:disabled {
-  color: var(--sapContent_DisabledTextColor, #8c8c8c);
-  cursor: default;
-}
-
-.cpiHelper_floatingToolbar_menuIcon {
-  display: inline-flex;
-  width: 18px;
-  height: 18px;
-  flex: none;
-}
-
-.cpiHelper_floatingToolbar_buttonIcon {
-  display: inline-flex;
-  flex: none;
-}
-
-/* compact: icons only. wide: icon and label */
-.cpiHelper_floatingToolbar_label {
-  display: none;
-}
-
-#cpiHelper_floatingToolbar.cpiHelper_floatingToolbar_expanded {
-  align-items: stretch;
-}
-
-
-.cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_button {
-  width: auto;
-  min-width: 128px;
-  justify-content: flex-start;
-  padding: 0 12px 0 8px;
-}
-
-/* long names (plugins) are cut, the full name comes as a hint */
-.cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_label {
-  display: block;
-  min-width: 0;
-  max-width: 116px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* the variant switch sits apart from the actions */
-.cpiHelper_floatingToolbar_toggle {
-  height: 26px;
-  margin-top: 2px;
-  border-top: 1px solid var(--sapGroup_ContentBorderColor, #e5e5e5);
-  border-radius: 0 0 8px 8px;
-  color: var(--sapContent_IconColor, #7b7b7b);
-}
-
-.cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_toggle {
-  height: 26px;
-  font-size: 0.75rem;
-}
-
-.cpiHelper_floatingToolbar_toggle svg {
-  width: 14px;
-  height: 14px;
-}
-
-/* hint of the compact variant: small, in the card colors, close to the bar, fades in */
-.cpiHelper_floatingToolbar_tooltip {
-  position: absolute;
-  left: calc(100% + 4px);
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 2px 7px;
-  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
-  border-radius: 5px;
-  background: var(--sapGroup_ContentBackground, #fff);
-  color: var(--sapContent_LabelColor, #556b82);
-  font-size: 0.6875rem;
-  white-space: nowrap;
-  pointer-events: none;
-  animation: cpiHelper_floatingToolbar_fadein 120ms ease-out;
-}
-
-@keyframes cpiHelper_floatingToolbar_fadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* display: flex above would beat the [hidden] rule of the browser */
-.cpiHelper_floatingToolbar_tooltip[hidden],
-.cpiHelper_floatingToolbar_panel[hidden],
-.cpiHelper_floatingToolbar_menu[hidden] {
-  display: none;
-}
-
-.cpiHelper_floatingToolbar_tooltip.cpiHelper_floatingToolbar_tooltip_left {
-  left: auto;
-  right: calc(100% + 4px);
-}
-
-.cpiHelper_floatingToolbar_tooltip kbd {
-  padding: 0 4px;
-  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
-  border-radius: 4px;
-  font-family: inherit;
-  font-size: 0.6875rem;
-  line-height: 1.4;
-}
-
-/* message popup: rows as tight as before, buttons flat without borders */
-#cpiHelper_content #messageList {
-  --cpi-width: 0px;
-}
-
-#cpiHelper_content #messageList > tr > td:only-child {
-  color: var(--sapContent_LabelColor, #556b82);
-  font-weight: 600;
-}
-
-#cpiHelper_content #messageList button {
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--sapButton_Lite_TextColor, #0064d9);
-}
-
-#cpiHelper_content #messageList button:hover {
-  border: 0;
-  background: var(--sapButton_Lite_Hover_Background, rgba(0, 100, 217, 0.08));
-}
-
-/* plugin section of the toolbar */
-.cpiHelper_floatingToolbar_separator {
-  align-self: stretch;
-  display: flex;
-  align-items: center;
-  margin: 4px 2px 2px;
-  border-top: 1px solid var(--sapGroup_ContentBorderColor, #e5e5e5);
-}
-
-.cpiHelper_floatingToolbar_separator > span {
-  display: none;
-  padding: 6px 6px 0;
-  color: var(--sapContent_LabelColor, #556b82);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-.cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_separator > span {
-  display: inline;
-}
-
-/* icons plugins bring: SAP-icons glyph, their logo or their initials */
-.cpiHelper_floatingToolbar_pluginIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  font-size: 1rem;
-}
-
-img.cpiHelper_floatingToolbar_pluginIcon {
-  object-fit: contain;
-  border-radius: 3px;
-}
-
-.cpiHelper_floatingToolbar_pluginIcon.cpiHelper_floatingToolbar_pluginInitials {
-  border: 1.5px solid currentColor;
-  border-radius: 5px;
-  font-size: 0.5625rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-/* panel with the content a plugin renders */
-.cpiHelper_floatingToolbar_panel {
-  position: absolute;
-  left: calc(100% + 8px);
-  width: max-content;
-  min-width: 220px;
-  max-width: 380px;
-  max-height: 70vh;
-  overflow: auto;
-  padding: 10px 12px 12px;
-  background: var(--sapGroup_ContentBackground, #fff);
-  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
-  border-radius: 8px;
-  box-shadow: var(--sapContent_Shadow2, 0 4px 16px rgba(0, 0, 0, 0.18));
-  color: var(--sapTextColor, #1d2d3e);
-  font-size: 0.875rem;
-  user-select: text;
-  cursor: auto;
-}
-
-.cpiHelper_floatingToolbar_panelTitle {
-  margin-bottom: 8px;
-  color: var(--sapContent_LabelColor, #556b82);
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-/* buttons rendered by plugins: one look for all of them, with the ui button classes (ui primary button) or without */
-.cpiHelper_floatingToolbar_panelBody button,
-.cpiHelper_floatingToolbar_panelBody .ui.button {
-  margin: 2px 4px 2px 0;
-  min-height: 0;
-  padding: 4px 12px !important;
-  border: 1px solid var(--sapButton_BorderColor, #bcc3ca) !important;
-  border-radius: 6px !important;
-  background: var(--sapButton_Background, #fff) !important;
-  color: var(--sapButton_TextColor, #0064d9) !important;
-  box-shadow: none !important;
-  font-family: inherit !important;
-  font-size: 0.875rem !important;
-  font-weight: 400 !important;
-  line-height: 1.4 !important;
-  cursor: pointer;
-}
-
-.cpiHelper_floatingToolbar_panelBody button:hover,
-.cpiHelper_floatingToolbar_panelBody .ui.button:hover {
-  background: var(--sapButton_Hover_Background, #eaecee) !important;
-}
-
-/* global toolbar (scripts/globalToolbar.js): failed messages badge, link entries and group titles in the menu */
-.cpiHelper_floatingToolbar_badge.cpiHelper_floatingToolbar_badge_alert {
-  background: var(--sapNegativeColor, #d32030);
-  color: #fff;
-}
-
-.cpiHelper_floatingToolbar_menu {
-  max-height: 70vh;
-  overflow-y: auto;
-}
-
-/* links, unlike buttons, are content-box: with width 100% and padding they would stick out of the menu */
-a.cpiHelper_floatingToolbar_menuItem,
-a.cpiHelper_floatingToolbar_menuItem:hover,
-a.cpiHelper_floatingToolbar_menuItem:visited {
-  box-sizing: border-box;
-  color: var(--sapList_TextColor, #1d2d3e);
-  text-decoration: none;
-}
-
-.cpiHelper_floatingToolbar_menuLabel {
-  flex: 1;
-}
-
-.cpiHelper_floatingToolbar_menuDetail {
-  min-width: 18px;
-  padding: 0 6px;
-  border-radius: 9px;
-  background: var(--sapNegativeColor, #d32030);
-  color: #fff;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  line-height: 18px;
-  text-align: center;
-}
-
-.cpiHelper_floatingToolbar_menuHeader {
-  padding: 8px 10px 4px;
-  max-width: 260px;
-  overflow: hidden;
-  color: var(--sapContent_LabelColor, #556b82);
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.cpiHelper_floatingToolbar_menuHeader:not(:first-child) {
-  margin-top: 4px;
-  border-top: 1px solid var(--sapGroup_ContentBorderColor, #e5e5e5);
-}
-
-/* Recent panel: favorites and visit history */
-.cpiHelper_recent {
-  width: 300px;
-}
-
-.cpiHelper_recent_heading {
-  margin: 6px 0 2px;
-  color: var(--sapContent_LabelColor, #556b82);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.cpiHelper_recent_list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.cpiHelper_recent_item,
-.cpiHelper_recent_item:visited {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 6px;
-  border-radius: 6px;
-  color: var(--sapList_TextColor, #1d2d3e);
-  text-decoration: none;
-}
-
-.cpiHelper_recent_item:hover,
-.cpiHelper_recent_item:focus-visible {
-  background: var(--sapList_Hover_Background, rgba(0, 0, 0, 0.05));
-  color: var(--sapList_TextColor, #1d2d3e);
-  text-decoration: none;
-}
-
-.cpiHelper_recent_current {
-  background: var(--sapList_SelectionBackgroundColor, rgba(0, 112, 242, 0.08));
-  box-shadow: inset 3px 0 0 var(--sapBrandColor, #0070f2);
-}
-
-.cpiHelper_recent_icon,
-.cpiHelper_recent_star {
-  display: inline-flex;
-  flex: none;
-  color: var(--sapContent_IconColor, #556b82);
-}
-
-.cpiHelper_recent_icon svg,
-.cpiHelper_recent_star svg {
-  width: 16px;
-  height: 16px;
-}
-
-.cpiHelper_recent_text {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.cpiHelper_recent_name,
-.cpiHelper_recent_type {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.cpiHelper_recent_type {
-  color: var(--sapContent_LabelColor, #556b82);
-  font-size: 0.75rem;
-}
-
-.cpiHelper_recent_star {
-  padding: 3px;
-  border-radius: 4px;
-  cursor: pointer;
-  opacity: 0.55;
-}
-
-.cpiHelper_recent_item:hover .cpiHelper_recent_star,
-.cpiHelper_recent_star:focus-visible,
-.cpiHelper_recent_star[aria-pressed="true"] {
-  opacity: 1;
-}
-
-.cpiHelper_recent_star[aria-pressed="true"] {
-  color: var(--sapCriticalColor, #e76500);
-}
-
-.cpiHelper_recent_star:hover {
-  background: var(--sapButton_Hover_Background, #eaecee);
-}
-
-.cpiHelper_recent_empty {
-  margin: 4px 0;
-  color: var(--sapContent_LabelColor, #556b82);
-}
-
-/* command palette (scripts/commandPalette.js) */
-#cpiHelper_palette {
-  position: fixed;
-  inset: 0;
-  z-index: 10001;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 12vh 16px 16px;
-  background: rgba(20, 28, 38, 0.35);
-  font-family: var(--sapFontFamily, '72', Arial, sans-serif);
-  animation: cpiHelper_floatingToolbar_fadein 120ms ease-out;
-}
-
-.cpiHelper_palette_card {
-  display: flex;
-  flex-direction: column;
-  width: min(640px, 100%);
-  max-height: 70vh;
-  overflow: hidden;
-  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
-  border-radius: 12px;
-  background: var(--sapGroup_ContentBackground, #fff);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
-  color: var(--sapTextColor, #1d2d3e);
-}
-
-.cpiHelper_palette_inputRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--sapGroup_ContentBorderColor, #e5e5e5);
-}
-
-.cpiHelper_palette_searchIcon {
-  display: inline-flex;
-  color: var(--sapContent_IconColor, #556b82);
-}
-
-#cpiHelper_palette .cpiHelper_palette_input {
-  flex: 1;
-  min-width: 0;
-  border: 0;
-  outline: none;
-  background: transparent;
-  color: var(--sapTextColor, #1d2d3e);
-  font: inherit;
-  font-size: 1rem;
-  box-shadow: none;
-}
-
-#cpiHelper_palette kbd {
-  padding: 1px 5px;
-  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
-  border-radius: 4px;
-  color: var(--sapContent_LabelColor, #556b82);
-  font-family: inherit;
-  font-size: 0.6875rem;
-}
-
-.cpiHelper_palette_list {
-  flex: 1;
-  margin: 0;
-  padding: 6px;
-  overflow-y: auto;
-  list-style: none;
-}
-
-#cpiHelper_palette .cpiHelper_palette_item > a,
-#cpiHelper_palette .cpiHelper_palette_item > a:visited,
-#cpiHelper_palette .cpiHelper_palette_item > a:hover,
-#cpiHelper_palette .cpiHelper_palette_item > button {
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 7px 10px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--sapList_TextColor, #1d2d3e);
-  font: inherit;
-  text-align: left;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.cpiHelper_palette_itemIcon svg {
-  width: 18px;
-  height: 18px;
-}
-
-#cpiHelper_palette .cpiHelper_palette_item[aria-selected="true"] > * {
-  background: var(--sapList_SelectionBackgroundColor, rgba(0, 112, 242, 0.1));
-}
-
-.cpiHelper_palette_itemIcon {
-  display: inline-flex;
-  flex: none;
-  color: var(--sapContent_IconColor, #556b82);
-}
-
-.cpiHelper_palette_itemText {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.cpiHelper_palette_itemLabel,
-.cpiHelper_palette_itemSub {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.cpiHelper_palette_itemSub {
-  color: var(--sapContent_LabelColor, #556b82);
-  font-size: 0.75rem;
-}
-
-.cpiHelper_palette_itemSub:empty {
-  display: none;
-}
-
-.cpiHelper_palette_itemKind {
-  flex: none;
-  color: var(--sapContent_LabelColor, #556b82);
-  font-size: 0.6875rem;
-}
-
-.cpiHelper_palette_empty {
-  padding: 16px 10px;
-  color: var(--sapContent_LabelColor, #556b82);
-}
-
-.cpiHelper_palette_footer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 14px;
-  padding: 8px 14px;
-  border-top: 1px solid var(--sapGroup_ContentBorderColor, #e5e5e5);
-  color: var(--sapContent_LabelColor, #556b82);
-  font-size: 0.75rem;
-}
-
-.cpiHelper_palette_status {
-  flex: 1;
-  min-width: 160px;
-}
-
-#cpiHelper_palette .cpiHelper_palette_reload {
-  padding: 2px 10px;
-  border: 1px solid var(--sapButton_BorderColor, #bcc3ca);
-  border-radius: 6px;
-  background: var(--sapButton_Background, #fff);
-  color: var(--sapButton_TextColor, #0064d9);
-  font: inherit;
-  cursor: pointer;
-}
-
-#cpiHelper_palette .cpiHelper_palette_reload:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-/* 4.0 welcome (scripts/celebration.js) */
-#cpiHelper_celebration {
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  background: rgba(20, 28, 38, 0.45);
-  font-family: var(--sapFontFamily, '72', Arial, sans-serif);
-  animation: cpiHelper_floatingToolbar_fadein 200ms ease-out;
-}
-
-.cpiHelper_celebration_card {
-  position: relative;
-  width: min(460px, 100%);
-  padding: 28px 28px 22px;
-  border-radius: 14px;
-  background: var(--sapGroup_ContentBackground, #fff);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
-  color: var(--sapTextColor, #1d2d3e);
-  font-size: 0.9375rem;
-  line-height: 1.5;
-  text-align: center;
-  animation: cpiHelper_celebration_pop 320ms cubic-bezier(0.2, 0.9, 0.3, 1.3);
-}
-
-.cpiHelper_celebration_card h2 {
-  margin: 6px 0 2px;
-  font-size: 1.6rem;
-  font-weight: 700;
-}
-
-.cpiHelper_celebration_card p {
-  margin: 8px 0;
-}
-
-.cpiHelper_celebration_card kbd {
-  padding: 1px 6px;
-  border: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
-  border-radius: 4px;
-  font-family: inherit;
-  font-size: 0.8125rem;
-}
-
-.cpiHelper_celebration_badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: var(--cpi-custom-color, #0a6ed1);
-  color: var(--cpi-text-color, #fff);
-  font-size: 1.4rem;
-  font-weight: 700;
-  box-shadow: 0 0 0 6px color-mix(in srgb, var(--cpi-custom-color, #0a6ed1) 25%, transparent);
-}
-
-.cpiHelper_celebration_lead {
-  color: var(--sapContent_LabelColor, #556b82);
-  font-weight: 600;
-}
-
-.cpiHelper_celebration_thanks {
-  font-size: 0.875rem;
-}
-
-.cpiHelper_celebration_influence {
-  margin: 12px 0 0;
-  padding: 8px 12px;
-  font-size: 0.875rem;
-  border-radius: 8px;
-  background: var(--sapInformationBackground, #e1f4ff);
-}
-
-.cpiHelper_celebration_card a {
-  color: var(--sapLinkColor, #0064d9);
-}
-
-.cpiHelper_celebration_sponsor {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin: 6px 0 4px;
-  padding: 6px 12px;
-  border: 1px solid var(--sapGroup_ContentBorderColor, #e5e5e5);
-  border-radius: 8px;
-  color: var(--sapContent_LabelColor, #556b82) !important;
-  font-size: 0.8125rem;
-  text-decoration: none;
-}
-
-.cpiHelper_celebration_sponsor img {
-  height: 22px;
-  width: auto;
-}
-
-.cpiHelper_celebration_actions {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.cpiHelper_celebration_actions button,
-.cpiHelper_tour_actions button {
-  padding: 7px 16px;
-  border: 1px solid var(--sapButton_BorderColor, #bcc3ca);
-  border-radius: 8px;
-  background: var(--sapButton_Background, #fff);
-  color: var(--sapButton_TextColor, #0064d9);
-  font: inherit;
-  font-size: 0.875rem;
-  cursor: pointer;
-}
-
-.cpiHelper_celebration_actions button:hover,
-.cpiHelper_tour_actions button:hover {
-  background: var(--sapButton_Hover_Background, #eaecee);
-}
-
-button.cpiHelper_celebration_primary,
-button.cpiHelper_tour_next {
-  border-color: var(--sapButton_Emphasized_BorderColor, #0064d9);
-  background: var(--sapButton_Emphasized_Background, #0064d9);
-  color: var(--sapButton_Emphasized_TextColor, #fff);
-  font-weight: 600;
-}
-
-button.cpiHelper_celebration_primary:hover,
-button.cpiHelper_tour_next:hover {
-  background: var(--sapButton_Emphasized_Hover_Background, #0054b6);
-}
-
-.cpiHelper_celebration_close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: inline-flex;
-  padding: 4px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--sapContent_IconColor, #556b82);
-  cursor: pointer;
-}
-
-.cpiHelper_celebration_close:hover {
-  background: rgba(127, 127, 127, 0.15);
-}
-
-.cpiHelper_celebration_card button:focus-visible,
-.cpiHelper_tour_card button:focus-visible {
-  outline: 2px solid var(--sapContent_FocusColor, #0070f2);
-  outline-offset: 2px;
-}
-
-@keyframes cpiHelper_celebration_pop {
-  from {
-    opacity: 0;
-    transform: scale(0.9) translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-.cpiHelper_confetti {
-  position: fixed;
-  inset: 0;
-  z-index: 10001;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.cpiHelper_confetti > span {
-  position: absolute;
-  width: 8px;
-  height: 12px;
-  border-radius: 2px;
-}
-
-.cpiHelper_confetti_fall {
-  top: -16px;
-  animation: cpiHelper_confetti_fall 2.4s cubic-bezier(0.3, 0.6, 0.6, 1) forwards;
-}
-
-@keyframes cpiHelper_confetti_fall {
-  to {
-    transform: translate(var(--drift), 105vh) rotate(var(--spin));
-    opacity: 0.2;
-  }
-}
-
-.cpiHelper_confetti_burst {
-  width: 7px !important;
-  height: 7px !important;
-  border-radius: 50% !important;
-  animation: cpiHelper_confetti_burst 900ms ease-out forwards;
-}
-
-@keyframes cpiHelper_confetti_burst {
-  to {
-    transform: translate(var(--dx), var(--dy)) scale(0.6);
-    opacity: 0;
-  }
-}
-
-/* toolbar tour: the spotlight's shadow darkens the page and leaves a hole around the target */
-#cpiHelper_tour {
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  font-family: var(--sapFontFamily, '72', Arial, sans-serif);
-}
-
-.cpiHelper_tour_spotlight {
-  position: fixed;
-  border-radius: 12px;
-  box-shadow: 0 0 0 100vmax rgba(20, 28, 38, 0.5);
-  pointer-events: none;
-  transition: all 250ms ease;
-}
-
-.cpiHelper_tour_spotlight.cpiHelper_tour_pulse {
-  animation: cpiHelper_tour_pulse 1.4s ease-in-out infinite;
-}
-
-@keyframes cpiHelper_tour_pulse {
-  50% {
-    outline: 3px solid color-mix(in srgb, var(--sapContent_FocusColor, #0070f2) 70%, transparent);
-    outline-offset: 4px;
-  }
-}
-
-.cpiHelper_tour_card {
-  position: fixed;
-  width: 280px;
-  padding: 14px 16px 12px;
-  border-radius: 12px;
-  background: var(--sapGroup_ContentBackground, #fff);
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.3);
-  color: var(--sapTextColor, #1d2d3e);
-  font-size: 0.875rem;
-  line-height: 1.45;
-  transition:
-    left 250ms ease,
-    top 250ms ease;
-}
-
-.cpiHelper_tour_step {
-  color: var(--sapContent_LabelColor, #556b82);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.cpiHelper_tour_card h3 {
-  margin: 4px 0 4px;
-  font-size: 1.05rem;
-  font-weight: 700;
-}
-
-.cpiHelper_tour_card p {
-  margin: 0 0 12px;
-}
-
-.cpiHelper_tour_actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.cpiHelper_tour_spacer {
-  flex: 1;
-}
-
-button.cpiHelper_tour_skip {
-  padding: 7px 4px;
-  border: 0;
-  background: transparent;
-  color: var(--sapContent_LabelColor, #556b82);
-}
-
-button.cpiHelper_tour_skip:hover {
-  background: transparent;
-  text-decoration: underline;
-}
-
-.cpiHelper_tour_actions button[hidden] {
-  display: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  #cpiHelper_celebration,
-  .cpiHelper_celebration_card,
-  .cpiHelper_tour_spotlight,
-  .cpiHelper_tour_card {
-    animation: none !important;
-    transition: none !important;
-  }
 }
