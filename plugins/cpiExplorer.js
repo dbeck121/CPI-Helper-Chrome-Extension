@@ -2,11 +2,11 @@ var plugin = {
     metadataVersion: "1.0.0",
     id: "cpiExplorer",
     name: "CPI Explorer",
-    version: "3.0.0",
+    version: "3.1.0",
     author: "Lokesh Bhukya",
 
     description:
-        "Search CPI tenant iFlow configuration.",
+        "Search CPI tenant iFlow configuration and externalized parameters.",
 
     settings: {},
 
@@ -30,7 +30,7 @@ var CPI_EXPLORER = (function () {
     /*
      * Local tenant index.
      *
-     * Built only once per tenant/page.
+     * Built once per tenant.
      */
     var index = [];
 
@@ -41,6 +41,7 @@ var CPI_EXPLORER = (function () {
 
     var packageCount = 0;
     var flowCount = 0;
+
 
     /*
      * ------------------------------------------------------------
@@ -78,7 +79,7 @@ var CPI_EXPLORER = (function () {
 
     /*
      * ------------------------------------------------------------
-     * PACKAGES
+     * GET PACKAGES
      * ------------------------------------------------------------
      */
 
@@ -86,7 +87,8 @@ var CPI_EXPLORER = (function () {
 
         var data =
             await get(
-                baseUrl + "workspace/"
+                baseUrl +
+                "workspace/"
             );
 
 
@@ -118,11 +120,13 @@ var CPI_EXPLORER = (function () {
 
     /*
      * ------------------------------------------------------------
-     * IFLOWS
+     * GET IFLOWS / ARTIFACTS
      * ------------------------------------------------------------
      */
 
-    async function getArtifacts(packageId) {
+    async function getArtifacts(
+        packageId
+    ) {
 
         var url =
             baseUrl +
@@ -163,7 +167,18 @@ var CPI_EXPLORER = (function () {
 
     /*
      * ------------------------------------------------------------
-     * IFLOW ENTITY
+     * GET IFLOW CONTENT
+     *
+     * IMPORTANT:
+     *
+     * CPI Configure screen uses:
+     *
+     * ?action=iPkgConfigure
+     * &isConfigureRead=true
+     * &type=Flow
+     *
+     * This response contains configured externalized
+     * parameter values.
      * ------------------------------------------------------------
      */
 
@@ -183,6 +198,10 @@ var CPI_EXPLORER = (function () {
         }
 
 
+        /*
+         * CPI Helper can expose different names
+         * depending on the artifact.
+         */
         var names = [];
 
 
@@ -200,6 +219,7 @@ var CPI_EXPLORER = (function () {
             if (
                 names.indexOf(value) === -1
             ) {
+
                 names.push(value);
             }
         }
@@ -214,13 +234,16 @@ var CPI_EXPLORER = (function () {
         addName(artifact.entityId);
 
 
+        /*
+         * First try the Configure-read endpoint.
+         */
         for (
             var i = 0;
             i < names.length;
             i++
         ) {
 
-            var url =
+            var configureUrl =
                 baseUrl +
                 "workspace/" +
                 encodeURIComponent(packageId) +
@@ -229,28 +252,90 @@ var CPI_EXPLORER = (function () {
                 "/entities/" +
                 encodeURIComponent(entityId) +
                 "/iflows/" +
-                encodeURIComponent(names[i]);
+                encodeURIComponent(names[i]) +
+                "?action=iPkgConfigure" +
+                "&isConfigureRead=true" +
+                "&type=Flow" +
+                "&filterByRuntimeProfileType=";
 
 
             try {
 
-                var data =
-                    await get(url);
+                var configureData =
+                    await get(
+                        configureUrl
+                    );
 
 
-                if (data) {
+                if (configureData) {
 
                     return {
-                        data: data,
+                        data: configureData,
 
                         name: names[i],
+
+                        configure: true,
                     };
                 }
 
             } catch (e) {
 
+                console.warn(
+                    "CPI Explorer: Configure request failed for " +
+                    names[i],
+                    e
+                );
+            }
+        }
+
+
+        /*
+         * Fallback to normal iFlow endpoint.
+         *
+         * This keeps the plugin usable if Configure-read
+         * is unavailable for a particular artifact.
+         */
+        for (
+            var j = 0;
+            j < names.length;
+            j++
+        ) {
+
+            var normalUrl =
+                baseUrl +
+                "workspace/" +
+                encodeURIComponent(packageId) +
+                "/artifacts/" +
+                encodeURIComponent(entityId) +
+                "/entities/" +
+                encodeURIComponent(entityId) +
+                "/iflows/" +
+                encodeURIComponent(names[j]);
+
+
+            try {
+
+                var normalData =
+                    await get(
+                        normalUrl
+                    );
+
+
+                if (normalData) {
+
+                    return {
+                        data: normalData,
+
+                        name: names[j],
+
+                        configure: false,
+                    };
+                }
+
+            } catch (e2) {
+
                 /*
-                 * Try next identifier.
+                 * Try next name.
                  */
             }
         }
@@ -266,7 +351,9 @@ var CPI_EXPLORER = (function () {
      * ------------------------------------------------------------
      */
 
-    function getPackageName(packageInfo) {
+    function getPackageName(
+        packageInfo
+    ) {
 
         return (
             packageInfo.technicalName ||
@@ -294,6 +381,32 @@ var CPI_EXPLORER = (function () {
     }
 
 
+    /*
+     * ------------------------------------------------------------
+     * COLLECT VALUES
+     * ------------------------------------------------------------
+     *
+     * This recursively collects normal iFlow values.
+     *
+     * It additionally detects Configure API objects such as:
+     *
+     * {
+     *     "value": "s4dev.sap.china.livanova.com",
+     *     "defaultValue": "ftp.livanova.com:22",
+     *     "key": "source_address",
+     *     "additionalMetadata": {
+     *         "Configured": "true"
+     *     }
+     * }
+     *
+     * The configured value is indexed as:
+     *
+     * Externalized Parameter.source_address
+     * ->
+     * s4dev.sap.china.livanova.com
+     * ------------------------------------------------------------
+     */
+
     function collectValues(
         value,
         path,
@@ -310,7 +423,7 @@ var CPI_EXPLORER = (function () {
 
 
         /*
-         * Prevent extremely deep/internal structures.
+         * Prevent extremely deep structures.
          */
         if (depth > 15) {
             return;
@@ -345,14 +458,23 @@ var CPI_EXPLORER = (function () {
 
 
             if (text.length > 3000) {
+
                 text =
-                    text.substring(0, 3000);
+                    text.substring(
+                        0,
+                        3000
+                    );
             }
 
 
             result.push({
-                path: path || "value",
-                value: text,
+
+                path:
+                    path ||
+                    "value",
+
+                value:
+                    text,
             });
 
 
@@ -361,9 +483,78 @@ var CPI_EXPLORER = (function () {
 
 
         /*
-         * Array.
+         * --------------------------------------------------------
+         * EXTERNALIZED PARAMETER
+         * --------------------------------------------------------
+         *
+         * Detect configured parameter entries.
          */
-        if (Array.isArray(value)) {
+        if (
+            typeof value === "object" &&
+            !Array.isArray(value) &&
+            value.key &&
+            value.additionalMetadata &&
+            String(
+                value.additionalMetadata.Configured
+            ).toLowerCase() === "true"
+        ) {
+
+            /*
+             * Configured value.
+             */
+            if (
+                value.value !== null &&
+                value.value !== undefined &&
+                String(value.value) !== ""
+            ) {
+
+                result.push({
+
+                    path:
+                        "Externalized Parameter." +
+                        String(value.key),
+
+                    value:
+                        String(value.value),
+                });
+            }
+
+
+            /*
+             * Also index the default value.
+             *
+             * This allows searches for both
+             * configured and default values.
+             */
+            if (
+                value.defaultValue !== null &&
+                value.defaultValue !== undefined &&
+                String(value.defaultValue) !== ""
+            ) {
+
+                result.push({
+
+                    path:
+                        "Externalized Parameter." +
+                        String(value.key) +
+                        ".Default",
+
+                    value:
+                        String(value.defaultValue),
+                });
+            }
+        }
+
+
+        /*
+         * --------------------------------------------------------
+         * ARRAY
+         * --------------------------------------------------------
+         */
+
+        if (
+            Array.isArray(value)
+        ) {
 
             for (
                 var i = 0;
@@ -372,9 +563,16 @@ var CPI_EXPLORER = (function () {
             ) {
 
                 collectValues(
+
                     value[i],
-                    path + "[" + i + "]",
+
+                    path +
+                    "[" +
+                    i +
+                    "]",
+
                     result,
+
                     depth + 1
                 );
             }
@@ -385,8 +583,11 @@ var CPI_EXPLORER = (function () {
 
 
         /*
-         * Object.
+         * --------------------------------------------------------
+         * OBJECT
+         * --------------------------------------------------------
          */
+
         if (
             typeof value === "object"
         ) {
@@ -406,7 +607,7 @@ var CPI_EXPLORER = (function () {
 
 
                 /*
-                 * Skip large/unnecessary UI data.
+                 * Skip unnecessary UI data.
                  */
                 if (
                     key === "svg" ||
@@ -415,20 +616,27 @@ var CPI_EXPLORER = (function () {
                     key === "bounds" ||
                     key === "position"
                 ) {
+
                     continue;
                 }
 
 
                 var newPath =
                     path
-                        ? path + "." + key
+                        ? path +
+                            "." +
+                            key
                         : key;
 
 
                 collectValues(
+
                     value[key],
+
                     newPath,
+
                     result,
+
                     depth + 1
                 );
             }
@@ -437,9 +645,14 @@ var CPI_EXPLORER = (function () {
 
 
     /*
-     * Remove duplicate path/value combinations.
+     * ------------------------------------------------------------
+     * REMOVE DUPLICATES
+     * ------------------------------------------------------------
      */
-    function removeDuplicates(values) {
+
+    function removeDuplicates(
+        values
+    ) {
 
         var seen = {};
         var result = [];
@@ -457,12 +670,16 @@ var CPI_EXPLORER = (function () {
                 values[i].value;
 
 
-            if (seen[key]) {
+            if (
+                seen[key]
+            ) {
+
                 continue;
             }
 
 
-            seen[key] = true;
+            seen[key] =
+                true;
 
 
             result.push(
@@ -510,10 +727,15 @@ var CPI_EXPLORER = (function () {
 
 
         values =
-            removeDuplicates(values);
+            removeDuplicates(
+                values
+            );
 
 
-        if (!values.length) {
+        if (
+            !values.length
+        ) {
+
             return;
         }
 
@@ -567,6 +789,12 @@ var CPI_EXPLORER = (function () {
 
         } catch (e) {
 
+            console.warn(
+                "CPI Explorer: Could not load artifacts",
+                packageInfo,
+                e
+            );
+
             return;
         }
 
@@ -576,6 +804,7 @@ var CPI_EXPLORER = (function () {
 
 
         updateStatus(
+
             "Package " +
             packageNumber +
             "/" +
@@ -588,7 +817,10 @@ var CPI_EXPLORER = (function () {
 
 
         /*
-         * Only 2 requests at a time.
+         * Only 2 iFlow requests at a time.
+         *
+         * This is intentionally kept low
+         * to avoid excessive CPI API calls.
          */
         var next = 0;
 
@@ -596,7 +828,8 @@ var CPI_EXPLORER = (function () {
         async function worker() {
 
             while (
-                next < artifacts.length
+                next <
+                artifacts.length
             ) {
 
                 var current =
@@ -608,6 +841,7 @@ var CPI_EXPLORER = (function () {
 
 
                 updateStatus(
+
                     "Indexing " +
                     packageNumber +
                     "/" +
@@ -628,9 +862,14 @@ var CPI_EXPLORER = (function () {
 
                 } catch (e) {
 
+                    console.warn(
+                        "CPI Explorer: Failed to index iFlow",
+                        artifact,
+                        e
+                    );
+
                     /*
-                     * One failed iFlow should not
-                     * stop the complete tenant index.
+                     * Continue with next iFlow.
                      */
                 }
             }
@@ -638,8 +877,11 @@ var CPI_EXPLORER = (function () {
 
 
         await Promise.all([
+
             worker(),
+
             worker(),
+
         ]);
     }
 
@@ -659,6 +901,7 @@ var CPI_EXPLORER = (function () {
             indexedTenant === tenant &&
             index.length > 0
         ) {
+
             return;
         }
 
@@ -668,6 +911,7 @@ var CPI_EXPLORER = (function () {
          * building the index, wait for it.
          */
         if (indexPromise) {
+
             return indexPromise;
         }
 
@@ -678,6 +922,7 @@ var CPI_EXPLORER = (function () {
                 index = [];
 
                 packageCount = 0;
+
                 flowCount = 0;
 
 
@@ -691,6 +936,7 @@ var CPI_EXPLORER = (function () {
 
 
                 updateStatus(
+
                     "Found " +
                     packages.length +
                     " packages. Building index..."
@@ -704,8 +950,11 @@ var CPI_EXPLORER = (function () {
                 ) {
 
                     await indexPackage(
+
                         packages[i],
+
                         i + 1,
+
                         packages.length
                     );
                 }
@@ -716,6 +965,7 @@ var CPI_EXPLORER = (function () {
 
 
                 updateStatus(
+
                     "Index ready — " +
                     flowCount +
                     " iFlows from " +
@@ -732,7 +982,8 @@ var CPI_EXPLORER = (function () {
 
         } finally {
 
-            indexPromise = null;
+            indexPromise =
+                null;
         }
     }
 
@@ -765,7 +1016,8 @@ var CPI_EXPLORER = (function () {
         }
 
 
-        results.innerHTML = "";
+        results.innerHTML =
+            "";
 
 
         var count = 0;
@@ -778,8 +1030,10 @@ var CPI_EXPLORER = (function () {
         ) {
 
             if (
-                currentSearch !== searchId
+                currentSearch !==
+                searchId
             ) {
+
                 return;
             }
 
@@ -788,7 +1042,8 @@ var CPI_EXPLORER = (function () {
                 index[i];
 
 
-            var flowMatches = [];
+            var flowMatches =
+                [];
 
 
             for (
@@ -801,14 +1056,27 @@ var CPI_EXPLORER = (function () {
                     flow.values[j];
 
 
-                if (
-                    item.value
-                        .toLowerCase()
-                        .includes(query) ||
+                var itemValue =
+                    String(
+                        item.value
+                    )
+                        .toLowerCase();
 
-                    item.path
-                        .toLowerCase()
-                        .includes(query)
+
+                var itemPath =
+                    String(
+                        item.path
+                    )
+                        .toLowerCase();
+
+
+                if (
+                    itemValue.includes(
+                        query
+                    ) ||
+                    itemPath.includes(
+                        query
+                    )
                 ) {
 
                     flowMatches.push(
@@ -817,8 +1085,10 @@ var CPI_EXPLORER = (function () {
 
 
                     if (
-                        flowMatches.length >= 20
+                        flowMatches.length >=
+                        20
                     ) {
+
                         break;
                     }
                 }
@@ -836,9 +1106,13 @@ var CPI_EXPLORER = (function () {
                 ) {
 
                     addResult(
+
                         flow.packageName,
+
                         flow.flowName,
+
                         flowMatches[k].path,
+
                         flowMatches[k].value
                     );
 
@@ -849,7 +1123,9 @@ var CPI_EXPLORER = (function () {
         }
 
 
-        if (count === 0) {
+        if (
+            count === 0
+        ) {
 
             updateStatus(
                 "No matches found."
@@ -858,6 +1134,7 @@ var CPI_EXPLORER = (function () {
         } else {
 
             updateStatus(
+
                 count +
                 " match(es) found — local search."
             );
@@ -899,18 +1176,24 @@ var CPI_EXPLORER = (function () {
         /*
          * Get tenant from current CPI session.
          *
-         * No current iFlow required.
+         * No username/password/credentials
+         * are hardcoded.
          */
         tenant =
             String(
+
                 helper.tenant ||
+
                 window.location.host
+
             )
                 .replace(
                     /^https?:\/\//i,
                     ""
                 )
-                .split("/")[0];
+                .split(
+                    "/"
+                )[0];
 
 
         baseUrl =
@@ -920,8 +1203,7 @@ var CPI_EXPLORER = (function () {
 
 
         /*
-         * FIRST SEARCH:
-         * Build index once.
+         * Build index on first search.
          */
         if (
             indexedTenant !== tenant ||
@@ -946,6 +1228,7 @@ var CPI_EXPLORER = (function () {
 
 
                 updateStatus(
+
                     "Index failed: " +
                     error.message
                 );
@@ -957,18 +1240,16 @@ var CPI_EXPLORER = (function () {
 
 
         if (
-            currentSearch !== searchId
+            currentSearch !==
+            searchId
         ) {
+
             return;
         }
 
 
         /*
-         * SECOND / THIRD / ANY LATER SEARCH:
-         *
-         * No CPI API call.
-         *
-         * Search local index.
+         * Search locally after index is built.
          */
         updateStatus(
             "Searching local index..."
@@ -984,11 +1265,13 @@ var CPI_EXPLORER = (function () {
 
     /*
      * ------------------------------------------------------------
-     * UI
+     * OPEN UI
      * ------------------------------------------------------------
      */
 
-    function open(pluginHelper) {
+    function open(
+        pluginHelper
+    ) {
 
         helper =
             pluginHelper || {};
@@ -1006,11 +1289,16 @@ var CPI_EXPLORER = (function () {
                 "block";
 
 
-            document
-                .getElementById(
+            var existingInput =
+                document.getElementById(
                     "cpi-explorer-input"
-                )
-                .focus();
+                );
+
+
+            if (existingInput) {
+
+                existingInput.focus();
+            }
 
 
             return;
@@ -1084,6 +1372,7 @@ var CPI_EXPLORER = (function () {
             function () {
 
                 search(
+
                     document
                         .getElementById(
                             "cpi-explorer-input"
@@ -1098,11 +1387,14 @@ var CPI_EXPLORER = (function () {
                 "cpi-explorer-input"
             )
             .addEventListener(
+
                 "keydown",
+
                 function (event) {
 
                     if (
-                        event.key === "Enter"
+                        event.key ===
+                        "Enter"
                     ) {
 
                         document
@@ -1201,11 +1493,13 @@ var CPI_EXPLORER = (function () {
 
     /*
      * ------------------------------------------------------------
-     * HELPERS
+     * STATUS
      * ------------------------------------------------------------
      */
 
-    function updateStatus(message) {
+    function updateStatus(
+        message
+    ) {
 
         var status =
             document.getElementById(
@@ -1221,25 +1515,38 @@ var CPI_EXPLORER = (function () {
     }
 
 
-    function escapeHtml(value) {
+    /*
+     * ------------------------------------------------------------
+     * ESCAPE HTML
+     * ------------------------------------------------------------
+     */
+
+    function escapeHtml(
+        value
+    ) {
 
         return String(value)
+
             .replace(
                 /&/g,
                 "&amp;"
             )
+
             .replace(
                 /</g,
                 "&lt;"
             )
+
             .replace(
                 />/g,
                 "&gt;"
             )
+
             .replace(
                 /"/g,
                 "&quot;"
             )
+
             .replace(
                 /'/g,
                 "&#039;"
@@ -1260,6 +1567,7 @@ var CPI_EXPLORER = (function () {
                 "cpi-explorer-css"
             )
         ) {
+
             return;
         }
 
@@ -1277,119 +1585,228 @@ var CPI_EXPLORER = (function () {
         style.textContent = `
 
             #cpi-explorer {
+
                 position: fixed;
+
                 top: 70px;
+
                 right: 30px;
+
                 width: 650px;
+
                 height: 700px;
+
                 z-index: 999999;
+
                 background: white;
+
                 border: 1px solid #ccc;
+
                 border-radius: 8px;
+
                 box-shadow:
                     0 8px 30px
                     rgba(0,0,0,.25);
-                font-family: Arial, sans-serif;
+
+                font-family:
+                    Arial,
+                    sans-serif;
             }
+
 
             .cpi-header {
+
                 height: 45px;
-                background: #354a5f;
+
+                background:
+                    #354a5f;
+
                 color: white;
+
                 display: flex;
+
                 align-items: center;
-                justify-content: space-between;
-                padding: 0 12px;
+
+                justify-content:
+                    space-between;
+
+                padding:
+                    0 12px;
             }
 
+
             #cpi-close {
+
                 background: none;
+
                 border: none;
+
                 color: white;
+
                 font-size: 24px;
+
                 cursor: pointer;
             }
 
+
             .cpi-body {
+
                 padding: 12px;
-                height: calc(100% - 45px);
-                box-sizing: border-box;
+
+                height:
+                    calc(100% - 45px);
+
+                box-sizing:
+                    border-box;
+
                 display: flex;
-                flex-direction: column;
+
+                flex-direction:
+                    column;
             }
 
+
             .cpi-search {
+
                 display: flex;
+
                 gap: 8px;
             }
 
+
             #cpi-explorer-input {
+
                 flex: 1;
+
                 height: 38px;
-                padding: 0 10px;
-                border: 1px solid #aaa;
+
+                padding:
+                    0 10px;
+
+                border:
+                    1px solid #aaa;
+
                 border-radius: 4px;
             }
+
 
             #cpi-search-button {
+
                 width: 90px;
-                background: #0070f2;
+
+                background:
+                    #0070f2;
+
                 color: white;
+
                 border: none;
+
                 border-radius: 4px;
+
                 cursor: pointer;
+
                 font-weight: bold;
             }
 
+
             #cpi-status {
+
                 margin-top: 10px;
+
                 padding: 8px;
-                background: #f5f6f7;
+
+                background:
+                    #f5f6f7;
+
                 font-size: 12px;
+
                 border-radius: 4px;
             }
 
+
             #cpi-results {
+
                 margin-top: 10px;
+
                 overflow-y: auto;
+
                 flex: 1;
             }
 
+
             .cpi-result {
-                border: 1px solid #ddd;
+
+                border:
+                    1px solid #ddd;
+
                 border-radius: 5px;
+
                 padding: 9px;
+
                 margin-bottom: 8px;
-                background: #fafafa;
+
+                background:
+                    #fafafa;
             }
 
+
             .cpi-flow {
+
                 font-weight: bold;
-                color: #0070f2;
+
+                color:
+                    #0070f2;
+
                 font-size: 14px;
             }
 
+
             .cpi-package {
-                color: #666;
+
+                color:
+                    #666;
+
                 font-size: 11px;
+
                 margin-top: 3px;
             }
 
+
             .cpi-path {
-                color: #555;
-                font-family: Consolas, monospace;
+
+                color:
+                    #555;
+
+                font-family:
+                    Consolas,
+                    monospace;
+
                 font-size: 11px;
+
                 margin-top: 5px;
-                word-break: break-all;
+
+                word-break:
+                    break-all;
             }
 
+
             .cpi-value {
+
                 margin-top: 5px;
+
                 padding: 6px;
-                background: #eee;
-                font-family: Consolas, monospace;
+
+                background:
+                    #eee;
+
+                font-family:
+                    Consolas,
+                    monospace;
+
                 font-size: 12px;
-                word-break: break-all;
+
+                word-break:
+                    break-all;
             }
         `;
 
@@ -1407,9 +1824,14 @@ var CPI_EXPLORER = (function () {
      */
 
     return {
+
         open: open,
+
     };
 
 })();
 
-pluginList.push(plugin);
+
+pluginList.push(
+    plugin
+);
