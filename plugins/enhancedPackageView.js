@@ -1,7 +1,8 @@
 // state of the package view: id and type of the artifacts of the open package (the table only shows the name,
 // while the editor url needs the id), the deployed artifacts of the tenant, the runtime entries per name for the deploy
-// status (null until read) and the housekeeping of both calls
-var epvState = { packageKey: null, artifactsByName: {}, artifactsFetching: null, artifactsNextFetchAt: 0, deployed: null, runtimeByName: null, runtimeLoading: false, runtimeFailedAt: 0 };
+// status (null until read) and the housekeeping of both calls. settings and heartbeatAt are for the entries of the
+// action sheet, which are added outside of the heartbeat
+var epvState = { settings: {}, heartbeatAt: 0, sheetListener: false, packageKey: null, artifactsByName: {}, artifactsFetching: null, artifactsNextFetchAt: 0, deployed: null, runtimeByName: null, runtimeLoading: false, runtimeFailedAt: 0 };
 
 var plugin = {
   metadataVersion: "1.0.0",
@@ -11,12 +12,12 @@ var plugin = {
   author: "Alexander Aigner, snap Consulting, Austria",
   email: "alexander.aigner@snapconsult.com",
   website: "https://www.linkedin.com/in/alexander-aigner-at/",
-  description: "Adds the deployment status and two small icons (open in a new tab, copy the name) to the artifact list of a package.",
+  description: "Adds the deployment status, small icons (open in a new tab, copy the name, open the messages) and entries in the ... menu to the artifact list of a package.",
 
   settings: {
     icon: { type: "icon", src: "/images/plugin_logos/snapconsult-at.png" },
     info: {
-      text: "Every part can be switched on separately. Deploy status: the status is read from the list of the Integration Content monitor, one call per runtime location when a package is opened, and then kept until the package is left, the refresh button next to the search field refreshes it; the version column is colored too (green: the deployed version is the current one, orange: the deployed version is older, red: nothing is deployed), every runtime the artifact is deployed to gets its own status label (cloud icon: Cloud Integration, server icon: Edge Integration Cell), and the version and the labels show runtime, deployed version, date and user on hover. Open in a new tab: the icon next to the name opens the artifact in a new browser tab, a normal click on the row keeps navigating in the current tab; id and type of the artifacts are read from the workspace API in the background, so the icon appears as soon as the artifact is resolved. Copy the name: the copy icon copies the name of the artifact to the clipboard. Switching a part off removes its icons, the color of the version column stays until the page is reloaded.",
+      text: "Every part can be switched on separately. Deploy status: the status is read from the list of the Integration Content monitor, one call per runtime location when a package is opened, and then kept until the package is left, the refresh button next to the search field refreshes it; the version column is colored too (green: the deployed version is the current one, orange: the deployed version is older, red: nothing is deployed), every runtime the artifact is deployed to gets its own status label (cloud icon: Cloud Integration, server icon: Edge Integration Cell), and the version and the labels show runtime, deployed version, date and user on hover. Open in a new tab: the icon next to the name opens the artifact in a new browser tab, a normal click on the row keeps navigating in the current tab; id and type of the artifacts are read from the workspace API in the background, so the icon appears as soon as the artifact is resolved. Copy the name: the copy icon copies the name of the artifact to the clipboard. Messages: the envelope button next to the search field opens the messages of the package in the Message Monitor, the envelope icon next to the name the messages of the artifact (for artifacts that write messages), both in a new tab and for the past hour. The ... menu of every row gets the enabled actions below a separator, plus the deployment status in the Integration Content monitor. Show the actions as: icons next to the name, entries in the ... menu or both (the messages button of the package stays in the toolbar). Switching a part off removes its icons, the color of the version column stays until the page is reloaded.",
       type: "label",
     },
     deployStatus: {
@@ -34,6 +35,21 @@ var plugin = {
       type: "checkbox",
       scope: "browser",
     },
+    monitorMessages: {
+      text: "Show icons that open the messages of the package or the artifact in the Message Monitor",
+      type: "checkbox",
+      scope: "browser",
+    },
+    actionPlacement: {
+      text: "Show the actions as",
+      type: "select",
+      scope: "browser",
+      options: [
+        { value: "both", label: "Icons and menu entries", default: true },
+        { value: "icons", label: "Icons next to the name" },
+        { value: "menu", label: "Entries in the ... menu" },
+      ],
+    },
   },
 
   heartbeat: async (pluginHelper, settings) => {
@@ -45,6 +61,18 @@ var plugin = {
     var deployStatus = settings["enhancedPackageView---deployStatus"] === true;
     var openInNewTab = settings["enhancedPackageView---openInNewTab"] === true;
     var copyName = settings["enhancedPackageView---copyName"] === true;
+    var monitorMessages = settings["enhancedPackageView---monitorMessages"] === true;
+    // unset until the select is changed once, then the default
+    var placement = settings["enhancedPackageView---actionPlacement"] || "both";
+    var icons = placement !== "menu";
+    var menu = placement !== "icons";
+    epvState.settings = { openInNewTab: openInNewTab && menu, copyName: copyName && menu, monitorMessages: monitorMessages && menu };
+    epvState.heartbeatAt = Date.now();
+    if (!epvState.sheetListener) {
+      epvState.sheetListener = true;
+      // capture, so the row is known before UI5 opens the sheet
+      document.addEventListener("click", epvOnRowClick, true);
+    }
 
     var key = pluginHelper.currentPackageId || window.location.hash;
     if (epvState.packageKey !== key) {
@@ -56,10 +84,10 @@ var plugin = {
     }
 
     // id and type of the artifacts are read in the background: the deploy status is matched by id and the new tab icon needs the id for its url
-    if (deployStatus || openInNewTab) {
+    if (deployStatus || openInNewTab || monitorMessages) {
       epvEnsureArtifacts(pluginHelper.currentPackageId);
     }
-    if (!openInNewTab) {
+    if (!openInNewTab || !icons) {
       epvRemove(".cpiHelper_epvOpen");
     }
 
@@ -73,12 +101,22 @@ var plugin = {
       epvRemove(".cpiHelper_epvDeployStatus, .cpiHelper_epvRefresh");
     }
 
-    if (!copyName) {
+    if (!copyName || !icons) {
       epvRemove(".cpiHelper_epvCopy");
     }
 
+    if (monitorMessages && pluginHelper.currentPackageId) {
+      var packageMessagesUrl = cpihTenantBase() + cpihPackageMessagesPath(pluginHelper.currentPackageId, cpiData.runtimeLocationId);
+      epvAddToolbarButton("cpiHelper_epvPackageMessages", "envelope outline", "Messages of this package in the Message Monitor (CPI Helper)", () => window.open(packageMessagesUrl, "_blank"));
+    } else {
+      epvRemove(".cpiHelper_epvPackageMessages");
+    }
+    if (!monitorMessages || !icons) {
+      epvRemove(".cpiHelper_epvMessages");
+    }
+
     for (var row of rows) {
-      epvRenderRow(row, deployStatus, openInNewTab, copyName);
+      epvRenderRow(row, deployStatus, openInNewTab && icons, copyName && icons, monitorMessages && icons);
     }
   },
 };
@@ -97,7 +135,7 @@ function epvRemove(selector) {
   }
 }
 
-function epvRenderRow(row, deployStatus, openInNewTab, copyName) {
+function epvRenderRow(row, deployStatus, openInNewTab, copyName, monitorMessages) {
   var nameElement = row.querySelector(".sapMObjectIdentifierTitle");
   if (!nameElement) {
     return;
@@ -117,9 +155,98 @@ function epvRenderRow(row, deployStatus, openInNewTab, copyName) {
     }
   }
 
+  if (monitorMessages) {
+    // only artifacts that write messages get the icon, and only once the artifact is resolved
+    var messages = epvJumpTargets(name).find((target) => target.path.startsWith("/shell/monitoring/Messages/"));
+    if (messages) {
+      epvAddIcon(row, nameElement, "cpiHelper_epvMessages", "envelope outline", "Messages of this artifact in the Message Monitor (CPI Helper)", () => window.open(messages.url, "_blank"));
+    }
+  }
+
   if (deployStatus) {
     epvRenderDeployStatus(row);
   }
+}
+
+// messages and deployment status of an artifact in the monitor, empty until the artifact is resolved
+function epvJumpTargets(name) {
+  var artifact = epvState.artifactsByName[name];
+  var artifactType = CPIH_WORKSPACE_TYPES[artifact?.type]?.type;
+  if (!artifactType) {
+    return [];
+  }
+  // an artifact deployed to one runtime only opens the monitor of that runtime, otherwise the one selected in the extension
+  var locations = new Set((epvState.runtimeByName?.get(name) || []).map((entry) => entry.runtimeLocationId));
+  var runtimeLocationId = locations.size === 1 ? [...locations][0] : cpiData.runtimeLocationId;
+  return cpihArtifactJumpTargets({ artifactId: artifact.id, artifactType, packageId: null, runtimeLocationId }).map((target) => ({ ...target, url: cpihTenantBase() + target.path }));
+}
+
+// the ... button of a row opens a UI5 action sheet outside of the table, so the row is taken from the click and the
+// entries are added once the sheet is rendered
+function epvOnRowClick(event) {
+  // the plugin was switched off, the listener stays until the page is reloaded
+  if (Date.now() - epvState.heartbeatAt > 10000) {
+    return;
+  }
+  var row = event.target.closest?.('div[id$="--artifactTable"] tbody tr.sapMListTblRow');
+  var name = row && event.target.closest("button") ? epvName(row) : null;
+  if (name) {
+    setTimeout(() => epvAddSheetEntries(name), 100);
+  }
+}
+
+function epvAddSheetEntries(name, tries = 10) {
+  // UI5 keeps closed popovers hidden in the dom, only the open one is visible
+  var sheet = [...document.querySelectorAll(".sapMActionSheetPopover .sapMActionSheet")].find((element) => element.offsetParent);
+  if (!sheet) {
+    if (tries > 0) {
+      setTimeout(() => epvAddSheetEntries(name, tries - 1), 100);
+    }
+    return;
+  }
+
+  var settings = epvState.settings;
+  var entries = settings.monitorMessages ? epvJumpTargets(name).map((target) => ({ text: target.label, action: () => window.open(target.url, "_blank") })) : [];
+  var url = settings.openInNewTab ? epvArtifactUrl(name) : null;
+  if (url) {
+    entries.push({ text: "Open in a new tab", action: () => window.open(url, "_blank") });
+  }
+  if (settings.copyName) {
+    entries.push({ text: "Copy the name", action: () => copyText(name) });
+  }
+
+  // the sheet is reused for every row, so the entries of the row opened before go
+  sheet.querySelectorAll(".cpiHelper_epvSheet").forEach((element) => element.remove());
+  if (entries.length === 0) {
+    return;
+  }
+
+  var separator = document.createElement("div");
+  separator.className = "cpiHelper_epvSheet";
+  // a line with the logo and the name in the middle, so the entries below are known to come from the extension
+  separator.style.cssText = "display: flex; align-items: center; gap: 0.4rem; margin: 0.25rem 0.5rem; font-size: 0.75rem; color: var(--sapContent_LabelColor, #6a6d70);";
+  var line = '<span style="flex: 1; border-top: 1px solid var(--sapList_BorderColor, #d9d9d9);"></span>';
+  separator.innerHTML = `${line}<img src="${chrome.runtime.getURL("images/v5/32.png")}" alt="" style="width: 14px; height: 14px;"><span>CPI Helper</span>${line}`;
+  sheet.appendChild(separator);
+
+  for (var entry of entries) {
+    sheet.appendChild(epvSheetButton(sheet, entry));
+  }
+}
+
+// the markup of the SAP entries above, so it looks the same
+function epvSheetButton(sheet, entry) {
+  var button = document.createElement("button");
+  button.className = "sapMBtnBase sapMBtn sapMBtnInverted sapMActionSheetButtonNoIcon sapMActionSheetButton cpiHelper_epvSheet";
+  button.title = `${entry.text} (CPI Helper)`;
+  button.innerHTML = '<span class="sapMBtnInner sapMBtnHoverable sapMFocusable sapMBtnText sapMBtnTransparent"><span class="sapMBtnContent"><bdi></bdi></span></span>';
+  button.querySelector("bdi").textContent = entry.text;
+  button.addEventListener("click", () => {
+    // UI5 does not know this button, so the sheet is closed like with the escape key
+    sheet.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", code: "Escape", bubbles: true }));
+    entry.action();
+  });
+  return button;
 }
 
 // the icons sit inside the row and a click on the row navigates to the artifact, so the click must not reach the row
@@ -384,30 +511,34 @@ function epvUpdateRefreshButton() {
   }
 }
 
-// refresh button in the toolbar of the artifact list, next to search / sort / filter / group
 function epvAddRefreshButton() {
-  // UI5 keeps pages that were left hidden in the dom, their search fields included, so only the visible one counts
-  var searchField = [...document.querySelectorAll("div.sapMHBox.sapMBarChild .sapMSF")].find((element) => element.offsetParent);
-  var toolbar = searchField?.closest("div.sapMHBox.sapMBarChild");
-  if (!toolbar || toolbar.querySelector(".cpiHelper_epvRefresh")) {
-    return;
-  }
-  // a button left behind in the toolbar of a hidden page
-  epvRemove(".cpiHelper_epvRefresh");
-
-  // the shell of a SAP toolbar button, so it lines up with its neighbours, with the icon of the extension inside
-  var button = document.createElement("button");
-  button.className = "sapMBtnBase sapMBtn sapUiTinyMarginBegin cpiHelper_epvRefresh";
-  button.title = "Refresh deploy status (CPI Helper)";
-  button.innerHTML = '<span class="sapMBtnInner sapMBtnHoverable sapMFocusable sapMBtnDefault"><span class="sapMBtnContent"><i class="sync alternate icon" style="margin: 0;"></i></span></span>';
-  button.addEventListener("click", () => {
+  epvAddToolbarButton("cpiHelper_epvRefresh", "sync alternate", "Refresh deploy status (CPI Helper)", () => {
     epvState.runtimeFailedAt = 0;
     // the ids may be stale too, the package can have been changed somewhere else since it was opened
     epvState.artifactsNextFetchAt = 0;
     epvLoadRuntime(true);
   });
-  toolbar.appendChild(button);
   epvUpdateRefreshButton();
+}
+
+// button in the toolbar of the artifact list, next to search / sort / filter / group
+function epvAddToolbarButton(className, iconName, title, action) {
+  // UI5 keeps pages that were left hidden in the dom, their search fields included, so only the visible one counts
+  var searchField = [...document.querySelectorAll("div.sapMHBox.sapMBarChild .sapMSF")].find((element) => element.offsetParent);
+  var toolbar = searchField?.closest("div.sapMHBox.sapMBarChild");
+  if (!toolbar || toolbar.querySelector("." + className)) {
+    return;
+  }
+  // a button left behind in the toolbar of a hidden page
+  epvRemove("." + className);
+
+  // the shell of a SAP toolbar button, so it lines up with its neighbours, with the icon of the extension inside
+  var button = document.createElement("button");
+  button.className = `sapMBtnBase sapMBtn sapUiTinyMarginBegin ${className}`;
+  button.title = title;
+  button.innerHTML = `<span class="sapMBtnInner sapMBtnHoverable sapMFocusable sapMBtnDefault"><span class="sapMBtnContent"><i class="${iconName} icon" style="margin: 0;"></i></span></span>`;
+  button.addEventListener("click", action);
+  toolbar.appendChild(button);
 }
 
 // runtime location -> icon, every location besides the cloud runtime is an edge integration cell
