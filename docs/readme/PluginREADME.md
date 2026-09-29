@@ -16,7 +16,9 @@ In case of questions, please open an issue in github.
 
 ### Private plugins (unpacked extension only)
 
-Plugins you do not want to ship can live in `plugins/custom/` without changing `manifest.json`. The folder is gitignored and not part of the release zip.
+Plugins for your own requirements that are not useful for everyone (e.g. customer specific plugins) can live in `plugins/custom/` without changing `manifest.json`. The folder is gitignored and not part of the release zip.
+
+To update CPI Helper, replace everything except `plugins/custom/`. Private plugins are your responsibility: `pluginList`, `cpiData` and the helpers are not a versioned API and can change with new versions, so check your plugins after an update.
 
 1. Put your plugin file into `plugins/custom/`, e.g. `plugins/custom/myPlugin.js` (same format as `example.js`)
 2. List it in `plugins/custom/plugins.json`: `["myPlugin.js"]`
