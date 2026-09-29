@@ -4,51 +4,124 @@
 
 //creates plugin content area in message sidebar
 
-async function messageSidebarPluginContent(forceRender = false) {
-  let activeness = false;
-  for (element of pluginList) {
-    var settings = await getPluginSettings(element.id);
-    if (settings[element.id + "---isActive"] === true && element?.messageSidebarContent?.onRender && (!element?.messageSidebarContent?.static || forceRender == true)) {
-      activeness = true;
-      const pluginRender = element.messageSidebarContent.onRender(cpiData, settings);
-      if (pluginRender) {
-        var div = document.getElementById("cpiHelper_messageSidebar_pluginArea_" + element.id);
-        if (!div) {
-          div = document.createElement("fieldset");
-          div.id = "cpiHelper_messageSidebar_pluginArea_" + element.id;
-          div.classList = "ui fluid segment";
-        }
-        div.innerHTML = "";
-        div.appendChild(createElementFromHTML("<div class='ui tiny header'>" + element.name + "</div>"));
-        div.appendChild(pluginRender);
-        document.querySelector("#cpiHelper_messageSidebar_pluginArea").appendChild(div);
-      }
-    }
-  }
-  const ctxbtnclose = document.querySelector("#cpiHelper_contentheader");
-  const pluginArea = document.querySelector("#cpiHelper_messageSidebar_pluginArea");
+// The obsolete OpenAI Services plugin was intentionally removed because it is no longer useful.
 
-  if (ctxbtnclose.childElementCount == 2) {
-    if (activeness == true) {
-      ctxbtnclose.insertBefore(createElementFromHTML(`<i id='sidebar_Plugin' class="cpiHelper_closeButton_sidebar calendar ${pluginArea.classList.contains("visible") ? "plus" : "minus"} icon"></i>`), ctxbtnclose.childNodes[2]);
-      document.querySelector("#sidebar_Plugin").classList.remove("cpiHelper_hidden");
-      document.querySelector("#sidebar_Plugin").addEventListener("click", () => {
-        twoClasssToggleSwitch(pluginArea, "visible", "cpiHelper_hidden");
-        twoClasssToggleSwitch(document.querySelector("#sidebar_Plugin"), "plus", "minus");
-      });
-    }
-    // twoClasssToggleSwitch(pluginArea, 'visible', 'cpiHelper_hidden')
-    chrome.storage.sync.get(["openSidebarOnStartup"], function (result) {
-      if (activeness) {
-        twoClasssToggleSwitch(pluginArea, "visible", "cpiHelper_hidden");
-        if (result["openSidebarOnStartup"]) {
-          twoClasssToggleSwitch(document.querySelector("#cpiHelper_messageSidebar_pluginArea>.header"), "cpiHelper_hidden", "visible");
-          twoClasssToggleSwitch(pluginArea, "visible", "cpiHelper_hidden");
-          twoClasssToggleSwitch(document.querySelector("#sidebar_Plugin"), "plus", "minus");
-        }
-      }
-    });
+// runs a plugin hook so that a failing plugin cannot break the other plugins or the core around it
+async function safePluginCall(plugin, hook, fn, ...args) {
+  try {
+    return await fn(...args);
+  } catch (error) {
+    log.error(`plugin ${plugin?.id}: ${hook} failed`, error);
+    return undefined;
   }
+}
+
+// condition() of a button hook. a throwing condition counts as false
+function pluginConditionMet(plugin, hook, ...args) {
+  if (!plugin[hook]) return false;
+  if (!plugin[hook].condition) return true;
+  try {
+    return !!plugin[hook].condition(...args);
+  } catch (error) {
+    log.error(`plugin ${plugin.id}: ${hook}.condition failed`, error);
+    return false;
+  }
+}
+
+async function getActivePlugins() {
+  const plugins = [];
+  for (const plugin of pluginList) {
+    const settings = await getPluginSettings(plugin.id);
+    if (settings[plugin.id + "---isActive"] === true) plugins.push(plugin);
+  }
+  return plugins;
+}
+
+// last node messageSidebarContent.onRender returned per plugin, null when it returned nothing, "failed" when it threw
+var pluginContentNodes = new Map();
+
+async function renderPluginContent(plugin) {
+  const node = plugin.messageSidebarContent.onRender(cpiData, await getPluginSettings(plugin.id));
+  pluginContentNodes.set(plugin.id, node instanceof Node ? node : null);
+  return node;
+}
+
+// onRender used to run whenever the message popup rendered and some plugins rely on that: credentialHelper
+// hooks into the page, settingsPaneResizer resizes on every refresh. so it runs when the toolbar is built
+// and, for plugins that are not static, again on every message refresh
+async function runPluginContentHooks(onlyNonStatic = false) {
+  for (const plugin of await getActivePlugins()) {
+    if (!plugin.messageSidebarContent?.onRender || plugin.toolbarButton?.onClick) continue;
+    if (onlyNonStatic && plugin.messageSidebarContent.static) continue;
+    try {
+      await renderPluginContent(plugin);
+    } catch (error) {
+      // it may only fail while the page is still loading: keep the button, the panel renders again and shows the error
+      pluginContentNodes.set(plugin.id, "failed");
+      log.error(`plugin ${plugin.id}: messageSidebarContent.onRender failed`, error);
+    }
+  }
+}
+
+// content of the panel: a static plugin keeps its node, the others render again with the current data
+async function getPluginPanelContent(plugin) {
+  const cached = pluginContentNodes.get(plugin.id);
+  if (plugin.messageSidebarContent.static && cached instanceof Node) return cached;
+  return renderPluginContent(plugin);
+}
+
+// the plugin section of the floating toolbar. toolbarButton: the click runs onClick directly.
+// messageSidebarContent: the click opens a panel with what onRender returns. a plugin whose onRender returns
+// nothing only uses it as a hook and gets no button. run runPluginContentHooks() first
+async function getToolbarPlugins() {
+  const entries = [];
+  for (const plugin of await getActivePlugins()) {
+    if (plugin.toolbarButton?.onClick) {
+      entries.push({ plugin, kind: "button" });
+    } else if (plugin.messageSidebarContent?.onRender && pluginContentNodes.get(plugin.id)) {
+      entries.push({ plugin, kind: "panel" });
+    }
+  }
+  return entries;
+}
+
+// toolbarButton.icon or messageSidebarContent.icon, like messageSidebarButton.icon ({ type: "icon", text: "xe088" }
+// for SAP-icons, { type: "text", text: "VH" }); without it the plugin logo from settings.icon, else the initials
+function createPluginToolbarIcon(plugin) {
+  const icon = plugin.toolbarButton?.icon || plugin.messageSidebarContent?.icon;
+  if (icon?.type === "icon" && /^x?[0-9a-f]{3,5}$/i.test(icon.text || "")) {
+    const glyph = document.createElement("span");
+    glyph.className = "cpiHelper_floatingToolbar_pluginIcon sapUiIcon";
+    glyph.style.fontFamily = "SAP-icons";
+    glyph.dataset.sapUiIconContent = String.fromCodePoint(parseInt(icon.text.replace(/^x/i, ""), 16));
+    return glyph;
+  }
+
+  const initials = document.createElement("span");
+  initials.className = "cpiHelper_floatingToolbar_pluginIcon cpiHelper_floatingToolbar_pluginInitials";
+  if (icon?.type === "text" && icon.text) {
+    initials.textContent = String(icon.text).substring(0, 3);
+    return initials;
+  }
+
+  const logo = plugin.settings?.icon?.src;
+  if (logo) {
+    const image = document.createElement("img");
+    image.className = "cpiHelper_floatingToolbar_pluginIcon";
+    image.alt = "";
+    image.src = chrome.runtime.getURL(logo);
+    return image;
+  }
+
+  initials.textContent =
+    String(plugin.name || plugin.id)
+      .split(/[\s_-]+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase() || "?";
+  return initials;
 }
 
 // ----------------------
@@ -58,10 +131,10 @@ async function messageSidebarPluginContent(forceRender = false) {
 //creates buttons in message sidebar
 async function createPluginButtonsInMessageSidebar(runInfoElement, i, flash) {
   var pluginButtons = [];
-  for (var plugin of pluginList) {
+  for (const plugin of pluginList) {
     var settings = await getPluginSettings(plugin.id);
     if (settings[plugin.id + "---isActive"] === true) {
-      if ((plugin.messageSidebarButton && !plugin.messageSidebarButton.condition) || (plugin.messageSidebarButton && plugin.messageSidebarButton.condition(cpiData, settings, runInfoElement))) {
+      if (pluginConditionMet(plugin, "messageSidebarButton", cpiData, settings, runInfoElement)) {
         var button = createElementFromHTML(`<button title='${plugin.messageSidebarButton.title}' id='cpiHelperPlugin--${plugin.id}' 
                 class='${runInfoElement.messageGuid + flash}'>
                 ${
@@ -70,13 +143,13 @@ async function createPluginButtonsInMessageSidebar(runInfoElement, i, flash) {
                     : plugin.messageSidebarButton.icon.text.substring(0, 3)
                 }
                      </button>`);
-        button.onclick = async (btn) => {
-          let pluginID = btn.target.id.replace("cpiHelperPlugin--", "");
-          let pluginItem = pluginList.find((element) => element.id == pluginID);
+        // the plugin comes from the closure: a click on the inner icon has no id to look it up
+        button.onclick = async () => {
+          let pluginID = plugin.id;
           let pluginsettings = await getPluginSettings(pluginID);
-          let pluginbtnstatus = document.querySelector(`[id='cpiHelperPlugin--${pluginID}'].${runInfoElement.messageGuid}`);
+          let pluginbtnstatus = button;
           isactivebutton = !pluginbtnstatus.classList.contains("cpiHelper_plugin-active");
-          pluginItem.messageSidebarButton.onClick(cpiData, pluginsettings, runInfoElement, isactivebutton);
+          safePluginCall(plugin, "messageSidebarButton.onClick", plugin.messageSidebarButton.onClick, cpiData, pluginsettings, runInfoElement, isactivebutton);
           if (!isactivebutton) {
             pluginbtnstatus.classList.remove("cpiHelper_plugin-active");
           } else {
@@ -95,11 +168,10 @@ async function createPluginButtonsInMessageSidebar(runInfoElement, i, flash) {
 //type = scriptCollectionButton, scriptButton, xsltButton
 async function createPluginButtons(type) {
   var pluginButtons = [];
-  for (var plugin of pluginList) {
+  for (const plugin of pluginList) {
     var settings = await getPluginSettings(plugin.id);
     if (settings[plugin.id + "---isActive"] === true) {
-      if ((plugin[type] && !plugin[type].condition) || (plugin[type] && plugin[type].condition(cpiData, settings))) {
-        log.log(plugin[type].icon.class);
+      if (pluginConditionMet(plugin, type, cpiData, settings)) {
         var button = createElementFromHTML(`<button title='${plugin[type].title}' id='cpiHelperPlugin--${plugin.id}' class='cpiHelper_pluginButton_${type} ${
           plugin[type].icon.class ? plugin[type].icon.class : "mini ui tertiary"
         } button cpiHelper_pluginButton'>
@@ -108,12 +180,10 @@ async function createPluginButtons(type) {
                     ? `<span data-sap-ui-icon-content="&#${plugin[type]?.icon.text}" class="sapUiIcon sapUiIconMirrorInRTL ${plugin[type].icon.class ? plugin[type].icon.class : ""}" style="font-family: SAP-icons; font-size: 0.9rem;"></span>`
                     : plugin[type]?.title
                 }</button>`);
-        button.onclick = async (btn) => {
-          let pluginID = btn.target.id.replace("cpiHelperPlugin--", "");
-          let pluginItem = pluginList.find((element) => element.id == pluginID);
-          let pluginsettings = await getPluginSettings(pluginID);
-          pluginItem[type].onClick(cpiData, pluginsettings);
-          statistic("messagebar_btn_plugin_click", pluginID);
+        button.onclick = async () => {
+          let pluginsettings = await getPluginSettings(plugin.id);
+          safePluginCall(plugin, type + ".onClick", plugin[type].onClick, cpiData, pluginsettings);
+          statistic("messagebar_btn_plugin_click", plugin.id);
         };
         pluginButtons.push(button);
       }
@@ -122,54 +192,6 @@ async function createPluginButtons(type) {
   return pluginButtons;
 }
 
-/* old. replaced withcreatePluginButtons
-async function createPluginScriptCollectionButtons() {
-    var pluginButtons = [];
-    for (var plugin of pluginList) {
-        var settings = await getPluginSettings(plugin.id);
-        if (settings[plugin.id + "---isActive"] === true) {
-            if (plugin.scriptCollectionButton && !plugin.scriptCollectionButton.condition || plugin.scriptCollectionButton && plugin.scriptCollectionButton.condition(cpiData, settings)) {
-                var button = createElementFromHTML("<button title='" + plugin.scriptCollectionButton.title + "' id='cpiHelperPlugin--" + plugin.id + "' class='cpiHelper_pluginButton_scriptCollection mini ui button'>" + plugin?.scriptCollectionButton?.text + "</button>");
- 
-                button.onclick = async (btn) => {
-                    let pluginID = btn.target.id.replace("cpiHelperPlugin--", "")
-                    let pluginItem = pluginList.find((element) => element.id == pluginID)
-                    let pluginsettings = await getPluginSettings(pluginID);
-                    pluginItem.scriptCollectionButton.onClick(cpiData, pluginsettings);
-                    statistic("messagebar_btn_plugin_click", pluginID)
-                };
- 
-                pluginButtons.push(button);
-            }
-        }
-    }
-    return pluginButtons;
-}
- 
-async function createPluginScriptButtons() {
-    var pluginButtons = [];
-    for (var plugin of pluginList) {
-        var settings = await getPluginSettings(plugin.id);
-        if (settings[plugin.id + "---isActive"] === true) {
-            if (plugin.scriptButton && !plugin.scriptButton.condition || plugin.scriptButton && plugin.scriptButton.condition(cpiData, settings)) {
-                var button = createElementFromHTML("<button title='" + plugin.scriptButton.title + "' id='cpiHelperPlugin--" + plugin.id + "' class='cpiHelper_pluginButton_script mini ui button'>" + plugin?.scriptButton?.text + "</button>");
- 
-                button.onclick = async (btn) => {
-                    let pluginID = btn.target.id.replace("cpiHelperPlugin--", "")
-                    let pluginItem = pluginList.find((element) => element.id == pluginID)
-                    let pluginsettings = await getPluginSettings(pluginID);
-                    pluginItem.scriptButton.onClick(cpiData, pluginsettings);
-                    statistic("messagebar_btn_plugin_click", pluginID)
-                };
- 
-                pluginButtons.push(button);
-            }
-        }
-    }
-    return pluginButtons;
-}
- 
-*/
 
 // ----------------------
 //plugin popup
@@ -181,9 +203,9 @@ async function createPluginPopupUI(plugin) {
   container.className = "ui card";
   container.appendChild(
     createElementFromHTML(`<div class="extra content">
-        <img class="right floated mini ui image" src=${plugin.settings["icon"] ? chrome.runtime.getURL(plugin.settings["icon"].src) : ""}>
+        ${plugin.settings["icon"] ? `<img class="right floated mini ui image" src="${chrome.runtime.getURL(plugin.settings["icon"].src)}" alt="">` : ""}
         <div class="header">${plugin.name}</div>
-        <a href=${plugin.website} target="_blank" class="meta">${plugin.author}</a>
+        <a href="${plugin.website}" target="_blank" rel="noreferrer" class="meta">${plugin.author}</a>
     </div>`)
   );
   container.appendChild(createElementFromHTML(`<div class="content">${plugin.description}</div>`));
@@ -276,6 +298,42 @@ async function createPluginPopupUI(plugin) {
           subcontainer.appendChild(radioGroupDiv);
         }
 
+        if (plugin.settings[key].type == "select") {
+          var selectOuterDiv = document.createElement("div");
+          selectOuterDiv.classList = "inputbox-spacing";
+
+          var select = document.createElement("select");
+          select.id = `cpiHelper_popup_plugins-${plugin.id}-${key}`;
+          select.key = `${getStoragePath(plugin.id, key, plugin.settings[key].scope)}`;
+          select.classList = "ui dropdown";
+
+          var savedSelectValue = await getStorageValue(plugin.id, key, plugin.settings[key].scope);
+
+          for (var selectOption of plugin.settings[key].options) {
+            var optionElement = document.createElement("option");
+            optionElement.value = selectOption.value;
+            optionElement.innerText = selectOption.label;
+            optionElement.selected = savedSelectValue !== "" ? savedSelectValue == selectOption.value : selectOption.default === true;
+            select.appendChild(optionElement);
+          }
+
+          select.addEventListener("change", function () {
+            log.log(this.key + " is set to " + this.value);
+            chrome.storage.sync.set({ [this.key]: this.value });
+            // Show/hide any settings with showWhen linked to this select
+            document.querySelectorAll(`[data-show-when-key="${this.id}"]`).forEach((el) => {
+              el.style.display = el.dataset.showWhenValue === this.value ? "" : "none";
+            });
+          });
+
+          var selectDiv = document.createElement("div");
+          selectDiv.classList = "ui fluid input";
+          selectDiv.appendChild(createElementFromHTML(`<div class="ui basic label" for="cpiHelper_popup_plugins-${plugin.id}-${key}"> ${plugin.settings[key].text}</div>`));
+          selectDiv.appendChild(select);
+          selectOuterDiv.appendChild(selectDiv);
+          subcontainer.appendChild(selectOuterDiv);
+        }
+
         if (plugin.settings[key].type == "textinput") {
           var outerDiv = document.createElement("div");
           outerDiv.classList = "inputbox-spacing";
@@ -317,7 +375,7 @@ async function createPluginPopupUI(plugin) {
         }
         if (plugin.settings[key].type == "label") {
           var label = document.createElement("div");
-          label.id = `cpiHelper_popup_plugins - ${plugin.id} -${key} `;
+          label.id = `cpiHelper_popup_plugins-${plugin.id}-${key}`;
           label.innerText = plugin.settings[key].text;
 
           var div = document.createElement("div");
@@ -327,7 +385,7 @@ async function createPluginPopupUI(plugin) {
         }
         if (plugin.settings[key].type == "text") {
           var text = document.createElement("div");
-          text.id = `cpiHelper_popup_plugins - ${plugin.id} -${key} `;
+          text.id = `cpiHelper_popup_plugins-${plugin.id}-${key}`;
           text.innerHTML = plugin.settings[key].text;
           var div = document.createElement("div");
           div.classList = plugin.settings[key].class;
@@ -337,7 +395,7 @@ async function createPluginPopupUI(plugin) {
         if (plugin.settings[key].type == "button") {
           var btn = document.createElement("button");
           btn.classList = plugin.settings[key].class;
-          btn.id = `cpiHelper_popup_plugins - ${plugin.id} -${key} `;
+          btn.id = `cpiHelper_popup_plugins-${plugin.id}-${key}`;
           btn.innerHTML = plugin.settings[key].title;
           btn.onclick = plugin.settings[key].fun;
           subcontainer.appendChild(btn);
@@ -370,14 +428,22 @@ async function createPluginPopupUI(plugin) {
   return container;
 }
 
+var pluginHeartbeatRunning = false;
+
+// every 3 seconds from the main loop. a slow heartbeat skips the next tick instead of piling up
 async function runPluginHeartbeat() {
-  for (var plugin of pluginList) {
-    var settings = await getPluginSettings(plugin.id);
-    if (settings[plugin.id + "---isActive"] === true) {
-      if (plugin["heartbeat"]) {
-        await plugin["heartbeat"](cpiData, settings);
+  if (pluginHeartbeatRunning) return;
+  pluginHeartbeatRunning = true;
+  try {
+    for (const plugin of pluginList) {
+      if (!plugin.heartbeat) continue;
+      var settings = await getPluginSettings(plugin.id);
+      if (settings[plugin.id + "---isActive"] === true) {
+        await safePluginCall(plugin, "heartbeat", plugin.heartbeat, cpiData, settings);
       }
     }
+  } finally {
+    pluginHeartbeatRunning = false;
   }
 }
 
@@ -387,16 +453,18 @@ async function createContentNodeForPlugins() {
   pluginUIList.id = "cpiHelper_popup_plugins";
   pluginUIList.className = "ui cards";
 
-  //sort by alphabet and figaf plugins
-  let sortedList = pluginList
-    .sort((x, y) => {
-      return x.id.toLowerCase() > y.id.toLowerCase() ? 1 : -1;
-    })
-    .sort((x, y) => {
-      return x.id.toLowerCase().includes("figaf") && !y.id.toLowerCase().includes("figaf") ? -1 : 1;
-    });
+  //figaf plugins first, then by alphabet. sorts a copy, the toolbar keeps the load order
+  const isFigaf = (plugin) => (plugin.id.toLowerCase().includes("figaf") ? 1 : 0);
+  let sortedList = [...pluginList].sort((x, y) => isFigaf(y) - isFigaf(x) || x.id.localeCompare(y.id, undefined, { sensitivity: "base" }));
   for (var element of sortedList) {
-    pluginUIList.appendChild(await createPluginPopupUI(element));
+    try {
+      pluginUIList.appendChild(await createPluginPopupUI(element));
+    } catch (error) {
+      log.error(`plugin ${element.id}: settings could not be rendered`, error);
+      const fallback = createElementFromHTML(`<div class="ui card"><div class="content"><div class="header"></div><div class="description">The settings of this plugin could not be shown.</div></div></div>`);
+      fallback.querySelector(".header").textContent = element.name || element.id;
+      pluginUIList.appendChild(fallback);
+    }
   }
   return pluginUIList;
 }
@@ -414,8 +482,29 @@ async function getStorageValue(pluginId, key, type = null) {
   return result;
 }
 
+// getPluginSettings runs for every plugin on every heartbeat and message row. they share one read of the
+// sync storage for a second, every write through syncChromeStoragePromise or from elsewhere drops it
+var pluginStorageSnapshot = null;
+var pluginStorageSnapshotTime = 0;
+
+function dropPluginStorageSnapshot() {
+  pluginStorageSnapshot = null;
+}
+
+try {
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "sync") dropPluginStorageSnapshot();
+  });
+} catch (error) {
+  log.debug("storage change listener not available", error);
+}
+
 async function getPluginSettings(id) {
-  var storage = await callChromeStoragePromise(null);
+  if (!pluginStorageSnapshot || Date.now() - pluginStorageSnapshotTime > 1000) {
+    pluginStorageSnapshotTime = Date.now();
+    pluginStorageSnapshot = callChromeStoragePromise(null);
+  }
+  var storage = { ...(await pluginStorageSnapshot) };
   var settings = Object.keys(storage)
     .filter((key) => key.startsWith(id))
     .reduce((obj, key) => {
@@ -424,3 +513,16 @@ async function getPluginSettings(id) {
     }, {});
   return settings;
 }
+
+// the plugins are loaded before this file: warn about what would break them later
+(function validatePluginList() {
+  const knownVersions = ["0.9.0", "1.0.0", "1.1.0"];
+  const seen = new Set();
+  pluginList.forEach((plugin) => {
+    if (!plugin?.id) return log.warn("plugin without id", plugin);
+    if (seen.has(plugin.id)) log.warn(`plugin id ${plugin.id} is used twice`);
+    seen.add(plugin.id);
+    if (plugin.metadataVersion && !knownVersions.includes(plugin.metadataVersion)) log.warn(`plugin ${plugin.id}: unknown metadataVersion ${plugin.metadataVersion}`);
+  });
+  log.log(`${pluginList.length} plugins loaded`);
+})();

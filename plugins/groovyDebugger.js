@@ -78,34 +78,32 @@ if (!window.groovyDebugSendToIDE) {
       fullscreen: false,
       large: false,
       callback: () => {
-        let actionsDiv = $("#cpiHelper_semanticui_modal .actions");
-        actionsDiv.empty();
+        let actionsDiv = document.querySelector("#cpiHelper_semanticui_modal .actions");
+        actionsDiv.replaceChildren();
 
-        let cancelBtn = $('<div class="ui button">Cancel</div>');
-        cancelBtn.on("click", () => {
-          $("#cpiHelper_semanticui_modal").modal("hide");
+        let cancelBtn = createElementFromHTML('<div class="ui button">Cancel</div>');
+        cancelBtn.addEventListener("click", () => {
+          cpihModal.hide("#cpiHelper_semanticui_modal");
         });
-        actionsDiv.append(cancelBtn);
+        actionsDiv.appendChild(cancelBtn);
 
-        let continueBtn = $('<div class="ui positive button"><i class="rocket icon"></i>Continue</div>');
+        let continueBtn = createElementFromHTML('<div class="ui positive button"><i class="rocket icon"></i>Continue</div>');
 
         const updateContinueButton = () => {
-          const anyChecked = $("#transfer-body input").prop("checked") || $("#transfer-properties input").prop("checked") || $("#transfer-headers input").prop("checked") || $("#transfer-script input").prop("checked");
-          continueBtn.toggleClass("disabled", !anyChecked).prop("disabled", !anyChecked);
+          const anyChecked = document.querySelector("#transfer-body input")?.checked || document.querySelector("#transfer-properties input")?.checked || document.querySelector("#transfer-headers input")?.checked || document.querySelector("#transfer-script input")?.checked;
+          continueBtn.classList.toggle("disabled", !anyChecked);
         };
 
-        $("#cpiHelper_semanticui_modal .ui.checkbox").checkbox({
-          onChange: updateContinueButton,
-        });
+        document.querySelectorAll("#cpiHelper_semanticui_modal .ui.checkbox input").forEach((input) => input.addEventListener("change", updateContinueButton));
 
         updateContinueButton();
 
-        continueBtn.on("click", async () => {
+        continueBtn.addEventListener("click", async () => {
           const transferOptions = {
-            body: $("#transfer-body input").prop("checked"),
-            properties: $("#transfer-properties input").prop("checked"),
-            headers: $("#transfer-headers input").prop("checked"),
-            script: $("#transfer-script input").prop("checked"),
+            body: document.querySelector("#transfer-body input")?.checked,
+            properties: document.querySelector("#transfer-properties input")?.checked,
+            headers: document.querySelector("#transfer-headers input")?.checked,
+            script: document.querySelector("#transfer-script input")?.checked,
           };
 
           await Promise.all([
@@ -119,7 +117,7 @@ if (!window.groovyDebugSendToIDE) {
           const latestSettings = await getPluginSettings("groovyDebugger");
           const latestIdeSelection = latestSettings["groovyDebugger---ideSelection"] || "";
 
-          $("#cpiHelper_semanticui_modal").modal("hide");
+          cpihModal.hide("#cpiHelper_semanticui_modal");
 
           if (!latestIdeSelection) {
             showToast("No IDE selected. Please choose an IDE from the GroovyDebugX plugin settings.", "Groovy Debugger", "Error");
@@ -143,7 +141,7 @@ if (!window.groovyDebugSendToIDE) {
             showToast("Failed to send to IDE: " + e.message, "Groovy Debugger", "Error");
           }
         });
-        actionsDiv.append(continueBtn);
+        actionsDiv.appendChild(continueBtn);
       },
     });
   };
@@ -217,7 +215,7 @@ var plugin = {
         const groovyElements = extractGroovyElements(iFlowData);
 
         if (groovyElements.length === 0) {
-          $("#cpiHelper_waiting_model").modal("hide");
+          cpihModal.hide("#cpiHelper_waiting_model");
           showToast("No Groovy Script steps found in this integration flow", "Groovy Debugger", "Warning");
           return;
         }
@@ -230,7 +228,7 @@ var plugin = {
         // Snapshot: inlineTraceElements is a global that other calls can mutate
         const traceElementsCopy = [...inlineTraceElements];
         if (!traceElementsCopy.length) {
-          $("#cpiHelper_waiting_model").modal("hide");
+          cpihModal.hide("#cpiHelper_waiting_model");
           showToast("No trace data found for this message", "Groovy Debugger", "Warning");
           return;
         }
@@ -244,7 +242,7 @@ var plugin = {
         });
 
         if (groovyElementsWithTrace.length === 0) {
-          $("#cpiHelper_waiting_model").modal("hide");
+          cpihModal.hide("#cpiHelper_waiting_model");
           showToast("No Groovy steps with trace data found in this message", "Groovy Debugger", "Warning");
           return;
         }
@@ -263,12 +261,12 @@ var plugin = {
 
         setupGroovyClickHandlers(settings, runInfo, groovyElementsWithTrace, iFlowData, artifactId, pluginHelper.tenant);
 
-        $("#cpiHelper_waiting_model").modal("hide");
+        cpihModal.hide("#cpiHelper_waiting_model");
         showToast("Groovy steps with data highlighted - click on any highlighted Groovy step to debug", "Success");
       } catch (error) {
         log.error("Error in Groovy Debugger:", error);
         showToast("Error: " + error.message, "Groovy Debugger", "Error");
-        $("#cpiHelper_waiting_model").modal("hide");
+        cpihModal.hide("#cpiHelper_waiting_model");
       }
     },
     condition: (pluginHelper, settings, runInfo) => {
@@ -397,10 +395,10 @@ function setupGroovyClickHandlers(settings, runInfo, groovyElements, iFlowData, 
           showBigPopup(await createGroovyDebugContent(debugData), `Groovy Debug Data - ${element.displayName || element.id}`, {
             fullscreen: false,
             callback: () => {
-              let actionsDiv = $("#cpiHelper_semanticui_modal .actions");
-              let debugBtn = $('<div class="ui positive button"><i class="rocket icon"></i>Debug Externally</div>');
-              debugBtn.on("click", () => window.groovyDebugSendToIDE(debugData));
-              actionsDiv.prepend(debugBtn);
+              let actionsDiv = document.querySelector("#cpiHelper_semanticui_modal .actions");
+              let debugBtn = createElementFromHTML('<div class="ui positive button"><i class="rocket icon"></i>Debug Externally</div>');
+              debugBtn.addEventListener("click", () => window.groovyDebugSendToIDE(debugData));
+              actionsDiv?.prepend(debugBtn);
             },
           });
         } catch (error) {
@@ -713,11 +711,6 @@ async function sendToExternalIDE(settings, debugData, transferOptions = { body: 
   const customUrl = settings["groovyDebugger---customIdeUrl"] || "";
   const ideUrl = ideSelection === "custom" ? customUrl.trim() || "https://groovyide.com/cpi/share/v1/" : ideSelection;
 
-  if (typeof pako === "undefined") {
-    showToast("Compression library not loaded. Please reload the page.", "Groovy Debugger", "Error");
-    return;
-  }
-
   const { groovyScript, payload, headers, properties } = await resolveTransferData(debugData, transferOptions);
 
   const dataObject = {
@@ -731,12 +724,12 @@ async function sendToExternalIDE(settings, debugData, transferOptions = { body: 
   window.open(ideUrl + encoded, "_blank");
 }
 
-// Contiva encoding: JSON -> ZIP (JSZip) -> Gzip (pako) -> standard Base64 -> URL-encode
+// Contiva encoding: JSON -> ZIP (JSZip) -> Gzip (CompressionStream) -> standard Base64 -> URL-encode
 async function sendToContivaIDE(settings, debugData, transferOptions = { body: true, properties: true, headers: true, script: true }) {
   const contivaUrl = settings["groovyDebugger---ideSelection"] || "https://ide.contiva.com/cpi/script/debug";
 
-  if (typeof pako === "undefined" || typeof JSZip === "undefined") {
-    showToast("Compression libraries not loaded. Please reload the page.", "Groovy Debugger", "Error");
+  if (typeof JSZip === "undefined") {
+    showToast("Compression library not loaded. Please reload the page.", "Groovy Debugger", "Error");
     return;
   }
 
@@ -767,8 +760,8 @@ async function compressToContivaBase64(contivaData) {
     compressionOptions: { level: 9 },
   });
 
-  // mtime: 0 for deterministic gzip header
-  const gzipped = pako.gzip(zipBytes, { level: 9, mtime: 0 });
+  // the gzip header of CompressionStream has no timestamp, so the output stays deterministic
+  const gzipped = await cpihCompress(zipBytes, "gzip");
 
   // Standard Base64 (NOT URL-safe) — Contiva expects + and /
   let binary = "";
@@ -783,10 +776,8 @@ async function compressToContivaBase64(contivaData) {
   return encodeURIComponent(base64);
 }
 
-function compressToBase64(dataString) {
-  const dataBytes = new TextEncoder().encode(dataString);
-
-  const compressedBytes = pako.deflateRaw(dataBytes, { level: 9 });
+async function compressToBase64(dataString) {
+  const compressedBytes = await cpihCompress(dataString, "deflate-raw");
 
   return uint8ArrayToBase64Url(compressedBytes);
 }

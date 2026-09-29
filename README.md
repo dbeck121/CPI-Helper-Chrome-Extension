@@ -3,53 +3,96 @@
 | [Plugin Dev](/docs/readme/PluginREADME.md) | [Contribution](/docs/readme/contributing.md) | [Code of conduct](/docs/readme/code_of_conduct.md) | [License](/docs/LICENSE) |
 | ------------------------------------------ | -------------------------------------------- | -------------------------------------------------- | ------------------------ |
 
-This Browser Plugin extends the SAP Cloud Platform Integration with some useful features.
+This browser extension makes SAP Integration Suite (Cloud Integration) faster to work with: a floating toolbar on every CPI page, a search over the whole tenant, the last processed messages next to your iFlow, inline trace right in the diagram and a payload viewer that is fun to use.
 
-Please check the CPI-Helper [Landing page](https://dbeck121.github.io/CPI-Helper-Chrome-Extension/?page=home) More information on our [LinkedIn Page](https://www.linkedin.com/company/kangoolutions)
+Please check the CPI-Helper [Landing page](https://dbeck121.github.io/CPI-Helper-Chrome-Extension/?page=home). More information on our [LinkedIn Page](https://www.linkedin.com/company/kangoolutions).
 
-I recommend reading the readme first but if you know what you are doing, you can add it to your Chrome or Edge Browser directly: [Chrome Web Store](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb) [Edge Browser](https://microsoftedge.microsoft.com/addons/detail/sap-cpi-helper/chnohkopccdfgpglplooonoaigfgfkda) [Firefox](https://addons.mozilla.org/de/firefox/addon/cpi-helper/)
+Install it for [Chrome](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb), [Edge](https://microsoftedge.microsoft.com/addons/detail/sap-cpi-helper/chnohkopccdfgpglplooonoaigfgfkda) or [Firefox](https://addons.mozilla.org/de/firefox/addon/cpi-helper/).
+
+![The CPI Helper toolbar next to the message sidebar](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/main/images/whatsnew/4.0-toolbar.png)
 
 ## Privacy and Data Protection
 
-The plugin does not collect personal data. Nevertheless the stores like Chrome Web Store collect some anonymous data like how many users have the plugin installed. Additionally I collect some statistical data like how many users really use the plugin and which features they are using. I work on CPI-Helper in my free time so I want to make sure to only work on functionality that is realy used. I do not trust Google Analytics and other tools so I implemented my own solution to be sure to not send any personal data
+CPI Helper does not collect or send any data. It only talks to the Cloud Integration tenant you have open in your browser, with your own session. Settings, recent artifacts and snippets stay in your browser storage. A few plugins of the community call external services (e.g. an AI API or an external IDE), only when you switch them on and use them.
 
-I guarantee:
-
-- No personal data is collected
-- No urls, tenant names iflow names etc are collected
-- only statistical data is collected
-- the data does not leave
+The stores (Chrome Web Store, Edge Add-ons, Firefox Add-ons) count installations anonymously, that is out of our hands.
 
 It is open source so feel free to check the source code.
 
 ## Features
 
-### Integration Flow Designer Improvements
+### Toolbar on every CPI page
 
-- Sidebar with processed messages
-- Activate InlineTrace to see message route in integration flow designer
-- Directly see trace messages in integration flow designer
-- Pretty print for trace messages in integration flow designer
-- Button to switch trace
-- Directly go to traces of specific message
-- Directly go to logs and attachments of specific message
-- Pop-up with error-message when hovering message in sidebar
-- Pop-up with deployment info
-- View and delete variables in info pop-up
+- Floating toolbar with Trace, Messages, Info, Logs and Runtime. Drag it anywhere, it remembers the place. Wide with labels or compact with icons only and keyboard shortcuts.
+- **Search** (Ctrl/⌘ + K) over every iFlow, API, mapping and package of the tenant and the monitor pages. On an iFlow it also runs actions like trace, deploy, info, logs and your plugins.
+- **Jump to** the monitor pages and, on an iFlow, to its messages, deployment status and package. A red number shows the failed messages of the past hour.
+- **Recent** artifacts with favorites on top.
+- Header in the color of your tenant, follows the light and dark CPI theme.
 
-### General CPI Improvements
+### Integration Flow Designer
 
-- Useful links in browser-bar-popup
-- Last visited iflows in browser-bar-popup
+- Message sidebar with the last processed messages of the iFlow, error message on click, jump to logs, info and trace of a run
+- Trace button to set the log level to trace (retriggered until you switch it off)
+- Inline trace: the steps of a message are colored in the diagram, click a step to see properties, headers, body, log and info before this step
+- Changes tab (experimental) shows side by side what a step did to body, headers and properties
+- Payload viewer with pretty print that keeps CDATA, comments and big JSON numbers, search, fold, wrap, font size, fullscreen and download
+- Info popup with deployment state, variables and undeploy
+- Log viewer with filters
+- Works with several runtimes like the Edge Integration Cell, also on API and MCP Server pages
+- Snippets (extremely experimental, off by default): save copied steps and paste them into another iFlow
+
+### Plugins
+
+- Plugins of the community in their own toolbar section, e.g. Version History, iFlow Searcher, Timeline, Unlock, Credential Helper, GroovyDebugX and many more
+- Switch them on and off under Manage plugins. Want to build one? See the [plugin readme](/docs/readme/PluginREADME.md).
+
+### Browser popup
+
+- Useful links of the current tenant and your last visited artifacts
+- Tenant name, color and icon, settings and plugin settings of the current tab
 
 ## Changelog
 
-### 3.27.0
+### 4.0.0
 
 - [Plugin] New Version History plugin: view the version history of an iFlow and revert to an earlier version directly in the editor. Special thanks to [Gregor Schütz](https://github.com/DevGregor)
 - [Plugin] New MPL Table Sorter plugin: sort the Monitor Message Processing table by one or more columns. Special thanks to [Prem Sai Daggolu](https://github.com/premsaidaggolu)
 - [Plugin] New Create named Groovy script plugin: create a Groovy resource with a name of your choice in the current iFlow. Special thanks to [Björn Konzmann](https://github.com/BKonzi)
+- [Feature] New floating toolbar instead of the buttons in the page header: Trace, Messages, Info, Logs and Runtime in a toolbar you can drag anywhere. Wide with labels or compact with icons only, it remembers position and variant. In the compact variant hovering shows the name and the keyboard shortcut.
+- [Feature] The toolbar is on every CPI page now, also outside of iFlows, with Search, Jump to, Recent and Plugins.
+- [Feature] Search (Ctrl/⌘ + K) finds every iFlow, API, mapping and package of the tenant and the monitor pages. On an iFlow it also runs actions: trace, deploy, trace and deploy, message sidebar, info, logs and plugins.
+- [Feature] Jump to opens the monitor pages and, on an iFlow, its messages, deployment status and package. A red number shows the failed messages of the past hour, it can be switched off in the browser popup.
+- [Feature] Recent lists your last artifacts, favorites stay on top.
+- [Feature] Everyone updating from version 3 gets a short welcome and a tour of the new toolbar, once. It can be replayed from What changed.
+- [Feature] Plugins have their own section in the toolbar. Plugins with a single action run it directly, plugins with more content open it in a panel next to the toolbar. The plugin settings are under Manage plugins.
+- [Feature] Message popup in the style of the new toolbar, slightly translucent. The header keeps the tenant color.
+- [Feature] CPI Helper toolbar on the new API and MCP Server pages. They use the integration cell runtime by default.
+- [Feature] Rewritten browser action popup: faster, without jQuery and Semantic UI, and it can open the plugin settings of the current tab. Artifact names in the popup are now escaped. Special thanks to [Alexander Aigner](https://github.com/aaigi)
+- [Feature] The browser tab title shows a readable name of the current app. Thanks to [Alexander Aigner](https://github.com/aaigi)
+- [Feature] For plugin developers: toolbarButton for direct toolbar actions, an optional icon for toolbar entries and a select dropdown for plugin settings. Thanks to [Alexander Aigner](https://github.com/aaigi)
+- [Feature] New payload viewer for trace bodies, headers and attachments: pretty print that keeps CDATA, comments and big JSON numbers, search, fold, font size, wrap, fullscreen and a resizable editor that remembers its height. Updated the Ace editor to 1.44.
+- [Feature] Inline trace (experimental): new Changes tab shows side by side what a step did to body, headers and properties.
+- [Feature] Inline trace: all steps of a message load, the first ones right away and the rest in the background (up to 5,000 instead of a fixed limit of 300). Steps with many runs, e.g. after a splitter, load a run only when it is opened.
+- [Feature] Snippets (extremely experimental, danger zone): save steps you copied in the iFlow editor under a name, rename, edit, duplicate and share them as text, and put them back into the CPI clipboard to paste them into an Integration Process or Local Integration Process of any iFlow on the tenant. Uses internals of the SAP editor, a lot will not work; snippets with start elements (Timer, Start Message) only go into an Integration Process. You alone are responsible for what you do and what you break. Off by default, switched on in the danger zone of the settings.
+- [Feature] Copy buttons on hover for names and values in trace, log and info tables.
+- [Improvement] The setting "Plugin page as separate sidebar" is gone, plugins live in the toolbar now.
 - [Improvement] Updated plugin metadata for Timeline, Unlock and Credential Helper. Thanks to [Gregor Schütz](https://github.com/DevGregor)
+- [Improvement] Version History highlights only the current version, Unlock refreshes the page after unlocking. Thanks to [Gregor Schütz](https://github.com/DevGregor)
+- [Improvement] jQuery and Fomantic UI are gone: own lightweight UI kit and stylesheet, about 3 MB less loaded into every CPI page. Dialogs and toasts take the look of the new toolbar and follow the light and dark CPI theme.
+- [Improvement] More robust plugins: one failing plugin no longer affects the others, and plugin settings are read far less often.
+- [Improvement] New trace icon in the toolbar. With more than one runtime the runtime button shows how many there are to switch to.
+- [Improvement] Cleaner log viewer: filters with labels, a Refresh button and a flat message list grouped by day.
+- [Improvement] The message sidebar opens next to the toolbar instead of below it, where the toolbar covered the message buttons.
+- [Improvement] Inline trace on a page without diagram (e.g. the overview of an API) says where to find it instead of doing nothing. For APIs it works on the Policies tab.
+- [For plugin developers] Plugins can no longer use `$` or the Fomantic modules (`.modal`, `.tab`, `$.toast`, ...). See the UI helpers in the [plugin readme](/docs/readme/PluginREADME.md).
+- [Fix] Pretty print of XML no longer inserts Chrome's XSLT deprecation notice into the payload.
+- [Fix] CPI Helper starts on the first load after the login redirect, also when the tenant opens on its start page.
+- [Fix] The setting to switch off the automatic refresh of the message sidebar works again.
+- [Fix] APIs and iFlows on the integration cell show their deploy state again, and the runtime picker marks where they are deployed.
+- [Fix] Names and values from traces are escaped before they are shown.
+- [Fix] The CPI Helper button in the new shell header opens on the first click and no longer disappears. Thanks to [Alexander Aigner](https://github.com/aaigi)
+- [Fix] The CPI Helper popup no longer opens empty the first time. Thanks to [Alexander Aigner](https://github.com/aaigi)
+- [Fix] CPI Helper stops cleanly after the extension was reloaded or updated instead of flooding the console. Thanks to [Alexander Aigner](https://github.com/aaigi)
 
 ### 3.26.0
 
@@ -537,103 +580,101 @@ First public version.
 
 ## Installation
 
-You need Google Chrome to install this plugin. I tested it with version 100. I assume that older versions will work too. There are two options to install this plugin:
+### From the store (recommended)
 
-### Install directly from Chrome Web Store or Microsoft Store (recommended)
+Add CPI Helper from the [Chrome Web Store](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb), [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/sap-cpi-helper/chnohkopccdfgpglplooonoaigfgfkda) or [Firefox Add-ons](https://addons.mozilla.org/de/firefox/addon/cpi-helper/). Updates are installed automatically.
 
-Just add the plugin in the [Chrome Web Store](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb), [Firefox](https://addons.mozilla.org/de/firefox/addon/cpi-helper/) or [Microsoft Store](https://microsoftedge.microsoft.com/addons/detail/sap-cpi-helper/chnohkopccdfgpglplooonoaigfgfkda). This is probably the easiest way. Updates will be installed automatically. [![Chrome Web Store](https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/YT2Grfi9vEBa2wAPzhWa.png)](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb)
+[![Chrome Web Store](https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/YT2Grfi9vEBa2wAPzhWa.png)](https://chrome.google.com/webstore/detail/sap-cpi-helper/epoggeaemnkacpinjfgccbjakglngkpb)
 
-### Install in Developer Mode from Sources
+### From sources (developer mode)
 
-#### Google Chrome
+> - Clone or download the repo, unpack if necessary.
+> - Chrome or Edge: open `chrome://extensions` (or `edge://extensions`) and switch on Developer mode.
+> - Click "Load unpacked" and select the folder of the repo.
+> - To update: pull the new version and click the reload button of the extension.
 
-If you know what you are doing, you can install the plugin directly from sources. Clone the repo and add the folder directly to Google Chrome
-
-> - Download or clone the repo from github. Unpack if necessary.
-> - In Google Chrome, Navigate to Settings – > Extensions
-> - Enable Developer Mode (slider on the top-right)
-> - Click: "Load Unpacked Extension" and select the folder with the plugin data
-
-#### Firefox
-
-Since version 3.2.0 the plugin is also available for Firefox and can be installed directly from the browser. This is only a developer preview so bugs might occur. https://addons.mozilla.org/de/firefox/addon/cpi-helper/
-
-## Update
-
-Attention: If you installed the plugin from Chrome Store before 21 March 2020, please uninstall and install it again with the link on the top. Chrome updates extensions that are installed from the Chrome Web Store automatically. If you installed the plugin from sources: Please replace the folder with the new version on your disk. After that, you must delete and add the plugin to Chrome Browser. If you have cloned the repository, pull new data. Then delete and add the plugin in Chrome. Restart Chrome.
+Firefox: open `about:debugging#/runtime/this-firefox`, "Load Temporary Add-on" and select the `manifest.json`.
 
 ## Usage
 
-### New Buttons
+### The toolbar
 
-If you open an Integration Flow, the plugin will automatically add a "Messages", a "Trace" and an "Info" button in the Integration-Flow-Designer.
+On every CPI page CPI Helper shows a floating toolbar. On an iFlow, API or MCP Server it has Trace, Messages, Info, Logs and Runtime, everywhere it has Search, Jump to, Recent and your plugins. Drag it by its header, switch between wide and compact with the button at the bottom. In the compact variant hovering a button shows its name and keyboard shortcut.
 
-#### Message Button
+- **Trace** sets the log level of the current iFlow to trace and keeps it there until you switch it off.
+- **Messages** opens the message sidebar (see below).
+- **Info** shows the deployment state, variables and an undeploy button.
+- **Logs** opens the log viewer of the iFlow.
+- **Runtime** switches between runtimes, e.g. Cloud Integration and the Edge Integration Cell. The number shows how many there are.
 
-The "Message" button opens a small draggable sidebar with the last processed messages. You can jump directly to infos and traces of the message run. If you hover over the status icon of message, you will see a pop-up with the error message directly. If you click on the time button, InlineTrace is activated (Only when trace was activated for message). If you click on a color coded integration flow item and trace is available, a pop-up opens with the trace of the message at this point. ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome1.png)
+### Search
 
-![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome4.png)
+Click Search or press **Ctrl/⌘ + K**. It finds every iFlow, API, mapping and package of the tenant and the monitor pages. On an iFlow it also runs actions: start or stop the trace, deploy, trace and deploy, open the message sidebar, info, logs and your plugins.
 
-#### Trace Button
+![Search over the artifacts of the tenant](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/main/images/whatsnew/4.0-search.png)
 
-The "Trace" button sets the loglevel of the current Iflow to trace.
+### Jump to and Recent
 
-#### Info Button
+**Jump to** opens the monitor pages. On an iFlow it also has the messages of this iFlow, its deployment status and its package. A red number shows the failed messages of the past hour, it can be switched off in the browser popup. **Recent** lists your last artifacts, star the ones you need often and they stay on top. Ctrl/⌘ + click opens a page in a new tab.
 
-The "Info" button lets you see detailed information of the deployment state of your Integration Flow. ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome2.png)
+![Jump to with the monitor pages](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/main/images/whatsnew/4.0-jump.png)
 
-### Toolbar Popup
+### Message sidebar and inline trace
 
-The button of the plugin in the toolbar gives you a list of useful links of your current tenant. It includes last visited Integration Flows. ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome3.png) See also the [SAP Community Blog](https://blogs.sap.com/2020/03/05/cpi-chrome-plugin-to-enhance-sap-cloud-platform-integration-usability/#)
+The message sidebar lists the last processed messages of the iFlow. Click the status to see the error message, use the buttons of a message for its logs, info and trace. Click the time of a message to switch on the inline trace: the steps it ran through turn green, the failed step red.
 
-### Inline Trace
+![Inline trace with the message sidebar](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/main/docs/images/screenshots/4.0-inline-trace.png)
 
-On the message sidebar, press the time button next to the status icon of a processed message. If run steps exist, the elements of the Integration Flow will change colors accordingly. This will give you a quick overview of the run.
+Click a colored step to see what the message looked like before this step: properties, headers, body, log, info and, experimental, the changes the step made. The body opens formatted in the payload viewer with search, fold, wrap, font size, fullscreen and download. Drag the handle below the editor to make it bigger, CPI Helper remembers the height.
 
-> - Blue elements are successfully processed steps
-> - Red elements are elements with errors. SAP does not provide good information about errors. So when an error at a Splitter-Element occurs, this does not have to mean that the error occurred here. It can also be a catched error from elements after the Splitter.
+![Trace of a step in the payload viewer](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/main/docs/images/screenshots/4.0-payload-viewer.png)
 
-Run steps exist for processed messages with trace and for a short time in processed messages with errors. ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome_inlinetrace.png)
+Run steps exist for messages with log level trace and for a short time for failed messages. SAP deletes traces after about one hour.
 
-### Inline Trace - Show Headers, Properties, Trace, Error and Logs
+### Plugins
 
-If you activated the Inline Trace feature, you can get more details. Traces only exist for processed messages with loglevel trace and will be deleted after around about 1 hour by SAP. ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome_trace_properties.png) ![Screenshot](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/master/docs/images/screenshots/chrome_after_beautify.png)
+Active plugins have their own section in the toolbar. A plugin with a single action runs it directly, a plugin with more content opens a panel next to the toolbar. Switch plugins on and off under **Manage plugins**.
+
+![Compact toolbar with an open plugin panel](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/main/images/whatsnew/4.0-plugins.png)
+
+### Browser popup
+
+The CPI Helper button in the browser toolbar shows useful links of the current tenant and your last visited artifacts. There you also set the name, color and icon of a tenant, the message sidebar and badge settings and the plugin settings of the current tab.
 
 ## FAQ
 
-### How can I activate InlineTrace?
+### How can I activate the inline trace?
 
-Run a message with trace activated. You see the message in the message sidebar. Click on the button with the time for the specific message. If trace is available, items that processed the message change color. You can click on integration flow elements to see the trace message before this step.
+Switch on Trace, run a message and open the message sidebar. Click the time of the message. If a trace is available, the steps that processed the message change color. Click a step to see the trace before it.
 
 ### How long is the trace available?
 
-SAP deletes trace messages after a while. Trace messages normally do not live longer than 1 hour.
+SAP deletes trace messages after a while, normally after about one hour.
 
-### Trace Mode or other features are not working. Is there a debug mode?
+### Something does not work. Is there a debug mode?
 
-In case of problems, you can contact me and send a debug log. You can activate the debug log while visiting an deployed IFlow, extend the url with ?cpihelper_debug=true&cpihelper_debug_download_duration=60000 and press enter to load again. Try to reproduce the error and after 60s, the debug log will download automatically. Send this to me via mail or linkedin.
+Yes. Open a deployed iFlow, extend the url with `?cpihelper_debug=true&cpihelper_debug_download_duration=60000` and press enter to load again. Reproduce the error, after 60 seconds the debug log downloads automatically.
 
 Example url:
 
-```https://xxxxxtrial.integrationsuite-trial.cfapps.us10-001.hana.ondemand.com/shell/design/contentpackage/test/integrationflows/test?cpihelper_debug=true&cpihelper_debug_download_duration=60000
-
+```
+https://xxxxxtrial.integrationsuite-trial.cfapps.us10-001.hana.ondemand.com/shell/design/contentpackage/test/integrationflows/test?cpihelper_debug=true&cpihelper_debug_download_duration=60000
 ```
 
-Please send me the debug log and answer the following questions:
+Please open an [issue](https://github.com/dbeck121/CPI-Helper-Chrome-Extension/issues) with the debug log and answer these questions:
 
-- What is the url of the Cloud Integration Tenant?
-- Trial Account?
-- Custom URL?
-- Neo or Multicloud?
-- Does the error occur all the time or only sometimes.
+- Which browser and CPI Helper version?
+- Trial account or custom domain?
+- Cloud Foundry or Neo?
+- Does the error occur all the time or only sometimes?
 
-We all work in IT and I guess we all know that a message like "My CPI Helper does not work, please help!" will definetely not help you. I need more information.
+We all work in IT and I guess we all know that a message like "My CPI Helper does not work, please help!" will definitely not help you. I need more information.
 
 ## Contributing
 
-See [Contribution guidelines for this project](docs/readme/contributing.md) if you want to take part in this project. As I am a beginner myself, beginners are welcome.
+See [Contribution guidelines for this project](docs/readme/contributing.md) if you want to take part in this project. Beginners are welcome.
 
-If you have any ideas, please write a message or comment at the [SAP Community](https://blogs.sap.com/2020/03/05/cpi-chrome-plugin-to-enhance-sap-cloud-platform-integration-usability/#)
+If you have ideas, open an [issue](https://github.com/dbeck121/CPI-Helper-Chrome-Extension/issues) or write a comment at the [SAP Community](https://blogs.sap.com/2020/03/05/cpi-chrome-plugin-to-enhance-sap-cloud-platform-integration-usability/#).
 
 ### Contributors
 
