@@ -3,7 +3,7 @@ var plugin = {
     id: "cpiExplorer",
     name: "CPI Explorer",
     version: "3.0.0",
-    author: "CPI Helper",
+    author: "Lokesh Bhukya",
 
     description:
         "Search CPI tenant iFlow configuration.",
