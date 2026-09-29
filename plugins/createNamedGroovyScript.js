@@ -242,20 +242,10 @@
       website: "https://github.com/dbeck121/CPI-Helper-Chrome-Extension",
       email: "",
       settings: {},
-      description: "Adds a Create File button to the message sidebar. It creates a named Groovy resource in the current integration flow.",
-      messageSidebarContent: {
-        static: true,
-        onRender: (pluginHelper) => {
-          const wrapper = document.createElement("div");
-          const button = document.createElement("button");
-          button.type = "button";
-          button.className = "ui primary mini button";
-          button.textContent = "Create File";
-          button.title = "Create a named Groovy file in the current integration flow";
-          button.addEventListener("click", () => createDialog(pluginHelper));
-          wrapper.appendChild(button);
-          return wrapper;
-        },
+      description: "Adds a button to the CPI Helper toolbar that creates a named Groovy resource in the current integration flow.",
+      toolbarButton: {
+        title: "Create Groovy script",
+        onClick: (pluginHelper) => createDialog(pluginHelper),
       },
     };
 

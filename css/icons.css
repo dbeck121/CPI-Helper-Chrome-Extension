@@ -1,0 +1,410 @@
+/* Icon font subset. The glyphs are Font Awesome 5 Free (fonts: SIL OFL 1.1, icons: CC BY 4.0) as shipped with the former
+   Fomantic UI build. Markup stays <i class="copy icon"></i>. A new icon needs its codepoint here (fontawesome.com/v5/search).
+   chrome resolves content script css urls against the page, hence the __MSG_@@extension_id__ url first; firefox falls back to the
+   extension relative one. */
+
+@font-face {
+  font-family: 'cpih-icons';
+  src: url(chrome-extension://__MSG_@@extension_id__/lib/icons/icons.woff2) format('woff2'), url(/lib/icons/icons.woff2) format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'cpih-outline-icons';
+  src: url(chrome-extension://__MSG_@@extension_id__/lib/icons/outline-icons.woff2) format('woff2'), url(/lib/icons/outline-icons.woff2) format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'cpih-brand-icons';
+  src: url(chrome-extension://__MSG_@@extension_id__/lib/icons/brand-icons.woff2) format('woff2'), url(/lib/icons/brand-icons.woff2) format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+}
+
+i.icon {
+  display: inline-block;
+  width: 1.18em;
+  height: 1em;
+  margin: 0 0.25rem 0 0;
+  font-family: 'cpih-icons';
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  text-align: center;
+  text-decoration: inherit;
+  speak: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  backface-visibility: hidden;
+}
+
+i.icon.outline {
+  font-family: 'cpih-outline-icons';
+}
+
+i.icon.loading {
+  height: 1em;
+  line-height: 1;
+  animation: cpih-icon-spin 2s linear infinite;
+}
+
+@keyframes cpih-icon-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+i.icon.large {
+  font-size: 1.5em;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+i.icon.big {
+  font-size: 2em;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+i.icon.alternate.external::before {
+  content: "\f35d";
+}
+
+i.icon.alternate.file::before {
+  content: "\f15c";
+}
+
+i.icon.alternate.shield::before {
+  content: "\f3ed";
+}
+
+i.icon.alternate.sync::before {
+  content: "\f2f1";
+}
+
+i.icon.angle.double.left::before {
+  content: "\f100";
+}
+
+i.icon.angle.double.right::before {
+  content: "\f101";
+}
+
+i.icon.angle.left::before {
+  content: "\f104";
+}
+
+i.icon.angle.right::before {
+  content: "\f105";
+}
+
+i.icon.arrow.left::before {
+  content: "\f060";
+}
+
+i.icon.arrow.right::before {
+  content: "\f061";
+}
+
+i.icon.at::before {
+  content: "\f1fa";
+}
+
+i.icon.bar::before {
+  content: "\f0fc";
+}
+
+i.icon.bell::before {
+  content: "\f0f3";
+}
+
+i.icon.blog::before {
+  content: "\f781";
+}
+
+i.icon.check::before {
+  content: "\f00c";
+}
+
+i.icon.check.circle::before {
+  content: "\f058";
+}
+
+i.icon.checkmark::before {
+  content: "\f00c";
+}
+
+i.icon.chrome::before {
+  content: "\f268";
+  font-family: 'cpih-brand-icons';
+}
+
+i.icon.circle::before {
+  content: "\f111";
+}
+
+i.icon.circle.help::before {
+  content: "\f059";
+}
+
+i.icon.circle.info::before {
+  content: "\f05a";
+}
+
+i.icon.circle.question::before {
+  content: "\f059";
+}
+
+i.icon.close::before {
+  content: "\f00d";
+}
+
+i.icon.code::before {
+  content: "\f121";
+}
+
+i.icon.cog::before {
+  content: "\f013";
+}
+
+i.icon.comment::before {
+  content: "\f075";
+}
+
+i.icon.comments::before {
+  content: "\f086";
+}
+
+i.icon.content::before {
+  content: "\f0c9";
+}
+
+i.icon.copy::before {
+  content: "\f0c5";
+}
+
+i.icon.delete::before {
+  content: "\f00d";
+}
+
+i.icon.diagram.project::before {
+  content: "\f542";
+}
+
+i.icon.download::before {
+  content: "\f019";
+}
+
+i.icon.dropdown::before {
+  content: "\f0d7";
+}
+
+i.icon.envelope::before {
+  content: "\f0e0";
+}
+
+i.icon.exclamation::before {
+  content: "\f12a";
+}
+
+i.icon.exclamation.triangle::before {
+  content: "\f071";
+}
+
+i.icon.external::before {
+  content: "\f35d";
+}
+
+i.icon.eye::before {
+  content: "\f06e";
+}
+
+i.icon.file::before {
+  content: "\f15b";
+}
+
+i.icon.file.outline::before {
+  content: "\f15b";
+}
+
+i.icon.folder::before {
+  content: "\f07b";
+}
+
+i.icon.folder.open::before {
+  content: "\f07c";
+}
+
+i.icon.folder.open.outline::before {
+  content: "\f07c";
+}
+
+i.icon.folder.outline::before {
+  content: "\f07b";
+}
+
+i.icon.github::before {
+  content: "\f09b";
+  font-family: 'cpih-brand-icons';
+}
+
+i.icon.glasses::before {
+  content: "\f530";
+}
+
+i.icon.help::before {
+  content: "\f128";
+}
+
+i.icon.history::before {
+  content: "\f1da";
+}
+
+i.icon.icons::before {
+  content: "\f86d";
+}
+
+i.icon.image::before {
+  content: "\f03e";
+}
+
+i.icon.images::before {
+  content: "\f302";
+}
+
+i.icon.info::before {
+  content: "\f129";
+}
+
+i.icon.keyboard::before {
+  content: "\f11c";
+}
+
+i.icon.legal::before {
+  content: "\f0e3";
+}
+
+i.icon.lightbulb::before {
+  content: "\f0eb";
+}
+
+i.icon.lightbulb.outline::before {
+  content: "\f0eb";
+}
+
+i.icon.like::before {
+  content: "\f004";
+}
+
+i.icon.linkedin::before {
+  content: "\f08c";
+  font-family: 'cpih-brand-icons';
+}
+
+i.icon.linkify::before {
+  content: "\f0c1";
+}
+
+i.icon.list::before {
+  content: "\f03a";
+}
+
+i.icon.lock::before {
+  content: "\f023";
+}
+
+i.icon.magic::before {
+  content: "\f0d0";
+}
+
+i.icon.map::before {
+  content: "\f279";
+}
+
+i.icon.map.signs::before {
+  content: "\f277";
+}
+
+i.icon.newspaper::before {
+  content: "\f1ea";
+}
+
+i.icon.outline.save::before {
+  content: "\f0c7";
+}
+
+i.icon.pen::before {
+  content: "\f304";
+}
+
+i.icon.question::before {
+  content: "\f128";
+}
+
+i.icon.readme::before {
+  content: "\f4d5";
+  font-family: 'cpih-brand-icons';
+}
+
+i.icon.rev::before {
+  content: "\f5b2";
+  font-family: 'cpih-brand-icons';
+}
+
+i.icon.right.triangle::before {
+  content: "\f0da";
+}
+
+i.icon.rocket::before {
+  content: "\f135";
+}
+
+i.icon.save::before {
+  content: "\f0c7";
+}
+
+i.icon.search::before {
+  content: "\f002";
+}
+
+i.icon.settings::before {
+  content: "\f085";
+}
+
+i.icon.shield::before {
+  content: "\f3ed";
+}
+
+i.icon.sync::before {
+  content: "\f021";
+}
+
+i.icon.target::before {
+  content: "\f140";
+}
+
+i.icon.terminal::before {
+  content: "\f120";
+}
+
+i.icon.trash::before {
+  content: "\f1f8";
+}
+
+i.icon.user::before {
+  content: "\f007";
+}
+
+i.icon.warning::before {
+  content: "\f12a";
+}
+
+i.icon.x::before {
+  content: "\f00d";
+}
