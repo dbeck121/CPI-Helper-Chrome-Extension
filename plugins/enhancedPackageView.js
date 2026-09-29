@@ -1,7 +1,7 @@
 // state of the package view: id and type of the artifacts of the open package (the table only shows the name,
-// while the editor url needs the id), the runtime entries per name for the deploy status (null until read) and the
-// housekeeping of both calls
-var epvState = { packageKey: null, artifactsByName: {}, artifactsFetching: null, artifactsNextFetchAt: 0, runtimeByName: null, runtimeLoading: false, runtimeFailedAt: 0 };
+// while the editor url needs the id), the deployed artifacts of the tenant, the runtime entries per name for the deploy
+// status (null until read) and the housekeeping of both calls
+var epvState = { packageKey: null, artifactsByName: {}, artifactsFetching: null, artifactsNextFetchAt: 0, deployed: null, runtimeByName: null, runtimeLoading: false, runtimeFailedAt: 0 };
 
 var plugin = {
   metadataVersion: "1.0.0",
@@ -51,6 +51,7 @@ var plugin = {
       epvState.packageKey = key;
       epvState.artifactsByName = {};
       epvState.artifactsNextFetchAt = 0;
+      epvState.deployed = null;
       epvState.runtimeByName = null;
     }
 
@@ -105,14 +106,14 @@ function epvRenderRow(row, deployStatus, openInNewTab, copyName) {
 
   if (copyName) {
     // copyText shows the toast itself
-    epvAddIcon(row, nameElement, "cpiHelper_epvCopy", "copy outline", "Copy the name to the clipboard (CPI Helper)", () => copyText(name));
+    epvAddIcon(row, nameElement, "cpiHelper_epvCopy", "copy", "Copy the name to the clipboard (CPI Helper)", () => copyText(name));
   }
 
   if (openInNewTab) {
     var url = epvArtifactUrl(name);
     // without a resolved artifact there is no url to open, so the icon is added once the artifacts are read
     if (url) {
-      epvAddIcon(row, nameElement, "cpiHelper_epvOpen", "share square outline", "Open in a new tab (CPI Helper)", () => window.open(url, "_blank"));
+      epvAddIcon(row, nameElement, "cpiHelper_epvOpen", "external alternate", "Open in a new tab (CPI Helper)", () => window.open(url, "_blank"));
     }
   }
 
@@ -128,10 +129,10 @@ function epvAddIcon(row, nameElement, className, iconName, title, action) {
   }
 
   var icon = document.createElement("i");
-  // "link" gives the fomantic icon the pointer cursor and the hover effect, "small" keeps it below the size of the name
-  icon.className = `${iconName} small link icon ${className}`;
+  icon.className = `${iconName} icon ${className}`;
   icon.title = title;
-  icon.style.marginLeft = "0.4rem";
+  // a bit smaller than the name, with the pointer cursor of a link
+  icon.style.cssText = "margin-left: 0.4rem; font-size: 0.85em; cursor: pointer;";
   icon.addEventListener("mousedown", epvStopEvent);
   icon.addEventListener("click", (event) => {
     epvStopEvent(event);
@@ -146,21 +147,34 @@ function epvStopEvent(event) {
   event.stopPropagation();
 }
 
-// artifact type of the workspace API -> path segment of the editor url
-var epvPaths = {
-  IFlow: "integrationflows",
-  ValueMapping: "valuemappings",
-  ScriptCollection: "scriptcollections",
-  MessageMapping: "messagemappings",
-  RestAPI: "restapis",
-  SoapAPI: "soapapis",
-  ODataService: "odataservices",
-};
+// keyword in the artifact type of the workspace API -> path segment of the editor url. the type is compared in lower
+// case without separators, so spellings like "ODataService" or "ODATA_SERVICE" end up on the same path
+var epvPaths = [
+  ["iflow", "integrationflows"],
+  ["integrationflow", "integrationflows"],
+  ["valuemapping", "valuemappings"],
+  ["scriptcollection", "scriptcollections"],
+  ["messagemapping", "messagemappings"],
+  ["rest", "restapis"],
+  ["soap", "soapapis"],
+  ["odata", "odataservices"],
+];
+var epvUnknownTypes = new Set();
+
+function epvPath(type) {
+  var normalized = (type || "").toLowerCase().replace(/[^a-z]/g, "");
+  var match = epvPaths.find(([keyword]) => normalized.includes(keyword));
+  if (!match && type && !epvUnknownTypes.has(type)) {
+    epvUnknownTypes.add(type);
+    log.warn(`enhancedPackageView: no editor url known for artifact type ${type}`);
+  }
+  return match ? match[1] : null;
+}
 
 function epvArtifactUrl(name) {
   var packageUrl = window.location.href.match(/^(.*\/contentpackage\/[^/?#]+)/);
   var artifact = epvState.artifactsByName[name];
-  var path = artifact ? epvPaths[artifact.type] : null;
+  var path = artifact ? epvPath(artifact.type) : null;
 
   if (!packageUrl || !path) {
     return null;
@@ -170,7 +184,7 @@ function epvArtifactUrl(name) {
 }
 
 // one workspace call at a time, throttled: every caller gets the running call instead of starting a second one
-function epvEnsureArtifacts(packageId) {
+function epvEnsureArtifacts(packageId, cache = 60) {
   if (epvState.artifactsFetching) {
     return epvState.artifactsFetching;
   }
@@ -178,7 +192,7 @@ function epvEnsureArtifacts(packageId) {
     return Promise.resolve();
   }
 
-  epvState.artifactsFetching = epvFetchArtifacts(packageId).finally(() => {
+  epvState.artifactsFetching = epvFetchArtifacts(packageId, cache).finally(() => {
     epvState.artifactsFetching = null;
     // back off when the tenant answered nothing usable, so a package we cannot resolve is not polled every minute
     epvState.artifactsNextFetchAt = Date.now() + (Object.keys(epvState.artifactsByName).length > 0 ? 60000 : 600000);
@@ -187,8 +201,9 @@ function epvEnsureArtifacts(packageId) {
 }
 
 // the design time OData API is not available on every tenant, the workspace API of the web ui is
-async function epvFetchArtifacts(packageId) {
+async function epvFetchArtifacts(packageId, cache) {
   var workspaceUrl = "/" + cpiData.urlExtension + "api/1.0/workspace/";
+  var packageKey = epvState.packageKey;
 
   var workspaceResp = await makeCallPromiseV2("GET", workspaceUrl, 300, "application/json", null, null, null, false);
   if (!workspaceResp.successful) {
@@ -202,7 +217,8 @@ async function epvFetchArtifacts(packageId) {
     return;
   }
 
-  var artifactResp = await makeCallPromiseV2("GET", `${workspaceUrl}${workspace.id}/artifacts/`, 60, "application/json", null, null, null, false);
+  // the refresh button reads without the cache, otherwise an artifact created in the last minute is missing
+  var artifactResp = await makeCallPromiseV2("GET", `${workspaceUrl}${workspace.id}/artifacts/`, cache, "application/json", null, null, null, false);
   if (!artifactResp.successful) {
     log.warn(`enhancedPackageView: could not read the artifacts of ${packageId}: ${artifactResp.status} ${artifactResp.statusText}`);
     return;
@@ -216,15 +232,36 @@ async function epvFetchArtifacts(packageId) {
     }
   }
 
+  // a package that was left in the meantime must not overwrite the artifacts of the package now open
+  if (epvState.packageKey !== packageKey) {
+    return;
+  }
   epvState.artifactsByName = artifactsByName;
+  // an artifact created since the last read gets its status from the list already read
+  epvMatchRuntime();
   log.info(`enhancedPackageView: ${Object.keys(artifactsByName).length} artifacts read for package ${packageId}`);
+}
+
+// runtime entries per name of the open package, from the deployed artifacts of the tenant matched by id
+function epvMatchRuntime() {
+  if (!epvState.deployed) {
+    return;
+  }
+  var runtimeByName = new Map();
+  for (var [name, artifact] of Object.entries(epvState.artifactsByName)) {
+    runtimeByName.set(
+      name,
+      epvState.deployed.filter((entry) => entry.symbolicName === artifact.id)
+    );
+  }
+  epvState.runtimeByName = runtimeByName;
 }
 
 var epvGreen = "#107e3e";
 var epvOrange = "#e9730c";
 var epvRed = "#bb0000";
 
-// runtime status -> fomantic label color
+// runtime status -> label color
 var epvStatusColors = {
   STARTED: "green",
   DEPLOYED: "green",
@@ -235,13 +272,13 @@ var epvStatusColors = {
   NOT_DEPLOYED: "red",
 };
 
-// fomantic label color -> icon and light background of the basic label. the background is a tint of the fomantic
-// color, so it works on the light and the dark SAP theme
+// label color -> text and border color and light background of the basic label. ui.css only colors the filled red
+// label, so the colors are set here. the background is a tint of the color, so it works on the light and the dark SAP theme
 var epvLabelStyles = {
-  green: { icon: "check circle", background: "rgba(33, 186, 69, 0.1)" },
-  orange: { icon: "exclamation circle", background: "rgba(242, 113, 28, 0.1)" },
-  red: { icon: "times circle", background: "rgba(219, 40, 40, 0.1)" },
-  grey: { icon: "minus circle", background: "rgba(118, 118, 118, 0.1)" },
+  green: { color: "#21ba45", background: "rgba(33, 186, 69, 0.1)" },
+  orange: { color: "#f2711c", background: "rgba(242, 113, 28, 0.1)" },
+  red: { color: "#db2828", background: "rgba(219, 40, 40, 0.1)" },
+  grey: { color: "#767676", background: "rgba(118, 118, 118, 0.1)" },
 };
 
 async function epvLoadRuntime(notify = false) {
@@ -251,26 +288,28 @@ async function epvLoadRuntime(notify = false) {
   var packageKey = epvState.packageKey;
 
   try {
+    // the refresh button has to see the current state, the load on opening a package may share the answers of the last minute
+    var cache = notify ? false : 60;
+    if (notify) {
+      // a read started by the heartbeat may have come from the cache, so wait for it and read again
+      await epvState.artifactsFetching;
+      epvState.artifactsNextFetchAt = 0;
+    }
+
     // the list is matched by id while the table only shows the name, so the workspace call has to be done first
-    await epvEnsureArtifacts(cpiData.currentPackageId);
+    await epvEnsureArtifacts(cpiData.currentPackageId, cache);
     if (Object.keys(epvState.artifactsByName).length === 0) {
       throw "the artifacts of the package could not be resolved";
     }
 
-    // the refresh button has to see the current state, the load on opening a package may share the answer of the last minute
-    var deployed = await epvFetchDeployed(notify ? false : 60);
+    var deployed = await epvFetchDeployed(cache);
     if (epvState.packageKey !== packageKey) {
       return;
     }
 
-    var runtimeByName = new Map();
-    for (var [name, artifact] of Object.entries(epvState.artifactsByName)) {
-      runtimeByName.set(
-        name,
-        deployed.filter((entry) => entry.symbolicName === artifact.id)
-      );
-    }
-    epvState.runtimeByName = runtimeByName;
+    epvState.deployed = deployed;
+    epvMatchRuntime();
+    var runtimeByName = epvState.runtimeByName;
 
     for (var row of epvRows()) {
       epvRenderDeployStatus(row);
@@ -347,11 +386,11 @@ function epvAddRefreshButton() {
   // a button left behind in the toolbar of a hidden page
   epvRemove(".cpiHelper_epvRefresh");
 
-  // the shell of a SAP toolbar button, so it lines up with its neighbours, with the fomantic icon inside
+  // the shell of a SAP toolbar button, so it lines up with its neighbours, with the icon of the extension inside
   var button = document.createElement("button");
   button.className = "sapMBtnBase sapMBtn sapUiTinyMarginBegin cpiHelper_epvRefresh";
   button.title = "Refresh deploy status (CPI Helper)";
-  button.innerHTML = '<span class="sapMBtnInner sapMBtnHoverable sapMFocusable sapMBtnDefault"><span class="sapMBtnContent"><i class="sync alternate fitted icon"></i></span></span>';
+  button.innerHTML = '<span class="sapMBtnInner sapMBtnHoverable sapMFocusable sapMBtnDefault"><span class="sapMBtnContent"><i class="sync alternate icon" style="margin: 0;"></i></span></span>';
   button.addEventListener("click", () => {
     epvState.runtimeFailedAt = 0;
     // the ids may be stale too, the package can have been changed somewhere else since it was opened
@@ -362,7 +401,7 @@ function epvAddRefreshButton() {
   epvUpdateRefreshButton();
 }
 
-// runtime location -> fomantic icon, every location besides the cloud runtime is an edge integration cell
+// runtime location -> icon, every location besides the cloud runtime is an edge integration cell
 function epvRuntimeIcon(entry) {
   return entry.runtimeLocationId === "cloudintegration" ? "cloud" : "server";
 }
@@ -397,7 +436,7 @@ function epvRenderDeployStatus(row) {
     return { text: epvStatusLabel(status), color, icon: epvRuntimeIcon(entry), tooltip, versionDiffers };
   });
   if (labels.length === 0) {
-    labels.push({ text: "Not deployed", color: "red", icon: epvLabelStyles.red.icon, tooltip: "No deployed runtime artifact found for this artifact", versionDiffers: false });
+    labels.push({ text: "Not deployed", color: "red", icon: "times circle", tooltip: "No deployed runtime artifact found for this artifact", versionDiffers: false });
   }
 
   // green when every runtime runs the current version, orange when one drifted, red when nothing is deployed
@@ -435,9 +474,10 @@ function epvRenderDeployStatus(row) {
   container.replaceChildren(
     ...labels.map((entry) => {
       var label = document.createElement("span");
-      label.className = `ui basic ${entry.color} label`;
+      label.className = "ui basic label";
+      var style = epvLabelStyles[entry.color];
       // sized relative to the text of the info line and with little padding, so the label is not taller than its neighbours
-      label.style.cssText = `background: ${epvLabelStyles[entry.color].background}; font-size: 0.8em; padding: 0.15em 0.45em;`;
+      label.style.cssText = `color: ${style.color}; border-color: ${style.color}; background: ${style.background}; font-size: 0.8em; padding: 0.15em 0.45em;`;
       label.innerHTML = `<i class="${entry.icon} icon" style="margin: 0 0.3em 0 0;"></i>`;
       label.append(entry.text);
       label.title = entry.tooltip;
