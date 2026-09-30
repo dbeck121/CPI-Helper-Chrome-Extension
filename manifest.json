@@ -81,6 +81,7 @@
         "/plugins/zz_developer_tools.js",
         "/plugins/iFlowSearcher.js",
         "/plugins/mplSorter.js",
+        "/plugins/messageMonitorQueueTools.js",
         "/scripts/ui.js",
         "/scripts/logs.js",
         "/whatsNew/whatsNewLog.js",
@@ -127,6 +128,7 @@
         "lib/icons/*",
         "images/*",
         "plugins/settingsPaneResizer-inject.js",
+        "plugins/messageMonitorQueueTools-inject.js",
         "scripts/snippets-inject.js",
         "docs/LICENSE"
       ],
