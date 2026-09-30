@@ -14,6 +14,19 @@ In case of questions, please open an issue in github.
 3. register the file in manifest.json
 4. If you want to ship it with CPI-Helper, make a pull-request with detailed description.
 
+### Private plugins (unpacked extension only)
+
+Plugins for your own requirements that are not useful for everyone (e.g. customer specific plugins) can live in `plugins/custom/` without changing `manifest.json`. The folder is gitignored and not part of the release zip.
+
+To update CPI Helper, replace everything except `plugins/custom/`. Private plugins are your responsibility: `pluginList`, `cpiData` and the helpers are not a versioned API and can change with new versions, so check your plugins after an update.
+
+1. Put your plugin file into `plugins/custom/`, e.g. `plugins/custom/myPlugin.js` (same format as `example.js`)
+2. List it in `plugins/custom/plugins.json`: `["myPlugin.js"]`
+3. Reload the CPI page (after a change to `manifest.json` or `background.js` also reload the extension)
+4. Open the plugins popup and activate the "Private plugins" card (once per browser, the card only shows when `plugins.json` exists). Then activate your plugin like any other
+
+`background.js` injects the listed files into the same context as the other plugins, so `pluginList`, `cpiData`, `log`, jQuery and the UI helpers are available. Private plugins run with the same rights as the CPI Helper itself: they can read everything in your tenant. Only add code you trust.
+
 ## Details
 
 ### Dos and Dont's
