@@ -80,6 +80,7 @@
         "/plugins/versionHistory.js",
         "/plugins/zz_developer_tools.js",
         "/plugins/iFlowSearcher.js",
+        "/plugins/cpiExplorer.js",
         "/plugins/mplSorter.js",
         "/scripts/ui.js",
         "/scripts/logs.js",
