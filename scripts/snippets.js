@@ -1,6 +1,7 @@
 // Snippets: building blocks of the iFlow editor. The editor copies into localStorage["GalileiClipboard"] (same
-// origin, readable from here). CPI Helper saves that content as named snippets in chrome.storage.local, lets the
-// user rename, edit, duplicate, export and import them, and writes a snippet back so the editor's Paste inserts it.
+// origin, readable from here). CPI Helper prunes that content down to only the copied elements (see
+// common/snippet-clipboard.js) and saves it as named snippets in chrome.storage.local, lets the user rename,
+// edit, duplicate, export and import them, and writes a snippet back so the editor's Paste inserts it.
 
 const SNIPPETS_STORAGE_KEY = "cpiHelper_snippets";
 const GALILEI_CLIPBOARD_KEY = "GalileiClipboard";
@@ -9,7 +10,7 @@ const SNIPPET_EXPORT_FORMAT = "cpiHelperSnippet";
 const SNIPPETS_SETTING_KEY = "cpiHelper_experimental_snippets";
 const SNIPPETS_RESPONSIBILITY_TEXT = "You alone are responsible for what you do and what you break.";
 const SNIPPETS_PRIVACY_TEXT =
-  "A snippet contains the whole iFlow the steps were copied from (all steps with their configuration, addresses and names), not only the copied steps. Share it only with people who may see that iFlow.";
+  "A snippet contains only the copied steps, but with their full configuration (e.g. addresses and credential names). Share it only with people who may see that configuration.";
 
 async function snippetsEnabled() {
   try {
@@ -49,7 +50,28 @@ try {
 async function loadSnippets() {
   try {
     const stored = await chrome.storage.local.get(SNIPPETS_STORAGE_KEY);
-    return Array.isArray(stored[SNIPPETS_STORAGE_KEY]) ? stored[SNIPPETS_STORAGE_KEY] : [];
+    const snippets = Array.isArray(stored[SNIPPETS_STORAGE_KEY]) ? stored[SNIPPETS_STORAGE_KEY] : [];
+    // snippets saved before pruning was introduced may still carry the whole iFlow: prune them once, in place,
+    // so Duplicate, Use, Copy as text and the editor all see the reduced content from here on
+    let migrated = false;
+    const pruned = snippets.map((snippet) => {
+      const content = cpihPruneSnippetClipboard(snippet.content);
+      if (content?.diagramContent === snippet.content?.diagramContent) return snippet;
+      migrated = true;
+      return { ...snippet, content };
+    });
+    // best effort, and silent: the caller still gets the pruned snippets for this render either way, it is only
+    // the persisted copy that stays unpruned until the next successful save. Never let this fall through to the
+    // outer catch (which would make the next "Save as snippet" overwrite storage with just that one snippet),
+    // and never show the "could not be saved" toast for a migration the user did not trigger
+    if (migrated) {
+      try {
+        await chrome.storage.local.set({ [SNIPPETS_STORAGE_KEY]: pruned });
+      } catch (error) {
+        log.warn("pruned snippets could not be persisted", error);
+      }
+    }
+    return pruned;
   } catch (error) {
     log.warn("snippets could not be loaded", error);
     return [];
@@ -174,7 +196,8 @@ function createSnippet(content, name, description = "") {
     created: now,
     updated: now,
     source: { artifact: cpiData?.integrationFlowId || null, host: location.host.split(".")[0] },
-    content,
+    // keep only the copied elements, not the rest of the iFlow the editor's own Copy pulled in
+    content: cpihPruneSnippetClipboard(content),
   };
 }
 
@@ -198,7 +221,9 @@ function snippetStepsText(content) {
 async function renderSnippetList(container, filter = "") {
   const snippets = await loadSnippets();
   const clipboard = readCpiClipboard();
-  const alreadySaved = clipboard && snippets.some((snippet) => snippet.content?.diagramContent === clipboard.diagramContent);
+  // snippets are stored pruned (see createSnippet), so compare the clipboard pruned the same way
+  const prunedClipboard = clipboard && cpihPruneSnippetClipboard(clipboard);
+  const alreadySaved = prunedClipboard && snippets.some((snippet) => snippet.content?.diagramContent === prunedClipboard.diagramContent);
 
   container.innerHTML = `
     <div class="ui negative icon message cpiHelper_snippets_danger">

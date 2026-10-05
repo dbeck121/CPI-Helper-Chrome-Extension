@@ -89,6 +89,7 @@
         "/scripts/plugins.js",
         "/scripts/Mode-Script.js",
         "/scripts/inline-trace.js",
+        "/common/snippet-clipboard.js",
         "/scripts/snippets.js",
         "/scripts/floatingToolbar.js",
         "/scripts/globalToolbar.js",

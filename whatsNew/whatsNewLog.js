@@ -31,6 +31,7 @@ const whats_new_log = `
 - [Improvement] Cleaner log viewer: filters with labels, a Refresh button and a flat message list grouped by day.
 - [Improvement] The message sidebar opens next to the toolbar instead of below it, where the toolbar covered the message buttons.
 - [Improvement] Inline trace on a page without diagram (e.g. the overview of an API) says where to find it instead of doing nothing. For APIs it works on the Policies tab.
+- [Improvement] Snippets keep only the copied steps instead of the whole iFlow they came from, also snippets saved before. Safer to share.
 - [Fix] Pretty print of XML no longer inserts Chrome's XSLT deprecation notice into the payload.
 - [Fix] CPI Helper starts on the first load after the login redirect, also when the tenant opens on its start page.
 - [Fix] The setting to switch off the automatic refresh of the message sidebar works again.
