@@ -79,6 +79,7 @@ It is open source so feel free to check the source code.
 - [Improvement] The setting "Plugin page as separate sidebar" is gone, plugins live in the toolbar now.
 - [Improvement] Updated plugin metadata for Timeline, Unlock and Credential Helper. Thanks to [Gregor Schütz](https://github.com/DevGregor)
 - [Improvement] Version History highlights only the current version, Unlock refreshes the page after unlocking. Thanks to [Gregor Schütz](https://github.com/DevGregor)
+- [Improvement] Unlock plugin: locked packages can be unlocked right from the package view. Thanks to [Gregor Schütz](https://github.com/DevGregor)
 - [Improvement] jQuery and Fomantic UI are gone: own lightweight UI kit and stylesheet, about 3 MB less loaded into every CPI page. Dialogs and toasts take the look of the new toolbar and follow the light and dark CPI theme.
 - [Improvement] More robust plugins: one failing plugin no longer affects the others, and plugin settings are read far less often.
 - [Improvement] New trace icon in the toolbar. With more than one runtime the runtime button shows how many there are to switch to.
