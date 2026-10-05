@@ -58,6 +58,7 @@ It is open source so feel free to check the source code.
 - [Plugin] New Version History plugin: view the version history of an iFlow and revert to an earlier version directly in the editor. Special thanks to [Gregor Schütz](https://github.com/DevGregor)
 - [Plugin] New MPL Table Sorter plugin: sort the Monitor Message Processing table by one or more columns. Special thanks to [Prem Sai Daggolu](https://github.com/premsaidaggolu)
 - [Plugin] New Create named Groovy script plugin: create a Groovy resource with a name of your choice in the current iFlow. Special thanks to [Björn Konzmann](https://github.com/BKonzi)
+- [Plugin] New Enhanced Package View plugin: deployment status per runtime, open in a new tab, copy the name and jump to the messages, right in the artifact list of a package. Special thanks to [Alexander Aigner](https://github.com/aaigi)
 - [Feature] New floating toolbar instead of the buttons in the page header: Trace, Messages, Info, Logs and Runtime in a toolbar you can drag anywhere. Wide with labels or compact with icons only, it remembers position and variant. In the compact variant hovering shows the name and the keyboard shortcut.
 - [Feature] The toolbar is on every CPI page now, also outside of iFlows, with Search, Jump to, Recent and Plugins.
 - [Feature] Search (Ctrl/⌘ + K) finds every iFlow, API, mapping and package of the tenant and the monitor pages. On an iFlow it also runs actions: trace, deploy, trace and deploy, message sidebar, info, logs and plugins.
