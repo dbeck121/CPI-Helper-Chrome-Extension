@@ -165,6 +165,10 @@ i.icon.close::before {
   content: "\f00d";
 }
 
+i.icon.cloud::before {
+  content: "\f0c2";
+}
+
 i.icon.code::before {
   content: "\f121";
 }
@@ -373,6 +377,10 @@ i.icon.search::before {
   content: "\f002";
 }
 
+i.icon.server::before {
+  content: "\f233";
+}
+
 i.icon.settings::before {
   content: "\f085";
 }
@@ -391,6 +399,10 @@ i.icon.target::before {
 
 i.icon.terminal::before {
   content: "\f120";
+}
+
+i.icon.times.circle::before {
+  content: "\f057";
 }
 
 i.icon.trash::before {
