@@ -467,7 +467,7 @@ function renderSettings(state) {
       <div class="settings">
         ${segmented("cpiHelper_experimental_snippets", "Snippets in the iFlow editor", "On", "Off", !!state.experimentalSnippets)}
       </div>
-      <p class="hint"><b>Snippets:</b> save copied steps under a name and paste them again, also in other iFlows. Only into an Integration Process or Local Integration Process, steps with Timer or Start Message only into an Integration Process. <b>Privacy, especially when sharing:</b> a snippet always contains the whole iFlow the steps were copied from.</p>
+      <p class="hint"><b>Snippets:</b> save copied steps under a name and paste them again, also in other iFlows. Only into an Integration Process or Local Integration Process, steps with Timer or Start Message only into an Integration Process. <b>Privacy, especially when sharing:</b> a snippet contains only the copied steps, but with their full configuration (e.g. addresses and credential names).</p>
     </div>
 
     <details class="help" id="cpi_help_mode" ${helpOpen ? "open" : ""}>

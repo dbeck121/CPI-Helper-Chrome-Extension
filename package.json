@@ -3,7 +3,7 @@
   "private": true,
   "description": "Development tooling only, not part of the extension zip",
   "scripts": {
-    "test": "node tests/formatter.test.js && node tests/inline-trace-custom-step-ids.js && node tests/manifest-matching.test.js && node tests/global-toolbar.test.js",
+    "test": "node tests/formatter.test.js && node tests/inline-trace-custom-step-ids.js && node tests/manifest-matching.test.js && node tests/global-toolbar.test.js && node tests/snippet-clipboard.test.js",
     "e2e:browser": "node tests/e2e/browser.mjs",
     "e2e": "playwright test --config tests/e2e/playwright.config.mjs",
     "e2e:headed": "playwright test --config tests/e2e/playwright.config.mjs --headed"

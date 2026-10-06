@@ -3,6 +3,7 @@ const whats_new_log = `
 - [Plugin] New Version History plugin: view the version history of an iFlow and revert to an earlier version directly in the editor. Special thanks to Gregor Schütz.
 - [Plugin] New MPL Table Sorter plugin: sort the Monitor Message Processing table by one or more columns. Special thanks to Prem Sai Daggolu.
 - [Plugin] New Create named Groovy script plugin: create a Groovy resource with a name of your choice in the current iFlow. Special thanks to Björn Konzmann.
+- [Plugin] New Enhanced Package View plugin: deployment status per runtime, open in a new tab, copy the name and jump to the messages, right in the artifact list of a package. Special thanks to Alexander Aigner.
 - [Feature] New floating toolbar instead of the buttons in the page header: Trace, Messages, Info, Logs and Runtime in a toolbar you can drag anywhere. Wide with labels or compact with icons only, it remembers position and variant. In the compact variant hovering shows the name and the keyboard shortcut.
 - [Feature] The toolbar is on every CPI page now: Search, Jump to, Recent and Plugins also outside of an iFlow, e.g. in the monitor or the package list.
 - [Feature] Search (Ctrl/⌘ + K): one search over all iFlows, APIs, mappings and packages of the tenant, the monitor pages and your last artifacts. On an iFlow it also runs actions like trace, deploy, trace and deploy, message sidebar, info, logs and plugins.
@@ -23,12 +24,15 @@ const whats_new_log = `
 - [Improvement] The setting "Plugin page as separate sidebar" is gone, plugins live in the toolbar now.
 - [Improvement] Updated plugin metadata for Timeline, Unlock and Credential Helper. Thanks to Gregor Schütz.
 - [Improvement] Version History highlights only the current version, Unlock refreshes the page after unlocking. Thanks to Gregor Schütz.
+- [Improvement] Unlock plugin: locked packages can be unlocked right from the package view. Thanks to Gregor Schütz.
 - [Improvement] jQuery and Fomantic UI are gone, about 3 MB less loaded into every CPI page. Dialogs and toasts take the look of the new toolbar and follow the light and dark CPI theme.
 - [Improvement] More robust plugins: one failing plugin no longer affects the others.
 - [Improvement] New trace icon in the toolbar. With more than one runtime the runtime button shows how many there are to switch to.
 - [Improvement] Cleaner log viewer: filters with labels, a Refresh button and a flat message list grouped by day.
 - [Improvement] The message sidebar opens next to the toolbar instead of below it, where the toolbar covered the message buttons.
 - [Improvement] Inline trace on a page without diagram (e.g. the overview of an API) says where to find it instead of doing nothing. For APIs it works on the Policies tab.
+- [Improvement] Inline trace colors Request Reply, Send, Poll Enrich and Content Enricher steps like their message flow, a click opens the trace of the flow.
+- [Improvement] Snippets keep only the copied steps instead of the whole iFlow they came from, also snippets saved before. Safer to share.
 - [Fix] Pretty print of XML no longer inserts Chrome's XSLT deprecation notice into the payload.
 - [Fix] CPI Helper starts on the first load after the login redirect, also when the tenant opens on its start page.
 - [Fix] The setting to switch off the automatic refresh of the message sidebar works again.

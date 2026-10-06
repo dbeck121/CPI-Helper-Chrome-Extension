@@ -359,6 +359,9 @@ function markInlineTraceRun(run, ctx) {
         target.classList.add(nodeclass);
       }
     }
+    if (element.id.indexOf("BPMNEdge_") === 0) {
+      markAdapterShape(element, target);
+    }
     if (!ctx.observerInstalled) {
       observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
@@ -485,6 +488,49 @@ function resolveInlineTraceNode(run) {
 
   //the start event opens no popup: there is no content "before" the start of the flow
   return { element: element, target: target, clickable: !/StartEvent/i.test(element.id) };
+}
+
+/**
+ * The step a message flow hangs on (Request Reply, Send, Poll Enrich, Content Enricher).
+ *
+ * Such a step has no run step of its own, the trace only has the message flow. The SVG of the
+ * flow carries no reference to its source or target, so the step is found by geometry: one end
+ * of the flow line sits on the border of the step's rect.
+ *
+ * @param {Element} edge - the BPMNEdge_ group of a message flow.
+ * @returns {Element|null} the BPMNShape_ group, null for flows that end on a participant or event.
+ */
+function findAdapterShape(edge) {
+  const path = typeof edge.querySelector === "function" ? edge.querySelector("path.messageFlow") : null;
+  const matrix = path?.getScreenCTM?.();
+  if (!matrix) return null;
+  const length = path.getTotalLength();
+  const ends = [path.getPointAtLength(0), path.getPointAtLength(length)].map((point) => new DOMPoint(point.x, point.y).matrixTransform(matrix));
+  const tolerance = 4;
+  for (const shape of document.querySelectorAll("[id^='BPMNShape_']")) {
+    //only activities, participants (sender, receiver) and events have no rect.activity
+    const rect = shape.querySelector("rect.activity");
+    if (!rect) continue;
+    const box = rect.getBoundingClientRect();
+    const hit = ends.some((p) => p.x >= box.left - tolerance && p.x <= box.right + tolerance && p.y >= box.top - tolerance && p.y <= box.bottom + tolerance);
+    if (hit) return shape;
+  }
+  return null;
+}
+
+// colours the step behind a message flow like the flow and opens the trace of the flow on click
+function markAdapterShape(edge, edgeTarget) {
+  const shape = findAdapterShape(edge);
+  //a step with run steps of its own keeps its own trace
+  if (!shape || shape.hasAttribute("inline_cpi_child")) return;
+  const groupIndex = getChild(shape, ["g"]);
+  const shapeTarget = groupIndex === null ? null : shape.children[groupIndex].children[0];
+  if (!shapeTarget) return;
+  edgeTarget.classList.forEach((name) => {
+    if (name.indexOf("cpiHelper_") === 0) shapeTarget.classList.add(name);
+  });
+  shape.onclick = () => edgeTarget.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  if (!onClicKElements.includes(shape)) onClicKElements.push(shape);
 }
 
 function getChild(node, childNames, childClass = null) {

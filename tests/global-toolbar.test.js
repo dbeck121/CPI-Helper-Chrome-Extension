@@ -2,7 +2,7 @@
 // visit history, jump targets and palette ranking of the global floating toolbar
 const assert = require("node:assert/strict");
 const { CPIH_HISTORY_MAX_RECENT, CPIH_HISTORY_MAX_FAVORITES, CPIH_HISTORY_MAX_BYTES, cpihHistoryBytes, cpihAddVisit, cpihToggleFavorite, cpihBuildHistoryView } = require("../common/visit-history.js");
-const { CPIH_JUMP_TARGETS, CPIH_FAILED_MESSAGES_PATH, cpihArtifactJumpTargets, cpihArtifactPath, cpihPackagePath } = require("../common/jump-targets.js");
+const { CPIH_JUMP_TARGETS, CPIH_FAILED_MESSAGES_PATH, cpihArtifactJumpTargets, cpihArtifactPath, cpihPackagePath, cpihPackageMessagesPath } = require("../common/jump-targets.js");
 const { cpihPaletteSearch } = require("../common/palette-search.js");
 
 const cases = [];
@@ -117,6 +117,11 @@ test("jump: value mapping has no messages, unknown package no package entry, no 
   const targets = cpihArtifactJumpTargets({ artifactId: "VM", artifactType: "Value Mapping", packageId: null, runtimeLocationId: null });
   assert.deepEqual(targets.map((t) => t.label), ["Deployment status"]);
   assert.deepEqual(JSON.parse(decodeURIComponent(targets[0].path.split("/Artifacts/")[1])), { artifact: "VM" });
+});
+
+test("jump: package messages use the monitor filter of the package", () => {
+  const filter = JSON.parse(decodeURIComponent(cpihPackageMessagesPath("Spielwiese", "cloudintegration").split("/Messages/")[1]));
+  assert.deepEqual(filter, { edge: { runtimeLocationId: "cloudintegration" }, status: "ALL", packageId: "Spielwiese", type: "ALL", time: "PASTHOUR" });
 });
 
 test("jump: workspace types map to editor paths, adapters have none", () => {
