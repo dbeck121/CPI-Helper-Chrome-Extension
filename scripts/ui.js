@@ -147,7 +147,9 @@ async function createTabHTML(objects, idPart, overwriteActivePosition) {
     }
     */
 
-    html = document.createElement("div");
+    // local: tab sets are nested (one per run of a step, each with its own Properties, Headers, ...) and the inner
+    // call runs while the outer one waits for its first tab
+    const html = document.createElement("div");
     html.classList.add("cpiHelper_tabs");
 
     let checked = 'checked=""';

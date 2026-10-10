@@ -16,6 +16,19 @@ async function clickTrace(e) {
   }
   inlineTraceRunning = true;
   showWaitingPopup();
+  // whatever goes wrong while opening one step, the next click has to work again
+  try {
+    await openInlineTraceStep.call(this, e);
+  } catch (error) {
+    log.warn("trace of the step could not be opened", error);
+    cpihModal.hide("#cpiHelper_waiting_model");
+    showToast("The trace of this step could not be opened.", "", "warning");
+  } finally {
+    inlineTraceRunning = false;
+  }
+}
+
+async function openInlineTraceStep(e) {
 
   var formatLogContent = function (inputList) {
     inputList = inputList.sort(function (a, b) {
@@ -142,12 +155,9 @@ async function clickTrace(e) {
     return element.StepId == id || element.ModelStepId == id;
   });
   e.target.setAttribute("ch_inline_active", true);
-  //trace level check
-  var messageguid = document
-    .querySelector(".cpiHelper_inlineInfo-button.cpiHelper_inlineInfo-active")
-    .className.replace("flash", "")
-    .replace(/cpiHelper_inlineInfo-[A-z]+|\s+/g, "")
-    .trim();
+  //trace level check. the message comes from activeInlineItem, not from its button in the message sidebar: the
+  //button is gone when the sidebar is closed or the message has moved out of the list
+  var messageguid = activeInlineItem;
   var logleveldata = JSON.parse(await makeCallPromise("GET", `/${cpiData.urlExtension}${cpiData.runtimePathExtension}odata/api/v1/MessageProcessingLogs('${messageguid}')?$format=json`, true)).d;
 
   if (logleveldata.LogLevel != "TRACE") {
@@ -208,9 +218,8 @@ async function clickTrace(e) {
     }
     let childindex = Array.from(document.querySelectorAll(".cpiHelper_onclick[inline_cpi_child]"), (e) => parseInt(e.getAttribute("inline_cpi_child"), 10)).sort((a, b) => a - b);
     childindex = childindex.indexOf(parseInt(e.target.parentNode.parentNode.getAttribute("inline_cpi_child")));
-    showBigPopup(await loginformation, "Content Before Step", { fullscreen: true, callback: null }, childindex, document.querySelectorAll(".cpiHelper_onclick[inline_cpi_child]").length, String(e.pointerType));
+    await showBigPopup(await loginformation, "Content Before Step", { fullscreen: true, callback: null }, childindex, document.querySelectorAll(".cpiHelper_onclick[inline_cpi_child]").length, String(e.pointerType));
   }
-  inlineTraceRunning = false;
 }
 
 async function hideInlineTrace() {
