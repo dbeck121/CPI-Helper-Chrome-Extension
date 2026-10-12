@@ -33,6 +33,7 @@ const whats_new_log = `
 - [Improvement] Inline trace on a page without diagram (e.g. the overview of an API) says where to find it instead of doing nothing. For APIs it works on the Policies tab.
 - [Improvement] Inline trace colors Request Reply, Send, Poll Enrich and Content Enricher steps like their message flow, a click opens the trace of the flow.
 - [Improvement] Snippets keep only the copied steps instead of the whole iFlow they came from, also snippets saved before. Safer to share.
+- [Fix] Inline trace: steps that ran more than once (e.g. in a loop or after a splitter) open their trace again, and steps stay clickable after the message sidebar was closed or refreshed. Before, one failed click could block every further click.
 - [Fix] Pretty print of XML no longer inserts Chrome's XSLT deprecation notice into the payload.
 - [Fix] CPI Helper starts on the first load after the login redirect, also when the tenant opens on its start page.
 - [Fix] The setting to switch off the automatic refresh of the message sidebar works again.
