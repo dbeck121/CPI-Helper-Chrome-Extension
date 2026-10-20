@@ -25,3 +25,6 @@ dist/
 .e2e-profile/
 test-results/
 playwright-report/
+
+# Private plugins, loaded by background.js (see docs/readme/PluginREADME.md)
+plugins/custom/
