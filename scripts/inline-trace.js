@@ -226,11 +226,20 @@ async function hideInlineTrace() {
   activeInlineItem = null;
   inlineTraceGeneration++;
   closeInlineTraceProgress();
+  // switching off and on again has to free the clicks, even if an earlier click never finished
+  inlineTraceRunning = false;
   cpihQsa("[ch_inline_active]").forEach((element) => element.removeAttribute("ch_inline_active"));
   cpihQsa("[inline_cpi_child]").forEach((element) => element.removeAttribute("inline_cpi_child"));
 
   var classesToBeDeleted = [".cpiHelper_inlineInfo", ".cpiHelper_inlineInfo_error", ".cpiHelper_avg", ".cpiHelper_belowavg", ".cpiHelper_inlineInfo-active", ".cpiHelper_aboveavg", ".cpiHelper_max", ".cpiHelper_min"];
-  onClicKElements.forEach((element) => (element.onclick = null));
+  // before the classes go: removing cpiHelper_onclick would trigger the observer and hide again
+  inlineTraceObserver?.disconnect();
+  inlineTraceObserver = null;
+  // the marker class goes with the handler, otherwise the next activation skips the step and it stays unclickable
+  onClicKElements.forEach((element) => {
+    element.onclick = null;
+    element.classList.remove("cpiHelper_onclick");
+  });
   onClicKElements = [];
   const elementsToProcess = new Set();
   classesToBeDeleted.forEach((selector) => {
@@ -334,6 +343,8 @@ async function createInlineTraceElements(MessageGuid, checked, onMoreElements) {
 }
 
 var onClicKElements = [];
+// hides the inline trace when SAP redraws a marked step
+var inlineTraceObserver = null;
 
 // marks one executed step in the diagram. ctx: { traceModifier, checked, observerInstalled }
 function markInlineTraceRun(run, ctx) {
@@ -379,16 +390,16 @@ function markInlineTraceRun(run, ctx) {
       markAdapterShape(element, target);
     }
     if (!ctx.observerInstalled) {
-      observer = new MutationObserver((mutations) => {
+      inlineTraceObserver?.disconnect();
+      inlineTraceObserver = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
           if (!mutation.target.classList.contains("cpiHelper_onclick")) {
             hideInlineTrace();
-            observer.disconnect();
           }
         });
       });
 
-      observer.observe(document.getElementById(element.id), {
+      inlineTraceObserver.observe(document.getElementById(element.id), {
         attributes: true,
         attributeFilter: ["class"],
       });

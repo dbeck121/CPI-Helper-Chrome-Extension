@@ -35,6 +35,7 @@ const whats_new_log = `
 - [Improvement] Snippets keep only the copied steps instead of the whole iFlow they came from, also snippets saved before. Safer to share.
 - [Fix] Inline trace: steps that ran more than once (e.g. in a loop or after a splitter) open their trace again, and steps stay clickable after the message sidebar was closed or refreshed. Before, one failed click could block every further click.
 - [Fix] Inline trace: the "Loading steps" notice no longer hangs (e.g. at 55 of 56) when the CPI reports more steps than it returns, a page fails to load or the inline trace is switched off or to another message while loading.
+- [Fix] Inline trace: clicks on steps no longer stop working until a page refresh. Steps stayed unclickable after the inline trace was switched off and on again or switched to another message, and after a tab of a step (e.g. its trace) failed to load. A tab that fails now shows a notice instead.
 - [Fix] Pretty print of XML no longer inserts Chrome's XSLT deprecation notice into the payload.
 - [Fix] CPI Helper starts on the first load after the login redirect, also when the tenant opens on its start page.
 - [Fix] The setting to switch off the automatic refresh of the message sidebar works again.
