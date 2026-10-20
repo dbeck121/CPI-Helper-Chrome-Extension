@@ -1437,6 +1437,7 @@ function lookupError(message) {
 // run steps of a message: the first page comes back right away. with onMorePages the remaining pages load
 // in the background (onMorePages(runs, loaded, total) per page) until all are there or RUN_STEPS_MAX is reached.
 // isStale() lets the caller stop a background load that is no longer needed (e.g. another inline trace started)
+// onRawSteps(runs) gets every page unfiltered, also the steps without StepStop (e.g. the sub steps of an adapter call)
 const RUN_STEPS_PAGE_SIZE = 1000;
 const RUN_STEPS_MAX = 5000;
 
@@ -1452,7 +1453,7 @@ async function getRunStepsFirstPageSize() {
 }
 
 //to check for errors and inline trace
-async function getMessageProcessingLogRuns(MessageGuid, store = true, { onMorePages, isStale } = {}) {
+async function getMessageProcessingLogRuns(MessageGuid, store = true, { onMorePages, isStale, onRawSteps } = {}) {
   const base = "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/";
   try {
     const runs = JSON.parse(await makeCallPromise("GET", base + "MessageProcessingLogs('" + MessageGuid + "')/Runs?$inlinecount=allpages&$format=json&$top=200", store));
@@ -1463,6 +1464,7 @@ async function getMessageProcessingLogRuns(MessageGuid, store = true, { onMorePa
     const firstPageSize = await getRunStepsFirstPageSize();
     const first = JSON.parse(await makeCallPromise("GET", base + "MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json&$top=" + firstPageSize, store)).d;
     const total = Math.min(parseInt(first.__count) || first.results.length, RUN_STEPS_MAX);
+    onRawSteps?.(first.results);
 
     if (onMorePages && total > first.results.length) {
       (async () => {
@@ -1474,6 +1476,7 @@ async function getMessageProcessingLogRuns(MessageGuid, store = true, { onMorePa
             ).d.results;
             if (!page.length || isStale?.()) break;
             loaded += page.length;
+            onRawSteps?.(page);
             onMorePages(
               page.filter((e) => e.StepStop != null),
               loaded,
