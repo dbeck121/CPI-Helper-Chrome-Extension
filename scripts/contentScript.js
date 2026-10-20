@@ -1467,17 +1467,23 @@ async function getMessageProcessingLogRuns(MessageGuid, store = true, { onMorePa
     if (onMorePages && total > first.results.length) {
       (async () => {
         let loaded = first.results.length;
-        while (loaded < total && !isStale?.()) {
-          const page = JSON.parse(
-            await makeCallPromise("GET", base + "MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json&$top=" + RUN_STEPS_PAGE_SIZE + "&$skip=" + loaded, store)
-          ).d.results;
-          if (!page.length || isStale?.()) break;
-          loaded += page.length;
-          onMorePages(
-            page.filter((e) => e.StepStop != null),
-            loaded,
-            total
-          );
+        try {
+          while (loaded < total && !isStale?.()) {
+            const page = JSON.parse(
+              await makeCallPromise("GET", base + "MessageProcessingLogRuns('" + runId + "')/RunSteps?$inlinecount=allpages&$format=json&$top=" + RUN_STEPS_PAGE_SIZE + "&$skip=" + loaded, store)
+            ).d.results;
+            if (!page.length || isStale?.()) break;
+            loaded += page.length;
+            onMorePages(
+              page.filter((e) => e.StepStop != null),
+              loaded,
+              total
+            );
+          }
+        } finally {
+          // __count can be higher than what the paging returns (empty page) or a page fails:
+          // report the end anyway, otherwise the caller waits for steps that never come
+          if (loaded < total && !isStale?.()) onMorePages([], loaded, loaded);
         }
       })().catch((error) => log.warn("loading more run steps failed", error));
     }

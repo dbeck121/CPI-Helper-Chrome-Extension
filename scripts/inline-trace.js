@@ -225,6 +225,7 @@ async function openInlineTraceStep(e) {
 async function hideInlineTrace() {
   activeInlineItem = null;
   inlineTraceGeneration++;
+  closeInlineTraceProgress();
   cpihQsa("[ch_inline_active]").forEach((element) => element.removeAttribute("ch_inline_active"));
   cpihQsa("[inline_cpi_child]").forEach((element) => element.removeAttribute("inline_cpi_child"));
 
@@ -262,6 +263,12 @@ let cpi_timediff_list;
 let cpi_max_node;
 // bumped on every new or hidden inline trace, a background load of more run steps stops when it changed
 var inlineTraceGeneration = 0;
+// "Loading steps" toast of the background load, sticky until all steps are there
+var inlineTraceProgress = null;
+function closeInlineTraceProgress() {
+  inlineTraceProgress?.close();
+  inlineTraceProgress = null;
+}
 
 function toInlineTraceElement(run) {
   return {
@@ -397,6 +404,7 @@ async function showInlineTrace(MessageGuid, checked = false) {
   return new Promise(async (resolve, reject) => {
     inlineTraceGeneration++;
     const generation = inlineTraceGeneration;
+    closeInlineTraceProgress();
     const ctx = { traceModifier: await getStorageValue("traceModifer", "isActive", null), checked, observerInstalled: false };
     let progress = null;
 
@@ -405,9 +413,9 @@ async function showInlineTrace(MessageGuid, checked = false) {
       if (generation !== inlineTraceGeneration) return;
       elements.forEach((run) => markInlineTraceRun(run, ctx));
       const text = loaded >= total ? `All ${total.toLocaleString()} steps of this message loaded.` : `Loading steps: ${loaded.toLocaleString()} of ${total.toLocaleString()}`;
-      if (!progress) progress = cpihToast({ message: text, displayTime: 0, position: "bottom right", showProgress: false });
+      if (!progress) progress = inlineTraceProgress = cpihToast({ message: text, displayTime: 0, position: "bottom right", showProgress: false });
       else progress.element.querySelector(".message").textContent = text;
-      if (loaded >= total) setTimeout(() => progress?.close(), 3000);
+      if (loaded >= total) setTimeout(() => progress.close(), 3000);
     };
 
     var logRuns = await createInlineTraceElements(MessageGuid, checked, onMoreElements);
