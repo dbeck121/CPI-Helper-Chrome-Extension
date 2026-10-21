@@ -1,12 +1,24 @@
 // the floating toolbar outside of artifacts: navigation, recent/favorites, command palette. Only reads the tenant;
 // the only write is the favorite flag in the extension storage, which the test resets
+import fs from "node:fs";
+import path from "node:path";
 import { test, expect, openIflow, expectLoggedIn, bigPopup } from "./fixtures.mjs";
-import { env, requireEnv } from "./env.mjs";
+import { env, requireEnv, repoRoot } from "./env.mjs";
 
 const origin = () => new URL(requireEnv("CPI_URL", env.cpiUrl)).origin;
 const iflowId = () => new URL(requireEnv("CPI_IFLOW_URL", env.iflowUrl)).pathname.match(/integrationflows\/([^/?]+)/)[1];
 const toolbar = (page) => page.locator("#cpiHelper_floatingToolbar");
 const toolbarButtonIds = (page) => page.locator("#cpiHelper_floatingToolbar > button:not(.cpiHelper_floatingToolbar_toggle)").evaluateAll((buttons) => buttons.map((b) => b.id));
+
+// chrome.storage.local of the extension, through its popup page
+async function extensionStorage(page, fn, arg) {
+  const id = fs.readFileSync(path.join(repoRoot, "test-results", ".extension-id"), "utf8").trim();
+  const popup = await page.context().newPage();
+  await popup.goto(`chrome-extension://${id}/popup/popup.html`);
+  const result = await popup.evaluate(fn, arg);
+  await popup.close();
+  return result;
+}
 
 async function openMonitoring(page) {
   const url = origin() + "/shell/monitoring/Overview";
@@ -148,6 +160,50 @@ test.describe("global toolbar", () => {
     await expect(page.locator(".cpiHelper_palette_item", { hasText: "Messages of this artifact" })).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(page.locator("#cpiHelper_palette")).toHaveCount(0);
+    expect(extensionErrors).toEqual([]);
+  });
+
+  test("command palette ranks what was picked often higher", async ({ page, extensionErrors }) => {
+    await openMonitoring(page);
+    const key = "cpiHelper_paletteUsage_" + new URL(origin()).host.split(".")[0];
+    const saved = await extensionStorage(page, (key) => chrome.storage.local.get(key), key);
+    await extensionStorage(page, (key) => chrome.storage.local.remove(key), key);
+    try {
+      const labels = async () => {
+        await page.keyboard.press("ControlOrMeta+k");
+        await expect(page.locator(".cpiHelper_palette_input")).toBeFocused();
+        const result = await page.locator(".cpiHelper_palette_itemLabel").allTextContents();
+        await page.keyboard.press("Escape");
+        return result;
+      };
+      const before = await labels();
+      expect(before.indexOf("Monitor - Message Locks")).toBeGreaterThan(before.indexOf("Monitor - All Messages"));
+
+      // pick it twice, without a reload of the page
+      for (let i = 0; i < 2; i++) {
+        await page.keyboard.press("ControlOrMeta+k");
+        await page.locator(".cpiHelper_palette_input").fill("message locks");
+        await expect(page.locator(".cpiHelper_palette_itemLabel").first()).toHaveText("Monitor - Message Locks");
+        await page.locator(".cpiHelper_palette_input").press("Enter");
+        await expect(page).toHaveURL(/\/shell\/monitoring\/Locks/);
+      }
+      const usage = (await extensionStorage(page, (key) => chrome.storage.local.get(key), key))[key];
+      expect(usage["jump|/shell/monitoring/Locks"].score).toBeGreaterThan(1.9);
+
+      const after = await labels();
+      expect(after.indexOf("Monitor - Message Locks")).toBeLessThan(after.indexOf("Monitor - All Messages"));
+      // a query still decides first: "all mess" keeps All Messages on top
+      await page.keyboard.press("ControlOrMeta+k");
+      await page.locator(".cpiHelper_palette_input").fill("all mess");
+      await expect(page.locator(".cpiHelper_palette_itemLabel").first()).toHaveText("Monitor - All Messages");
+      await page.keyboard.press("Escape");
+    } finally {
+      // leave the storage as it was
+      await extensionStorage(page, async ({ key, saved }) => {
+        await chrome.storage.local.remove(key);
+        await chrome.storage.local.set(saved);
+      }, { key, saved });
+    }
     expect(extensionErrors).toEqual([]);
   });
 

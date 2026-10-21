@@ -12,6 +12,28 @@ function cpihPaletteIndexKey() {
   return "cpiHelper_paletteIndex_" + cpihTenantKey();
 }
 
+function cpihPaletteUsageKey() {
+  return "cpiHelper_paletteUsage_" + cpihTenantKey();
+}
+
+async function cpihReadPaletteUsage() {
+  try {
+    return (await chrome.storage.local.get([cpihPaletteUsageKey()]))[cpihPaletteUsageKey()] || {};
+  } catch (error) {
+    log.debug("palette usage not readable", error);
+    return {};
+  }
+}
+
+async function cpihStorePalettePick(key) {
+  try {
+    const usage = cpihPaletteRecordPick(await cpihReadPaletteUsage(), key);
+    await chrome.storage.local.set({ [cpihPaletteUsageKey()]: usage });
+  } catch (error) {
+    log.debug("palette usage not stored", error);
+  }
+}
+
 async function cpihFetchJson(path) {
   const response = await fetch(cpihTenantBase() + path, { headers: { Accept: "application/json" }, credentials: "same-origin" });
   if (!response.ok) throw new Error(`${response.status} ${path}`);
@@ -158,12 +180,18 @@ function cpihPageActions() {
   return actions;
 }
 
-// what the palette searches: actions of the artifact page, history (with boost), then the open artifact, jump targets, artifacts and packages
-function cpihBuildPaletteItems(index, history) {
+// what the palette searches: actions of the artifact page, history (with boost), then the open artifact, jump targets, artifacts and packages.
+// usage adds to the boost of whatever was picked often, e.g. Security Material for someone who opens it every day
+function cpihBuildPaletteItems(index, history, usage) {
   const base = cpihTenantBase();
   const items = new Map();
+  const now = Date.now();
   const add = (key, item) => {
-    if (!items.has(key)) items.set(key, item);
+    if (items.has(key)) return;
+    // picked before: lifted and also listed without a query
+    const usageBoost = cpihPaletteUsageBoost(usage, key, now);
+    const used = usageBoost ? { boost: (item.boost || 0) + usageBoost, hideWithoutQuery: false } : {};
+    items.set(key, { ...item, key, ...used });
   };
 
   const view = cpihBuildHistoryView(history, null);
@@ -243,6 +271,7 @@ async function openCommandPalette() {
   let results = [];
   let selected = 0;
   let index = await cpihReadPaletteIndex();
+  const usage = await cpihReadPaletteUsage();
   let history = [];
   try {
     history = (await chrome.storage.sync.get([cpihHistoryStorageKey()]))[cpihHistoryStorageKey()];
@@ -253,6 +282,7 @@ async function openCommandPalette() {
   const open = (item, newTab) => {
     if (!item) return;
     statistic("command_palette_pick", item.kind);
+    cpihStorePalettePick(item.key);
     closeCommandPalette();
     if (item.run) {
       Promise.resolve(item.run()).catch((error) => log.error(`palette action ${item.label} failed`, error));
@@ -350,7 +380,7 @@ async function openCommandPalette() {
     cpihRefreshPaletteIndex()
       .then((fresh) => {
         index = fresh;
-        items = cpihBuildPaletteItems(index, history);
+        items = cpihBuildPaletteItems(index, history, usage);
         if (document.getElementById(CPIH_PALETTE_ID) === overlay) render();
         updateStatus();
       })
@@ -363,7 +393,7 @@ async function openCommandPalette() {
       });
   };
 
-  items = cpihBuildPaletteItems(index, history);
+  items = cpihBuildPaletteItems(index, history, usage);
   render();
   updateStatus();
   if (!index || Date.now() - index.time > CPIH_PALETTE_INDEX_TTL) refresh();

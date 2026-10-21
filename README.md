@@ -62,6 +62,7 @@ It is open source so feel free to check the source code.
 - [Feature] New floating toolbar instead of the buttons in the page header: Trace, Messages, Info, Logs and Runtime in a toolbar you can drag anywhere. Wide with labels or compact with icons only, it remembers position and variant. In the compact variant hovering shows the name and the keyboard shortcut.
 - [Feature] The toolbar is on every CPI page now, also outside of iFlows, with Search, Jump to, Recent and Plugins.
 - [Feature] Search (Ctrl/⌘ + K) finds every iFlow, API, mapping and package of the tenant and the monitor pages. On an iFlow it also runs actions: trace, deploy, trace and deploy, message sidebar, info, logs and plugins.
+- [Feature] Search learns what you use: pages, artifacts and actions you pick often rank higher and show up right away when the search opens, e.g. Security Material. Older picks count less over time.
 - [Feature] Jump to opens the monitor pages and, on an iFlow, its messages, deployment status and package. A red number shows the failed messages of the past hour, it can be switched off in the browser popup.
 - [Feature] Recent lists your last artifacts, favorites stay on top.
 - [Feature] Everyone updating from version 3 gets a short welcome and a tour of the new toolbar, once. It can be replayed from What changed.

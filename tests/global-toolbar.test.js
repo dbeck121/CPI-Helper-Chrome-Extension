@@ -3,7 +3,7 @@
 const assert = require("node:assert/strict");
 const { CPIH_HISTORY_MAX_RECENT, CPIH_HISTORY_MAX_FAVORITES, CPIH_HISTORY_MAX_BYTES, cpihHistoryBytes, cpihAddVisit, cpihToggleFavorite, cpihBuildHistoryView } = require("../common/visit-history.js");
 const { CPIH_JUMP_TARGETS, CPIH_FAILED_MESSAGES_PATH, cpihArtifactJumpTargets, cpihArtifactPath, cpihPackagePath, cpihPackageMessagesPath } = require("../common/jump-targets.js");
-const { cpihPaletteSearch } = require("../common/palette-search.js");
+const { cpihPaletteSearch, cpihPaletteRecordPick, cpihPaletteUsageBoost, CPIH_PALETTE_USAGE_HALF_LIFE, CPIH_PALETTE_USAGE_MAX_ENTRIES } = require("../common/palette-search.js");
 
 const cases = [];
 const test = (name, fn) => cases.push([name, fn]);
@@ -161,6 +161,43 @@ test("palette: empty query lists boosted first and keeps the order otherwise, li
   const result = cpihPaletteSearch(items, "  ", 3);
   assert.deepEqual(result.map((i) => i.label), ["Replicate Orders", "Order to S4", "Copy and Paste Test"]);
   assert.deepEqual(cpihPaletteSearch(items, "nothing like this"), []);
+});
+
+test("palette usage: more picks give more boost, capped", () => {
+  let usage = {};
+  const boosts = [];
+  for (let i = 0; i < 20; i++) {
+    usage = cpihPaletteRecordPick(usage, "jump|/security", 1000);
+    boosts.push(cpihPaletteUsageBoost(usage, "jump|/security", 1000));
+  }
+  assert.equal(boosts[0], 12);
+  assert.equal(boosts[2], 24);
+  assert.ok(boosts.every((b, i) => i === 0 || b >= boosts[i - 1]));
+  assert.equal(boosts[19], 40);
+  assert.equal(cpihPaletteUsageBoost(usage, "jump|/other", 1000), 0);
+  assert.equal(cpihPaletteUsageBoost(undefined, "jump|/security"), 0);
+});
+
+test("palette usage: the score halves after the half life", () => {
+  const usage = [1, 2, 3].reduce((u) => cpihPaletteRecordPick(u, "a", 0), {});
+  assert.equal(cpihPaletteUsageBoost(usage, "a", 0), 24);
+  assert.equal(cpihPaletteUsageBoost(usage, "a", CPIH_PALETTE_USAGE_HALF_LIFE), Math.round(12 * Math.log2(2.5)));
+  const later = cpihPaletteRecordPick(usage, "a", CPIH_PALETTE_USAGE_HALF_LIFE);
+  assert.equal(later.a.score, 2.5);
+});
+
+test("palette usage: only the strongest entries are kept", () => {
+  let usage = cpihPaletteRecordPick(cpihPaletteRecordPick({}, "often", 0), "often", 0);
+  for (let i = 0; i < CPIH_PALETTE_USAGE_MAX_ENTRIES; i++) usage = cpihPaletteRecordPick(usage, "once" + i, 0);
+  assert.equal(Object.keys(usage).length, CPIH_PALETTE_USAGE_MAX_ENTRIES);
+  assert.ok(usage.often);
+});
+
+test("palette usage: a used page outranks an equal match", () => {
+  const pages = [{ label: "Monitor - Security Material" }, { label: "Monitor - System Logs" }];
+  assert.deepEqual(cpihPaletteSearch(pages, "s").map((i) => i.label), ["Monitor - System Logs", "Monitor - Security Material"]);
+  pages[0].boost = cpihPaletteUsageBoost(cpihPaletteRecordPick({}, "sec", 0), "sec", 0);
+  assert.deepEqual(cpihPaletteSearch(pages, "s").map((i) => i.label), ["Monitor - Security Material", "Monitor - System Logs"]);
 });
 
 let failed = 0;
