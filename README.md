@@ -73,6 +73,7 @@ It is open source so feel free to check the source code.
 - [Feature] For plugin developers: toolbarButton for direct toolbar actions, an optional icon for toolbar entries and a select dropdown for plugin settings. Thanks to [Alexander Aigner](https://github.com/aaigi)
 - [Feature] New payload viewer for trace bodies, headers and attachments: pretty print that keeps CDATA, comments and big JSON numbers, search, fold, font size, wrap, fullscreen and a resizable editor that remembers its height. Updated the Ace editor to 1.44.
 - [Feature] Inline trace (experimental): new Changes tab shows side by side what a step did to body, headers and properties.
+- [Feature] Inline trace: new Response tab on calls to a receiver (message flows) shows what came back: status, URL, response body and headers, request headers and everything else the adapter logged. On errors the body the adapter logged, otherwise the content the next step got.
 - [Feature] Inline trace: all steps of a message load, the first ones right away and the rest in the background (up to 5,000 instead of a fixed limit of 300). Steps with many runs, e.g. after a splitter, load a run only when it is opened.
 - [Feature] Snippets (extremely experimental, danger zone): save steps you copied in the iFlow editor under a name, rename, edit, duplicate and share them as text, and put them back into the CPI clipboard to paste them into an Integration Process or Local Integration Process of any iFlow on the tenant. Uses internals of the SAP editor, a lot will not work; snippets with start elements (Timer, Start Message) only go into an Integration Process. You alone are responsible for what you do and what you break. Off by default, switched on in the danger zone of the settings.
 - [Feature] Copy buttons on hover for names and values in trace, log and info tables.
@@ -89,6 +90,9 @@ It is open source so feel free to check the source code.
 - [Improvement] Inline trace colors Request Reply, Send, Poll Enrich and Content Enricher steps like their message flow, a click opens the trace of the flow.
 - [Improvement] Snippets keep only the copied steps instead of the whole iFlow they came from, also snippets saved before. Safer to share.
 - [For plugin developers] Plugins can no longer use `$` or the Fomantic modules (`.modal`, `.tab`, `$.toast`, ...). See the UI helpers in the [plugin readme](/docs/readme/PluginREADME.md).
+- [Fix] Inline trace: steps that ran more than once (e.g. in a loop or after a splitter) open their trace again, and steps stay clickable after the message sidebar was closed or refreshed. Before, one failed click could block every further click.
+- [Fix] Inline trace: the "Loading steps" notice no longer hangs (e.g. at 55 of 56) when the CPI reports more steps than it returns, a page fails to load or the inline trace is switched off or to another message while loading.
+- [Fix] Inline trace: clicks on steps no longer stop working until a page refresh. Steps stayed unclickable after the inline trace was switched off and on again or switched to another message, and after a tab of a step (e.g. its trace) failed to load. A tab that fails now shows a notice instead.
 - [Fix] Pretty print of XML no longer inserts Chrome's XSLT deprecation notice into the payload.
 - [Fix] CPI Helper starts on the first load after the login redirect, also when the tenant opens on its start page.
 - [Fix] The setting to switch off the automatic refresh of the message sidebar works again.

@@ -138,84 +138,86 @@ async function showBigPopup(
   }
 }
 
+// fills a tab panel from a content function. a failing tab shows a notice instead of breaking the whole tab set
+async function fillTabContent(contentElement, object) {
+  try {
+    const contentResponse = await object.content(object);
+    if (typeof contentResponse == "object") {
+      contentElement.innerHTML = "";
+      contentElement.appendChild(contentResponse);
+    }
+    if (typeof contentResponse == "string") {
+      contentElement.innerHTML = contentResponse;
+    }
+    if (typeof contentResponse == "function") {
+      contentElement.innerHTML = contentResponse(object);
+    }
+  } catch (error) {
+    log.warn("content of tab could not be loaded", error);
+    contentElement.innerHTML = '<div class="cpiHelper_infoPopUp_content">The content could not be loaded.</div>';
+  }
+}
+
+// no Promise wrapper around an async executor here: an error inside it left the promise pending forever,
+// so the caller (e.g. a click on an inline trace step) never finished
 async function createTabHTML(objects, idPart, overwriteActivePosition) {
-  return new Promise(async (resolve, reject) => {
-    /*
-      {label:"Hallo",
-       content: "",
-       active}
+  /*
+    {label:"Hallo",
+     content: "",
+     active}
+  }
+  */
+
+  // local: tab sets are nested (one per run of a step, each with its own Properties, Headers, ...) and the inner
+  // call runs while the outer one waits for its first tab
+  const html = document.createElement("div");
+  html.classList.add("cpiHelper_tabs");
+
+  let checked = 'checked=""';
+  for (let i = 0; i < objects.length; i++) {
+    checked = "";
+    if ((overwriteActivePosition != null && overwriteActivePosition == i) || (overwriteActivePosition != null && overwriteActivePosition == objects[i].label) || (overwriteActivePosition == null && objects[i].active)) {
+      checked = 'checked="checked"';
     }
-    */
 
-    html = document.createElement("div");
-    html.classList.add("cpiHelper_tabs");
+    //input button
+    let input = createElementFromHTML(`<input name="tabs-${idPart}" type="radio" id="tab-${idPart}-${i}" ${checked} class="cpiHelper_tabs_input"/>`);
 
-    let checked = 'checked=""';
-    for (let i = 0; i < objects.length; i++) {
-      checked = "";
-      if ((overwriteActivePosition != null && overwriteActivePosition == i) || (overwriteActivePosition != null && overwriteActivePosition == objects[i].label) || (overwriteActivePosition == null && objects[i].active)) {
-        checked = 'checked="checked"';
-      }
-
-      //input button
-      let input = createElementFromHTML(`<input name="tabs-${idPart}" type="radio" id="tab-${idPart}-${i}" ${checked} class="cpiHelper_tabs_input"/>`);
-
-      if (typeof objects[i].content == "function") {
-        input.onclick = async (event) => {
-          let contentElement = document.getElementById(idPart + "-" + i + "-content");
-          if (contentElement.innerHTML == '<div class="cpiHelper_infoPopUp_content">Please Wait...</div>') {
-            let contentResponse = await objects[i].content(objects[i]);
-            if (typeof contentResponse == "object") {
-              contentElement.innerHTML = "";
-              contentElement.appendChild(contentResponse);
-            }
-            if (typeof contentResponse == "string") {
-              contentElement.innerHTML = contentResponse;
-            }
-            if (typeof contentResponse == "function") {
-              contentElement.innerHTML = contentResponse(objects[i]);
-            }
-          }
-        };
-      }
-
-      let label = createElementFromHTML(`<label for="tab-${idPart}-${i}" class="cpiHelper_tabs_label">${objects[i].label}</label>`);
-
-      //content of tab
-      let content = createElementFromHTML(` <div id="${idPart}-${i}-content" class="cpiHelper_tabs_panel"></div>`);
-
-      if (typeof objects[i].content == "string") {
-        content.innerHTML = objects[i].content;
-      }
-
-      if (typeof objects[i].content == "object") {
-        content.appendChild(objects[i].content);
-      }
-
-      if (typeof objects[i].content == "function") {
-        content.innerHTML = '<div class="cpiHelper_infoPopUp_content">Please Wait...</div>';
-        if (objects[i].active) {
-          let contentResponse = await objects[i].content(objects[i]);
-          if (typeof contentResponse == "object") {
-            content.innerHTML = "";
-            content.appendChild(contentResponse);
-          }
-          if (typeof contentResponse == "string") {
-            content.innerHTML = contentResponse;
-          }
-          if (typeof contentResponse == "function") {
-            content.innerHTML = contentResponse(objects[i]);
-          }
+    if (typeof objects[i].content == "function") {
+      input.onclick = async (event) => {
+        let contentElement = document.getElementById(idPart + "-" + i + "-content");
+        if (contentElement.innerHTML == '<div class="cpiHelper_infoPopUp_content">Please Wait...</div>') {
+          await fillTabContent(contentElement, objects[i]);
         }
-      }
-
-      html.appendChild(input);
-      html.appendChild(label);
-      html.appendChild(content);
+      };
     }
 
-    return resolve(html);
-  });
+    let label = createElementFromHTML(`<label for="tab-${idPart}-${i}" class="cpiHelper_tabs_label">${objects[i].label}</label>`);
+
+    //content of tab
+    let content = createElementFromHTML(` <div id="${idPart}-${i}-content" class="cpiHelper_tabs_panel"></div>`);
+
+    if (typeof objects[i].content == "string") {
+      content.innerHTML = objects[i].content;
+    }
+
+    if (typeof objects[i].content == "object") {
+      content.appendChild(objects[i].content);
+    }
+
+    if (typeof objects[i].content == "function") {
+      content.innerHTML = '<div class="cpiHelper_infoPopUp_content">Please Wait...</div>';
+      if (objects[i].active) {
+        await fillTabContent(content, objects[i]);
+      }
+    }
+
+    html.appendChild(input);
+    html.appendChild(label);
+    html.appendChild(content);
+  }
+
+  return html;
 }
 
 // Function to show license popup

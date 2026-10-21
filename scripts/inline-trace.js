@@ -16,6 +16,19 @@ async function clickTrace(e) {
   }
   inlineTraceRunning = true;
   showWaitingPopup();
+  // whatever goes wrong while opening one step, the next click has to work again
+  try {
+    await openInlineTraceStep.call(this, e);
+  } catch (error) {
+    log.warn("trace of the step could not be opened", error);
+    cpihModal.hide("#cpiHelper_waiting_model");
+    showToast("The trace of this step could not be opened.", "", "warning");
+  } finally {
+    inlineTraceRunning = false;
+  }
+}
+
+async function openInlineTraceStep(e) {
 
   var formatLogContent = function (inputList) {
     inputList = inputList.sort(function (a, b) {
@@ -142,12 +155,9 @@ async function clickTrace(e) {
     return element.StepId == id || element.ModelStepId == id;
   });
   e.target.setAttribute("ch_inline_active", true);
-  //trace level check
-  var messageguid = document
-    .querySelector(".cpiHelper_inlineInfo-button.cpiHelper_inlineInfo-active")
-    .className.replace("flash", "")
-    .replace(/cpiHelper_inlineInfo-[A-z]+|\s+/g, "")
-    .trim();
+  //trace level check. the message comes from activeInlineItem, not from its button in the message sidebar: the
+  //button is gone when the sidebar is closed or the message has moved out of the list
+  var messageguid = activeInlineItem;
   var logleveldata = JSON.parse(await makeCallPromise("GET", `/${cpiData.urlExtension}${cpiData.runtimePathExtension}odata/api/v1/MessageProcessingLogs('${messageguid}')?$format=json`, true)).d;
 
   if (logleveldata.LogLevel != "TRACE") {
@@ -175,6 +185,8 @@ async function clickTrace(e) {
         { label: "Properties", content: getTraceTabContent, active: true, childCount: element.ChildCount, runId: element.RunId, traceType: "properties" },
         { label: "Headers", content: getTraceTabContent, active: false, childCount: element.ChildCount, runId: element.RunId, traceType: "headers" },
         { label: "Body", content: getTraceTabContent, active: false, childCount: element.ChildCount, runId: element.RunId, traceType: "trace" },
+        // calls to a receiver: what came back
+        ...(findCallSubSteps(element).length ? [{ label: "Response", content: async () => createCallResponse(element), active: false }] : []),
         { label: "Log", content: getTraceTabContent, active: false, childCount: element.ChildCount, runId: element.RunId, traceType: "logContent" },
         { label: "Info", content: getTraceTabContent, active: false, childCount: element.ChildCount, runId: element.RunId, traceType: "info" },
         { label: 'Changes <span class="cpiHelper_experimental" title="Experimental, feedback welcome">experimental</span>', content: async () => createStepChanges(element), active: false },
@@ -208,19 +220,28 @@ async function clickTrace(e) {
     }
     let childindex = Array.from(document.querySelectorAll(".cpiHelper_onclick[inline_cpi_child]"), (e) => parseInt(e.getAttribute("inline_cpi_child"), 10)).sort((a, b) => a - b);
     childindex = childindex.indexOf(parseInt(e.target.parentNode.parentNode.getAttribute("inline_cpi_child")));
-    showBigPopup(await loginformation, "Content Before Step", { fullscreen: true, callback: null }, childindex, document.querySelectorAll(".cpiHelper_onclick[inline_cpi_child]").length, String(e.pointerType));
+    await showBigPopup(await loginformation, "Content Before Step", { fullscreen: true, callback: null }, childindex, document.querySelectorAll(".cpiHelper_onclick[inline_cpi_child]").length, String(e.pointerType));
   }
-  inlineTraceRunning = false;
 }
 
 async function hideInlineTrace() {
   activeInlineItem = null;
   inlineTraceGeneration++;
+  closeInlineTraceProgress();
+  // switching off and on again has to free the clicks, even if an earlier click never finished
+  inlineTraceRunning = false;
   cpihQsa("[ch_inline_active]").forEach((element) => element.removeAttribute("ch_inline_active"));
   cpihQsa("[inline_cpi_child]").forEach((element) => element.removeAttribute("inline_cpi_child"));
 
   var classesToBeDeleted = [".cpiHelper_inlineInfo", ".cpiHelper_inlineInfo_error", ".cpiHelper_avg", ".cpiHelper_belowavg", ".cpiHelper_inlineInfo-active", ".cpiHelper_aboveavg", ".cpiHelper_max", ".cpiHelper_min"];
-  onClicKElements.forEach((element) => (element.onclick = null));
+  // before the classes go: removing cpiHelper_onclick would trigger the observer and hide again
+  inlineTraceObserver?.disconnect();
+  inlineTraceObserver = null;
+  // the marker class goes with the handler, otherwise the next activation skips the step and it stays unclickable
+  onClicKElements.forEach((element) => {
+    element.onclick = null;
+    element.classList.remove("cpiHelper_onclick");
+  });
   onClicKElements = [];
   const elementsToProcess = new Set();
   classesToBeDeleted.forEach((selector) => {
@@ -249,10 +270,18 @@ function maxNode(arr) {
 }
 
 var inlineTraceElements;
+// every run step of the message, also those without StepStop that inlineTraceElements leaves out
+var inlineTraceAllSteps = [];
 let cpi_timediff_list;
 let cpi_max_node;
 // bumped on every new or hidden inline trace, a background load of more run steps stops when it changed
 var inlineTraceGeneration = 0;
+// "Loading steps" toast of the background load, sticky until all steps are there
+var inlineTraceProgress = null;
+function closeInlineTraceProgress() {
+  inlineTraceProgress?.close();
+  inlineTraceProgress = null;
+}
 
 function toInlineTraceElement(run) {
   return {
@@ -271,10 +300,12 @@ function toInlineTraceElement(run) {
 async function createInlineTraceElements(MessageGuid, checked, onMoreElements) {
   return new Promise(async (resolve, reject) => {
     inlineTraceElements = [];
+    inlineTraceAllSteps = [];
     const generation = inlineTraceGeneration;
 
     var logRuns = await getMessageProcessingLogRuns(MessageGuid, false, {
       isStale: () => generation !== inlineTraceGeneration,
+      onRawSteps: (runs) => inlineTraceAllSteps.push(...runs.map(toInlineTraceElement)),
       onMorePages: onMoreElements
         ? (runs, loaded, total) => {
             const elements = runs.map(toInlineTraceElement);
@@ -318,6 +349,8 @@ async function createInlineTraceElements(MessageGuid, checked, onMoreElements) {
 }
 
 var onClicKElements = [];
+// hides the inline trace when SAP redraws a marked step
+var inlineTraceObserver = null;
 
 // marks one executed step in the diagram. ctx: { traceModifier, checked, observerInstalled }
 function markInlineTraceRun(run, ctx) {
@@ -363,16 +396,16 @@ function markInlineTraceRun(run, ctx) {
       markAdapterShape(element, target);
     }
     if (!ctx.observerInstalled) {
-      observer = new MutationObserver((mutations) => {
+      inlineTraceObserver?.disconnect();
+      inlineTraceObserver = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
           if (!mutation.target.classList.contains("cpiHelper_onclick")) {
             hideInlineTrace();
-            observer.disconnect();
           }
         });
       });
 
-      observer.observe(document.getElementById(element.id), {
+      inlineTraceObserver.observe(document.getElementById(element.id), {
         attributes: true,
         attributeFilter: ["class"],
       });
@@ -388,6 +421,7 @@ async function showInlineTrace(MessageGuid, checked = false) {
   return new Promise(async (resolve, reject) => {
     inlineTraceGeneration++;
     const generation = inlineTraceGeneration;
+    closeInlineTraceProgress();
     const ctx = { traceModifier: await getStorageValue("traceModifer", "isActive", null), checked, observerInstalled: false };
     let progress = null;
 
@@ -396,9 +430,9 @@ async function showInlineTrace(MessageGuid, checked = false) {
       if (generation !== inlineTraceGeneration) return;
       elements.forEach((run) => markInlineTraceRun(run, ctx));
       const text = loaded >= total ? `All ${total.toLocaleString()} steps of this message loaded.` : `Loading steps: ${loaded.toLocaleString()} of ${total.toLocaleString()}`;
-      if (!progress) progress = cpihToast({ message: text, displayTime: 0, position: "bottom right", showProgress: false });
+      if (!progress) progress = inlineTraceProgress = cpihToast({ message: text, displayTime: 0, position: "bottom right", showProgress: false });
       else progress.element.querySelector(".message").textContent = text;
-      if (loaded >= total) setTimeout(() => progress?.close(), 3000);
+      if (loaded >= total) setTimeout(() => progress.close(), 3000);
     };
 
     var logRuns = await createInlineTraceElements(MessageGuid, checked, onMoreElements);
@@ -627,6 +661,124 @@ function stepLabel(run) {
   // the shape also carries an invisible "Step Id = ..." text for screen readers
   const text = shape?.textContent?.replace(/\s+/g, " ").replace(/^Step Id = \S+\s*/, "").trim();
   return text || run.ModelStepId || run.StepId;
+}
+
+// a sub step "MessageFlow_0#<timestamp>" belongs to the call of the last "MessageFlow_0" before it
+function findCallStep(element) {
+  if (element.StepId === element.ModelStepId) return element;
+  if (String(element.StepId ?? "").indexOf(element.ModelStepId + "#") !== 0) return null;
+  return inlineTraceAllSteps.filter((run) => run.RunId === element.RunId && run.StepId === element.ModelStepId && run.ChildCount < element.ChildCount).sort((a, b) => b.ChildCount - a.ChildCount)[0] || null;
+}
+
+// the sub steps of one adapter call: a message flow (e.g. MessageFlow_0) logs the call itself as sub steps
+// "MessageFlow_0#<timestamp>" (sending, response, error attachments) between its start and stop
+function findCallSubSteps(element) {
+  element = findCallStep(element);
+  if (!element) return [];
+  const time = (value) => parseInt(String(value ?? "").replace(/\D/g, ""), 10);
+  const stop = time(element.StepStop);
+  return inlineTraceAllSteps
+    .filter((run) => run.RunId === element.RunId && run.ChildCount > element.ChildCount && String(run.StepId ?? "").indexOf(element.ModelStepId + "#") === 0 && !(time(run.StepStart) > stop))
+    .sort((a, b) => a.ChildCount - b.ChildCount);
+}
+
+// "key: value" lines as the adapters log them (HTTPResponseHeaders, ...)
+function parseHeaderLines(text) {
+  return String(text ?? "")
+    .split("\n")
+    .map((line) => line.match(/^\s*([^:]+?)\s*:\s?(.*)$/))
+    .filter(Boolean)
+    .map((match) => ({ Name: match[1], Value: match[2] }));
+}
+
+// "Response" tab of an adapter call: status, body and headers of what the receiver sent back
+async function createCallResponse(element) {
+  element = findCallStep(element) || element;
+  const base = "/" + cpiData.urlExtension + cpiData.runtimePathExtension + "odata/api/v1/";
+  const subSteps = findCallSubSteps(element);
+  const stepProperties = async (run) =>
+    JSON.parse(await makeCallPromise("GET", base + "MessageProcessingLogRunSteps(RunId='" + run.RunId + "',ChildCount=" + run.ChildCount + ")/?$expand=RunStepProperties&$format=json", true)).d.RunStepProperties.results;
+
+  const properties = {};
+  for (const run of [element, ...subSteps]) {
+    for (const item of await stepProperties(run).catch(() => [])) properties[item.Name] ??= item.Value;
+  }
+  // the trace the adapter wrote when the response came in
+  let responseTrace = null;
+  for (const run of subSteps) {
+    const trace = await getRunStepTrace(run.RunId, run.ChildCount).catch(() => null);
+    if (trace?.headers.some((item) => /_MessageType$/.test(item.Name) && item.Value === "RECEIVER_OUTBOUND")) responseTrace = trace;
+  }
+  const traceHeader = (name) => responseTrace?.headers.find((item) => item.Name === name)?.Value;
+
+  // the body: the adapter logs it on errors, otherwise it is the content the next step got
+  let body = null;
+  let bodySource = "";
+  const attachments = [...String(properties.Attachments ?? "").matchAll(/AttachmentName=([^,}]+), AttachmentURI=([^,}\]]+)/g)];
+  const bodyAttachment = attachments.find((match) => /Response_Body$/i.test(match[1].trim()));
+  if (bodyAttachment) {
+    body = await makeCallPromise("GET", base + "MessageProcessingLogAttachments('" + bodyAttachment[2].trim() + "')/$value", true).catch(() => null);
+    bodySource = "Logged by the adapter (attachment " + bodyAttachment[1].trim() + ")";
+  }
+  if (body == null && properties.ResponseBody != null) {
+    body = properties.ResponseBody;
+    bodySource = "Logged by the adapter";
+  }
+  if (body == null && responseTrace?.body) {
+    body = responseTrace.body;
+    bodySource = "Trace of the response";
+  }
+  if (body == null) {
+    const afterCall = findNextRunStep(subSteps[subSteps.length - 1] || element).filter((run) => run.ModelStepId !== element.ModelStepId);
+    for (const candidate of afterCall.slice(0, 5)) {
+      const trace = await getRunStepTrace(candidate.RunId, candidate.ChildCount).catch(() => null);
+      if (trace) {
+        body = trace.body;
+        bodySource = `Content before the next step "${stepLabel(candidate)}"`;
+        break;
+      }
+    }
+  }
+
+  const status = properties.HTTPStatusCode ?? traceHeader("CamelHttpResponseCode");
+  const statusText = traceHeader("CamelHttpResponseText");
+  const responseHeaders = properties.HTTPResponseHeaders != null ? parseHeaderLines(properties.HTTPResponseHeaders) : null;
+  const requestHeaders = properties.HTTPRequestHeaders != null ? parseHeaderLines(properties.HTTPRequestHeaders) : null;
+  // whatever else the adapter logged, other adapters (OData, SOAP, ...) use their own names
+  const shown = ["Activities", "TraceIds", "Attachments", "Name", "ResponseBody", "HTTPStatusCode", "HTTPResponseHeaders", "HTTPRequestHeaders", "RealDestinationUrl"];
+  const more = Object.entries(properties)
+    .filter(([name]) => !shown.includes(name))
+    .map(([Name, Value]) => ({ Name, Value }));
+
+  const container = document.createElement("div");
+  container.className = "cpiHelper_callResponse";
+  if (!subSteps.length && status == null && body == null) {
+    container.innerHTML = '<div class="ui info message">This step logged no call to a receiver.</div>';
+    return container;
+  }
+  const summary = [
+    { Name: "Status", Value: status == null ? "unknown" : [status, statusText].filter(Boolean).join(" ") },
+    { Name: "URL", Value: properties.RealDestinationUrl },
+    { Name: "Body", Value: body == null ? "not logged" : bodySource },
+  ].filter((item) => item.Value != null);
+  const section = (title, content) => {
+    const heading = document.createElement("h4");
+    heading.className = "ui header";
+    heading.textContent = title;
+    container.append(heading);
+    if (typeof content === "string") container.insertAdjacentHTML("beforeend", content);
+    else container.append(content);
+  };
+  // own table: formatHeadersAndPropertiesToTable sorts by name, the status belongs on top
+  section(
+    "Call",
+    `<table class='ui basic striped selectable compact table'><tbody>${summary.map((item) => `<tr><td>${htmlEscape(item.Name)}</td><td style="word-break: break-all;">${htmlEscape(String(item.Value))}</td></tr>`).join("")}</tbody></table>`
+  );
+  if (body != null) section("Response body", formatTrace(body, "response_" + element.RunId + "_" + element.ChildCount, null, "response"));
+  section("Response headers", formatHeadersAndPropertiesToTable(responseHeaders ?? responseTrace?.headers ?? []));
+  if (requestHeaders) section("Request headers", formatHeadersAndPropertiesToTable(requestHeaders));
+  if (more.length) section("More from the adapter", formatHeadersAndPropertiesToTable(more));
+  return container;
 }
 
 // "Changes" tab: what the step did to body, headers and properties, as a side by side diff

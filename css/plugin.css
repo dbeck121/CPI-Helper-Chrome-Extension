@@ -12,11 +12,14 @@ Users are encouraged to integrate this library with care to ensure compatibility
 
 /* timelinetable */
 #timelinetable td {
-  padding: 0 !important;
+  padding: 0.75rem 1rem !important;
   font-weight: bold !important;
 }
 
 #timelinetable a {
+  display: block;
+  margin: -0.75rem -1rem;
+  padding: 0.75rem 1rem;
   box-shadow: none;
   text-decoration: none;
 }
