@@ -20,6 +20,7 @@ const whats_new_log = `
 - [Feature] Inline trace: new Response tab on calls to a receiver (message flows) shows what came back: status, URL, response body and headers, request headers and everything else the adapter logged. On errors the body the adapter logged, otherwise the content the next step got.
 - [Feature] Inline trace: all steps of a message load, the first ones right away and the rest in the background (up to 5,000 instead of a fixed limit of 300). Steps with many runs, e.g. after a splitter, load a run only when it is opened.
 - [Feature] Snippets (experimental, off by default): save copied steps and paste them into other iFlows. Uses internals of the SAP editor and a lot will not work, so it is hidden in the danger zone of the settings. Use at your own risk.
+- [Improvement] The toolbar may reach below the bottom edge of the screen when it is tall, e.g. with many plugins. Only its header has to stay visible.
 - [Improvement] Unlock plugin: locked packages can be unlocked right from the package view. Thanks to Gregor Schütz.
 - [Improvement] jQuery and Fomantic UI are gone, about 3 MB less loaded into every CPI page. Dialogs and toasts take the look of the new toolbar and follow the light and dark CPI theme.
 - [Improvement] More robust plugins: one failing plugin no longer affects the others.

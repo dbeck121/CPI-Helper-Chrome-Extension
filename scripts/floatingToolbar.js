@@ -74,13 +74,16 @@ function removeFloatingToolbar() {
   }
 }
 
-// keeps the whole bar on screen, also after the window got smaller
+// keeps the bar reachable, also after the window got smaller. A tall bar (many plugins) may reach below the bottom
+// edge of the screen, only its header has to stay visible so it can still be dragged
+const FLOATING_TOOLBAR_MIN_VISIBLE = 48;
+
 function clampFloatingToolbar(toolbar, position) {
   const width = toolbar.offsetWidth || 44;
   const height = toolbar.offsetHeight || 200;
   return {
     right: Math.min(Math.max(position.right, 0), Math.max(window.innerWidth - width, 0)),
-    top: Math.min(Math.max(position.top, 0), Math.max(window.innerHeight - height, 0)),
+    top: Math.min(Math.max(position.top, 0), Math.max(window.innerHeight - Math.min(height, FLOATING_TOOLBAR_MIN_VISIBLE), 0)),
   };
 }
 
