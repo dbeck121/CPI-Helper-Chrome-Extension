@@ -1,11 +1,8 @@
 # Name: Release on main
 # Trigger: Pushes to `main` (typically a merged PR from dev).
-# Action:  Reads version from manifest.json, downloads the zip artifact
-#          built by the most recent successful "Build extension on dev"
-#          run, then creates/updates the matching GitHub Release with
-#          that zip as an asset. For a new version the same zip is then
-#          published to the Chrome Web Store, Edge Add-ons and Firefox
-#          Add-ons (see the publish-* jobs, secrets are listed there).
+# Action:  Reads version from manifest.json, builds the zip with zipFiles.sh
+#          from the pushed commit, then creates/updates the matching
+#          GitHub Release with that zip as an asset.
 
 name: Release on main
 
@@ -21,8 +18,6 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    outputs:
-      is_new: ${{ steps.new_version.outputs.is_new }}
 
     steps:
       - name: Checkout repository
@@ -39,44 +34,12 @@ jobs:
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "CLEAN_VERSION=$CLEAN_VERSION" >> "$GITHUB_ENV"
 
-      # the stores reject a version they already have, so publish only when the release did not exist yet
-      - name: Is this a new version
-        id: new_version
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # built from the commit that was pushed to main, not from an earlier dev build
+      - name: Build zip
         run: |
-          if gh release view "$CLEAN_VERSION" >/dev/null 2>&1; then
-            echo "is_new=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "is_new=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Find latest successful dev build
-        id: dev_run
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          RUN_ID=$(gh run list \
-            --workflow="Build extension on dev" \
-            --branch=dev \
-            --status=success \
-            --limit=1 \
-            --json databaseId \
-            --jq '.[0].databaseId')
-          if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
-            echo "No successful dev build found — cannot release."
-            exit 1
-          fi
-          echo "Using dev run ID: $RUN_ID"
-          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
-
-      - name: Download zip artifact from dev build
-        uses: actions/download-artifact@v8
-        with:
-          name: cpi-helper-extension
-          path: dist
-          run-id: ${{ steps.dev_run.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          chmod +x ./zipFiles.sh
+          ./zipFiles.sh
+          ls -l dist
 
       - name: Build release notes from whatsNewLog.js
         run: |
@@ -97,75 +60,3 @@ jobs:
           name: "${{ env.CLEAN_VERSION }}"
           body_path: release_body.md
           files: dist/*.zip
-
-      - name: Keep zip for the store jobs
-        uses: actions/upload-artifact@v7
-        with:
-          name: release-zip
-          path: dist/*.zip
-          if-no-files-found: error
-          retention-days: 7
-
-  # The three store jobs run independently, one failing store does not stop the others.
-  # They wait for approval if the environment "store-publish" has required reviewers (recommended).
-  # Secrets (Settings > Secrets and variables > Actions, or on the environment):
-  #   CHROME_PUBLISHER_ID, CHROME_CLIENT_ID, CHROME_CLIENT_SECRET, CHROME_REFRESH_TOKEN
-  #   EDGE_PRODUCT_ID, EDGE_CLIENT_ID, EDGE_API_KEY
-  #   FIREFOX_JWT_ISSUER, FIREFOX_JWT_SECRET
-  publish-chrome:
-    needs: release
-    if: needs.release.outputs.is_new == 'true'
-    runs-on: ubuntu-latest
-    environment: store-publish
-    steps:
-      - uses: actions/download-artifact@v8
-        with:
-          name: release-zip
-          path: dist
-      - name: Publish to Chrome Web Store
-        uses: mnao305/chrome-extension-upload@v7.0.0
-        with:
-          file-path: ${{ github.workspace }}/dist/CPI_Helper_Extension_v*.zip
-          extension-id: epoggeaemnkacpinjfgccbjakglngkpb
-          publisher-id: ${{ secrets.CHROME_PUBLISHER_ID }}
-          client-id: ${{ secrets.CHROME_CLIENT_ID }}
-          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
-          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
-          publish: true
-
-  publish-edge:
-    needs: release
-    if: needs.release.outputs.is_new == 'true'
-    runs-on: ubuntu-latest
-    environment: store-publish
-    steps:
-      - uses: actions/download-artifact@v8
-        with:
-          name: release-zip
-          path: dist
-      - name: Publish to Edge Add-ons
-        uses: wdzeng/edge-addon@v2.1.1
-        with:
-          product-id: ${{ secrets.EDGE_PRODUCT_ID }}
-          zip-path: dist/CPI_Helper_Extension_v*.zip
-          client-id: ${{ secrets.EDGE_CLIENT_ID }}
-          api-key: ${{ secrets.EDGE_API_KEY }}
-
-  publish-firefox:
-    needs: release
-    if: needs.release.outputs.is_new == 'true'
-    runs-on: ubuntu-latest
-    environment: store-publish
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/download-artifact@v8
-        with:
-          name: release-zip
-          path: dist
-      - name: Publish to Firefox Add-ons
-        uses: wdzeng/firefox-addon@v1.2.1
-        with:
-          addon-guid: cpi_helper@dbeck121
-          xpi-path: dist/CPI_Helper_Extension_v*.zip
-          jwt-issuer: ${{ secrets.FIREFOX_JWT_ISSUER }}
-          jwt-secret: ${{ secrets.FIREFOX_JWT_SECRET }}
