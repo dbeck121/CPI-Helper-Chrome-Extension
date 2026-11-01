@@ -3,6 +3,9 @@
 | [Plugin Dev](/docs/readme/PluginREADME.md) | [Contribution](/docs/readme/contributing.md) | [Code of conduct](/docs/readme/code_of_conduct.md) | [License](/docs/LICENSE) |
 | ------------------------------------------ | -------------------------------------------- | -------------------------------------------------- | ------------------------ |
 
+> [!WARNING]
+> **Other extensions in the stores use the name "CPI Helper" and have nothing to do with us.** A browser extension on a CPI page can read what your session can read, including secrets and credentials, and could send them to a foreign server. Only install extensions you trust, and check who published them. Use the store links below. If you do not want to trust us blindly: CPI Helper is open source, you can read every line of the [source code](https://github.com/dbeck121/CPI-Helper-Chrome-Extension) and build it yourself.
+
 This browser extension makes SAP Integration Suite (Cloud Integration) faster to work with: a floating toolbar on every CPI page, a search over the whole tenant, the last processed messages next to your iFlow, inline trace right in the diagram and a payload viewer that is fun to use.
 
 Please check the CPI-Helper [Landing page](https://dbeck121.github.io/CPI-Helper-Chrome-Extension/?page=home). More information on our [LinkedIn Page](https://www.linkedin.com/company/kangoolutions).
@@ -55,6 +58,7 @@ It is open source so feel free to check the source code.
 
 ### 4.0.0
 
+- [Info] Warning about look-alikes: other extensions in the stores use the name "CPI Helper" and are not from us. Only install extensions you trust, the source code of the original is open. The warning is at the top of this readme and shown once in the What's new dialog.
 - [Plugin] New Version History plugin: view the version history of an iFlow and revert to an earlier version directly in the editor. Special thanks to [Gregor Schütz](https://github.com/DevGregor)
 - [Plugin] New MPL Table Sorter plugin: sort the Monitor Message Processing table by one or more columns. Special thanks to [Prem Sai Daggolu](https://github.com/premsaidaggolu)
 - [Plugin] New Create named Groovy script plugin: create a Groovy resource with a name of your choice in the current iFlow. Special thanks to [Björn Konzmann](https://github.com/BKonzi)
@@ -73,7 +77,7 @@ It is open source so feel free to check the source code.
 - [Feature] Inline trace (experimental): new Changes tab shows side by side what a step did to body, headers and properties.
 - [Feature] Inline trace: new Response tab on calls to a receiver (message flows) shows what came back: status, URL, response body and headers, request headers and everything else the adapter logged. On errors the body the adapter logged, otherwise the content the next step got.
 - [Feature] Inline trace: all steps of a message load, the first ones right away and the rest in the background (up to 5,000 instead of a fixed limit of 300). Steps with many runs, e.g. after a splitter, load a run only when it is opened.
-- [Feature] Snippets (extremely experimental, danger zone): save steps you copied in the iFlow editor under a name, rename, edit, duplicate and share them as text, and put them back into the CPI clipboard to paste them into an Integration Process or Local Integration Process of any iFlow on the tenant. Uses internals of the SAP editor, a lot will not work; snippets with start elements (Timer, Start Message) only go into an Integration Process. You alone are responsible for what you do and what you break. Off by default, switched on in the danger zone of the settings.
+- [Feature] Snippets (experimental, off by default): save copied steps and paste them into other iFlows. Uses internals of the SAP editor and a lot will not work, so it is hidden in the danger zone of the settings. Use at your own risk.
 - [Improvement] Unlock plugin: locked packages can be unlocked right from the package view. Thanks to [Gregor Schütz](https://github.com/DevGregor)
 - [Improvement] jQuery and Fomantic UI are gone: own lightweight UI kit and stylesheet, about 3 MB less loaded into every CPI page. Dialogs and toasts take the look of the new toolbar and follow the light and dark CPI theme.
 - [Improvement] More robust plugins: one failing plugin no longer affects the others, and plugin settings are read far less often.

@@ -81,24 +81,31 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
             <a class="item" data-tab="four">Devtoberfest</a>
         </div>
         <div class="ui bottom attached tab segment active" data-tab="one">
+            <div class="ui warning message">
+                <div class="header">Other extensions are called "CPI Helper" too</div>
+                <p>In the browser stores there are extensions with the name <b>CPI Helper</b> that have nothing to do with us. Only install browser extensions from publishers you trust: an extension on a CPI page could read secrets and credentials and send them to a foreign server.</p>
+                <p>You do not have to trust us blindly. CPI Helper is open source, read the <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank">source code on GitHub</a>.</p>
+            </div>
+            <h3 class="ui header">
+                <i class="like icon"></i>
+                <div class="content">
+                    Our supporters
+                </div>
+            </h3>
             <div class="ui segment" style="overflow: hidden;">
                 <div class="ui grid">
                     <div class="four wide column">
                         <a href="https://figaf.com/cpihelper-and-figaf" target="_blank"><img
-                                class="ui big image" style="float: left; margin-right: 20px;" src="${FIGAF_IMG}"></a>
+                                class="ui image" style="width: 143px;" src="${FIGAF_IMG}"></a>
                     </div>
                     <div class="twelve wide column">
-  
-     <div class="ui header">This release is sponsored by Figaf </div>
-
 <p><b>Migrating from SAP PO to Integration Suite?</b></p>
 <p>Manual fixes slow every migration down. Figaf Migration Edition helps you migrate, fix and test faster. Simplify your migration with built-in automation.</p>
 <p><a href="https://figaf.com/figaf-migration-edition/" target="_blank"><u>👉 Start free</u></a></p>
 
 
                     </div>
-                     <div class="sixteen wide column" style="paddingTop: '0px'">
-                 </div>
+                </div>
             </div>
             <div class="ui info message">
                 <b>New in 4.0:</b> the buttons moved into a floating toolbar that is on every CPI page, with a search for the whole tenant (Ctrl/⌘ + K), and plugins got their own section in it.
@@ -192,14 +199,6 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
                 <li><b>All steps of a message</b> are highlighted, the first ones right away and the rest while you look (up to 5,000 instead of 300).</li>
                 <li>Steps that ran many times, e.g. after a splitter, open fast: a run loads only when you open it.</li>
                 <li>Hover a name or value in the trace, log and info tables to <b>copy</b> it.</li>
-            </ul>
-            <h4 class="ui header">Snippets (extremely experimental)</h4>
-            <div class="ui negative message">Danger zone: Snippets use internals of the SAP iFlow editor and a lot will not work. Check your iFlow before you save, and cancel the edit if anything looks wrong. <b>You alone are responsible for what you do and what you break.</b></div>
-            <ul class="ui list">
-                <li>Copy steps in the iFlow editor, open <b>Snippets</b> in the toolbar and save them under a name.</li>
-                <li><b>Use</b> puts a snippet back into the CPI clipboard: select the Integration Process or Local Integration Process in edit mode and press Paste, also in another iFlow.</li>
-                <li>Snippets with start elements such as <b>Timer</b> or <b>Start Message</b> only go into an Integration Process, not into a Local Integration Process.</li>
-                <li>Rename the steps of a snippet, duplicate it, or share it with <b>Copy as text</b> and <b>Import</b>. Connections, senders and receivers are not copied by the editor.</li>
             </ul>
             <button type="button" class="ui primary button cpihelperWhatsNewTour"><i class="map signs icon"></i>Take the tour again</button>
         </div>

@@ -1852,6 +1852,15 @@ a.cpiHelper_floatingToolbar_menuItem:visited {
   background: var(--sapInformationBackground, #e1f4ff);
 }
 
+.cpiHelper_celebration_warning {
+  margin: 12px 0 0;
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  border-radius: 8px;
+  background: var(--sapWarningBackground, #fef7f1);
+  border: 1px solid var(--sapWarningBorderColor, #e9730c);
+}
+
 .cpiHelper_celebration_card a {
   color: var(--sapLinkColor, #0064d9);
 }

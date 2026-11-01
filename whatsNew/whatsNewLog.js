@@ -1,5 +1,6 @@
 // template = - [header :your header as HTML] [description": "description goes here as HTML] ,... //multiple
 const whats_new_log = `
+- [Info] Warning about look-alikes: other extensions in the stores use the name "CPI Helper" and are not from us. Only install extensions you trust, the source code of the original is open.
 - [Plugin] New Version History plugin: view the version history of an iFlow and revert to an earlier version directly in the editor. Special thanks to Gregor Schütz.
 - [Plugin] New MPL Table Sorter plugin: sort the Monitor Message Processing table by one or more columns. Special thanks to Prem Sai Daggolu.
 - [Plugin] New Create named Groovy script plugin: create a Groovy resource with a name of your choice in the current iFlow. Special thanks to Björn Konzmann.
@@ -18,7 +19,7 @@ const whats_new_log = `
 - [Feature] Inline trace (experimental): new Changes tab shows side by side what a step did to body, headers and properties.
 - [Feature] Inline trace: new Response tab on calls to a receiver (message flows) shows what came back: status, URL, response body and headers, request headers and everything else the adapter logged. On errors the body the adapter logged, otherwise the content the next step got.
 - [Feature] Inline trace: all steps of a message load, the first ones right away and the rest in the background (up to 5,000 instead of a fixed limit of 300). Steps with many runs, e.g. after a splitter, load a run only when it is opened.
-- [Feature] Snippets (extremely experimental, danger zone): save steps you copied in the iFlow editor under a name, rename, edit, duplicate and share them as text, and put them back into the CPI clipboard to paste them into an Integration Process or Local Integration Process of any iFlow on the tenant. Uses internals of the SAP editor, a lot will not work; snippets with start elements (Timer, Start Message) only go into an Integration Process. You alone are responsible for what you do and what you break. Off by default, switched on in the danger zone of the settings.
+- [Feature] Snippets (experimental, off by default): save copied steps and paste them into other iFlows. Uses internals of the SAP editor and a lot will not work, so it is hidden in the danger zone of the settings. Use at your own risk.
 - [Improvement] Unlock plugin: locked packages can be unlocked right from the package view. Thanks to Gregor Schütz.
 - [Improvement] jQuery and Fomantic UI are gone, about 3 MB less loaded into every CPI page. Dialogs and toasts take the look of the new toolbar and follow the light and dark CPI theme.
 - [Improvement] More robust plugins: one failing plugin no longer affects the others.

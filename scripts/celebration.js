@@ -78,6 +78,8 @@ function showV4Celebration() {
       <a href="${CELEBRATION_INFLUENCE_URL}" target="_blank" rel="noreferrer">Vote for our Customer Influence request</a>.</p>`
         : ""
     }
+    <p class="cpiHelper_celebration_warning"><b>Heads up:</b> other extensions in the stores are also called "CPI Helper" and are not from us. Only install extensions you trust. Ours is open source, the
+      <a href="https://github.com/dbeck121/CPI-Helper-Chrome-Extension" target="_blank" rel="noreferrer">source code</a> is there to read.</p>
     <div class="cpiHelper_celebration_actions">
       <button type="button" class="cpiHelper_celebration_primary">Show me the new toolbar</button>
       <button type="button" class="cpiHelper_celebration_secondary">What changed</button>
