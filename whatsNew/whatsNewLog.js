@@ -1,7 +1,33 @@
 // template = - [header :your header as HTML] [description": "description goes here as HTML] ,... //multiple
 const whats_new_log = `
-- [Feature] New Plugins tab in the global CPI Helper popup. Special thanks to Alexander Aigner.
-- [Improvement] Better plugin feature stability. Thanks to Alexander Aigner.
-- [Fix] Visited packages were only displayed as "Design" after a recent SAP update. Thanks to Philippe Addor.
-- [Fix] Inline trace now works with iFlows that use custom BPMN element ids. Thanks to mjhidalgo.
+- [Info] Warning about look-alikes: other extensions in the stores use the name "CPI Helper" and are not from us. Only install extensions you trust, the source code of the original is open.
+- [Plugin] New Version History plugin: view the version history of an iFlow and revert to an earlier version directly in the editor. Special thanks to Gregor Schütz.
+- [Plugin] New MPL Table Sorter plugin: sort the Monitor Message Processing table by one or more columns. Special thanks to Prem Sai Daggolu.
+- [Plugin] New Create named Groovy script plugin: create a Groovy resource with a name of your choice in the current iFlow. Special thanks to Björn Konzmann.
+- [Plugin] New Enhanced Package View plugin: deployment status per runtime, open in a new tab, copy the name and jump to the messages, right in the artifact list of a package. Special thanks to Alexander Aigner.
+- [Feature] New floating toolbar instead of the buttons in the page header: Trace, Messages, Info, Logs and Runtime in a toolbar you can drag anywhere. Wide with labels or compact with icons only, it remembers position and variant. In the compact variant hovering shows the name and the keyboard shortcut.
+- [Feature] The toolbar is on every CPI page now: Search, Jump to, Recent and Plugins also outside of an iFlow, e.g. in the monitor or the package list.
+- [Feature] Search (Ctrl/⌘ + K): one search over all iFlows, APIs, mappings and packages of the tenant, the monitor pages and your last artifacts. On an iFlow it also runs actions like trace, deploy, trace and deploy, message sidebar, info, logs and plugins.
+- [Feature] Search learns what you use: pages, artifacts and actions you pick often rank higher and show up right away when the search opens, e.g. Security Material. Older picks count less over time.
+- [Feature] Jump to: the monitor pages in one menu, on an iFlow also its messages, deployment status and package. A red number shows the failed messages of the past hour (can be switched off in the browser popup).
+- [Feature] Plugins have their own section in the toolbar. Plugins with a single action run it directly, plugins with more content open it in a panel next to the toolbar. The plugin settings are under Manage plugins.
+- [Feature] CPI Helper toolbar on the new API and MCP Server pages. They use the integration cell runtime by default.
+- [Feature] Rewritten browser action popup: faster, without jQuery and Semantic UI, and it can open the plugin settings of the current tab. Artifact names in the popup are now escaped. Special thanks to Alexander Aigner.
+- [Feature] The browser tab title shows a readable name of the current app. Thanks to Alexander Aigner.
+- [Feature] For plugin developers: toolbarButton for direct toolbar actions, an optional icon for toolbar entries and a select dropdown for plugin settings. Thanks to Alexander Aigner.
+- [Feature] New payload viewer for trace bodies, headers and attachments: pretty print that keeps CDATA, comments and big JSON numbers, search, fold, font size, wrap, fullscreen and a resizable editor that remembers its height.
+- [Feature] Inline trace (experimental): new Changes tab shows side by side what a step did to body, headers and properties.
+- [Feature] Inline trace: new Response tab on calls to a receiver (message flows) shows what came back: status, URL, response body and headers, request headers and everything else the adapter logged. On errors the body the adapter logged, otherwise the content the next step got.
+- [Feature] Inline trace: all steps of a message load, the first ones right away and the rest in the background (up to 5,000 instead of a fixed limit of 300). Steps with many runs, e.g. after a splitter, load a run only when it is opened.
+- [Feature] Snippets (experimental, off by default): save copied steps and paste them into other iFlows. Uses internals of the SAP editor and a lot will not work, so it is hidden in the danger zone of the settings. Use at your own risk.
+- [Improvement] Unlock plugin: locked packages can be unlocked right from the package view. Thanks to Gregor Schütz.
+- [Improvement] jQuery and Fomantic UI are gone, about 3 MB less loaded into every CPI page. Dialogs and toasts take the look of the new toolbar and follow the light and dark CPI theme.
+- [Improvement] More robust plugins: one failing plugin no longer affects the others.
+- [Fix] Inline trace: steps that ran more than once (e.g. in a loop or after a splitter) open their trace again, and steps stay clickable after the message sidebar was closed or refreshed. Before, one failed click could block every further click.
+- [Fix] Inline trace: clicks on steps no longer stop working until a page refresh. Steps stayed unclickable after the inline trace was switched off and on again or switched to another message, and after a tab of a step (e.g. its trace) failed to load. A tab that fails now shows a notice instead.
+- [Fix] CPI Helper starts on the first load after the login redirect, also when the tenant opens on its start page.
+- [Fix] APIs and iFlows on the integration cell show their deploy state again, and the runtime picker marks where they are deployed.
+- [Fix] The CPI Helper button in the new shell header opens on the first click and no longer disappears. Thanks to Alexander Aigner.
+- [Fix] The CPI Helper popup no longer opens empty the first time. Thanks to Alexander Aigner.
+- [Fix] CPI Helper stops cleanly after the extension was reloaded or updated instead of flooding the console. Thanks to Alexander Aigner.
 `;

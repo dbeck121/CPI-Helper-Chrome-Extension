@@ -1,4 +1,4 @@
-# Plugin Engine (early beta)
+# Plugin Engine
 |[Home](/README.md)|[Contribution](/docs/readme/contributing.md)|[Code of conduct](/docs/readme/code_of_conduct.md)|[License](/docs/LICENSE)|
 |-|-|-|-|
 
@@ -26,6 +26,24 @@ In case of questions, please open an issue in github.
 6. please open a ticket and start discussion if you need more than the provided functions and objects
 7. Append any element under global cpihelper element. Must use `body().append` instead of `document.body.append` which directly append it to global tag.
 
+### UI helpers (since 4.0)
+
+jQuery and Fomantic UI are no longer part of CPI Helper. Plugins use plain DOM APIs and these globals from `common/ui-kit.js`:
+
+| FUNCTION | USE |
+| --- | --- |
+| `pluginHelper.functions.popup(content, title)` / `showBigPopup(content, title, options)` | the big CPI Helper popup, content is a string, a node or an async function |
+| `showToast(message, title, type)` / `cpihToast({ message, title, type, displayTime, closeIcon, position, onRemove })` | toast, type is `success`, `error`, `warning` or empty |
+| `cpihConfirm({ title, content, approveText, denyText })` | yes/no dialog, resolves with `true` or `false` |
+| `cpihModal.show(element, { closable, onShow, onHidden, onApprove, onDeny })` / `cpihModal.hide(element)` | own modals (`<div class="ui modal">` with `.header`, `.content`, `.actions`) |
+| `cpihActivateTab(context, name)` | switch tabs programmatically; `.ui.menu .item[data-tab]` + `.ui.tab[data-tab]` pairs work without any call |
+| `cpihTableSort(table)` | click to sort a table by its header cells |
+| `cpihSearch(container, { source, onSelect })` | autocomplete for a `.ui.search` block |
+| `cpihQs(selector)` / `cpihQsa(selector)` / `cpihIsDark()` | null safe query helpers, dark theme check |
+| `formatTrace(text, id)` | payload viewer (Ace editor with pretty print, search, fullscreen) |
+
+The markup keeps the familiar class names (`ui button`, `ui segment`, `ui message`, `ui table`, `ui form`, `ui toggle checkbox`, ...), they are styled by `css/ui.css` and follow the light and dark CPI theme. A failing hook is logged and does not affect other plugins.
+
 ## Plugin Implemetation metadata v1.0.0
 ### metadata description
  | FIELD NAME      | VALUE                     | DESCRIPTION                                                       |
@@ -50,9 +68,10 @@ defines the settings and appearance in plugin popup
  | textinput | "text": "URL", "placeholder": "https://example.com"   | optional placeholder shown when field is empty; works on any textinput scope | any |
  | checkbox  | "text": "xyz"                                          | a checkbox that is stored for each browser  | browser |
  | radio     | "text": "Pick an option", "options": [{value, label, default?}] | a radio button group; one option can be marked default: true; stored per browser | browser |
+ | select    | "text": "Interval", "options": [{value, label, default?}] | a dropdown; same options shape as radio, one option can be marked default: true | any |
  | icon      | "src" : "/images/plugin_logos/[your Image Source].png" | image for plugin page                       | NA      |
 
-**`showWhen`** (optional) — any setting can include `"showWhen": { "key": "<settingKey>", "value": "<settingValue>" }` to conditionally show it only when another setting in the same plugin equals the specified value. Commonly used to reveal a custom URL textinput only when a `radio` is set to `"custom"`.
+**`showWhen`** (optional) — any setting can include `"showWhen": { "key": "<settingKey>", "value": "<settingValue>" }` to conditionally show it only when another setting in the same plugin equals the specified value. Commonly used to reveal a custom URL textinput only when a `radio` is set to `"custom"`. A `select` toggles linked settings the same way.
 
 ### messageSidebarButton: 
 if you want to add a button to message sidebar
@@ -78,12 +97,27 @@ onClick:
  | not recommended | log.log(document.getElementById("__xmlview0--ceFileLabel-bdi").textContent) |
  | recommended     | log.log(document.querySelector('bdi[id$="--ceFileLabel-bdi"]').textContent) |
 
+### toolbarButton: 
+a button in the plugin section of the floating CPI Helper toolbar that runs an action directly, without a panel. Use it when your plugin would only render a single button anyway
+ | FIELD NAME | VALUE                                   | DESCRIPTION                                                              |
+ | ---------- | --------------------------------------- | ------------------------------------------------------------------------ |
+ | title      | "Undeploy"                              | label in the toolbar (defaults to the plugin name)                       |
+ | onClick    | (pluginHelper, settings) => {}          | runs on click, may be async                                              |
+ | icon       | "text": "xe088", "type": "icon"         | optional, same format as the messageSidebarButton icon                   |
+
+If a plugin has both `toolbarButton` and `messageSidebarContent`, only the toolbarButton is shown.
+
 ### messageSidebarContent Button: 
-can be used to show sth in message sidebar
- | FIELD NAME | VALUE                                    | DESCRIPTION                                                              |
- | ---------- | ---------------------------------------- | ------------------------------------------------------------------------ |
- | onRender   | (pluginHelper, settings) => {return div} | implement and return html element                                        |
- | static     | false                                    | set true to not reload plugin content with every message sidebar refresh |
+gives the plugin a button in the plugin section of the floating CPI Helper toolbar. A click opens a panel next to the toolbar that shows what `onRender` returns (before 4.0 this was the plugin area of the message sidebar). Use it for content: forms, inputs, several buttons, text.
+
+`onRender` also runs without the panel being opened: when the toolbar is built and, unless `static` is set, on every message refresh. A plugin that returns nothing from `onRender` only uses it as a hook and gets no toolbar button.
+ | FIELD NAME | VALUE                                    | DESCRIPTION                                                                                      |
+ | ---------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------ |
+ | onRender   | (pluginHelper, settings) => {return div} | implement and return html element                                                                |
+ | static     | false                                    | true: rendered once and kept (state like typed text stays). false: rendered again on every open  |
+ | icon       | "text": "xe088", "type": "icon"          | optional, same format as the messageSidebarButton icon: SAP UI5 icon or "type": "text" (3 letters) |
+
+Without `icon` the toolbar uses the plugin logo from `settings.icon`, else the initials of the plugin name.
 
 onRender parameter:
  | FIELD            | DESCRIPTION                                                                 |
@@ -157,7 +191,15 @@ var plugin = {
             return true;
         }
     },
-    messageSidebarContent: { //can be used to show data in message sidebar plugin area
+    toolbarButton: { //button in the plugin section of the toolbar that runs directly, no panel
+        "icon": { "text": "xe088", "type": "icon" }, //optional
+        "title": "Example Title", //defaults to the plugin name
+        "onClick": (pluginHelper, settings) => {
+            log.log("clicked");
+        }
+    },
+    messageSidebarContent: { //button in the plugin section of the toolbar, onRender fills the panel it opens
+        "icon": { "text": "xe088", "type": "icon" }, //optional, falls back to settings.icon, then to the initials of the name
         "onRender": (pluginHelper, settings) => { //implement and return html element
             console.log(pluginHelper);
             console.log(settings);
@@ -165,7 +207,7 @@ var plugin = {
             div.innerText = "Example content";
             return div; //html element to return.
         },
-        "static": false //set true to not reload plugin content with every message sidebar refresh
+        "static": false //true: rendered once and kept, false: rendered again every time the panel opens
     },
     scriptCollectionButton: { //a button that can be used to interact with script collection
         "icon": { "text": "E", "type": "text" },

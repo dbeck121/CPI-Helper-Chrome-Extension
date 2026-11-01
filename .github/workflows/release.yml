@@ -1,9 +1,8 @@
 # Name: Release on main
 # Trigger: Pushes to `main` (typically a merged PR from dev).
-# Action:  Reads version from manifest.json, downloads the zip artifact
-#          built by the most recent successful "Build extension on dev"
-#          run, then creates/updates the matching GitHub Release with
-#          that zip as an asset.
+# Action:  Reads version from manifest.json, builds the zip with zipFiles.sh
+#          from the pushed commit, then creates/updates the matching
+#          GitHub Release with that zip as an asset.
 
 name: Release on main
 
@@ -35,32 +34,12 @@ jobs:
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "CLEAN_VERSION=$CLEAN_VERSION" >> "$GITHUB_ENV"
 
-      - name: Find latest successful dev build
-        id: dev_run
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # built from the commit that was pushed to main, not from an earlier dev build
+      - name: Build zip
         run: |
-          RUN_ID=$(gh run list \
-            --workflow="Build extension on dev" \
-            --branch=dev \
-            --status=success \
-            --limit=1 \
-            --json databaseId \
-            --jq '.[0].databaseId')
-          if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
-            echo "No successful dev build found — cannot release."
-            exit 1
-          fi
-          echo "Using dev run ID: $RUN_ID"
-          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
-
-      - name: Download zip artifact from dev build
-        uses: actions/download-artifact@v8
-        with:
-          name: cpi-helper-extension
-          path: dist
-          run-id: ${{ steps.dev_run.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          chmod +x ./zipFiles.sh
+          ./zipFiles.sh
+          ls -l dist
 
       - name: Build release notes from whatsNewLog.js
         run: |

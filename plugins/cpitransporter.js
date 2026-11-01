@@ -13,17 +13,13 @@ var plugin = {
       type: "text",
     },
   },
-  messageSidebarContent: {
-    onRender: (pluginHelper, settings) => {
-      var button = document.createElement("button");
-      button.innerText = "New Transport";
-      button.addEventListener("click", () => {
-        var flow = pluginHelper.integrationFlowId;
-        var tenant = pluginHelper.tenant;
-        var url = "https://cpi-transporter.com/api/transport/?system=" + tenant + "&artifact=" + flow;
-        window.open(url, "_blank");
-      });
-      return button;
+  toolbarButton: {
+    title: "New Transport",
+    onClick: (pluginHelper, settings) => {
+      var flow = pluginHelper.integrationFlowId;
+      var tenant = pluginHelper.tenant;
+      var url = "https://cpi-transporter.com/api/transport/?system=" + tenant + "&artifact=" + flow;
+      window.open(url, "_blank");
     },
   },
 };

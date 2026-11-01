@@ -1,40 +1,70 @@
 function navigationButton() {
   //main Frame
-  if ($("#__cpihelper").length === 0) {
+  if (!document.getElementById("__cpihelper")) {
     log.log("adding navigation for main page");
-    cloudbutton = $(`<button id="__cpihelper" aria-label="CPI Helper" title="CPI Helper" class="sapMBtnBase sapMBtn sapMBarChild">
+    cloudbutton = createElementFromHTML(`<button id="__cpihelper" aria-label="CPI Helper" title="CPI Helper" class="sapMBtnBase sapMBtn sapMBarChild">
         <span id="__cpihelper-inner" class="sapMBtnInner sapMBtnHoverable sapMFocusable sapMBtnIconFirst sapMBtnTransparent">
           <span id="__cpihelper-img" data-sap-ui="__cpihelper-img" role="presentation" aria-hidden="true" data-sap-ui-icon-content="&#xe21d" class="sapUiIcon sapMBtnCustomIcon sapMBtnIcon sapMBtnIconLeft" style="font-family: SAP-icons;"></span>
         </span>
         <span id="__cpihelper-tooltip" class="sapUiInvisibleText">CPI Helper</span>
       </button>`);
-    $("#shell--toolHeader").children().eq(3).after(cloudbutton);
-    $("#__cpihelper").on(
-      "click",
-      async () =>
-        await showBigPopup(
-          `<div class="ui blue secondary pointing centered fluid menu">
+    document.getElementById("shell--toolHeader")?.children[3]?.after(cloudbutton);
+    keepNavigationButtonAlive();
+
+    // The button sits inside the UI5 managed tool header. UI5 drops every DOM node it did not
+    // render itself as soon as that header re-renders, and letting a mouse event reach UI5
+    // triggers exactly that - the button is gone before the click event is dispatched, so the
+    // first press only made it vanish instead of opening the popup. Keyboard focus is untouched.
+    cloudbutton.addEventListener("mousedown", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+    });
+
+    cloudbutton.addEventListener("click", async (event) => {
+      event.stopPropagation();
+      await showBigPopup(
+        `<div class="ui blue secondary pointing centered fluid menu">
     <div class="active item" data-tab="homepage">Search Credentials & Log Mode</div>
     <div class="item" data-tab="plugins">Plugins</div>
     </div>
     <div data-tab="homepage" class="ui loading tab"><div id="GlobalCH_Tab1"></div></div>
     <div data-tab="plugins" class="ui tab"><div id="GlobalCH_TabPlugins"></div></div>`,
-          "",
-          {
-            fullscreen: true,
-            callback: async () => {
-              $("#cpiHelper_bigPopup_content_semanticui .blue.menu.secondary .item").tab();
-              $("#GlobalCH_TabPlugins").append(await createContentNodeForPlugins());
-              await fromInitialLoadingTo();
-            },
-          }
-        ).then(async (e) => {
-          await defaultdebug();
-        })
-    );
+        "",
+        {
+          fullscreen: true,
+          callback: async () => {
+            const pluginContent = await createContentNodeForPlugins();
+            document.getElementById("GlobalCH_TabPlugins")?.appendChild(pluginContent);
+            await fromInitialLoadingTo();
+          },
+        }
+      ).then(async (e) => {
+        await defaultdebug();
+      });
+    });
   }
 }
-/*const icons = chrome.runtime.getManifest().icons | chrome.runtime.getURL(icons['16'])*/
+
+var navigationButtonObserver = null;
+var navigationButtonObservedHeader = null;
+
+// UI5 still re-renders the tool header on its own (theme change, navigation) and takes the button
+// with it. The 3 second heartbeat puts it back, but late enough to be visible - re-add it as soon
+// as the header children change instead.
+function keepNavigationButtonAlive() {
+  const header = document.getElementById("shell--toolHeader");
+  if (!header || header === navigationButtonObservedHeader) return;
+  if (navigationButtonObserver) navigationButtonObserver.disconnect();
+  navigationButtonObserver = new MutationObserver(() => {
+    if (!extensionAlive()) {
+      navigationButtonObserver.disconnect();
+      return;
+    }
+    navigationButton();
+  });
+  navigationButtonObserver.observe(header, { childList: true });
+  navigationButtonObservedHeader = header;
+}
 async function getSecurityNamelist() {
   const response = JSON.parse(await makeCallPromise("GET", "/" + cpiData.urlExtension + "Operations/com.sap.it.km.api.commands.SecurityMaterialsListCommand", false, "application/json"))
     .artifactInformations.filter((e) => (e.deployState = "DEPLOYED"))
@@ -68,7 +98,7 @@ async function getSecurityNamelist() {
 }
 
 async function fromInitialLoadingTo() {
-  const data_content = $(`
+  const data_content = createElementFromHTML(`
     <div class="ui container form-container" style='margin:1em'>
      <h3 class="ui header">Find Credentials from Security Matrials:</h3>
       <div class="ui search">
@@ -114,14 +144,13 @@ async function fromInitialLoadingTo() {
           </div>
       </div>
     </div>`);
-  $("#GlobalCH_Tab1").append(data_content);
-  $("#GlobalCH_Tab1").parent().removeClass("loading");
-  $(".ui.search").search({
+  const tab1 = document.getElementById("GlobalCH_Tab1");
+  tab1?.appendChild(data_content);
+  tab1?.parentElement?.classList.remove("loading");
+  cpihSearch(data_content.querySelector(".ui.search"), {
     source: await getSecurityNamelist(),
-    preserveHTML: false,
-    onSelect: (result, resp) => copyText(result.title),
+    onSelect: (result) => copyText(result.title),
     searchFields: ["title"],
-    type: "category",
     minCharacters: 1,
   });
 }
