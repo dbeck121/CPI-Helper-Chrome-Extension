@@ -91,10 +91,9 @@ async function whatsNewCheck(showOnlyOnce = true, initialTab = null) {
   
      <div class="ui header">This release is sponsored by Figaf </div>
 
-<p>Why rebuild hundreds of mappings that already work?</p>
-<p>Moving to SAP Integration Suite does not mean you have to rebuild everything as MAGs from day one. Keep what works. Modernize where it adds value.</p>
-<p><a href="https://figaf.com/cpihelper27" target="_blank"><u>👉 Read the 10 things to know</u></a> before you start</div>
-</p>
+<p><b>Migrating from SAP PO to Integration Suite?</b></p>
+<p>Manual fixes slow every migration down. Figaf Migration Edition helps you migrate, fix and test faster. Simplify your migration with built-in automation.</p>
+<p><a href="https://figaf.com/figaf-migration-edition/" target="_blank"><u>👉 Start free</u></a></p>
 
 
                     </div>

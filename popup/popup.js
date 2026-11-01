@@ -474,13 +474,11 @@ function renderSettings(state) {
       <summary>Need more help / details?</summary>
       <div class="help-body">
         <h3>I-flow page shortcuts</h3>
-        <p>Press <kbd>Alt</kbd> (Chrome/Edge) or <kbd>Alt</kbd> + <kbd>Shift</kbd> (Firefox) together with:</p>
+        <p>Press <kbd>Alt</kbd> (Chrome/Edge), <kbd>Alt</kbd> + <kbd>Shift</kbd> (Firefox) or <kbd>Ctrl</kbd> + <kbd>Option</kbd> (macOS) together with:</p>
         <div class="shortcuts">
-          <span>Logs <kbd>1</kbd></span>
           <span>Trace <kbd>2</kbd></span>
           <span>Messages <kbd>3</kbd></span>
           <span>Info <kbd>4</kbd></span>
-          <span>Plugins <kbd>5</kbd></span>
           <span>Search <kbd>S</kbd></span>
         </div>
         <p>On every CPI page <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>K</kbd> searches artifacts, packages and pages of the tenant.</p>
