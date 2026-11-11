@@ -9,7 +9,7 @@
     website: "https://www.linkedin.com/in/jorgersa/",
     email: "jorgesa.developer@gmail.com",
     description:
-      "Generates an XSD from a sample XML, for the source and target schema of a message mapping. Paste or load the XML, choose the schema design and copy or download the XSD, or add it as a schema resource to the iFlow you have open. Repeated elements become unbounded, everything is optional by default, value types are inferred from the sample. The XSD is generated in your browser, adding it to an iFlow only talks to your own tenant.",
+      "Generates an XSD from a sample XML, for the source and target schema of a message mapping. Paste or load the XML, choose the schema design and copy or download the XSD, or add it as a schema resource to the iFlow you have open (the iFlow must be in Edit mode). Repeated elements become unbounded, everything is optional by default, value types are inferred from the sample. The XSD is generated in your browser, adding it to an iFlow only talks to your own tenant.",
     settings: {},
     toolbarButton: {
       title: "XML to XSD",
@@ -59,6 +59,7 @@
         <button type="button" class="ui primary button cpihXsd_upload" disabled>Add to iFlow</button>
         <input type="file" class="cpihXsd_file" accept=".xml,text/xml,application/xml" hidden />
       </div>
+      <p class="cpihXsd_hint" style="margin: 0.75rem 0 0; font-size: 0.8125rem; opacity: 0.75">Add to iFlow only works while the iFlow is open in <b>Edit</b> mode. Click Edit in the editor first.</p>
     </div>`;
 
   // the schema upload of the iFlow editor: POST of a multipart form, the file lands in src/main/resources/xsd
@@ -135,7 +136,7 @@
     form.append("__uploader2-data", JSON.stringify({ additionalData: [{ fileName, contentType: "application/x.generic.xsd", sourceResourceType: "xsd" }] }));
     // no content type: the browser adds the multipart boundary
     const response = await makeCallPromiseV2("POST", `${resourceUrl}?${RESOURCE_UPLOAD_QUERY}`, false, "application/json", form, true, null, false);
-    if (!response.successful) throw new Error(describeFailure(response, "SAP did not accept the schema. Is the iFlow in edit mode?"));
+    if (!response.successful) throw new Error(describeFailure(response, "SAP did not accept the schema. The iFlow must be open in Edit mode, click Edit in the editor and try again."));
 
     let result;
     try {
@@ -164,7 +165,7 @@
     let nameEdited = false;
 
     nameField.parentElement.style.maxWidth = "28rem";
-    uploadButton.title = integrationFlowId ? `Add the schema as a resource of '${integrationFlowId}'` : "Open an integration flow to add the schema to it";
+    uploadButton.title = integrationFlowId ? `Add the schema as a resource of '${integrationFlowId}'. The iFlow must be in Edit mode.` : "Open an integration flow in Edit mode to add the schema to it";
 
     const setStatus = (type, text) => {
       status.className = `cpihXsd_status ui ${type} message`;
