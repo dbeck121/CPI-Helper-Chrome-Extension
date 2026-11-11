@@ -5,8 +5,8 @@
     id: "xmlToXsd",
     name: "XML to XSD",
     version: "1.0.0",
-    author: "Jorge",
-    website: "https://github.com/19jmrs",
+    author: "Jorge Sá",
+    website: "https://www.linkedin.com/in/jorgersa/",
     email: "jorgesa.developer@gmail.com",
     description:
       "Generates an XSD from a sample XML, for the source and target schema of a message mapping. Paste or load the XML, choose the schema design and copy or download the XSD. Repeated elements become unbounded, elements and attributes missing in some instances become optional, value types are inferred from the sample. Nothing leaves your browser.",
