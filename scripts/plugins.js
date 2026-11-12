@@ -85,6 +85,47 @@ async function getToolbarPlugins() {
   return entries;
 }
 
+// plugins for the global toolbar (pages without an artifact, e.g. Monitoring). Only plugins that opt in with
+// toolbarButton.globalToolbar or messageSidebarContent.globalToolbar, and only while their
+// condition(cpiData) holds, so a plugin can show up on one page only. A panel plugin renders on every open
+async function getGlobalToolbarPlugins() {
+  const entries = [];
+  for (const plugin of await getActivePlugins()) {
+    if (plugin.toolbarButton?.onClick && plugin.toolbarButton.globalToolbar) {
+      if (pluginConditionMet(plugin, "toolbarButton", cpiData)) entries.push({ plugin, kind: "button" });
+    } else if (plugin.messageSidebarContent?.onRender && plugin.messageSidebarContent.globalToolbar) {
+      if (pluginConditionMet(plugin, "messageSidebarContent", cpiData)) entries.push({ plugin, kind: "panel" });
+    }
+  }
+  return entries;
+}
+
+// adds the entries of getToolbarPlugins() / getGlobalToolbarPlugins() to the floating toolbar
+function addPluginToolbarEntries(toolbar, entries) {
+  for (const { plugin, kind } of entries) {
+    const entry = {
+      id: `cpiHelperToolbarPlugin--${plugin.id}`,
+      iconNode: createPluginToolbarIcon(plugin),
+      title: plugin.toolbarButton?.title || plugin.messageSidebarContent?.title || plugin.name,
+    };
+    if (kind === "button") {
+      addFloatingToolbarButton(toolbar, {
+        ...entry,
+        onClick: async () => {
+          try {
+            await plugin.toolbarButton.onClick(cpiData, await getPluginSettings(plugin.id));
+          } catch (error) {
+            log.error(`plugin ${plugin.id}: toolbarButton.onClick failed`, error);
+            showToast("The plugin failed, see the browser console for details.", plugin.name, "error");
+          }
+        },
+      });
+    } else {
+      addFloatingToolbarPanelButton(toolbar, { ...entry, render: () => getPluginPanelContent(plugin) });
+    }
+  }
+}
+
 // toolbarButton.icon or messageSidebarContent.icon, like messageSidebarButton.icon ({ type: "icon", text: "xe088" }
 // for SAP-icons, { type: "text", text: "VH" }); without it the plugin logo from settings.icon, else the initials
 function createPluginToolbarIcon(plugin) {
