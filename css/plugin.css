@@ -88,3 +88,310 @@ tr.yellow > td,
 tr > td.yellow {
   background-color: var(--cpih-warning-bg) !important;
 }
+
+/* connectivityCredentialsManager (Connectivity Profile Manager) */
+/* toolbar panel: built on the Recent panel classes (cpiHelper_recent_*), only the extras here */
+.cpihConn-panel {
+  width: 300px;
+  max-width: 100%;
+}
+
+.cpihConn-panel .cpiHelper_recent_heading:first-child {
+  margin-top: 0;
+}
+
+.cpihConn-panel .cpiHelper_recent_heading:not(:first-child) {
+  margin-top: 12px;
+}
+
+.cpihConn-panelRow {
+  cursor: pointer;
+}
+
+.cpihConn-panelText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cpihConn-panelView {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  color: var(--sapContent_IconColor, #556b82);
+  opacity: 0.6;
+}
+
+.cpihConn-panelRow:hover .cpihConn-panelView,
+.cpihConn-panelView:focus-visible {
+  opacity: 1;
+}
+
+.cpihConn-panelView:hover {
+  color: var(--sapLinkColor, #0064d9);
+  background: var(--sapButton_Lite_Hover_Background, rgba(0, 100, 217, 0.08));
+}
+
+.cpihConn-panelView .icon {
+  margin: 0;
+}
+
+.cpihConn-panelEmpty,
+.cpihConn-panelOther {
+  margin: 4px 0 0;
+  color: var(--sapContent_LabelColor, #556b82);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.cpihConn-panelSave.ui.form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.cpihConn-panelSave.ui.form input {
+  flex: 1;
+  min-width: 0;
+  min-height: 1.875rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.cpihConn-panelSave .ui.button {
+  flex: none;
+  margin: 0 !important;
+}
+
+.cpihConn-panelLinks {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--sapGroup_ContentBorderColor, #d9d9d9);
+  font-size: 0.8125rem;
+}
+
+.cpihConn-panelLinks a,
+.cpihConn-panelLinks a:visited {
+  color: var(--sapLinkColor, #0064d9);
+  text-decoration: none;
+}
+
+.cpihConn-panelLinks a:hover {
+  text-decoration: underline;
+}
+
+.cpihConn-hint {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: var(--cpih-orange);
+}
+
+/* modals (Manage, details, Help) */
+.cpihConn-lead {
+  margin: 0 0 0.75rem;
+  color: var(--cpih-text-muted);
+}
+
+.cpihConn .ui.list .description {
+  line-height: 1.45;
+}
+
+.cpihConn .ui.message {
+  margin-bottom: 0;
+}
+
+.cpihConn-section-title {
+  margin: 0 0 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--cpih-text-muted);
+}
+
+.cpihConn-muted {
+  color: var(--cpih-text-muted);
+}
+
+.cpihConn-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--cpih-border);
+  border-radius: var(--cpih-radius);
+  background: var(--cpih-bg);
+  overflow: hidden;
+}
+
+.cpihConn-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3rem;
+  padding: 0.5rem 0.5rem 0.5rem 0.875rem;
+}
+
+.cpihConn-row + .cpihConn-row {
+  border-top: 1px solid var(--cpih-border);
+}
+
+.cpihConn-row > .icon {
+  flex: none;
+  margin: 0;
+  color: var(--cpih-text-muted);
+}
+
+.cpihConn-row-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cpihConn-row-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cpihConn-row-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-top: 0.125rem;
+  font-size: 0.8125rem;
+  color: var(--cpih-text-muted);
+}
+
+.cpihConn-row-meta .ui.label {
+  margin: 0;
+}
+
+.cpihConn-dot {
+  opacity: 0.6;
+}
+
+.cpihConn-row-actions {
+  display: flex;
+  flex: none;
+  gap: 0.125rem;
+}
+
+.cpihConn-row-actions .ui.button {
+  margin: 0;
+  min-height: 2rem;
+}
+
+.cpihConn-row-actions .ui.button.cpihConn-delete {
+  color: var(--cpih-negative);
+}
+
+.cpihConn-row-actions .ui.button.cpihConn-delete:hover {
+  background: var(--cpih-error-bg);
+}
+
+.cpihConn-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--cpih-border);
+  border-radius: var(--cpih-radius);
+  background: var(--cpih-bg);
+}
+
+.cpihConn-facts span {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--cpih-text-muted);
+}
+
+.cpihConn-facts strong {
+  font-weight: 600;
+}
+
+.cpihConn-table td {
+  vertical-align: top;
+}
+
+.cpihConn-table td:first-child {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cpihConn-value {
+  font-family: var(--cpih-mono);
+  font-size: 0.8125rem;
+  word-break: break-all;
+}
+
+/* busy indicator while a profile is filled in: same card as the CPI Helper modals */
+.cpihConn-busy {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.cpihConn-busy-card {
+  width: min(360px, 90vw);
+  font-family: var(--cpih-font);
+  font-size: 0.875rem;
+  color: var(--cpih-text);
+  background: var(--cpih-glass);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--cpih-border);
+  border-radius: var(--cpih-card-radius);
+  box-shadow: var(--cpih-shadow-strong);
+  overflow: hidden;
+}
+
+.cpihConn-busy-header {
+  padding: 0.5rem 0.75rem;
+  font-weight: 600;
+  color: var(--cpih-header-text);
+  background: var(--cpih-glass-header);
+}
+
+.cpihConn-busy-body {
+  padding: 1rem 1.25rem 1.125rem;
+}
+
+.cpihConn-busy-name {
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cpihConn-progress {
+  height: 0.375rem;
+  border-radius: 999px;
+  background: var(--cpih-bg-hover);
+  overflow: hidden;
+}
+
+.cpihConn-progress-bar {
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--cpih-brand);
+  transition: width 0.25s ease;
+}
+
+.cpihConn-busy-status {
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--cpih-text-muted);
+}
