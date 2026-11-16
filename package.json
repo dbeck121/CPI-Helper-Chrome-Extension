@@ -3,7 +3,10 @@
   "private": true,
   "description": "Development tooling only, not part of the extension zip",
   "scripts": {
-    "test": "node tests/formatter.test.js && node tests/inline-trace-custom-step-ids.js && node tests/manifest-matching.test.js && node tests/global-toolbar.test.js && node tests/snippet-clipboard.test.js",
+    "test": "node tests/formatter.test.js && node tests/inline-trace-custom-step-ids.js && node tests/manifest-matching.test.js && node tests/global-toolbar.test.js && node tests/snippet-clipboard.test.js && npm run test:kate",
+    "test:kate": "npm run test:kate:pins",
+    "test:kate:pins": "node tests/kate-pins/kate-split.test.js && node tests/kate-pins/kate-pin-interactions.test.js && node tests/kate-pins/kate-background-events.test.js",
+    "test:kate:browser": "node tests/kate-pins/kate-browser.test.mjs",
     "e2e:browser": "node tests/e2e/browser.mjs",
     "e2e": "playwright test --config tests/e2e/playwright.config.mjs",
     "e2e:headed": "playwright test --config tests/e2e/playwright.config.mjs --headed"

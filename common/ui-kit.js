@@ -85,6 +85,9 @@ const cpihModal = (() => {
   }
 
   function show(target, settings) {
+    // Pins marks the right-hand tab as hidden; reject before changing the modal
+    // stack or focus. CSS alone would hide the dialog but leave it logically open.
+    if (document.documentElement.dataset.cpihUi === "hidden") return null;
     const modal = cpihQs(target);
     if (!modal) return null;
     if (settings) settingsOf.set(modal, { closable: true, ...settings });
@@ -175,6 +178,9 @@ const cpihModal = (() => {
 
 // Replacement for $.modal("confirm", ...). Resolves with true (yes) or false (no / closed).
 function cpihConfirm({ title = "Are you sure?", content = "", approveText = "Yes", denyText = "No" } = {}) {
+  // Cancel explicitly in the right-hand pin tab. Suppressing show() alone would
+  // leave this promise pending because the dialog never receives onHidden.
+  if (document.documentElement.dataset.cpihUi === "hidden") return Promise.resolve(false);
   return new Promise((resolve) => {
     const modal = document.createElement("div");
     modal.className = "cpiHelper ui tiny modal cpiHelper_confirm_modal";

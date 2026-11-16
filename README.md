@@ -632,6 +632,8 @@ Run steps exist for messages with log level trace and for a short time for faile
 
 Active plugins have their own section in the toolbar. A plugin with a single action runs it directly, a plugin with more content opens a panel next to the toolbar. Switch plugins on and off under **Manage plugins**.
 
+[KaTe · Pins](/docs/plugins/katePins.md) saves up to five SAP views per tenant and opens them beside your working view. Requires Google Chrome 155+ with native Split View available.
+
 ![Compact toolbar with an open plugin panel](https://raw.githubusercontent.com/dbeck121/CPI-Helper-Chrome-Extension/main/images/whatsnew/4.0-plugins.png)
 
 ### Browser popup
