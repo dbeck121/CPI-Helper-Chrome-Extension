@@ -18,6 +18,10 @@
     "https://*.platform.sapcloud.cn/shell"
   ],
   "permissions": ["storage"],
+  "background": {
+    "service_worker": "plugins/kate-background.js",
+    "scripts": ["plugins/kate-background.js"]
+  },
   "content_scripts": [
     {
       "matches": ["https://*.hana.ondemand.com/*", "https://*.platform.sapcloud.cn/*"],
@@ -68,6 +72,7 @@
         "/plugins/environmentTrafficLight.js",
         "/plugins/cpitransporter.js",
         "/plugins/figaf.js",
+        "/plugins/kate.js",
         "/plugins/WHINT_IFD.js",
         "/plugins/settingsPaneResizer.js",
         "/plugins/timeline.js",
