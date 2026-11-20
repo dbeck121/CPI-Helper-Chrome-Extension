@@ -3,14 +3,12 @@ var plugin = {
   id: "credentialHelper",
   name: "Credential Helper",
   version: "1.0.0",
-  author: "Gregor Schütz, AGILITA AG",
-  website: "https://www.agilita.ch/",
-  email: "gregor.schuetz@agilita.ch",
+  author: "Gregor Schütz",
+  website: "",
+  email: "gregor.b.schuetz@gmail.com",
   description:
     "Provides a search help for existing credential names and key aliases <br><br><b>Supported Adapters are:</b></br> AMQP, Ariba, AS2, AS4, Elster, Facebook, FTP, OData, HTTP, IDOC, JDBC, Kafka, LDAP, Mail, MDI, ODC, SFTP, SOAP, SuccessFactors, Twitter, XI</br>",
-  settings: {
-    icon: { type: "icon", src: "/images/plugin_logos/AGILITAAG_Logo.jpg" },
-  },
+  settings: {},
   messageSidebarContent: {
     static: true,
     onRender: (pluginHelper) => {

@@ -4,43 +4,29 @@ function workingIndicator(status) {
   if (!document.querySelector("#cpiHelper_workingIndicator")) {
     body().appendChild(createElementFromHTML(`<i id='cpiHelper_workingIndicator' class='sync alternate loading icon' hidden></i>`));
   }
-  var x = $("#cpiHelper_workingIndicator");
-  status ? x.removeAttr("hidden") : x.attr("hidden", "");
+  document.querySelector("#cpiHelper_workingIndicator").hidden = !status;
 }
 
 //snackbar for messages (e.g. trace is on)
 function showToast(message, title, type = "") {
   //type = success, error, warning
-  $.toast({
-    class: type + ($("html").hasClass("sapUiTheme-sap_horizon_dark") ? " ch_dark " : ""),
-    position: "bottom center",
-    showProgress: "bottom",
-    ...(title ? { title: title } : {}),
-    message,
-    newestOnTop: true,
-  });
+  return cpihToast({ message, title, type });
 }
 function showWaitingPopup(content = undefined, classname = "small", title = "CPI Helper Is thinking", time = undefined) {
-  $("#cpiHelper_waiting_model").html(`
+  const waitingModal = document.querySelector("#cpiHelper_waiting_model") || (createGlobalId(), document.querySelector("#cpiHelper_waiting_model"));
+  waitingModal.className = `cpiHelper ui modal ${classname || ""}`;
+  waitingModal.innerHTML = `
       <div class="ui positive  icon message">
         <i class="sync alternate loading icon"></i>
         <div class="content">
           <div class="header">${title}</div>
           <p>${content || `Please Wait while we fetch content for you.`}</p>
         </div>
-    </div>`);
-  $("#cpiHelper_waiting_model")
-    .modal({
-      class: classname,
-      closeIcon: false,
-      blurring: true,
-      closable: true,
-      detachable: false,
-    })
-    .modal("show");
+    </div>`;
+  cpihModal.show(waitingModal, { closable: true });
   if (time) {
     setTimeout(() => {
-      $("#cpiHelper_waiting_model").modal("hide");
+      cpihModal.hide("#cpiHelper_waiting_model");
     }, time);
   }
 }
@@ -55,7 +41,7 @@ async function showBigPopup(
     callback: null,
     closeText: "Close",
     onclose: () => {
-      $("#cpiHelper_waiting_model, #cpiHelper_semanticui_modal").modal("hide");
+      cpihModal.hide(["#cpiHelper_waiting_model", "#cpiHelper_semanticui_modal"]);
     },
   },
   count = 0,
@@ -74,16 +60,16 @@ async function showBigPopup(
   }
 
   if (!parameters.closeText) parameters.closeText = "Close";
-  $("#cpiHelper_waiting_model, #cpiHelper_semanticui_modal").modal("hide");
-  var $modal = $("#cpiHelper_semanticui_modal");
-  if ($modal.length) {
-    $modal.attr("class", "cpiHelper ui modal");
+  cpihModal.hide(["#cpiHelper_waiting_model", "#cpiHelper_semanticui_modal"]);
+  var modal = document.querySelector("#cpiHelper_semanticui_modal");
+  if (modal) {
+    modal.className = "cpiHelper ui modal";
     if (parameters.large) {
-      $modal.addClass("large");
+      modal.classList.add("large");
     }
 
-    $modal.html(`
-          <i class="close icon" style="color:var(--cpi-text-color)"></i>
+    modal.innerHTML = `
+          <i class="close icon"></i>
           <div class="header" maxcount="${maxcount}" count="${count}">
             CPI Helper ${header ? "- " + header : ""}
           </div>
@@ -99,23 +85,21 @@ async function showBigPopup(
             ${maxcount && count !== maxcount - 1 ? '<div class="ui positive animated button"><div class="visible content">Next</div><div class="hidden content"><i class="angle double right icon"></i></div></div>' : ""}
             <div class="${buttonParameters.join(" ")}">${icon}${parameters.closeText}</div>
           </div>
-        `);
+        `;
 
     if (maxcount > 0) {
       ["negative", "positive"].forEach((type, index) => {
-        const $button = $modal.find(`.${type}`);
-        if ($button.length) {
-          $button.on("click", () => {
-            const sortedArray = $(".cpiHelper_onclick[inline_cpi_child]")
-              .map((_, e) => parseInt($(e).attr("inline_cpi_child"), 10))
-              .get()
-              .sort((a, b) => a - b);
-            console.log(sortedArray, $("#cpiHelper_semanticui_modal .header").attr("count"), sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")], index === 0 ? "previous" : "next");
-            if (sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")]) {
-              let element = findNearest(sortedArray, sortedArray[$("#cpiHelper_semanticui_modal .header").attr("count")], index === 0 ? "previous" : "next");
-              $(`[inline_cpi_child=${element}] .cpiHelper_inlineInfo`).trigger("click");
+        const button = modal.querySelector(`.actions .${type}.animated`);
+        if (button) {
+          button.addEventListener("click", () => {
+            const sortedArray = [...document.querySelectorAll(".cpiHelper_onclick[inline_cpi_child]")].map((e) => parseInt(e.getAttribute("inline_cpi_child"), 10)).sort((a, b) => a - b);
+            const currentCount = modal.querySelector(".header")?.getAttribute("count");
+            console.log(sortedArray, currentCount, sortedArray[currentCount], index === 0 ? "previous" : "next");
+            if (sortedArray[currentCount]) {
+              let element = findNearest(sortedArray, sortedArray[currentCount], index === 0 ? "previous" : "next");
+              document.querySelector(`[inline_cpi_child="${element}"] .cpiHelper_inlineInfo`)?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
               showToast(`${index ? "Next" : "Previous"} Step ${element} will be displayed shortly`);
-              $modal.modal("hide");
+              cpihModal.hide(modal);
               showWaitingPopup();
             } else {
               showToast(`${index ? "Next" : "Previous"} Step is not found`, "something went wrong", "error");
@@ -125,122 +109,115 @@ async function showBigPopup(
       });
     }
 
-    var $infocontent = $("#cpiHelper_bigPopup_content_semanticui");
+    var infocontent = document.querySelector("#cpiHelper_bigPopup_content_semanticui");
 
     if (typeof content === "string") {
-      $infocontent.html(content);
+      infocontent.innerHTML = content;
     } else if (typeof content === "object") {
-      $infocontent.empty().append(content);
+      infocontent.replaceChildren(content);
     } else if (typeof content === "function") {
       const result = await content();
-      $infocontent.empty().append(result);
+      if (typeof result === "string") infocontent.innerHTML = result;
+      else infocontent.replaceChildren(result);
     }
 
     if (parameters.callback) {
       parameters.callback();
     }
 
-    $modal
-      .toggleClass("fullscreen", parameters.fullscreen)
-      .modal({
-        detachable: false,
-        blurring: true,
-        autoShow: true,
-        onShow: function () {
-          if (!$modal.parent().is("#cpihelperglobal")) {
-            $("#cpihelperglobal").append($modal); // Ensuring the modal stays within its parent container
-          }
-        },
-        onHidden: function () {
-          if (parameters.onclose && parameters.onclose instanceof Function) {
-            parameters.onclose();
-          }
-        },
-      })
-      .modal("show");
+    modal.classList.toggle("fullscreen", !!parameters.fullscreen);
+    cpihModal.show(modal, {
+      onHidden: function () {
+        if (parameters.onclose && parameters.onclose instanceof Function) {
+          parameters.onclose();
+        }
+      },
+    });
   } else {
     showToast("", "Element is missing.. Reload the page", "error");
   }
 }
 
+// fills a tab panel from a content function. a failing tab shows a notice instead of breaking the whole tab set
+async function fillTabContent(contentElement, object) {
+  try {
+    const contentResponse = await object.content(object);
+    if (typeof contentResponse == "object") {
+      contentElement.innerHTML = "";
+      contentElement.appendChild(contentResponse);
+    }
+    if (typeof contentResponse == "string") {
+      contentElement.innerHTML = contentResponse;
+    }
+    if (typeof contentResponse == "function") {
+      contentElement.innerHTML = contentResponse(object);
+    }
+  } catch (error) {
+    log.warn("content of tab could not be loaded", error);
+    contentElement.innerHTML = '<div class="cpiHelper_infoPopUp_content">The content could not be loaded.</div>';
+  }
+}
+
+// no Promise wrapper around an async executor here: an error inside it left the promise pending forever,
+// so the caller (e.g. a click on an inline trace step) never finished
 async function createTabHTML(objects, idPart, overwriteActivePosition) {
-  return new Promise(async (resolve, reject) => {
-    /*
-      {label:"Hallo",
-       content: "",
-       active}
+  /*
+    {label:"Hallo",
+     content: "",
+     active}
+  }
+  */
+
+  // local: tab sets are nested (one per run of a step, each with its own Properties, Headers, ...) and the inner
+  // call runs while the outer one waits for its first tab
+  const html = document.createElement("div");
+  html.classList.add("cpiHelper_tabs");
+
+  let checked = 'checked=""';
+  for (let i = 0; i < objects.length; i++) {
+    checked = "";
+    if ((overwriteActivePosition != null && overwriteActivePosition == i) || (overwriteActivePosition != null && overwriteActivePosition == objects[i].label) || (overwriteActivePosition == null && objects[i].active)) {
+      checked = 'checked="checked"';
     }
-    */
 
-    html = document.createElement("div");
-    html.classList.add("cpiHelper_tabs");
+    //input button
+    let input = createElementFromHTML(`<input name="tabs-${idPart}" type="radio" id="tab-${idPart}-${i}" ${checked} class="cpiHelper_tabs_input"/>`);
 
-    let checked = 'checked=""';
-    for (let i = 0; i < objects.length; i++) {
-      checked = "";
-      if ((overwriteActivePosition != null && overwriteActivePosition == i) || (overwriteActivePosition != null && overwriteActivePosition == objects[i].label) || (overwriteActivePosition == null && objects[i].active)) {
-        checked = 'checked="checked"';
-      }
-
-      //input button
-      let input = createElementFromHTML(`<input name="tabs-${idPart}" type="radio" id="tab-${idPart}-${i}" ${checked} class="cpiHelper_tabs_input"/>`);
-
-      if (typeof objects[i].content == "function") {
-        input.onclick = async (event) => {
-          let contentElement = document.getElementById(idPart + "-" + i + "-content");
-          if (contentElement.innerHTML == '<div class="cpiHelper_infoPopUp_content">Please Wait...</div>') {
-            let contentResponse = await objects[i].content(objects[i]);
-            if (typeof contentResponse == "object") {
-              contentElement.innerHTML = "";
-              contentElement.appendChild(contentResponse);
-            }
-            if (typeof contentResponse == "string") {
-              contentElement.innerHTML = contentResponse;
-            }
-            if (typeof contentResponse == "function") {
-              contentElement.innerHTML = contentResponse(objects[i]);
-            }
-          }
-        };
-      }
-
-      let label = createElementFromHTML(`<label for="tab-${idPart}-${i}" class="cpiHelper_tabs_label">${objects[i].label}</label>`);
-
-      //content of tab
-      let content = createElementFromHTML(` <div id="${idPart}-${i}-content" class="cpiHelper_tabs_panel"></div>`);
-
-      if (typeof objects[i].content == "string") {
-        content.innerHTML = objects[i].content;
-      }
-
-      if (typeof objects[i].content == "object") {
-        content.appendChild(objects[i].content);
-      }
-
-      if (typeof objects[i].content == "function") {
-        content.innerHTML = '<div class="cpiHelper_infoPopUp_content">Please Wait...</div>';
-        if (objects[i].active) {
-          let contentResponse = await objects[i].content(objects[i]);
-          if (typeof contentResponse == "object") {
-            content.innerHTML = "";
-            content.appendChild(contentResponse);
-          }
-          if (typeof contentResponse == "string") {
-            content.innerHTML = contentResponse;
-          }
-          if (typeof contentResponse == "function") {
-            content.innerHTML = contentResponse(objects[i]);
-          }
+    if (typeof objects[i].content == "function") {
+      input.onclick = async (event) => {
+        let contentElement = document.getElementById(idPart + "-" + i + "-content");
+        if (contentElement.innerHTML == '<div class="cpiHelper_infoPopUp_content">Please Wait...</div>') {
+          await fillTabContent(contentElement, objects[i]);
         }
-      }
-
-      html.appendChild(input);
-      html.appendChild(label);
-      html.appendChild(content);
+      };
     }
 
-    return resolve(html);
-  });
+    let label = createElementFromHTML(`<label for="tab-${idPart}-${i}" class="cpiHelper_tabs_label">${objects[i].label}</label>`);
+
+    //content of tab
+    let content = createElementFromHTML(` <div id="${idPart}-${i}-content" class="cpiHelper_tabs_panel"></div>`);
+
+    if (typeof objects[i].content == "string") {
+      content.innerHTML = objects[i].content;
+    }
+
+    if (typeof objects[i].content == "object") {
+      content.appendChild(objects[i].content);
+    }
+
+    if (typeof objects[i].content == "function") {
+      content.innerHTML = '<div class="cpiHelper_infoPopUp_content">Please Wait...</div>';
+      if (objects[i].active) {
+        await fillTabContent(content, objects[i]);
+      }
+    }
+
+    html.appendChild(input);
+    html.appendChild(label);
+    html.appendChild(content);
+  }
+
+  return html;
 }
 
 // Function to show license popup
@@ -308,18 +285,18 @@ async function openIflowInfoPopup() {
       `;
     x.appendChild(createElementFromHTML(textElement));
     textElement = `<div class="cpiHelper_infoPopUp_items">
-      <div>Name: ${cpiData?.flowData?.artifactInformation?.name}</div>
-      <div>Runtime: ${cpiData.runtimeLocationId}</div>
-      <div>SymbolicName: ${cpiData?.flowData?.artifactInformation?.symbolicName}</div>
+      <div>Name: <span class="cpiHelper_copyable">${cpiData?.flowData?.artifactInformation?.name}</span></div>
+      <div>Runtime: <span class="cpiHelper_copyable">${cpiData.runtimeLocationId}</span></div>
+      <div>SymbolicName: <span class="cpiHelper_copyable">${cpiData?.flowData?.artifactInformation?.symbolicName}</span></div>
       <div>DeploymentState: ${cpiData?.flowData?.artifactInformation?.deployState}</div>
       ${
         cpiData?.flowData?.artifactInformation?.deployState !== "UNDEPLOYED"
           ? `
       <div>Trace: ${cpiData?.flowData?.logConfiguration?.traceActive}</div>
-      <div>DeployedVersion: ${cpiData?.flowData?.artifactInformation?.version}</div>
+      <div>DeployedVersion: <span class="cpiHelper_copyable">${cpiData?.flowData?.artifactInformation?.version}</span></div>
       <div>DeployedOn: ${deployedOn}</div>
       <div>SemanticState: ${cpiData?.flowData?.artifactInformation?.semanticState}</div>
-      <div>DeployedBy: ${cpiData?.flowData?.artifactInformation?.deployedBy}</div>
+      <div>DeployedBy: <span class="cpiHelper_copyable">${cpiData?.flowData?.artifactInformation?.deployedBy}</span></div>
       `
           : ""
       }
@@ -625,7 +602,6 @@ async function openIflowInfoPopup() {
     whatsNewButton.innerText = "Whats New?";
     whatsNewButton.addEventListener("click", (a) => {
       whatsNewCheck(false);
-      $("#cpiHelper_semanticui_modal").modal({ autoShow: true, detachable: false, blurring: true }).modal("show");
       statistic("info_popup_whatsnew_click");
     });
     x.appendChild(whatsNewButton);
@@ -646,19 +622,10 @@ async function openIflowInfoPopup() {
     recrutingButton.classList.add("ui");
     recrutingButton.classList.add("button");
 
-    var lang = navigator.language || navigator.userLanguage;
-
-    if (lang == "de-DE") {
+    if (isGermanSpeakingUser()) {
       recrutingButton.innerText = "Werde Berater bei Kangoolutions";
       recrutingButton.addEventListener("click", (a) => {
         recrutingPopup(true);
-        $("#cpiHelper_semanticui_modal")
-          .modal({
-            autoShow: true,
-            detachable: false,
-            blurring: true,
-          })
-          .modal("show");
         statistic("info_popup_recruting_click");
       });
       x.appendChild(recrutingButton);
