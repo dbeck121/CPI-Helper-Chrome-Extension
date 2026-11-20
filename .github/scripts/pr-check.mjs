@@ -579,7 +579,7 @@ export function checkPullRequest({ body, baseRef, headRef, labels = [], baseBran
   if (changedFiles.some((f) => f.startsWith(".github/"))) r.warn("ci", "The PR changes files in .github/ (workflows, templates or this check). A maintainer has to review that part.");
 
   const overridden = labels.includes(OVERRIDE_LABEL);
-  if (overridden) for (const item of r.items) if (item.level === "error") item.level = "warning";
+  if (overridden) for (const item of r.items) if (item.level === "error") Object.assign(item, { level: "warning", overridden: true });
   return { items: r.items, overridden, changedFiles };
 }
 
@@ -589,15 +589,19 @@ const clean = (text) => String(text).replace(/@/g, "@​").replace(/\r?\n/g, " "
 
 export function renderReport({ items, overridden }) {
   const errors = items.filter((i) => i.level === "error");
-  const warnings = items.filter((i) => i.level === "warning");
+  const overruled = items.filter((i) => i.overridden);
+  const warnings = items.filter((i) => i.level === "warning" && !i.overridden);
   const where = (i) => (i.file ? ` \`${clean(i.file)}${i.line ? `:${i.line}` : ""}\`` : "");
+  const list = (group) => group.map((i) => `- **${i.rule}**${where(i)}: ${clean(i.message)}`);
   const lines = [REPORT_MARKER, "## PR check"];
-  if (!errors.length && !warnings.length) lines.push("", "All checks passed. Thank you for the complete pull request.");
+  if (!errors.length && !warnings.length && !overruled.length) lines.push("", "All checks passed. Thank you for the complete pull request.");
   else {
-    lines.push("", errors.length ? `**${errors.length} problem(s) must be fixed before the review starts.**` : "No blocking problems.");
-    if (overridden) lines.push("", `_Label \`${OVERRIDE_LABEL}\` is set, errors are shown as warnings._`);
-    if (errors.length) lines.push("", "### Must be fixed", ...errors.map((i) => `- **${i.rule}**${where(i)}: ${clean(i.message)}`));
-    if (warnings.length) lines.push("", "### Please check", ...warnings.map((i) => `- **${i.rule}**${where(i)}: ${clean(i.message)}`));
+    if (errors.length) lines.push("", `**${errors.length} problem(s) must be fixed before the review starts.**`);
+    else if (overruled.length) lines.push("", `**Passed by maintainer override:** ${overruled.length} problem(s) would block this PR. A maintainer set the label \`${OVERRIDE_LABEL}\` and accepts them for this PR.`);
+    else lines.push("", "No blocking problems.");
+    if (errors.length) lines.push("", "### Must be fixed", ...list(errors));
+    if (overruled.length) lines.push("", "### Accepted by maintainer override", ...list(overruled));
+    if (warnings.length) lines.push("", "### Please check", ...list(warnings));
   }
   const repo = process.env.GITHUB_REPOSITORY || "dbeck121/CPI-Helper-Chrome-Extension";
   lines.push("", `Rules: [contributing.md](https://github.com/${repo}/blob/dev/docs/readme/contributing.md). Edit the PR description or push a fix, the check runs again.`);

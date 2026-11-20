@@ -360,6 +360,21 @@ test("report: mentions are defused and errors listed first", () => {
   assert.ok(report.includes("`a.js:3`"));
 });
 
+test("report: overridden errors get their own section, real warnings stay apart", () => {
+  const items = [
+    { level: "warning", rule: "template", message: "not used", overridden: true },
+    { level: "warning", rule: "plugin-metadata", message: "no email", file: "plugins/a.js", line: 5 },
+  ];
+  const report = renderReport({ items, overridden: true });
+  assert.ok(report.includes("**Passed by maintainer override:** 1 problem(s)"));
+  assert.ok(!report.includes("No blocking problems"));
+  const accepted = report.indexOf("### Accepted by maintainer override");
+  const check = report.indexOf("### Please check");
+  assert.ok(accepted > 0 && check > accepted);
+  assert.ok(report.slice(accepted, check).includes("**template**"));
+  assert.ok(report.slice(check).includes("**plugin-metadata**"));
+});
+
 let failed = 0;
 for (const [name, fn] of cases) {
   try {
