@@ -1,0 +1,66 @@
+# Name: PR check
+# Trigger: Pull requests to `dev`, also when the description or the labels change.
+# Action:  Checks the PR against docs/readme/contributing.md (template filled in, screenshots, data flow,
+#          plugin rules, manifest, security patterns, changelog) and posts the result as one comment.
+#
+# Security: runs on pull_request_target so it can comment on PRs from forks. The check script and its
+# dependencies always come from the base branch. The pull request is only fetched as git data and read,
+# never checked out, installed or executed.
+
+name: PR check
+
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened, ready_for_review, labeled, unlabeled]
+    branches:
+      - dev
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: pr-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout base branch (the check itself)
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Fetch the pull request as data
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: git fetch --no-tags origin "+refs/pull/${PR_NUMBER}/head:refs/remotes/pr/head"
+
+      - name: Install check dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Check pull request
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node .github/scripts/pr-check.mjs --report "$RUNNER_TEMP/pr-check.md"
+
+      - name: Post result as PR comment
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          [ -f "$RUNNER_TEMP/pr-check.md" ] || exit 0
+          marker='<!-- cpi-helper-pr-check -->'
+          id=$(gh api "repos/$REPO/issues/$PR_NUMBER/comments" --paginate \
+            --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | startswith(\"$marker\"))) | .id" | head -n1)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$id" -F body=@"$RUNNER_TEMP/pr-check.md" > /dev/null
+          else
+            gh api -X POST "repos/$REPO/issues/$PR_NUMBER/comments" -F body=@"$RUNNER_TEMP/pr-check.md" > /dev/null
+          fi

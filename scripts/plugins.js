@@ -453,6 +453,11 @@ async function createPluginPopupUI(plugin) {
   activeCheckbox.style = "display:none";
   activeCheckbox.checked = await getStorageValue(plugin.id, "isActive");
   activeCheckbox.addEventListener("change", async function () {
+    // switching a plugin on needs the own risk confirmation, switching off does not
+    if (activeCheckbox.checked && !(await confirmPluginActivation(plugin))) {
+      activeCheckbox.checked = false;
+      return;
+    }
     containerbox = document.querySelector(`#cpiHelper_popup_plugins-${plugin.id}`).parentNode;
     log.log(activeCheckbox.checked);
     await syncChromeStoragePromise(getStoragePath(plugin.id, "isActive"), activeCheckbox.checked);
@@ -467,6 +472,23 @@ async function createPluginPopupUI(plugin) {
   div.appendChild(createElementFromHTML(`<label for="cpiHelper_popup_plugins-${plugin.id}"> Activate</label>`));
   container.appendChild(div);
   return container;
+}
+
+// plugins are community code. the user confirms on every activation that they use it at their own risk
+function confirmPluginActivation(plugin) {
+  const content = document.createElement("div");
+  const intro = document.createElement("p");
+  intro.append("You are about to activate ");
+  const name = document.createElement("b");
+  name.textContent = plugin.name || plugin.id;
+  intro.append(name, plugin.author ? ` by ${plugin.author}.` : ".");
+  const risk = document.createElement("p");
+  risk.textContent =
+    "Plugins are community code. They are not reviewed or tested by the CPI Helper team. A plugin runs with your CPI session and can read and change everything you can, and some plugins send data to external services. Use it at your own risk and only if you trust the author.";
+  const off = document.createElement("p");
+  off.textContent = "You can switch the plugin off here at any time.";
+  content.append(intro, risk, off);
+  return cpihConfirm({ title: "Activate plugin at your own risk?", content, approveText: "Activate", denyText: "Cancel" });
 }
 
 var pluginHeartbeatRunning = false;

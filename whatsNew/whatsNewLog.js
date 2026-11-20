@@ -21,6 +21,9 @@ const whats_new_log = `
 - [Feature] Inline trace: all steps of a message load, the first ones right away and the rest in the background (up to 5,000 instead of a fixed limit of 300). Steps with many runs, e.g. after a splitter, load a run only when it is opened.
 - [Feature] Snippets (experimental, off by default): save copied steps and paste them into other iFlows. Uses internals of the SAP editor and a lot will not work, so it is hidden in the danger zone of the settings. Use at your own risk.
 - [Improvement] The toolbar may reach below the bottom edge of the screen when it is tall, e.g. with many plugins. Only its header has to stay visible.
+- [Improvement] Activating a plugin asks for confirmation first: plugins are community code, not reviewed by the CPI Helper team and used at your own risk.
+- [Plugin] XML to XSD: generates the XSD for a message mapping from a sample XML and can add it to the open iFlow as a schema resource. Thanks to Jorge Sá.
+- [Plugin] Session Keep Alive: keeps the idle session timeout from logging you out while you read or write code. Thanks to Alexander Aigner.
 - [Improvement] Unlock plugin: locked packages can be unlocked right from the package view. Thanks to Gregor Schütz.
 - [Improvement] jQuery and Fomantic UI are gone, about 3 MB less loaded into every CPI page. Dialogs and toasts take the look of the new toolbar and follow the light and dark CPI theme.
 - [Improvement] More robust plugins: one failing plugin no longer affects the others.
