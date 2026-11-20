@@ -3,9 +3,9 @@ var plugin = {
   id: "settingsPaneResizer",
   name: "Settings Pane Resizer",
   version: "1.1.1",
-  author: "Philippe Addor, BMT Consulting AG, Bottighofen, Switzerland",
-  email: "philippe.addor@bmtg.ch",
-  website: "https://bmtg.ch",
+  author: "Philippe Addor",
+  email: "philippe+cpihelper@addor.ch",
+  website: "https://github.com/fippu82",
   description: `Auto opens (*) the settings pane and keeps it at your chosen size or even dynamically adjust the height to the content! Improves your flow, reduces your pa(i)ne! ;-) <br>
                   (*)  <b>If you have configured the CPI Helper Extension to open on page load (recommended).</b> <br>`,
   settings: {
