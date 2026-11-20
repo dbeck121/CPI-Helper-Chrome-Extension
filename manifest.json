@@ -131,6 +131,7 @@
         "lib/icons/*",
         "images/*",
         "plugins/settingsPaneResizer-inject.js",
+        "plugins/connectivityCredentialsManager-inject.js",
         "scripts/snippets-inject.js",
         "docs/LICENSE"
       ],
