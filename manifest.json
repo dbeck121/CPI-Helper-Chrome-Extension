@@ -85,6 +85,7 @@
         "/plugins/mplSorter.js",
         "/plugins/enhancedPackageView.js",
         "/plugins/xmlToXsd.js",
+        "/plugins/cpiPanelMover.js",
         "/scripts/ui.js",
         "/scripts/logs.js",
         "/whatsNew/whatsNewLog.js",
@@ -132,6 +133,7 @@
         "lib/icons/*",
         "images/*",
         "plugins/settingsPaneResizer-inject.js",
+        "plugins/cpiPanelMover-inject.js",
         "scripts/snippets-inject.js",
         "docs/LICENSE"
       ],
