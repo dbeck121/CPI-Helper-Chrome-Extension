@@ -2,7 +2,7 @@
 :root {
   --cpi-custom-color: #fff;
   --cpi-background-color: #ffffff;
-  --cpi-fui-active-color: #00144a;
+  --cpi-fui-active-color: #2084cf;
   /* constant color  =  Don't overwrite this*/
   --cpi-text-color: #000000;
 }
@@ -81,8 +81,15 @@
 
 .cpiHelper button.cpiHelper_inlineInfo-active,
 .cpiHelper button.cpiHelper_plugin-active {
-  background: var(--cpi-fui-active-color);
-  color: #ffffff;
+  background: var(--cpi-fui-active-color) !important;
+  color: var(--sapButton_Emphasized_TextColor, #fff) !important;
+}
+
+/* Override the more specific UI button styling in the floating toolbar when buttons are active. */
+.cpiHelper_floatingToolbar_panelBody button.cpiHelper_inlineInfo-active.cpiHelper_inlineInfo-active,
+.cpiHelper_floatingToolbar_panelBody button.cpiHelper_plugin-active.cpiHelper_plugin-active {
+  background: var(--cpi-fui-active-color) !important;
+  color: var(--sapButton_Emphasized_TextColor, #fff) !important;
 }
 
 .cpiHelper button:active {
@@ -881,7 +888,6 @@ button.cpiHelper_sidebar_iconbutton span {
   float: right;
 }
 
-
 /* plugin cards in the plugin settings */
 #cpiHelper_popup_plugins .card > .extra.content:first-child {
   background: var(--cpih-bg-subtle);
@@ -1251,7 +1257,6 @@ button.cpiHelper_sidebar_iconbutton span {
   align-items: stretch;
 }
 
-
 .cpiHelper_floatingToolbar_expanded .cpiHelper_floatingToolbar_button {
   width: auto;
   min-width: 128px;
@@ -1589,11 +1594,11 @@ a.cpiHelper_floatingToolbar_menuItem:visited {
 
 .cpiHelper_recent_item:hover .cpiHelper_recent_star,
 .cpiHelper_recent_star:focus-visible,
-.cpiHelper_recent_star[aria-pressed="true"] {
+.cpiHelper_recent_star[aria-pressed='true'] {
   opacity: 1;
 }
 
-.cpiHelper_recent_star[aria-pressed="true"] {
+.cpiHelper_recent_star[aria-pressed='true'] {
   color: var(--sapCriticalColor, #e76500);
 }
 
@@ -1700,7 +1705,7 @@ a.cpiHelper_floatingToolbar_menuItem:visited {
   height: 18px;
 }
 
-#cpiHelper_palette .cpiHelper_palette_item[aria-selected="true"] > * {
+#cpiHelper_palette .cpiHelper_palette_item[aria-selected='true'] > * {
   background: var(--sapList_SelectionBackgroundColor, rgba(0, 112, 242, 0.1));
 }
 
