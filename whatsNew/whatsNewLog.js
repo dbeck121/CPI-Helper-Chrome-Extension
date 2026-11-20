@@ -23,6 +23,7 @@ const whats_new_log = `
 - [Improvement] The toolbar may reach below the bottom edge of the screen when it is tall, e.g. with many plugins. Only its header has to stay visible.
 - [Improvement] Activating a plugin asks for confirmation first: plugins are community code, not reviewed by the CPI Helper team and used at your own risk.
 - [Plugin] XML to XSD: generates the XSD for a message mapping from a sample XML and can add it to the open iFlow as a schema resource. Thanks to Jorge Sá.
+- [Plugin] CPI Explorer: searches the configuration of all iFlows of a tenant, e.g. where a host, endpoint or parameter is used, with package and iFlow filters. Thanks to Lokesh Bhukya.
 - [Improvement] Unlock plugin: locked packages can be unlocked right from the package view. Thanks to Gregor Schütz.
 - [Improvement] jQuery and Fomantic UI are gone, about 3 MB less loaded into every CPI page. Dialogs and toasts take the look of the new toolbar and follow the light and dark CPI theme.
 - [Improvement] More robust plugins: one failing plugin no longer affects the others.

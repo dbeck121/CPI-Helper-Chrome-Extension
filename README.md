@@ -81,6 +81,7 @@ It is open source so feel free to check the source code.
 - [Improvement] The toolbar may reach below the bottom edge of the screen when it is tall, e.g. with many plugins. Only its header has to stay visible.
 - [Improvement] Activating a plugin asks for confirmation first: plugins are community code, not reviewed by the CPI Helper team and used at your own risk.
 - [Plugin] XML to XSD: generates the XSD for a message mapping from a sample XML and can add it to the open iFlow as a schema resource. Thanks to [Jorge Sá](https://github.com/19jmrs)
+- [Plugin] CPI Explorer: searches the configuration of all iFlows of a tenant, e.g. where a host, endpoint or parameter is used, with package and iFlow filters. Thanks to [Lokesh Bhukya](https://github.com/lokeshbhukya)
 - [Feature] For plugin developers: toolbar entries on pages without an artifact (e.g. Monitoring) with toolbarButton.globalToolbar or messageSidebarContent.globalToolbar, limited to pages by the plugin's condition. Thanks to [Vladimir Balko](https://github.com/vbalko-claimate)
 - [Info] New contribution rules, PR template and an automatic PR check: screenshots, a data flow statement and a security checklist for every pull request, and plugins must not run or declare anything while they are switched off. See [Contribution](/docs/readme/contributing.md).
 - [Improvement] Unlock plugin: locked packages can be unlocked right from the package view. Thanks to [Gregor Schütz](https://github.com/DevGregor)
