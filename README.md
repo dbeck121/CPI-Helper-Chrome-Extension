@@ -79,6 +79,12 @@ It is open source so feel free to check the source code.
 - [Feature] Inline trace: all steps of a message load, the first ones right away and the rest in the background (up to 5,000 instead of a fixed limit of 300). Steps with many runs, e.g. after a splitter, load a run only when it is opened.
 - [Feature] Snippets (experimental, off by default): save copied steps and paste them into other iFlows. Uses internals of the SAP editor and a lot will not work, so it is hidden in the danger zone of the settings. Use at your own risk.
 - [Improvement] The toolbar may reach below the bottom edge of the screen when it is tall, e.g. with many plugins. Only its header has to stay visible.
+- [Improvement] Activating a plugin asks for confirmation first: plugins are community code, not reviewed by the CPI Helper team and used at your own risk.
+- [Plugin] XML to XSD: generates the XSD for a message mapping from a sample XML and can add it to the open iFlow as a schema resource. Thanks to [Jorge Sá](https://github.com/19jmrs)
+- [Plugin] CPI Explorer: searches the configuration of all iFlows of a tenant, e.g. where a host, endpoint or parameter is used, with package and iFlow filters. Thanks to [Lokesh Bhukya](https://github.com/lokeshbhukya)
+- [Plugin] Transport Artifact: transport the open artifact right from its editor with Transport Management Service or as MTAR download, without going back to the package. Thanks to [Habil Altin](https://github.com/habilaltin)
+- [Feature] For plugin developers: toolbar entries on pages without an artifact (e.g. Monitoring) with toolbarButton.globalToolbar or messageSidebarContent.globalToolbar, limited to pages by the plugin's condition. Thanks to [Vladimir Balko](https://github.com/vbalko-claimate)
+- [Info] New contribution rules, PR template and an automatic PR check: screenshots, a data flow statement and a security checklist for every pull request, and plugins must not run or declare anything while they are switched off. See [Contribution](/docs/readme/contributing.md).
 - [Improvement] Unlock plugin: locked packages can be unlocked right from the package view. Thanks to [Gregor Schütz](https://github.com/DevGregor)
 - [Improvement] jQuery and Fomantic UI are gone: own lightweight UI kit and stylesheet, about 3 MB less loaded into every CPI page. Dialogs and toasts take the look of the new toolbar and follow the light and dark CPI theme.
 - [Improvement] More robust plugins: one failing plugin no longer affects the others, and plugin settings are read far less often.

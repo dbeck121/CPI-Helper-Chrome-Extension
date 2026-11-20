@@ -508,8 +508,11 @@ async function buildFloatingToolbar() {
   if (artifactMode) await getIflowInfo(null, true, true);
 
   var existingToolbar = getFloatingToolbar();
+  // plugins that asked for the global toolbar on this page. their ids are part of the key, so the toolbar is
+  // built again when one of them appears or goes away while navigating between pages
+  const globalPlugins = artifactMode ? [] : await getGlobalToolbarPlugins();
   // another artifact can have other runtime locations, so its toolbar is built from scratch
-  const toolbarKey = artifactMode ? cpiData.currentArtifactId || "" : "global";
+  const toolbarKey = artifactMode ? cpiData.currentArtifactId || "" : ["global", ...globalPlugins.map((entry) => entry.plugin.id)].join(":");
   if (!existingToolbar || existingToolbar.dataset.artifactId !== toolbarKey) {
     whatsNewCheck();
     // once per page load, the check itself decides whether the recruiting popup is due
@@ -522,6 +525,10 @@ async function buildFloatingToolbar() {
 
     if (!artifactMode) {
       addGlobalNavigationButtons(toolbar);
+      if (globalPlugins.length) {
+        addFloatingToolbarSeparator(toolbar, "Plugins");
+        addPluginToolbarEntries(toolbar, globalPlugins);
+      }
       addFloatingToolbarButton(toolbar, {
         id: "__more_plugins",
         icon: "plugins",
@@ -644,28 +651,7 @@ async function buildFloatingToolbar() {
     // plugin section: toolbarButton plugins run their action directly, messageSidebarContent plugins open a panel
     await runPluginContentHooks();
     addFloatingToolbarSeparator(toolbar, "Plugins");
-    for (const { plugin, kind } of await getToolbarPlugins()) {
-      const entry = {
-        id: `cpiHelperToolbarPlugin--${plugin.id}`,
-        iconNode: createPluginToolbarIcon(plugin),
-        title: plugin.toolbarButton?.title || plugin.name,
-      };
-      if (kind === "button") {
-        addFloatingToolbarButton(toolbar, {
-          ...entry,
-          onClick: async () => {
-            try {
-              await plugin.toolbarButton.onClick(cpiData, await getPluginSettings(plugin.id));
-            } catch (error) {
-              log.error(`plugin ${plugin.id}: toolbarButton.onClick failed`, error);
-              showToast("The plugin failed, see the browser console for details.", plugin.name, "error");
-            }
-          },
-        });
-      } else {
-        addFloatingToolbarPanelButton(toolbar, { ...entry, render: () => getPluginPanelContent(plugin) });
-      }
-    }
+    addPluginToolbarEntries(toolbar, await getToolbarPlugins());
     addFloatingToolbarButton(toolbar, {
       id: "__more_plugins",
       icon: "settings",

@@ -12,19 +12,102 @@ In case of questions, please open an issue in github.
 1. Clone git
 2. Copy example.js in plugins folder and adopt to your needs. Please keep it in plugins folder.
 3. register the file in manifest.json
-4. If you want to ship it with CPI-Helper, make a pull-request with detailed description.
+4. If you want to ship it with CPI-Helper, open an issue first, then make a pull request that follows the [contribution rules](/docs/readme/contributing.md) and the PR template (screenshots, data flow statement, security checklist).
 
 ## Details
 
-### Dos and Dont's
+### Rules
 
-1. no calls to external pages except for opening new tabs
-2. only very small text on messageSidebarButton
-3. if you do not need settings, messageSidebarButton or messageSidebarContent, then do not add it to your plugin json
-4. all plugins must be released under same license as CPI-Helper
-5. the filename should not contain special characters or spaces. Be aware that the filename is case sensitiv
-6. please open a ticket and start discussion if you need more than the provided functions and objects
-7. Append any element under global cpihelper element. Must use `body().append` instead of `document.body.append` which directly append it to global tag.
+Plugins are off by default. When a user switches one on, CPI Helper warns that plugins are community code, not reviewed by the CPI Helper team, and used at their own risk. The rules make sure that switching a plugin off really means it does nothing.
+
+1. **Nothing runs and no global names are declared while the plugin is off.** See below.
+2. **No data to other servers** than the CPI tenant, unless that is the purpose of the plugin. Then only after the user triggered the action, and the `description` of the plugin names the service. Every PR states the data flow.
+3. No `eval`, `new Function`, remote code, or unescaped tenant data or user input in `innerHTML`.
+4. No new permissions, host permissions, web accessible resources or libraries without an issue discussed first. No minified or obfuscated code.
+5. No passwords, tokens or keys in plugin settings or `chrome.storage.sync`, they sync through the Google account.
+6. Changes on the tenant only after an explicit click, destructive ones ask with `cpihConfirm` first.
+7. CSS is scoped to the plugin (classes prefixed with the plugin id), no global styles.
+8. If the plugin needs an account, a license or a paid service, the `description` says so.
+9. Only very small text on messageSidebarButton.
+10. If you do not need settings, messageSidebarButton or messageSidebarContent, do not add it to your plugin object.
+11. All plugins are released under the same license as CPI-Helper (GPL-3.0).
+12. The filename has no special characters or spaces and equals the `id`. Filenames are case sensitive.
+13. Open an issue if you need more than the provided functions and objects. Plugins do not change core files.
+14. Append elements under the global cpihelper element. Use `body().append` instead of `document.body.append`.
+
+### Nothing runs while the plugin is off
+
+Every file in `plugins/` is loaded as a content script on every CPI page, whether the plugin is active or not, and all files share one global scope. The engine only calls the hooks (`onRender`, `onClick`, `condition`, `heartbeat`, ...) of active plugins. Everything outside the plugin object runs anyway.
+
+So a plugin file has one of two shapes. Both are fine, the check accepts both.
+
+**Recommended: a wrapper that only declares and registers.** Helpers, constants and state stay private to your plugin and do not clash with other plugins:
+
+```js
+(() => {
+  const MAX_ROWS = 500;
+  let observer = null;
+
+  function format(text) {
+    return text.trim();
+  }
+
+  const plugin = {
+    metadataVersion: "1.0.0",
+    id: "myplugin",
+    // ...
+    messageSidebarContent: {
+      static: true,
+      onRender: (pluginHelper, settings) => {
+        if (!observer) {
+          observer = new MutationObserver(() => { /* ... */ });
+          observer.observe(document.body, { childList: true, subtree: true });
+        }
+        const div = document.createElement("div");
+        div.textContent = format(" hello ");
+        return div;
+      },
+    },
+  };
+
+  pluginList.push(plugin);
+})();
+```
+
+Inside the wrapper only declarations are allowed: `const`/`let`/`var` with plain values (numbers, strings, objects, arrays, functions) and `function` declarations, plus `pluginList.push(plugin)`. Nothing that runs: no `addEventListener`, `setInterval`/`setTimeout`, `new MutationObserver(...)`, `document.querySelector(...)`, `chrome.storage` calls, `if`/`for` or injected `<script>` tags. Those belong in a hook, so they only start while the plugin is active. The wrapper takes no arguments and there is only one per file.
+
+**Without a wrapper** the file has exactly two top-level statements, `var plugin = { ... };` and `pluginList.push(plugin);`. Helpers and state then go on the plugin object. Careful: every unwrapped plugin assigns the same global `plugin`, so after loading it points to the last plugin. Inside a hook never use `plugin.`, look up your own object by id:
+
+```js
+var plugin = {
+  metadataVersion: "1.0.0",
+  id: "myplugin",
+  // ...
+  state: { observer: null },
+  helpers: {
+    format(text) {
+      return text.trim();
+    },
+  },
+  messageSidebarContent: {
+    static: true,
+    onRender: (pluginHelper, settings) => {
+      const self = pluginList.find((p) => p.id === "myplugin");
+      if (!self.state.observer) {
+        self.state.observer = new MutationObserver(() => { /* ... */ });
+        self.state.observer.observe(document.body, { childList: true, subtree: true });
+      }
+      const div = document.createElement("div");
+      div.textContent = self.helpers.format(" hello ");
+      return div;
+    },
+  },
+};
+
+pluginList.push(plugin);
+```
+
+Some older plugins still declare helpers at top level. The automatic PR check blocks new violations and reports the old ones as warnings. Never rename the `id` of an existing plugin, it is the storage key of its settings.
 
 ### UI helpers (since 4.0)
 

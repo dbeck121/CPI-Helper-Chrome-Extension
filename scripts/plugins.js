@@ -85,6 +85,47 @@ async function getToolbarPlugins() {
   return entries;
 }
 
+// plugins for the global toolbar (pages without an artifact, e.g. Monitoring). Only plugins that opt in with
+// toolbarButton.globalToolbar or messageSidebarContent.globalToolbar, and only while their
+// condition(cpiData) holds, so a plugin can show up on one page only. A panel plugin renders on every open
+async function getGlobalToolbarPlugins() {
+  const entries = [];
+  for (const plugin of await getActivePlugins()) {
+    if (plugin.toolbarButton?.onClick && plugin.toolbarButton.globalToolbar) {
+      if (pluginConditionMet(plugin, "toolbarButton", cpiData)) entries.push({ plugin, kind: "button" });
+    } else if (plugin.messageSidebarContent?.onRender && plugin.messageSidebarContent.globalToolbar) {
+      if (pluginConditionMet(plugin, "messageSidebarContent", cpiData)) entries.push({ plugin, kind: "panel" });
+    }
+  }
+  return entries;
+}
+
+// adds the entries of getToolbarPlugins() / getGlobalToolbarPlugins() to the floating toolbar
+function addPluginToolbarEntries(toolbar, entries) {
+  for (const { plugin, kind } of entries) {
+    const entry = {
+      id: `cpiHelperToolbarPlugin--${plugin.id}`,
+      iconNode: createPluginToolbarIcon(plugin),
+      title: plugin.toolbarButton?.title || plugin.messageSidebarContent?.title || plugin.name,
+    };
+    if (kind === "button") {
+      addFloatingToolbarButton(toolbar, {
+        ...entry,
+        onClick: async () => {
+          try {
+            await plugin.toolbarButton.onClick(cpiData, await getPluginSettings(plugin.id));
+          } catch (error) {
+            log.error(`plugin ${plugin.id}: toolbarButton.onClick failed`, error);
+            showToast("The plugin failed, see the browser console for details.", plugin.name, "error");
+          }
+        },
+      });
+    } else {
+      addFloatingToolbarPanelButton(toolbar, { ...entry, render: () => getPluginPanelContent(plugin) });
+    }
+  }
+}
+
 // toolbarButton.icon or messageSidebarContent.icon, like messageSidebarButton.icon ({ type: "icon", text: "xe088" }
 // for SAP-icons, { type: "text", text: "VH" }); without it the plugin logo from settings.icon, else the initials
 function createPluginToolbarIcon(plugin) {
@@ -412,6 +453,11 @@ async function createPluginPopupUI(plugin) {
   activeCheckbox.style = "display:none";
   activeCheckbox.checked = await getStorageValue(plugin.id, "isActive");
   activeCheckbox.addEventListener("change", async function () {
+    // switching a plugin on needs the own risk confirmation, switching off does not
+    if (activeCheckbox.checked && !(await confirmPluginActivation(plugin))) {
+      activeCheckbox.checked = false;
+      return;
+    }
     containerbox = document.querySelector(`#cpiHelper_popup_plugins-${plugin.id}`).parentNode;
     log.log(activeCheckbox.checked);
     await syncChromeStoragePromise(getStoragePath(plugin.id, "isActive"), activeCheckbox.checked);
@@ -426,6 +472,23 @@ async function createPluginPopupUI(plugin) {
   div.appendChild(createElementFromHTML(`<label for="cpiHelper_popup_plugins-${plugin.id}"> Activate</label>`));
   container.appendChild(div);
   return container;
+}
+
+// plugins are community code. the user confirms on every activation that they use it at their own risk
+function confirmPluginActivation(plugin) {
+  const content = document.createElement("div");
+  const intro = document.createElement("p");
+  intro.append("You are about to activate ");
+  const name = document.createElement("b");
+  name.textContent = plugin.name || plugin.id;
+  intro.append(name, plugin.author ? ` by ${plugin.author}.` : ".");
+  const risk = document.createElement("p");
+  risk.textContent =
+    "Plugins are community code. They are not reviewed or tested by the CPI Helper team. A plugin runs with your CPI session and can read and change everything you can, and some plugins send data to external services. Use it at your own risk and only if you trust the author.";
+  const off = document.createElement("p");
+  off.textContent = "You can switch the plugin off here at any time.";
+  content.append(intro, risk, off);
+  return cpihConfirm({ title: "Activate plugin at your own risk?", content, approveText: "Activate", denyText: "Cancel" });
 }
 
 var pluginHeartbeatRunning = false;

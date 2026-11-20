@@ -111,7 +111,8 @@
   // request of this tab for the dialog of SAP, taken from the tab name on the first heartbeat
   let pendingRequest = null;
   // artifacts with a transport on its way, so a second click does not send it twice
-  const runningTransports = new Set();
+  // created on the first transport, so nothing runs while the plugin is off
+  let runningTransports = null;
 
   // ----------------------
   // own dialog
@@ -365,6 +366,7 @@
     const comment = dialog.comment.value.trim();
     const key = `${cpiData.tenant}/${context.artifact.id}`;
     if (!comment) return;
+    runningTransports ??= new Set();
     if (runningTransports.has(key)) {
       dialog.setStatus("warning", "A transport of this artifact is still being created, wait for its result.");
       return;
@@ -523,6 +525,7 @@
   }
 
   function bridgeReady() {
+    listenForResult();
     if (document.documentElement.getAttribute("data-cpih-artifact-transport") === "ready") return true;
     if (!document.getElementById("cpiHelper_artifactTransport_bridge")) {
       const script = document.createElement("script");
@@ -533,24 +536,30 @@
     return false;
   }
 
-  // the page world answers synchronously while the open event is dispatched. loading and more: try again on the next heartbeat
-  document.addEventListener("cpiHelper_artifactTransport_result", (event) => {
-    if (!pendingRequest) return;
-    switch (event.detail) {
-      case "opened":
-        finishRequest();
-        break;
-      case "not-found":
-        finishRequest(`${pendingRequest.artifactId} is not in the artifact list of this package.`, "warning");
-        break;
-      case "no-transport":
-        finishRequest("The Actions menu of this package has no Transport entry. Transports are switched on in the settings of Cloud Integration.", "warning");
-        break;
-      case "error":
-        finishRequest("The Transport dialog could not be opened, see the browser console for details.", "error");
-        break;
-    }
-  });
+  // the page world answers synchronously while the open event is dispatched. loading and more: try again on the next heartbeat.
+  // registered with the first request, so nothing listens while the plugin is off
+  let listening = false;
+  function listenForResult() {
+    if (listening) return;
+    listening = true;
+    document.addEventListener("cpiHelper_artifactTransport_result", (event) => {
+      if (!pendingRequest) return;
+      switch (event.detail) {
+        case "opened":
+          finishRequest();
+          break;
+        case "not-found":
+          finishRequest(`${pendingRequest.artifactId} is not in the artifact list of this package.`, "warning");
+          break;
+        case "no-transport":
+          finishRequest("The Actions menu of this package has no Transport entry. Transports are switched on in the settings of Cloud Integration.", "warning");
+          break;
+        case "error":
+          finishRequest("The Transport dialog could not be opened, see the browser console for details.", "error");
+          break;
+      }
+    });
+  }
 
   const plugin = {
     metadataVersion: "1.0.0",
